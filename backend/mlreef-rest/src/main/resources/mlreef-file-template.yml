@@ -97,6 +97,9 @@ mlreef-pipeline:
     git push --set-upstream origin "$TARGET_BRANCH"
     git push
     killall dockerd
+    echo "kill background-push script running in background"
     killall "background-push" 1> /dev/null 2> /dev/null
+    echo "kill inotifywait as background-push invokes this"
+    killall inotifywait
     sleep 15
 #@formatter:on

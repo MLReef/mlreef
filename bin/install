@@ -166,7 +166,7 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     --url="http://$INSTANCE_HOST:$GITLAB_PORT/"                   \
     --registration-token="$RUNNER_REGISTRATION_TOKEN"             \
     --executor "kubernetes"                                       \
-    --tag-list "k8s-runner"                                       \
+    --tag-list "k8s-gpu-runner"                                   \
     --run-untagged="true"                                         \
     --locked="false"                                              \
     --limit="1"                                                   
