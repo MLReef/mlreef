@@ -148,7 +148,7 @@ internal object YamlFileGenerator {
 
     private fun getCommandLineFromPath(dpInstance: DataProcessorInstance, inputPath: String?, outputPath: String?, index: Int): String {
         // the 4 space indentation is necessary for the yaml syntax
-        return "    docker run"
+        return " "
             .let {
                 if (!inputPath.isNullOrBlank()) "$it -v \"\$$INPUT_MOUNT_POINT_VAR_NAME$index:/$inputPath\"" else it
             }

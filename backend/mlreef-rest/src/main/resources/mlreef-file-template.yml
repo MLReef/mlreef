@@ -24,10 +24,6 @@ variables:
   EPF_PIPELINE_URL: "%EPF_PIPELINE_URL%"
   EPF_PIPELINE_SECRET: "%EPF_PIPELINE_SECRET%"
 
-  # Docker-in-docker running options
-  DOCKER_HOST: "tcp://docker:2375"
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
 
 %INPUT_MOUNT_POINTS%
 
@@ -38,10 +34,6 @@ variables:
 
   # Change pip's cache directory to be inside the project directory since we can only cache local items.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-services:
-  - name: docker:19.03.12-dind
-    entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
 
 # The before_script handles everything git related and sets up the automatic committing
 before_script:
@@ -64,7 +56,12 @@ before_script:
   - echo "The final output path is $$LAST_OUTPUT_PATH"
   #only run background-push if it is an experiment 
   - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM &
-
+  #Run dockerd and respective base image changes
+  - dockerd --host=unix:///var/run/docker.sock --insecure-registry=${CI_REGISTRY} &
+  - sleep 10
+  - ldconfig
+  # Check if nvidia driver is accessible in the base container then add gpu capabilities to docker run
+  - nvidia-smi && DOCKER_COMMAND="docker run --rm --gpus=all " || DOCKER_COMMAND="docker run --rm "
 after_script:
   - epf-finish
 
@@ -91,12 +88,15 @@ mlreef-pipeline:
   script: |
     git checkout -B $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
-    %PIPELINE_STRING%
+    # Run docker command to run experiment with project image. 
+    # PIPELINE_STRING gets populate by backend/mlreef-rest/src/main/kotlin/com/mlreef/rest/feature/pipeline/YamlFileGenerator.kt
+    ${DOCKER_COMMAND}%PIPELINE_STRING%
     git add .
     git status
     git commit -m "Add pipeline results [skip ci]"
     git push --set-upstream origin "$TARGET_BRANCH"
     git push
+    killall dockerd
     killall "background-push" 1> /dev/null 2> /dev/null
     sleep 15
 #@formatter:on

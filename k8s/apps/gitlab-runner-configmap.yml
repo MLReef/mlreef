@@ -19,6 +19,7 @@ data:
     --executor "docker"                                           \
     --docker-image alpine:latest                                  \
     --docker-privileged="true"                                    \
+    --docker-helper-image="registry.gitlab.com/mlreef/devops/k8s-images/gitlab-runner-helper:latest" \
     --tag-list "docker,local-docker"                              \
     --run-untagged="false"                                        \
     --locked="false"                                              \
@@ -30,7 +31,7 @@ data:
     --template-config="/scripts/k8s-template.toml"                \
     --name="K8S runner on @GITLAB_GKE_DOMAIN@"                    \
     --executor "kubernetes"                                       \
-    --tag-list "k8s-runner"                                       \
+    --tag-list "k8s-gpu-runner"                                       \
     --run-untagged="true"                                         \
     --locked="false"                                              \
     --limit="1"
@@ -65,6 +66,8 @@ data:
           helper_image = "registry.gitlab.com/mlreef/devops/k8s-images/gitlab-runner-helper:latest"
           cpu_limit = "1.7"
           memory_limit = "42G"
+          extended_resource_name = "nvidia.com/gpu"
+          extended_resource_limit = "1"
           service_cpu_limit = "500m"
           service_memory_limit = "14G"
           helper_cpu_limit = "500m"
@@ -73,6 +76,8 @@ data:
           poll_timeout = 7200
           service_account_overwrite_allowed = ""
           pod_annotations_overwrite_allowed = ""
+          [runners.kubernetes.node_tolerations]
+            "nvidia.com/gpu=present" = "NoSchedule"
           [runners.kubernetes.affinity]
           [runners.kubernetes.pod_security_context]
           [runners.kubernetes.volumes]
