@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: gitlab-runner
-        image: gitlab/gitlab-runner:alpine
+        image: himanchali/gitlab-runner-alpine:13.4
         command: ["/bin/bash", "/scripts/entrypoint"]
         imagePullPolicy: Always
         env:
