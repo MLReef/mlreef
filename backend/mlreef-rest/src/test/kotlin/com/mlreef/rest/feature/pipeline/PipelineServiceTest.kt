@@ -82,6 +82,9 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
 
+    @Autowired
+    private lateinit var yamlFileGenerator: YamlFileGenerator
+
     @MockkBean
     private lateinit var authService: AuthService
 
@@ -107,7 +110,8 @@ class PipelineServiceTest : AbstractServiceTest() {
             processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository,
             gitlabRestClient = restClient,
-            authService = authService
+            authService = authService,
+            yamlFileGenerator = yamlFileGenerator,
         )
 
         val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
