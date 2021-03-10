@@ -31,6 +31,7 @@ import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.PublishingInfo
+import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.utils.RandomUtils
@@ -476,7 +477,7 @@ internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
         ))
         dataProject2 = dataProjectRepository.save(DataProject(
             UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "data-project2", "url", "Test DataProject",
-            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project2")
+            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project2", visibilityScope = VisibilityScope.PRIVATE)
         )
         codeProject = codeProjectRepository.save(CodeProject(randomUUID(), "code-project1", "url", "Test DataProject", "", ownerId = account.person.id,
             gitlabNamespace = "commons", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = "code-project1"))

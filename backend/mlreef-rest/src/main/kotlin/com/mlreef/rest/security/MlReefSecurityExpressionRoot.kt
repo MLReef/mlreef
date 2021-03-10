@@ -45,8 +45,23 @@ class MlReefSecurityExpressionRoot(
         return (accessLevel?.accessCode ?: 0) == AccessLevel.OWNER.accessCode
     }
 
-    fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
+    fun canViewProject(projectId: UUID): Boolean {
         if (projectIsPublic(projectId)) return true
+        return ((this.principal as? TokenDetails)?.projects?.get(projectId) != null)
+    }
+
+    fun canViewProject(namespace: String, slug: String): Boolean {
+        val projectId = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
+            ?: return false
+        return canViewProject(projectId)
+    }
+
+    fun postCanViewProject(): Boolean {
+        val id = getIdFromContext()
+        return (id != null && canViewProject(id))
+    }
+
+    fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
         val level = AccessLevel.valueOf(minAccessLevel.toUpperCase())
         return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
     }
@@ -61,10 +76,6 @@ class MlReefSecurityExpressionRoot(
         val id = getIdFromContext()
         return if (id != null) hasAccessToProject(id, minAccessLevel) else false
     }
-
-    fun canViewProject(projectId: UUID) = hasAccessToProject(projectId, AccessLevel.VISITOR.name)
-    fun canViewProject(namespace: String, slug: String) = hasAccessToProject(namespace, slug, AccessLevel.VISITOR.name)
-    fun postCanViewProject() = postHasAccessToProject(AccessLevel.VISITOR.name)
 
     fun hasAccessToPipeline(pipelineId: UUID, minAccessLevel: String): Boolean {
         val config = getPipelineConfigFromContext(pipelineId)

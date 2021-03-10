@@ -38,7 +38,8 @@ class ExperimentService(
     private val dataProjectRepository: DataProjectRepository,
     private val processorVersionRepository: ProcessorVersionRepository,
     private val pipelineInstanceRepository: PipelineInstanceRepository,
-    private val processorParameterRepository: ProcessorParameterRepository
+    private val processorParameterRepository: ProcessorParameterRepository,
+    private val yamlFileGenerator: YamlFileGenerator,
 ) {
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -123,7 +124,7 @@ class ExperimentService(
         require(experiment.inputFiles.isNotEmpty()) { "Experiment must have at least 1 input file before yaml can be created" }
         require(processors.isNotEmpty()) { "Experiment must have at least 1 DataProcessor before yaml can be created" }
 
-        return YamlFileGenerator.renderYaml(
+        return yamlFileGenerator.renderYaml(
             author = author,
             epfPipelineSecret = secret,
             epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/experiments/${experiment.id}",

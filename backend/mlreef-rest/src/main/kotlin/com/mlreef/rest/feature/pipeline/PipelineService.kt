@@ -60,7 +60,8 @@ class PipelineService(
     private val processorVersionRepository: ProcessorVersionRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
     private val gitlabRestClient: GitlabRestClient,
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val yamlFileGenerator: YamlFileGenerator,
 ) {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
@@ -156,7 +157,7 @@ class PipelineService(
         if (pipelineInstance.inputFiles.isEmpty()) {
             throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing)
         } else {
-            YamlFileGenerator.renderYaml(
+            yamlFileGenerator.renderYaml(
                 author = author,
                 epfPipelineSecret = secret,
                 epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/pipeline_instance/${pipelineInstance.id}",

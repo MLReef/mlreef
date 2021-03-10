@@ -21,9 +21,11 @@ import java.util.UUID.randomUUID
 
 class YamlFileGeneratorTest {
 
+    private val yamlFileGenerator = YamlFileGenerator()
+
     @Test
     fun `Template contains all necessary constants`() {
-        with(YamlFileGenerator) {
+        with(yamlFileGenerator) {
             assertThat(template).isNotEmpty()
             assertThat(template).contains(EPF_IMAGE_TAG)
             assertThat(template).contains(EPF_GITLAB_HOST)
@@ -39,7 +41,7 @@ class YamlFileGeneratorTest {
 
     @Test
     fun `Can replace specific template Strings`() {
-        val output = YamlFileGenerator.renderYaml(
+        val output = yamlFileGenerator.renderYaml(
             author = mockk(),
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
@@ -62,8 +64,8 @@ class YamlFileGeneratorTest {
 
     @Test
     fun `Can render Data Operations`() {
-        assertThat(YamlFileGenerator.template).contains(PIPELINE_STRING)
-        val output = YamlFileGenerator.renderYaml(
+        assertThat(yamlFileGenerator.template).contains(PIPELINE_STRING)
+        val output = yamlFileGenerator.renderYaml(
             author = mockk(),
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
@@ -78,7 +80,7 @@ class YamlFileGeneratorTest {
 
     @Test
     fun `Can render multiple Data Operations`() {
-        val generator = YamlFileGenerator
+        val generator = yamlFileGenerator
         val countLinesBefore = generator.template.lines().count()
 
         val output = generator.renderYaml(
@@ -97,13 +99,13 @@ class YamlFileGeneratorTest {
 
         assertThat(output).doesNotContain(PIPELINE_STRING)
         assertThat(output.lines().count()).isEqualTo(countLinesBefore + 4)
-        assertThat(YamlFileGenerator.template).contains(ARTIFACTS_PATHS)
+        assertThat(yamlFileGenerator.template).contains(ARTIFACTS_PATHS)
     }
 
     @Test
     @Disabled
     fun `Pipelines are indented correctly`() {
-        val output = YamlFileGenerator.renderYaml(
+        val output = yamlFileGenerator.renderYaml(
             author = mockk(),
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",

@@ -31,6 +31,7 @@ import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.experiment.ExperimentService
+import com.mlreef.rest.feature.pipeline.YamlFileGenerator
 import com.mlreef.rest.utils.RandomUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -89,6 +90,9 @@ class ExperimentServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
 
+    @Autowired
+    private lateinit var yamlFileGenerator: YamlFileGenerator
+
     @Mock
     private lateinit var gitlabRestClient: GitlabRestClient
 
@@ -113,7 +117,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
             dataProjectRepository = dataProjectRepository,
             pipelineInstanceRepository = pipelineInstanceRepository,
             processorVersionRepository = processorVersionRepository,
-            processorParameterRepository = processorParameterRepository
+            processorParameterRepository = processorParameterRepository,
+            yamlFileGenerator = yamlFileGenerator,
         )
         val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,

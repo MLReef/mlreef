@@ -295,7 +295,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         val project4 = CodeProject(randomUUID(), "slug-4", "www.url.com", "Test Code Project 4", "description", subject.id, "group4", "project-4", 4)
         val project5 = CodeProject(randomUUID(), "slug-5", "www.url.net", "Test Code Project 5", "description", subject.id, "group5", "project-5", 5)
-        val project6 = CodeProject(id1, "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6)
+        val project6 = CodeProject(id1, "slug-6", "www.url.xyz", "Test Code Project 6", "description", subject2.id, "group6", "project-6", 6, VisibilityScope.PRIVATE)
         codeProjectRepository.save(project4)
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
