@@ -138,7 +138,6 @@ clean rest docs folder:
     docs/bin/ci-pages-cleanup
 
 
-
 # please do not move, adapt, delete, move to a include, whatever, if you did not read about the special "pages" job of gitlab ci
 pages:
   image: node:10.19.0-alpine                                # https://hub.docker.com/_/node/
@@ -180,8 +179,6 @@ test rest docs are present:
     #fi
 
 
-
-
 smoke tests:
   extends: [.except-docu-branches]
   stage: test
@@ -192,16 +189,16 @@ smoke tests:
   script: bin/ci-smoke-tests
 
 
+
 end2end tests:
-  # import the centralised caching configuration for npm caches (from web/.gitlab-ci.yml)
+  #import the centralised caching configuration for npm caches (from web/.gitlab-ci.yml)
   extends: [".except-docu-branches", ".npm-cache-config"]
   stage: test
   <<: *run-on-all-code-changes
-  # The image should be the same image as web/Dockerfile and the "build frontend" job
+  #The image should be the same image as web/Dockerfile and the "build frontend" job
   image: node:10.19.0-alpine
   allow_failure: true ##Temporary till the time bug gets fixed
   script: web/bin/ci-run-end2end-tests
-
 
 .system-tests:
   extends: [".except-docu-branches"]
