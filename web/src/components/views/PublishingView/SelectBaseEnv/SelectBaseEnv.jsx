@@ -8,6 +8,7 @@ import EnvironmentCard from '../EnvironmentCard/EnvironmentCard';
 import { filters } from '../info2';
 
 const SelectBaseEnv = ({
+  operationType,
   namespace,
   slug,
   environments,
@@ -31,14 +32,14 @@ const SelectBaseEnv = ({
       <MBricksWall
         animated
         bricks={
-            environments.map((env) => (
-              <EnvironmentCard
-                dispatch={dispatch}
-                environment={env}
-                isSelected={selectedEnv === env}
-              />
-            ))
-          }
+          environments.map((env) => (
+            <EnvironmentCard
+              dispatch={dispatch}
+              environment={env}
+              isSelected={selectedEnv === env}
+            />
+          ))
+        }
       />
     </div>
     <div className="col-3 pl-3">
@@ -55,7 +56,7 @@ const SelectBaseEnv = ({
           type="button"
           className="btn btn-dark"
           disabled={!selectedEnv}
-          onClick={() => history.push(`/${namespace}/${slug}/-/publishing/#publish-model`)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/publishing/#publish-${operationType.toLowerCase()}`)}
         >
           Continue
         </button>

@@ -156,6 +156,7 @@ export const UnconnectedPublishingView = (props) => {
                   disabled: !isEntryPointFormValid,
                   content: (
                     <SelectBaseEnv
+                      operationType={operationToPublishType}
                       namespace={namespace}
                       slug={slug}
                       environments={listOfEnvs}

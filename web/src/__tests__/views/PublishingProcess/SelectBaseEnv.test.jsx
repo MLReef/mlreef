@@ -5,8 +5,9 @@ import SelectBaseEnv from 'components/views/PublishingView/SelectBaseEnv/SelectB
 
 const push = jest.fn();
 
-const setup = () => shallow(
+const setup = (dataProcessorType) => shallow(
   <SelectBaseEnv
+    operationType={dataProcessorType}
     namespace="namespace"
     slug="slug"
     environments={environments}
@@ -18,13 +19,30 @@ const setup = () => shallow(
 
 describe('html elements presence and ', () => {
   let wrapper;
-  beforeEach(() => {
-    wrapper = setup();
-  });
-  test('"continue button" is enabled and triggers an event', () => {
+  let dataProcessorType = 'model';
+  test('"continue button" routes to model', () => {
+    wrapper = setup(dataProcessorType);
     const continueBtn = wrapper.find('button');
     expect(continueBtn.props().disabled).toBe(false);
     continueBtn.simulate('click');
-    expect(push).toHaveBeenCalledWith('/namespace/slug/-/publishing/#publish-model');
+    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/#publish-${dataProcessorType}`);
+  });
+
+  test('"continue button" routes to operation', () => {
+    dataProcessorType = 'operation';
+    wrapper = setup(dataProcessorType);
+    const continueBtn = wrapper.find('button');
+    expect(continueBtn.props().disabled).toBe(false);
+    continueBtn.simulate('click');
+    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/#publish-${dataProcessorType}`);
+  });
+
+  test('"continue button" routes to visualization', () => {
+    dataProcessorType = 'visualization';
+    wrapper = setup(dataProcessorType);
+    const continueBtn = wrapper.find('button');
+    expect(continueBtn.props().disabled).toBe(false);
+    continueBtn.simulate('click');
+    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/#publish-${dataProcessorType}`);
   });
 });
