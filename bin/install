@@ -180,6 +180,7 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     --executor "docker"                                           \
     --docker-image alpine:latest                                  \
     --docker-privileged="true"                                    \
+    --docker-helper-image="registry.gitlab.com/mlreef/devops/k8s-images/gitlab-runner-helper:latest" \
     --tag-list "docker,local-docker"                              \
     --run-untagged="false"                                        \
     --locked="false"                                              \

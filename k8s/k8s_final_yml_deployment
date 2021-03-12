@@ -9,20 +9,6 @@ set -e
 set -x
 
 
-
-
-## Define seperate k8s authentication variables for dev and prod environment
-if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
-  K8S_RUNNER_BEARER_TOKEN=$PROD_K8S_RUNNER_BEARER_TOKEN
-  ###Copy k8s ca cert for runner from CI variable
-  cat "$PROD_K8_RUNNER_CA_CRT" > "$(pwd)/k8s-runner-ca.crt"
-
-else
-  K8S_RUNNER_BEARER_TOKEN=$DEV_K8S_RUNNER_BEARER_TOKEN
-  ###Copy k8s ca cert for runner from CI variable
-  cat "$DEV_K8_RUNNER_CA_CRT" > "$(pwd)/k8s-runner-ca.crt"
-fi
-
 ## ConfigMap for CA CERT to gitlab runner k8s cluster. It will be used for gitlab-runner pod creation.
 kubectl delete configmap k8s-runner-ca-crt || echo "configmap k8s-runner-ca-crt does not exist"
 kubectl  create configmap k8s-runner-ca-crt --from-file=$(pwd)/k8s-runner-ca.crt
