@@ -9,7 +9,6 @@ import MBreadcrumb from 'components/ui/MBreadcrumb';
 import { connect } from 'react-redux';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import ProjectInfo from './ProjectTitleNActions';
-import ProjectNav from './project-nav/projectNav';
 
 const ProjectContainer = (props) => {
   const {
@@ -18,7 +17,6 @@ const ProjectContainer = (props) => {
     project,
     project: { namespace, slug },
     forceShowExperimentList,
-    viewName,
     breadcrumbs,
   } = props;
   useEffect(() => {
@@ -32,14 +30,10 @@ const ProjectContainer = (props) => {
   const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
       || project.projectType === PROJECT_TYPES.DATA;
 
-  let id; let description;
-  let projectName;
+  let description;
 
-  projectName = '--';
   if (project) {
-    id = project.gid;
     description = project.description;
-    projectName = project.gitlabName;
   }
 
   const projectRoute = { name: 'project', params: { namespace, slug } };
@@ -47,19 +41,7 @@ const ProjectContainer = (props) => {
   return (
     <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
       <div className="project-details main-content">
-        {breadcrumbs.length > 0 ? (
-          <MBreadcrumb items={breadcrumbs} />
-        ) : ( // legacy
-          <ProjectNav
-            key={`project-key-${id}`}
-            folders={[
-              namespace,
-              projectName,
-              viewName,
-            ]}
-          />
-        )}
-
+        <MBreadcrumb items={breadcrumbs} />
         <ProjectInfo />
         <MParagraph
           className="project-desc"

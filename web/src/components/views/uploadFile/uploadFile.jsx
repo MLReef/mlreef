@@ -14,6 +14,7 @@ import MergeRequestAPI from 'apis/MergeRequestApi.ts';
 import MButton from 'components/ui/MButton';
 import { convertToSlug } from 'functions/dataParserHelpers';
 import hooks from 'customHooks/useSelectedProject';
+import MBreadcrumb from 'components/ui/MBreadcrumb';
 import CommitsApi from '../../../apis/CommitsApi.ts';
 import {
   SET_FILESUPLOAD,
@@ -32,7 +33,6 @@ import {
   SET_SENDING_FILES,
 } from './uploadConstantsAndFunctions';
 import reducer from './uploadFileReducer';
-import ProjectNav from '../../project-nav/projectNav';
 import Navbar from '../../navbar/navbar';
 import FileToSend from './fileToSend';
 
@@ -92,7 +92,12 @@ const UploadFile = (props) => {
     startMR,
     isSendingFiles,
   } = state;
-  const folders = [groupName, name, 'Data', 'Upload a file'];
+  const breadcrumbs = [
+    { name: groupName, href: `/${namespace}` },
+    { name },
+    { name: 'Data', href: `/${namespace}/${slug}` },
+    { name: 'Upload a file' },
+  ];
   const areFilesLoading = filesToUpload.filter((file) => file.getProg() < 100).length > 0;
   useEffect(() => {
     dispatch({
@@ -233,7 +238,7 @@ const UploadFile = (props) => {
       {areFilesLoaded && <Redirect to={`/${groupName}/${slug}/-/tree/${redirectBackToFolder}`} /> }
       <Navbar />
       <div className="main-content">
-        <ProjectNav projectId={gid} folders={folders} />
+        <MBreadcrumb items={breadcrumbs} />
         <div
           ref={dragZone}
           onDrop={handleFileDrop}
