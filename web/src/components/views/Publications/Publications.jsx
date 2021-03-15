@@ -24,6 +24,7 @@ const Publications = (props) => {
       name: projectName,
       pipelines,
     },
+    user: { globalColorMarker },
   } = props;
 
   const [selectedStatus, setStatus] = useState('all');
@@ -69,7 +70,7 @@ const Publications = (props) => {
           id="publications"
           defaultActive
           label="Publications"
-          color={projectClassificationsProps[1].color}
+          color={globalColorMarker}
         >
           <br />
           <div className="publications-content">
@@ -136,6 +137,7 @@ const Publications = (props) => {
 
 function mapStateToProps(state) {
   return {
+    user: state.user,
     project: state.projects.selectedProject,
   };
 }
