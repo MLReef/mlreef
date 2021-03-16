@@ -64,11 +64,11 @@ class Navbar extends Component {
                   <div className="user-projects">
                     {user.auth && (
                     <>
-                      <Link to="/#personal">Your Projects</Link>
-                      <Link to="/#starred">Starred Projects</Link>
+                      <Link to="/dashboard/ml-project#personal">Your Projects</Link>
+                      <Link to="/dashboard/ml-project#starred">Starred Projects</Link>
                     </>
                     )}
-                    <Link to="/#explore">Explore Projects</Link>
+                    <Link to="/dashboard/ml-project#explore">Explore Projects</Link>
                   </div>
                   <MWrapper norender>
                     <div className="project-search">
