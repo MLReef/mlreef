@@ -1,9 +1,9 @@
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 import { handleResponse } from 'functions/helpers';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
+import { filterBots, filterRoot } from './apiHelpers';
+import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 
 export default class MLSearchApi extends ApiDirector {
   /**
@@ -22,7 +22,7 @@ export default class MLSearchApi extends ApiDirector {
     }'
   */
 
-  async search(searchableType: String, body: any, pagQuery: string = '') {
+  search(searchableType: String, body: any, pagQuery: string = '') {
     const url = `/api/v1/explore/entries/search?searchable_type=${searchableType}${pagQuery}`;
     const data = { ...body };
     const BLbuilder = new ApiRequestCallBuilder(
@@ -32,7 +32,8 @@ export default class MLSearchApi extends ApiDirector {
       JSON.stringify(data),
     );
 
-    return fetch(BLbuilder.build()).then(handleResponse);
+    return fetch(BLbuilder.build())
+      .then(handleResponse);
   }
 
   searchPaginated(searchableType: String, body: any, page: number, size: number) {
@@ -47,6 +48,30 @@ export default class MLSearchApi extends ApiDirector {
       JSON.stringify(body),
     );
 
-    return fetch(BLbuilder.build()).then(handleResponse);
+    return fetch(BLbuilder.build())
+      .then(handleResponse);
+  }
+
+  getUsers(q: string) {
+    const builder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
+      `/api/v4/search?scope=users&search=${q}`,
+    );
+
+    return fetch(builder.build())
+      .then((results) => Array.isArray(results) ? results : [])
+      .then(filterRoot)
+      .then(filterBots);
+  }
+
+  searchProjectByName(name: string) {
+    const bl = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
+      `/api/v4/search?scope=projects&search=${name}`,
+    );
+    return fetch(bl.build())
+      .then((results) => Array.isArray(results) ? results : []);
   }
 }

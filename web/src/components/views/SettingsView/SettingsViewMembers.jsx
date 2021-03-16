@@ -8,13 +8,14 @@ import MDropdown from 'components/ui/MDropdown';
 import MInput from 'components/ui/MInput';
 import MSimpleSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
-import SearchApi from 'apis/SearchApi';
+import SearchApi from 'apis/MLSearchApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseDate } from 'functions/dataParserHelpers';
 
 // const logAndGo = (payload) => console.log(payload) || payload;
 
 const projectApi = new ProjectGeneralInfoApi();
+const searchApi = new SearchApi();
 const today = parseDate(new Date());
 const roleList = [
   { label: 'Guest', value: 'GUEST' },
@@ -111,7 +112,7 @@ const SettingsViewMembers = (props) => {
 
   useEffect(
     () => {
-      SearchApi.getUsers(queryUser)
+      searchApi.getUsers(queryUser)
         .then(filterExistingMembers)
         .then(setUserSearchResults);
     },

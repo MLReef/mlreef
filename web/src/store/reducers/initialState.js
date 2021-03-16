@@ -30,6 +30,7 @@ export default {
     starredProjects: [],
     selectedProject: {},
     paginationInfo: {},
+    sorting: 'ALL',
   },
   users: [],
   mergeRequests: {

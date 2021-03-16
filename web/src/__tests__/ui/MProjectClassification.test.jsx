@@ -8,15 +8,29 @@ import { projectsArrayMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import ArrowButton from 'components/arrow-button/arrowButton';
+import { PROJECT_DATA_TYPES } from 'domain/project/ProjectDataTypes';
+
+const {
+  IMAGE, TEXT, AUDIO, VIDEO, TABULAR, NUMBER, BINARY, MODEL, TIME_SERIES, HIERARCHICAL,
+} = PROJECT_DATA_TYPES;
 
 const setup = () => mount(
   <MemoryRouter>
-    <Provider store={storeFactory()}>
+    <Provider store={storeFactory({ projects: projectsArrayMock.projects })}>
       <MProjectClassification
         classification={ML_PROJECT}
-        userProjects={[]}
-        starredProjects={[]}
-        allProjects={projectsArrayMock.projects.all.map((p) => parseToCamelCase(p))}
+        dataTypes={[
+          { label: TEXT, checked: false },
+          { label: IMAGE, checked: false },
+          { label: AUDIO, checked: false },
+          { label: HIERARCHICAL, checked: false },
+          { label: VIDEO, checked: false },
+          { label: TABULAR, checked: false },
+          { label: TIME_SERIES, checked: false },
+          { label: NUMBER, checked: false },
+          { label: BINARY, checked: false },
+          { label: MODEL, checked: false },
+        ]}
         history={{ push: () => {}, location: { hash: '#Personal' }}}
       />
     </Provider>
@@ -44,9 +58,10 @@ describe('test functionality', () => {
     wrapper = setup();
   });
   test('assert that exploring filter buttons change styles when clicked and receive the right params', () => {
-    const personalBtn = wrapper.find(`#${ML_PROJECT}-personal-btn`);
-    const starredBtn = wrapper.find(`#${ML_PROJECT}-starred-btn`);
-    const exploreBtn = wrapper.find(`#${ML_PROJECT}-explore-btn`);
+    const buttons = wrapper.find('#filter-div').children();
+    const personalBtn = buttons.at(0);
+    const starredBtn = buttons.at(1);
+    const exploreBtn = buttons.at(2);
     const mockedFunc = jest.fn();
     const darkClass = 'btn-basic-dark';
     wrapper.instance().handleProjectFilterBtn = mockedFunc;
@@ -62,24 +77,9 @@ describe('test functionality', () => {
 
   test('assert that side filter collapse buttons work', () => {
     const buttons = wrapper.find(ArrowButton);
-    expect(wrapper.find('MCheckBox[name="ml-project dataTypes"]').length > 0).toBe(true);
+    expect(wrapper.find('MCheckBox').length > 0).toBe(true);
     const arrBtnDataTypes = buttons.at(0);
     arrBtnDataTypes.find('button').simulate('click', {});
     expect(wrapper.find('MCheckBox[name="ml-project dataTypes"]').length).toBe(0);
-
-    expect(wrapper.find('MCheckBox[name="ml-project framework"]').length > 0).toBe(true);
-    const arrBtnFramework = buttons.at(1);
-    arrBtnFramework.find('button').simulate('click', {});
-    expect(wrapper.find('MCheckBox[name="ml-project framework"]').length).toBe(0);
-
-    expect(wrapper.find('MCheckBox[name="ml-project modelTypes"]').length > 0).toBe(true);
-    const arrBtnModelType = buttons.at(2);
-    arrBtnModelType.find('button').simulate('click', {});
-    expect(wrapper.find('MCheckBox[name="ml-project modelTypes"]').length).toBe(0);
-
-    expect(wrapper.find('MCheckBox[name="ml-project mlCategories"]').length > 0).toBe(true);
-    const arrBtnMlCat = buttons.at(3);
-    arrBtnMlCat.find('button').simulate('click', {});
-    expect(wrapper.find('MCheckBox[name="ml-project mlCategories"]').length).toBe(0);
   });
 });

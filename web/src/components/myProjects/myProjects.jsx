@@ -6,14 +6,15 @@ import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import { Helmet } from 'react-helmet';
 import {
-  arrayOf, shape, func, bool, string,
+  shape, func, bool, string,
 } from 'prop-types';
 import MProjectClassification from 'components/ui/MProjectClassification/MProjectClassification';
 import MTabs from 'components/ui/MTabs';
 import {
+  ML_PROJECT,
   projectClassificationsProps,
 } from 'dataTypes';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import { PROJECT_DATA_TYPES } from 'domain/project/ProjectDataTypes';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import * as projectActions from 'store/actions/projectInfoActions';
 import * as groupsActions from 'store/actions/groupsActions';
@@ -21,13 +22,13 @@ import * as userActions from 'store/actions/userActions';
 import Navbar from '../navbar/navbar';
 import './myProjects.scss';
 
+const {
+  IMAGE, TEXT, AUDIO, VIDEO, TABULAR, NUMBER, BINARY, MODEL, TIME_SERIES, HIERARCHICAL,
+} = PROJECT_DATA_TYPES;
+
 const Myprojects = (props) => {
   const page = useRef(0);
-  const isLastPage = useRef(false);
-
-  const [allProjects, setAllProjects] = useState([]);
   const [scrolling, setScrolling] = useState(false);
-  const [projectType, setProjectType] = useState(PROJECT_TYPES.DATA);
   const {
     actions: {
       getProcessorsPaginated,
@@ -37,56 +38,64 @@ const Myprojects = (props) => {
       setProjectsInfoSuccessfully,
       setIsLoading,
     },
-    allProjects: ap,
     isLoading,
     history,
-    userInfo: { username },
     location: {
       hash,
     },
-    paginationInfo,
+    paginationInfo: { last },
+    match: {
+      params: {
+        classification,
+      },
+      path,
+    },
   } = props;
+
+  const [dataTypes, setDataTypes] = useState([
+    { label: TEXT, checked: false },
+    { label: IMAGE, checked: false },
+    { label: AUDIO, checked: false },
+    { label: HIERARCHICAL, checked: false },
+    { label: VIDEO, checked: false },
+    { label: TABULAR, checked: false },
+    { label: TIME_SERIES, checked: false },
+    { label: NUMBER, checked: false },
+    { label: BINARY, checked: false },
+    { label: MODEL, checked: false },
+  ]);
+
+  const getMappedDataTypes = (dTypes) => dTypes
+    .filter((dt) => dt.checked === true).map((dt) => dt.label);
+
+  const classificationToFilter = classification || 'ml-project';
+
+  /* const isLastPage = useRef(last); */
 
   const fetchDataProjects = (localPage = 0) => {
     setIsLoading(true);
 
-    let projectUrl = '/own';
-    if (hash === '#explore') {
-      projectUrl = '';
-    }
-
-    if (hash === '#starred') {
-      projectUrl = '/starred';
-    }
-
-    getPaginatedProjectsByQuery(`${projectUrl}?page=${localPage}&size=${10}`, localPage === 0)
+    getPaginatedProjectsByQuery(
+      projectActions.buildProjectsRequestBody(hash, getMappedDataTypes(dataTypes)), localPage, 30
+    )
       .then(() => {
         setIsLoading(false);
         setScrolling(false);
       }).catch((err) => toastr.error('Error', err?.message));
   };
 
-  const fetchCodeProjects = (localPage, codeProjectType = PROJECT_TYPES.VISUALIZATION) => {
+  const fetchCodeProjects = (
+    localPage,
+    codeProjectType,
+  ) => {
     setIsLoading(true);
-    let body = {};
-    if (hash === '#personal') {
-      body = {
-        ...body,
-        namespace: username,
-      };
-    } else if (hash === '#explore') {
-      body = {
-        ...body,
-        visibility: 'PUBLIC',
-      };
-    } else if (hash === '#starred') {
-      body = {
-        ...body,
-        min_stars: 1,
-      };
-    }
 
-    getProcessorsPaginated(codeProjectType, body, localPage, 10)
+    getProcessorsPaginated(
+      codeProjectType,
+      projectActions.buildProjectsRequestBody(hash, getMappedDataTypes(dataTypes)),
+      localPage,
+      30,
+    )
       .then(() => {
         setIsLoading(false);
         setScrolling(false);
@@ -94,65 +103,72 @@ const Myprojects = (props) => {
       .catch((err) => toastr.error('Error', err.message));
   };
 
-  const clickHandler = (id) => (ev) => {
-    const node = ev.target;
-    if (node.nodeName === 'BUTTON') {
-      const { color } = projectClassificationsProps.filter((idsColor) => `${idsColor.classification}` === id)[0];
-      setGlobalMarkerColor(color);
+  const onDataTypeSelected = (...args) => {
+    const { typeOfProcessor } = projectClassificationsProps
+      .filter((pc) => pc.classification === classification)[0];
+    const newDatatypes = [
+      ...dataTypes.map((dt) => dt.label === args[1] ? { ...dt, checked: args[2] } : dt),
+    ];
+    const datatypesforRequest = getMappedDataTypes(newDatatypes);
+    if (typeOfProcessor) {
+      getProcessorsPaginated(
+        typeOfProcessor,
+        projectActions.buildProjectsRequestBody(
+          hash,
+          datatypesforRequest,
+        ), 0, 30,
+      ).catch((err) => err);
+    } else {
+      getPaginatedProjectsByQuery(
+        projectActions.buildProjectsRequestBody(
+          hash,
+          datatypesforRequest,
+        ), 0, 30,
+      ).catch((err) => err);
     }
+    page.current = 0;
+    setDataTypes(newDatatypes);
   };
 
-  const addEventListeners = () => projectClassificationsProps
-    .map((obj) => obj.classification).forEach((id) => {
-      document
-        .getElementById(`tab-${id}`)
-        .addEventListener('click', clickHandler(id));
-    });
-
-  const removeEventListeners = () => projectClassificationsProps
-    .map((obj) => obj.classification).forEach((id) => {
-      document.getElementById(`tab-${id}`).removeEventListener('click', clickHandler);
-    });
-
   useEffect(() => {
-    const { color } = projectClassificationsProps[0];
+    if (path === '/') {
+      history.push('/dashboard/ml-project');
+    }
+    const { color } = projectClassificationsProps
+      .filter((pc) => pc.classification === classificationToFilter)[0];
     setGlobalMarkerColor(color);
-
-    addEventListeners();
 
     return () => {
       setPaginationInfoSuccessfully({});
-      removeEventListeners();
     };
   }, []);
 
   useEffect(() => {
-    if (projectType === PROJECT_TYPES.DATA) {
+    const { typeOfProcessor } = projectClassificationsProps
+      .filter((pj) => pj.classification === classificationToFilter)[0];
+    if (classificationToFilter === ML_PROJECT) {
       fetchDataProjects(page.current);
     } else {
-      fetchCodeProjects(page.current, projectType);
+      fetchCodeProjects(page.current, typeOfProcessor);
     }
-  }, [hash]);
-
-  useEffect(() => {
-    setAllProjects(ap);
-    isLastPage.current = paginationInfo?.last;
-  }, [ap, paginationInfo]);
+  }, [hash, classificationToFilter]);
 
   const handleOnScrollEvent = useCallback(() => {
-    if (isLastPage.current) return null;
+
+    /* if (isLastPage.current) return null;
     if (scrolling) return null;
 
     page.current += 1;
+    isLastPage.current = last;
     setScrolling(true);
-    if (projectType === PROJECT_TYPES.DATA) {
+    if (classification === PROJECT_TYPES.DATA) {
       fetchDataProjects(page.current);
     } else {
-      fetchCodeProjects(page.current, projectType);
+      fetchCodeProjects(page.current, classification);
     }
 
-    return null;
-  }, [isLastPage.current, scrolling, page.current, projectType]);
+    return null; */
+  }, [last, scrolling, page.current, classification]);
 
   const cleanPreviousParams = () => {
     page.current = 0;
@@ -175,83 +191,90 @@ const Myprojects = (props) => {
       <br />
       <MTabs>
         <MTabs.Section
-          defaultActive
+          defaultActive={classification === projectClassificationsProps[0].classification}
           id={projectClassificationsProps[0].classification}
           label="ML Projects"
           color={projectClassificationsProps[0].color}
           callback={() => {
-            setProjectType(PROJECT_TYPES.DATA);
+            history.push(`/dashboard/${projectClassificationsProps[0].classification}${hash}`);
+            setGlobalMarkerColor(projectClassificationsProps[0].color);
             cleanPreviousParams();
-            fetchDataProjects(0);
           }}
         >
           <MScrollableSection handleOnScrollDown={handleOnScrollEvent}>
             <MProjectClassification
               classification={projectClassificationsProps[0].classification}
               history={history}
-              allProjects={allProjects}
               isLoading={isLoading}
               setPage={setPage}
+              dataTypes={dataTypes}
+              onDataTypeSelected={onDataTypeSelected}
             />
           </MScrollableSection>
         </MTabs.Section>
         <MTabs.Section
           id={projectClassificationsProps[1].classification}
+          defaultActive={classification === projectClassificationsProps[1].classification}
           label="Models"
           color={projectClassificationsProps[1].color}
           callback={() => {
-            setProjectType(PROJECT_TYPES.ALGORITHM);
+            history.push(`/dashboard/${projectClassificationsProps[1].classification}${hash}`);
+            setGlobalMarkerColor(projectClassificationsProps[1].color);
             cleanPreviousParams();
-            fetchCodeProjects(0, PROJECT_TYPES.ALGORITHM);
           }}
         >
           <MScrollableSection handleOnScrollDown={handleOnScrollEvent}>
             <MProjectClassification
               classification={projectClassificationsProps[1].classification}
               history={history}
-              allProjects={allProjects}
               isLoading={isLoading}
               setPage={setPage}
+              dataTypes={dataTypes}
+              onDataTypeSelected={onDataTypeSelected}
             />
           </MScrollableSection>
         </MTabs.Section>
         <MTabs.Section
           id={projectClassificationsProps[2].classification}
+          defaultActive={classification === projectClassificationsProps[2].classification}
           label="Data Operations"
           color={projectClassificationsProps[2].color}
           callback={() => {
-            setProjectType(PROJECT_TYPES.OPERATION);
+            history.push(`/dashboard/${projectClassificationsProps[2].classification}${hash}`);
+            setGlobalMarkerColor(projectClassificationsProps[2].color);
             cleanPreviousParams();
-            fetchCodeProjects(0, PROJECT_TYPES.OPERATION);
           }}
         >
           <MScrollableSection handleOnScrollDown={handleOnScrollEvent}>
             <MProjectClassification
               classification={projectClassificationsProps[2].classification}
               history={history}
-              allProjects={allProjects}
               isLoading={isLoading}
               setPage={setPage}
+              dataTypes={dataTypes}
+              onDataTypeSelected={onDataTypeSelected}
             />
           </MScrollableSection>
         </MTabs.Section>
         <MTabs.Section
           id={projectClassificationsProps[3].classification}
+          defaultActive={classification === projectClassificationsProps[3].classification}
           label="Data visualizations"
           color={projectClassificationsProps[3].color}
           callback={() => {
-            setProjectType(PROJECT_TYPES.VISUALIZATION);
+            history.push(`/dashboard/${projectClassificationsProps[3].classification}${hash}`);
+            setGlobalMarkerColor(projectClassificationsProps[3].color);
             cleanPreviousParams();
-            fetchCodeProjects(0);
           }}
         >
           <MScrollableSection handleOnScrollDown={handleOnScrollEvent}>
             <MProjectClassification
               classification={projectClassificationsProps[3].classification}
               history={history}
-              allProjects={allProjects}
               isLoading={isLoading}
               setPage={setPage}
+              dataTypes={dataTypes}
+              onDataTypeSelected={onDataTypeSelected}
             />
           </MScrollableSection>
         </MTabs.Section>
@@ -263,12 +286,9 @@ const Myprojects = (props) => {
 function mapStateToProps(state) {
   return {
     paginationInfo: state.projects.paginationInfo,
+    sorting: state.projects.sorting,
     allProjects: state.projects.all,
-    userProjects: state.projects.userProjects,
-    starredProjects: state.projects.starredProjects,
-    groups: state.groups,
     isLoading: state.globalMarker?.isLoading,
-    userInfo: state.user.userInfo,
   };
 }
 
@@ -283,9 +303,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 Myprojects.propTypes = {
-  allProjects: arrayOf(
-    shape({}).isRequired,
-  ).isRequired,
   isLoading: bool.isRequired,
   actions: shape({
     getProjectsList: func.isRequired,
@@ -297,9 +314,14 @@ Myprojects.propTypes = {
     setIsLoading: func.isRequired,
   }).isRequired,
   history: shape({ push: func }).isRequired,
-  userInfo: shape({ username: string }).isRequired,
   location: shape({
     hash: string.isRequired,
+  }).isRequired,
+  match: shape({
+    params: shape({
+      classification: string,
+    }),
+    path: string,
   }).isRequired,
   paginationInfo: shape({ last: bool }),
 };

@@ -38,8 +38,7 @@ const MBricksWall = (props) => {
         container.style.marginLeft = `calc((100% - ${info.width}px + 1rem) / 2)`;
       }
     },
-    // eslint-disable-next-line
-    [bricks.length], // bricks.length is required implicitly.
+    [bricks],
   );
 
   const resizeObs = useMemo(
@@ -57,7 +56,6 @@ const MBricksWall = (props) => {
   return (
     <div ref={containerRef} className={cx('m-bricks-wall', className)}>
       {bricks.map((brick, index) => (
-        // eslint-disable-next-line
         <div className={cx('m-bricks-wall-brick', { animated })} key={brick.key || index}>
           {brick}
         </div>

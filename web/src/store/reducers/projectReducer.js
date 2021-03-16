@@ -10,23 +10,6 @@ export default function projectReducer(state = initialState.projects, action) {
       };
     case types.SET_SELECTED_PROJECT:
       return { ...state, selectedProject: action.project };
-    case types.SET_STARRED_PROJECTS:
-      return {
-        ...state,
-        starredProjects: action.projects,
-      };
-
-    case types.SET_USER_PROJECTS:
-      return {
-        ...state,
-        userProjects: action.projects,
-      };
-
-    case types.SET_ALL_PROJECTS:
-      return {
-        ...state,
-        all: action.projects,
-      };
 
     case types.SET_PROJECT_STARRERS:
       return {
@@ -53,6 +36,11 @@ export default function projectReducer(state = initialState.projects, action) {
           ],
         },
       };
+    case types.SET_SORTING:
+      return {
+        ...state,
+        sorting: action.sorting,
+      }
     default:
       return state;
   }

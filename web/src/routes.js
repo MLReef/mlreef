@@ -57,6 +57,24 @@ export default [
     },
   },
   {
+    name: 'dashboard',
+    path: '/dashboard',
+    exact: true,
+    component: ProjectsView,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'dashboard',
+    path: '/dashboard/:classification',
+    exact: true,
+    component: ProjectsView,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
     name: 'notFound',
     path: '/not-found/:info?',
     component: NotFoundView,

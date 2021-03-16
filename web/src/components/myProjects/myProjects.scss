@@ -16,8 +16,20 @@ $min-width-cards-div: 910px;
     min-width: $min-width-cards-div;
   }
 
-  #side-filters {
+  &-filters {
     flex: 1;
+
+    &-sort-btns {
+
+      button {
+        background-color: transparent;
+        color: var(--info);
+        border: none;
+        padding: 0px;
+        margin: 0.5rem 1rem 0rem 0rem;
+        cursor: pointer;
+      }
+    }
 
     #input-div {
       border-bottom: 1px solid var(--secondary);
