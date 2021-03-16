@@ -4,9 +4,9 @@ import com.mlreef.rest.Account
 import com.mlreef.rest.DataProcessorInstance
 import com.mlreef.rest.DataProcessorType
 import com.mlreef.rest.exceptions.DataProcessorIncorrectStructureException
+import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-import org.springframework.web.context.annotation.RequestScope
 import java.util.stream.Collectors
 
 
@@ -39,7 +39,7 @@ const val IS_ALGORITHM = "%IS_ALGORITHM%"
 val NEWLINE = System.lineSeparator()
 
 @Service
-@RequestScope
+@Scope("prototype")
 class YamlFileGenerator {
     val template: String = ClassPathResource("mlreef-file-template.yml")
         .inputStream.bufferedReader().use {
