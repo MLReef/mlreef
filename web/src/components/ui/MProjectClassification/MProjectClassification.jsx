@@ -61,7 +61,7 @@ const MProjectClassification = (props) => {
 
   return (
     <div className="d-flex" style={{ justifyContent: 'space-around' }}>
-      <div className="flex-1 mx-5">
+      <div className="flex-1 mx-4">
         <div className="scroll-styled" id="buttons-div">
           <div id="filter-div">
             <button
@@ -111,7 +111,7 @@ const MProjectClassification = (props) => {
               <button type="button" onClick={handleSortBtnClicked(POPULAR)}>Popular</button>
             </div>
             <br />
-            <div className="name-filter-section">
+            <div className="m-project-classification-filters-dtypes">
               <p>
                 Data types
               </p>
@@ -155,14 +155,6 @@ MProjectClassification.defaultProps = {
   isLoading: false,
 };
 
-function mapStateToProps(state) {
-  return {
-    sorting: state.projects.sorting,
-    projects: state.projects.all,
-    userInfo: state.user.userInfo,
-  };
-}
-
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
@@ -174,4 +166,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MProjectClassification);
+export default connect(() => ({}), mapDispatchToProps)(MProjectClassification);
