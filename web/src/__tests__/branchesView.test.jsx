@@ -1,6 +1,5 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import 'babel-polyfill';
 import BranchesView from '../components/branches-list-view/branchesView';
 import { storeFactory } from '../functions/testUtils';
 import { projectsArrayMock, branchesMock } from '../testData';

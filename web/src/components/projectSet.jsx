@@ -25,7 +25,7 @@ const ProjectSet = (props) => {
 
   return (
     <div id="cards-section">
-      {projects.length > 0 ? (
+      {sortedProject.length > 0 ? (
         <MBricksWall
           className="w-100"
           animated
