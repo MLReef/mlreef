@@ -14,6 +14,7 @@ const languagesPerExtensions = {
   css: 'css',
   htm: 'html',
   html: 'html',
+  md: 'markdown',
 };
 
 const MCodeRenderer = ({
@@ -31,10 +32,11 @@ const MCodeRenderer = ({
       language={languagesPerExtensions[fileExtension]}
       theme={theme}
       value={code}
-      options={{ ...options }}
+      options={{ ...options, disableMonospaceOptimizations: true }}
       onChange={(val) => onChange(val)}
       editorDidMount={(editor) => {
         editor.focus();
+        editor.getModel().updateOptions({ tabSize: 2 });
       }}
       editorWillMount={() => {}}
     />
