@@ -1,7 +1,14 @@
 .files-selector {
-  .instruction {
-    color: var(--lessWhite);
-    text-align: center;
+  &-image-container {
+    display: flex;
+    justify-content: center;
+    img {
+      height: 150px;
+    }
+  }
+ 
+  .data-button-container{
+    justify-content: center;
   }
 
   .data-button-container div {
@@ -12,7 +19,16 @@
     border-radius: 0.3vw;
   }
 
-  .data-button-container{
-    justify-content: center;
+  &-instruction {
+    padding: 0 6rem;
+    p {
+      text-align: center;
+    }
+  }
+
+  &-data {
+    &-button-select {
+      color: var(--info)
+    }
   }
 }

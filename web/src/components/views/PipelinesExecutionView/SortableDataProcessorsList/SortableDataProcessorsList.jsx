@@ -1,35 +1,48 @@
 import React, {
   useContext,
 } from 'react';
+import { string } from 'prop-types';
 import { SortableContainer } from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 import './SortableDataProcessorList.scss';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import SortableProcessor from './SortableProcessor';
+import { UPDATE_PROCESSORS_SELECTED } from '../DataPipelineHooks/actions';
 
 const SortableProcessorsList = SortableContainer(({
   prefix,
-}) => {
-  const [{ processorsSelected: items }] = useContext(DataPipelinesContext);
-  return (
-    <ul className={`${items.length > 0 ? 'p-2' : ''}`}>
-      {items.map((value, index) => {
-        const props = {
-          value,
+  items,
+}) => (
+  <ul className={`${items.length > 0 ? 'p-2' : ''}`}>
+    {items.map((value, index) => (
+      <SortableProcessor
+        addInfo={{
           index,
           prefix,
-        };
-        return (
-          <SortableProcessor
-            index={index}
-            key={`item-${value.internalProcessorId}`}
-            props={props}
-          />
-        );
-      })}
-    </ul>
-  );
-});
+        }}
+        key={`item-${value.id}`}
+        index={index}
+        value={value}
+      />
+    ))}
+  </ul>
+));
 
-// this pressDelay avoid conflics with onClick events
-// eslint-disable-next-line
-export default (props) => <SortableProcessorsList pressDelay={500} {...props} />;
+const SortableListContainer = ({ prefix }) => {
+  const [{ processorsSelected: items }, dispatch] = useContext(DataPipelinesContext);
+
+  const onSortEnd = ({ oldIndex, newIndex }) => dispatch({
+    type: UPDATE_PROCESSORS_SELECTED,
+    processorsSelected: arrayMove(items, oldIndex, newIndex),
+  });
+
+  return (
+    <SortableProcessorsList items={items} prefix={prefix} onSortEnd={onSortEnd} pressDelay={50} />
+  );
+};
+
+SortableListContainer.propTypes = {
+  prefix: string.isRequired,
+};
+
+export default SortableListContainer;

@@ -1,0 +1,80 @@
+.data-operations-filters {
+  padding: 0rem 0.5rem 0.5rem 0.5rem;
+  &-create-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    a {
+      p {
+        width: max-content;
+        margin: 0 0.25rem 0 0;
+        padding: 0.35rem 2rem;
+        color: white;
+        font-weight: bold;
+        border-radius: 0.25rem;
+
+        &.algorithm {
+          background-color: #E99444;
+        }
+        
+        &.operation {
+          background-color: #D2519D;
+        }
+        
+        &.visualization {
+          background-color: #735DA8;
+        }
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  &-create-link-inst {
+    color: var(--lessWhite);
+    font-size: small;
+    margin: 0.5rem 0rem;
+  }
+  
+  &-use-operator-inst {
+    text-align: center;
+    margin: 1rem 0rem 0.25rem 0;
+    font-weight: bold;
+  }
+
+  &-show-filters-btn {
+    background-color: transparent;
+    color: var(--info);
+    border: 1px solid transparent;
+    padding: 0.5rem 0.1rem 0.5rem 0.1rem;
+    border-radius: 0.25rem;
+
+    i {
+      margin-right: 0.5rem;
+    }
+
+    &:hover {
+      border: 1px solid var(--info);
+      cursor: pointer;
+    }
+  }
+
+  #min-stars-input {
+    margin-top: 0.5rem;
+  }
+
+  &-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 1rem;
+    &-items {
+      button {
+        width: 8rem;
+      }
+    }
+  }
+}

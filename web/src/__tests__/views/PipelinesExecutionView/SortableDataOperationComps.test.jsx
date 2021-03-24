@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { dataPipeLines } from 'testData';
-import SelectComp from 'components/views/PipelinesExecutionView/SortableDataProcessorsList/SelectComp';
+import SelectComp from 'components/views/PipelinesExecutionView/SelectComp/SelectComp';
 import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
 

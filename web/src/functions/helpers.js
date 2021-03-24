@@ -90,3 +90,5 @@ export const fixHostname = (url) => {
 
   return url.replace(/^(https?:\/\/)(.+):/, `$1${hostname}:`);
 };
+
+export const toCamelCase = (stringEl) => `${stringEl[0].toUpperCase()}${stringEl.substr(1, stringEl.length - 1).toLowerCase()}`;

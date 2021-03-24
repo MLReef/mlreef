@@ -1,7 +1,6 @@
 import MLSearchApi from 'apis/MLSearchApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { validateForm } from 'functions/validations';
-import UUIDV1 from 'uuid/v1';
 import {
   ADD_NEW_PROCESSOR,
   UPDATE_PROCESSORS_SELECTED,
@@ -15,6 +14,7 @@ import {
   SET_PROCESSOR_SELECTED,
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
+  UPDATE_CURRENT_PROCESSORS_ARRAY
 } from './actions';
 
 const mlSearchApi = new MLSearchApi();
@@ -26,7 +26,7 @@ const updateOperators = (
   processorsSelected,
   isValid,
 ) => processorsSelected.map((ps) => {
-  if (ps.internalProcessorId === procSelectedId) {
+  if (ps.id === procSelectedId) {
     return {
       ...ps,
       parameters: ps.parameters.map((p) => {
@@ -45,10 +45,8 @@ const updateOperators = (
 });
 
 export const addInformationToProcessors = (processors) => processors
-  .filter((cP) => cP !== null && cP !== undefined)
   .map((cP) => parseToCamelCase({
     ...cP,
-    internalProcessorId: UUIDV1(),
     parameters: cP.parameters.map((param) => ({ ...param, isValid: !param.required })),
   }));
 
@@ -70,8 +68,8 @@ const DataPipelinesReducer = (state, action) => {
   switch (action.type) {
     case ADD_NEW_PROCESSOR:
       return state.processorsSelected.filter((
-        { internalProcessorId },
-      ) => internalProcessorId === state.processorDataSelected.internalProcessorId).length > 0
+        { id },
+      ) => id === state.processorDataSelected.id).length > 0
         ? { ...state }
         : {
           ...state,
@@ -84,7 +82,7 @@ const DataPipelinesReducer = (state, action) => {
         ...state,
         processorsSelected: state
           .processorsSelected
-          .filter((pS) => pS.internalProcessorId !== action.id),
+          .filter((pS) => pS.id !== action.id),
       };
     case UPDATE_INITIAL_INFORMATION:
       return { ...state, initialInformation: action.initialInformation };
@@ -120,13 +118,18 @@ const DataPipelinesReducer = (state, action) => {
           action.isValid,
         ),
       };
+    case UPDATE_CURRENT_PROCESSORS_ARRAY:
+      return {
+        ...state,
+        currentProcessors: action.currentProcessors,
+      };
     default:
       return state;
   }
 };
 
-export const fetchProcessorsPaginatedByType = (operationTypeToExecute) => mlSearchApi
-  .searchPaginated(operationTypeToExecute, { published: true }, 0, 20)
+export const fetchProcessorsPaginatedByType = (operationTypeToExecute, body) => mlSearchApi
+  .searchPaginated(operationTypeToExecute, body, 0, 20)
   .then((res) => res.content)
   .then((projects) => projects.map((proj) => {
     const {

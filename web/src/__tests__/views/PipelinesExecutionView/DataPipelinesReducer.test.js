@@ -28,7 +28,7 @@ test('assert that reducer removes processor from state', () => {
     { ...initialState, processorsSelected: dataPipeLines },
     { type: REMOVE_DATA_PROCESSOR_BY_ID, id },
   );
-  expect(processorsSelected.filter((ps) => ps.internalProcessorId === id)).toHaveLength(0);
+  expect(processorsSelected.filter((ps) => ps.id === id)).toHaveLength(0);
 });
 
 test('assert that files modal visibility can be changed', () => {
@@ -126,7 +126,7 @@ test('assert that parameter is updated correctly', () => {
     type: UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
     newParamValue,
     paramName: 'input-path',
-    procSelectedId: '597e1670-bbbd-11ea-859c-85d2ab5837c3',
+    procSelectedId: '01000000-0000-0001-0002-000000000000',
     isValid: true,
   });
   expect(processorsSelected[0].parameters[0].value).toBe(newParamValue);

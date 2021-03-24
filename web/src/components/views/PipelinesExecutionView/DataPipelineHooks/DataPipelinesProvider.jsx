@@ -3,12 +3,13 @@ import DataPipelinesReducer, { initialState } from './DataPipelinesReducer';
 
 export const DataPipelinesContext = createContext();
 
-const Provider = ({ children, currentProcessors, initialInformation }) => {
+const Provider = ({ children, initialInformation, dataId }) => {
   const contextValue = useReducer(
     DataPipelinesReducer, {
       ...initialState,
+      processorsSelected: initialInformation.dataOperatorsExecuted || [],
+      isFormValid: typeof dataId !== 'undefined',
       initialInformation,
-      currentProcessors,
     },
   );
   return (

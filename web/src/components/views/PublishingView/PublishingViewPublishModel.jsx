@@ -84,7 +84,7 @@ const PublishingViewPublishModel = (props) => {
           <MCheckBoxGroup
             name="model"
             options={modelOptions}
-            value={modelOptions.indexOf(model) + 1}
+            values={[modelOptions.indexOf(model) + 1]}
             onSelect={(params) => {
               const modelObject = modelOptions[params - 1];
               dispatch({ type: 'SET_MODEL', payload: modelObject });
@@ -105,7 +105,7 @@ const PublishingViewPublishModel = (props) => {
           <MCheckBoxGroup
             options={categoryOptions}
             name="category"
-            value={category}
+            values={[category]}
             onSelect={(cat) => {
               dispatch({ type: 'SET_ML_CATEGORY', payload: cat });
             }}

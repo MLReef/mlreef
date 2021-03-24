@@ -12,7 +12,7 @@ const mockUseReducer = [
 
 const setup = () => mount(
   <DataPipelinesContext.Provider value={mockUseReducer}>
-    <ProcessorsList />
+    <ProcessorsList operationTypeToExecute="operation" />
   </DataPipelinesContext.Provider>,
 );
 

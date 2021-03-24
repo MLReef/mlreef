@@ -3034,3 +3034,330 @@ export const mockedFileDetails = {
   last_commit_id:"8f8ba983b7cbaaa1223e6553d94083649fa7b2b9",
   content:"iVBORw0KGgoAAAANSUhEUgAAADIAAAAuCAYAAABqK0pRAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAANbSURBVGhD3Zr9aRVBFMUtygYsQAuwARuwAC0gBWgBacACbCAgKAgBQVESFAJCwD8EYeRH9izz7t6ZubOzmxUPHPJ82blzz/2aWcmDNIiL25ReXaX09GNKDy/ifP4ppfPvKd3+mQwNYrUQBPQ6X+LZt5Sufk+GV6JbyOWvu2h6Do0SQWvRJYRSePTOd2IrYp9s9yIkhDreKwslErQeNIUcIUJkiERRFXKkCDHaN1UhR4sQ39xMDlVQFEKNekaPItOyBlcIi/aeTr188mFyrgBXyLNL39jRrE2yhZC3P30ja3j2ddvsYqeEhZAts3H+487m4/f+79ewlJUTIUTPW9xDovb6etmcZPrFZ39ND0tZORHCAeQtjpJLpARwzSAjiOLn9XQp5PvRUrNBAidCmAzewghxjgMU0hveMyq10T70TvxZCA54iyxx0isROdk6REvPEQgOvsirgVdesxBS7i3KSdMi2PaSDEcizbOUmX0W2yDapxazkMhJzuYIYbLhENHFAaIISiVlKTt8JjPKMOtBZCjYF7FZCJczb0FONif9fKaJAWLYGETvZlpLMPTuoRHNHpHM2neWWcjLL/4C0UYdQ2yKMxISPYMkBOcRD/iO38muXWOJ2BxhIdpQUafOteGIEAWIzPI7DQMCZNfltDficGnZjMgQzo8I0Wf1Rd4/NRYz0hJChIB6BCfYUOMYrBGCQ0wqZYBMRyZosUciDcaGOI8D/Fuba9ro+xZVphKudQqI+qXG4tSKRIENvWeV5vy7GiVEZQoJCkEiI63+UHXkmIVE6hISLdUzlAORjIpyxK6hbCPlqUDkmIWAaI3nVL1rmkWpYREtx5zVuxZQI0eJE2QDIqSH6odISVs2b7/R8hLVG6PIe6VFHQMWJ0JA62DMSSmWaMcjB533nOjZ96iStFgIYax5BnpJQ+M8WeuJeI28L1E1HhZCQE9W7pO1UnaFoHrkbXEPMiBqcIWANdNkL9ZKSigKAf/Cf5vSa5HpWBUCjuyXqAjQFAIib49bs0cECAkB91lmvSJAWAjgarD3NONwbDW2hy4hwh7Z4erRm4Ucq4QICBrNEBnAzpos5BgSIhDJ6F8/UP84z/PeLXYtNhFiwX0NcZBLHj85YEf/uqGGXYQcgf9ESEp/AX/ihPjgW4hiAAAAAElFTkSuQmCC"
 };
+
+
+export const mockedAlgorithmsResponse = {
+	"content": [
+		{
+			"id": "1e406246-8eb7-498d-a527-7fa33428fd45",
+			"slug": "can-publish-code-project",
+			"url": "http://gitlab.review-feature-se-ami8er.35.246.253.255.nip.io/TEST.2021-03-20.05-05-22/can-publish-code-project",
+			"owner_id": "90a4a4ae-e5b7-41ff-80cb-2e45eda85dc2",
+			"name": "Can publish code project",
+			"gitlab_namespace": "TEST.2021-03-20.05-05-22",
+			"gitlab_path": "can-publish-code-project",
+			"gitlab_id": 23,
+			"visibility_scope": "PUBLIC",
+			"description": "Generated description",
+			"tags": [],
+			"stars_count": 0,
+			"forks_count": 0,
+			"input_data_types": [
+				"HIERARCHICAL"
+			],
+			"output_data_types": [],
+			"searchable_type": "CODE_PROJECT",
+			"data_processor": {
+				"id": "256bc842-b0f2-485e-9729-7b708bf4f4e1",
+				"slug": "can-publish-code-project",
+				"name": "Can publish code project",
+				"input_data_type": "HIERARCHICAL",
+				"output_data_type": "HIERARCHICAL",
+				"type": "ALGORITHM",
+				"visibility_scope": "PRIVATE",
+				"description": "description",
+				"code_project_id": "1e406246-8eb7-498d-a527-7fa33428fd45",
+				"versions": [
+					{
+						"id": "13a49b31-ee22-49d6-ac62-02559fe1b68d",
+						"slug": "can-publish-code-project",
+						"name": "Can publish code project",
+						"input_data_type": "HIERARCHICAL",
+						"output_data_type": "HIERARCHICAL",
+						"type": "ALGORITHM",
+						"visibility_scope": "PRIVATE",
+						"description": "description",
+						"code_project_id": "1e406246-8eb7-498d-a527-7fa33428fd45",
+						"data_processor_id": "256bc842-b0f2-485e-9729-7b708bf4f4e1",
+						"publisher_id": "90a4a4ae-e5b7-41ff-80cb-2e45eda85dc2",
+						"metric_type": "UNDEFINED",
+						"parameters": [
+							{
+								"name": "cropFactor",
+								"type": "FLOAT",
+								"required": true,
+								"order": 1,
+								"default_value": "1",
+								"description": ""
+							},
+							{
+								"name": "imageFiles",
+								"type": "LIST",
+								"required": true,
+								"order": 2,
+								"default_value": "[]",
+								"description": ""
+							},
+							{
+								"name": "optionalFilterParam",
+								"type": "INTEGER",
+								"required": true,
+								"order": 3,
+								"default_value": "1",
+								"description": ""
+							}
+						],
+						"number": 1,
+						"branch": "master",
+						"command": "registry.review-feature-se-ami8er.35.246.253.255.nip.io/test.2021-03-20.05-05-22/can-publish-code-project:master",
+						"base_environment": {
+							"id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+							"title": "Base environment python-3.6-GPU",
+							"docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+							"description": "GPU nvidia drivers and TF 2.1, python 3.6",
+							"requirements": "cycler==0.10.0\ndecorator==4.4.2\nimageio==2.8.0\njoblib==0.14.1\nkiwisolver==1.2.0\nmatplotlib==3.2.1\nnetworkx==2.4\nnumpy==1.18.4\nnltk==3.5\nnum2words==0.5.10\nopencv-python==4.2.0.34\nPillow==7.1.2\npyparsing==2.4.7\npython-dateutil==2.8.1\nPyWavelets==1.1.1\nscikit-image==0.16.2\nscikit-learn==0.23.1\nscipy==1.4.1\nsix==1.14.0",
+							"machine_type": "GPU",
+							"sdk_version": "3.6"
+						},
+						"published_at": "2021-03-20T17:05:44.092Z"
+					}
+				]
+			},
+			"published": true
+		}
+	],
+	"pageable": {
+		"sort": {
+			"unsorted": true,
+			"sorted": false,
+			"empty": true
+		},
+		"page_number": 0,
+		"page_size": 20,
+		"offset": 0,
+		"paged": true,
+		"unpaged": false
+	},
+	"last": true,
+	"total_pages": 1,
+	"total_elements": 1,
+	"first": true,
+	"sort": {
+		"unsorted": true,
+		"sorted": false,
+		"empty": true
+	},
+	"number_of_elements": 1,
+	"size": 20,
+	"number": 0,
+	"empty": false
+}
+
+
+export const mockedOperations = {
+	"content": [
+		{
+			"id": "6d8af6e2-131d-4836-97c1-f006db122d91",
+			"slug": "add-noise-22feb",
+			"url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/add-noise-22feb",
+			"owner_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+			"name": "Add noise 22feb",
+			"gitlab_namespace": "mlreef",
+			"gitlab_path": "add-noise-22feb",
+			"gitlab_id": 562,
+			"visibility_scope": "PUBLIC",
+			"description": "",
+			"tags": [],
+			"stars_count": 1,
+			"forks_count": 0,
+			"input_data_types": [
+				"IMAGE"
+			],
+			"output_data_types": [],
+			"searchable_type": "CODE_PROJECT",
+			"data_processor": {
+				"id": "c471f1ed-54c6-4068-a8fd-fbfc86f99079",
+				"slug": "add-noise-22feb",
+				"name": "Add noise 22feb",
+				"input_data_type": "IMAGE",
+				"output_data_type": "IMAGE",
+				"type": "OPERATION",
+				"visibility_scope": "PRIVATE",
+				"description": "description",
+				"code_project_id": "6d8af6e2-131d-4836-97c1-f006db122d91",
+				"versions": [
+					{
+						"id": "e905e3d0-9866-4d59-8963-64e45a05aeb5",
+						"slug": "add-noise-22feb",
+						"name": "Add noise 22feb",
+						"input_data_type": "IMAGE",
+						"output_data_type": "IMAGE",
+						"type": "OPERATION",
+						"visibility_scope": "PRIVATE",
+						"description": "description",
+						"code_project_id": "6d8af6e2-131d-4836-97c1-f006db122d91",
+						"data_processor_id": "c471f1ed-54c6-4068-a8fd-fbfc86f99079",
+						"publisher_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+						"metric_type": "UNDEFINED",
+						"parameters": [
+							{
+								"name": "input-path",
+								"type": "STRING",
+								"required": true,
+								"order": 1,
+								"default_value": "train",
+								"description": "path to directory of images or image file"
+							},
+							{
+								"name": "output-path",
+								"type": "STRING",
+								"required": true,
+								"order": 2,
+								"default_value": "output",
+								"description": "output directory to save images"
+							},
+							{
+								"name": "mode",
+								"type": "STRING",
+								"required": true,
+								"order": 3,
+								"default_value": "speckle",
+								"description": "type of noise: gaussian , localvar , poisson , salt , pepper , speckle"
+							}
+						],
+						"number": 1,
+						"branch": "master",
+						"command": "registry.review-master-8dyme2.35.246.253.255.nip.io/mlreef/add-noise-22feb:master",
+						"base_environment": {
+							"id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+							"title": "Base environment python-3.6-GPU",
+							"docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+							"description": "GPU nvidia drivers and TF 2.1, python 3.6",
+							"requirements": "cycler==0.10.0\ndecorator==4.4.2\nimageio==2.8.0\njoblib==0.14.1\nkiwisolver==1.2.0\nmatplotlib==3.2.1\nnetworkx==2.4\nnumpy==1.18.4\nnltk==3.5\nnum2words==0.5.10\nopencv-python==4.2.0.34\nPillow==7.1.2\npyparsing==2.4.7\npython-dateutil==2.8.1\nPyWavelets==1.1.1\nscikit-image==0.16.2\nscikit-learn==0.23.1\nscipy==1.4.1\nsix==1.14.0",
+							"machine_type": "GPU",
+							"sdk_version": "3.6"
+						},
+						"published_at": "2021-02-22T11:49:15.77Z"
+					}
+				]
+			},
+			"published": true
+		},
+		{
+			"id": "fe956934-d0cf-11ea-87d0-0242ac130003",
+			"slug": "commons-add-noise",
+			"url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/commons-add-noise",
+			"owner_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+			"name": "Add noise",
+			"gitlab_namespace": "mlreef",
+			"gitlab_path": "commons-add-noise",
+			"gitlab_id": 2,
+			"visibility_scope": "PUBLIC",
+			"description": "Adds noise to an image: gaussian , localvar , poisson , salt , pepper , speckle",
+			"tags": [],
+			"stars_count": 0,
+			"forks_count": 0,
+			"input_data_types": [
+				"IMAGE"
+			],
+			"output_data_types": [
+				"IMAGE"
+			],
+			"searchable_type": "CODE_PROJECT",
+			"data_processor": {
+				"id": "fe956b64-d0cf-11ea-87d0-0242ac130003",
+				"slug": "commons-add-noise",
+				"name": "Add noise",
+				"input_data_type": "IMAGE",
+				"output_data_type": "IMAGE",
+				"type": "OPERATION",
+				"visibility_scope": "PUBLIC",
+				"description": "Adds noise to an image: gaussian , localvar , poisson , salt , pepper , speckle",
+				"code_project_id": "fe956934-d0cf-11ea-87d0-0242ac130003",
+				"author_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+				"versions": [
+					{
+						"id": "fe956b64-d0cf-11ea-87d0-0242ac130003",
+						"slug": "commons-add-noise",
+						"name": "Add noise",
+						"input_data_type": "IMAGE",
+						"output_data_type": "IMAGE",
+						"type": "OPERATION",
+						"visibility_scope": "PUBLIC",
+						"description": "Adds noise to an image: gaussian , localvar , poisson , salt , pepper , speckle",
+						"code_project_id": "fe956934-d0cf-11ea-87d0-0242ac130003",
+						"data_processor_id": "fe956b64-d0cf-11ea-87d0-0242ac130003",
+						"author_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+						"publisher_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+						"metric_type": "UNDEFINED",
+						"parameters": [
+							{
+								"name": "cropFactor",
+								"type": "FLOAT",
+								"required": true,
+								"order": 1,
+								"default_value": "1",
+								"description": ""
+							},
+							{
+								"name": "imageFiles",
+								"type": "LIST",
+								"required": true,
+								"order": 2,
+								"default_value": "[]",
+								"description": ""
+							},
+							{
+								"name": "optionalFilterParam",
+								"type": "INTEGER",
+								"required": true,
+								"order": 3,
+								"default_value": "1",
+								"description": ""
+							}
+						],
+						"number": 1,
+						"branch": "master",
+						"command": "registry.review-master-8dyme2.35.246.253.255.nip.io/mlreef/commons-add-noise:master",
+						"base_environment": {
+							"id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+							"title": "Base environment python-3.6-GPU",
+							"docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+							"description": "GPU nvidia drivers and TF 2.1, python 3.6",
+							"requirements": "cycler==0.10.0\ndecorator==4.4.2\nimageio==2.8.0\njoblib==0.14.1\nkiwisolver==1.2.0\nmatplotlib==3.2.1\nnetworkx==2.4\nnumpy==1.18.4\nnltk==3.5\nnum2words==0.5.10\nopencv-python==4.2.0.34\nPillow==7.1.2\npyparsing==2.4.7\npython-dateutil==2.8.1\nPyWavelets==1.1.1\nscikit-image==0.16.2\nscikit-learn==0.23.1\nscipy==1.4.1\nsix==1.14.0",
+							"machine_type": "GPU",
+							"sdk_version": "3.6"
+						},
+						"published_at": "2021-03-20T16:45:57.148Z"
+					}
+				]
+			},
+			"published": true
+		}
+	],
+	"pageable": {
+		"sort": {
+			"sorted": false,
+			"unsorted": true,
+			"empty": true
+		},
+		"page_size": 20,
+		"page_number": 0,
+		"offset": 0,
+		"paged": true,
+		"unpaged": false
+	},
+	"total_pages": 1,
+	"last": true,
+	"total_elements": 2,
+	"sort": {
+		"sorted": false,
+		"unsorted": true,
+		"empty": true
+	},
+	"number_of_elements": 2,
+	"first": true,
+	"size": 20,
+	"number": 0,
+	"empty": false
+}
