@@ -26,17 +26,14 @@ Getting Started as a Developer
 
 
 ### Module Structure
-* **/backend: MLReef's Kotlin - Spring Boot backend
-* **/bin**:   scripts which help developers with their jobs  
-* **/docs**:  the Gatsby based documentation page
-* **/web**:   the npm based react frontend as well as the node based end-to-end tests
-
+* **/backend:    MLReef's Kotlin - Spring Boot backend
+* **/bin**:      scripts which help developers  
+* **/docs**:     documentation page based on gatsby
+* **/nautilus**: assets for the all-in-one docker image
+* **/web**:      the npm based react frontend as well as the node based end-to-end tests
 
 ### Run MLReef locally
- 1. Install latest Docker
-    * On OSX and Windows (and possibly on Unix), configure docker with at least 4GB of RAM
- 2. on Windows: install Cygwin and please also see the extra steps below
- 3. Login to our private docker registry hosted on gitlab, with your gitlab credentials by executing `docker login registry.gitlab.com`
+Please follow the [on premises documentation](docs/content/80-on-prem/0-README.md) 
 
 ### Setup Infrastructure
 From the repositories _root_ folder execute: `bin/setup-local-environment`

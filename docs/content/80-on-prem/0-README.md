@@ -90,7 +90,9 @@ docker run -it --rm --detach --name mlreef           \
 ```
 The container comes up with a default runner running on same docker network on localhost.
 
-### Adding Machine Learning Runners
+
+Adding Machine Learning Runners
+--------------------
 The best way to host additional ML runners is to run them as separate docker containers.
 This can be done on machines separate from the MLReef application server.
 The runners must have network access to the MLReef application server.
@@ -125,4 +127,5 @@ docker exec -it ml-runner                   \
 ```
 
 
-### GPU Capabilities
+GPU Capabilities
+--------------------
