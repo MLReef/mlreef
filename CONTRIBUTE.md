@@ -38,11 +38,11 @@ You can find general settings in the `.editorconfig` file as well as IntelliJ sp
 `.editorconfig-idea.xml`. Example screenshots can be found at the [bottom](#screenshots) of this document.
 
 #### Static Imports
-Static imports are used to be used as a default, erspecially if the Type is defined in the same line.
+Static imports are used to be used as a default, especially if the Type is defined in the same line.
 They can only be ommited to improve readability or prevent compile errors. 
 
 ### Test Code
-**Naming:** When writing tests in koltin we like to make use of the fact, that Kotlin allows Unicode function names.
+**Naming:** When writing tests in Kotlin we like to make use of the fact, that Kotlin allows Unicode function names.
 This means please name your tests in the following pattern.
 * ```@Test fun `Can do Stuff when Condition is given`() {…}```
 * ```@Test fun `Cannot do Stuff when condition is missing`() {…}```
