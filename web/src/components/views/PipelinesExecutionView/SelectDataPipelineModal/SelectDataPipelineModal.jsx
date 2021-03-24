@@ -10,6 +10,7 @@ import ReturnLink from 'components/returnLink';
 import dayjs from 'dayjs';
 import { CANCELED, FAILED, SUCCESS } from 'dataTypes';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
+import useMount from 'customHooks/useMount';
 import JobsApi from 'apis/JobsApi';
 import actions from './actions';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
@@ -43,6 +44,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   const [branchSelected, setBranchSelected] = useState(initialBranch || defaultBranch);
   const [showReturnOption, setShowReturnOption] = useState(false);
   const [files, setfiles] = useState(null);
+  const unmounted = useMount();
 
   function updateFiles(path) {
     actions.getAndClassifyFiles(
@@ -54,14 +56,13 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     )
       .then((filesRes) => actions.handleFiles(filesRes, initialFiles))
       .then((newfilesSelected) => {
-        setfiles(newfilesSelected);
+        if (!unmounted) setfiles(newfilesSelected);
         if (initialFiles.length > 0) {
           dispatch({
             type: UPDATE_FILES_SELECTED_IN_MODAL,
             filesSelectedInModal: newfilesSelected,
           });
-          dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
-          dispatch({ type: VALIDATE_FORM });
+          dispatch({ type: SET_BRANCH_SELECTED, initialBranch });
         }
       })
       .catch((err) => toastr.error('Error', err.message));
@@ -72,7 +73,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
       updateFiles('');
 
       jobsApi.getPerProject(gid)
-        .then((jobList) => setJobs(jobList))
+        .then((jobList) => { if (!unmounted) setJobs(jobList); })
         .catch((err) => err);
     }
   }, [branchSelected, gid, initialCommit, branchSelected]);

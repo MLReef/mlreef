@@ -1,11 +1,12 @@
 import React, { useContext, useRef, useState } from 'react';
 import { bool, shape, string } from 'prop-types';
 import validateInput from 'functions/validations';
-import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import MTooltip from 'components/ui/MTooltip';
 import ArrowButton from 'components/arrow-button/arrowButton';
-import ErrorsDiv from './ErrorsDiv';
+import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
+import ErrorsDiv from '../SortableDataProcessorsList/ErrorsDiv';
 import { VALIDATE_FORM } from '../DataPipelineHooks/actions';
+import './SelectComp.scss';
 
 export const SelectComp = ({
   param,

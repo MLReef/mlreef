@@ -1,7 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import * as userActions from 'store/actions/userActions';
 import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
 import './PipelinesExecutionView.scss';
@@ -29,7 +27,8 @@ import {
 import Provider, { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import DragDropZone from './DragNDropZone';
 import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from './DataPipelineHooks/actions';
-import { addInformationToProcessors, fetchProcessorsPaginatedByType } from './DataPipelineHooks/DataPipelinesReducer';
+import { addInformationToProcessors } from './DataPipelineHooks/DataPipelinesReducer';
+import ProcessorFilters from './ProcessorFilters';
 
 const dataPipelineApi = new DataPiplineApi();
 
@@ -78,69 +77,48 @@ const FunctionalExecutionPipelinesView = (props) => {
     match: {
       path,
       params: {
-        typePipelines,
         namespace,
         slug,
         dataId,
       },
     },
-    actions,
   } = props;
-  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
-  const [dataOperatorsExecuted, setDataOperatorsExecuted] = useState([]);
-  const [initialInformation, setInitialInformation] = useState({ initialFiles: [] });
+  const isExperiment = path.includes('/experiments/');
 
-  const isExperiment = path.includes('/experiments/')
-  || typePipelines === 'new-experiment';
-
-  const isDataset = path.includes('/datasets/')
-  || typePipelines === 'new-data-pipeline';
+  const isDataset = path.includes('/datasets/');
 
   let activeFeature = 'data';
-  let instructionDataModel;
+  let instructionDataModel = experimentInstructionData;
   let pipelinesTypeExecutionTitle;
-  let operationTypeToExecute;
-  let operatorsTitle;
+  let operationTypeToExecute = ALGORITHM;
+  let operatorsTitle = 'Select a model';
   let prefix = 'Op.';
-  let breadCrumbPerPipeline = 'Datasets';
-  let breadCrumbRoute = 'datasets';
+  let breadCrumbPerPipeline = 'Experiments';
   if (isExperiment) {
     activeFeature = 'experiments';
-    breadCrumbRoute = 'experiments';
-    breadCrumbPerPipeline = 'Experiments';
-    instructionDataModel = experimentInstructionData;
     pipelinesTypeExecutionTitle = 'Experiment';
-    operationTypeToExecute = ALGORITHM;
-    operatorsTitle = 'Select a model:';
-    prefix = 'Algo.';
+    prefix = 'Model.';
   } else if (isDataset) {
+    breadCrumbPerPipeline = 'Datasets';
     instructionDataModel = dataPipelineInstructionData;
     pipelinesTypeExecutionTitle = 'Data pre-processing pipeline';
     operationTypeToExecute = OPERATION;
     operatorsTitle = 'Select a data operation';
   } else {
-    breadCrumbRoute = 'visualizations';
+    breadCrumbPerPipeline = 'Visualizations';
     instructionDataModel = dataVisualizationInstuctionData;
     pipelinesTypeExecutionTitle = 'Data visualization';
     operationTypeToExecute = VISUALIZATION;
     operatorsTitle = 'Select a data visualization';
-    breadCrumbPerPipeline = 'Visualizations';
   }
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
+  const [initialInformation, setInitialInformation] = useState({ initialFiles: [] });
 
-  const [processorsAndProjects, setProcessorsAndProjects] = useState([]);
-
-  const fetchProcessors = () => fetchProcessorsPaginatedByType(operationTypeToExecute)
-    .then(addInformationToProcessors)
-    .then(setProcessorsAndProjects);
-
-  const decideEndpoint = () => isExperiment
+  const endpointCall = useCallback(() => isExperiment
     ? experimentsApi.getExperimentDetails(selectedProject.id, dataId)
-    : dataPipelineApi.getBackendPipelineById(dataId);
+    : dataPipelineApi.getBackendPipelineById(dataId), [isExperiment, selectedProject.id, dataId]);
 
-  const fetchInitialInfo = () => decideEndpoint().then((res) => {
-    setDataOperatorsExecuted(
-      addInformationToProcessors(isExperiment ? [res.processing] : res.data_operations),
-    );
+  const fetchInitialInfo = useCallback(() => endpointCall().then((res) => {
     const pipeJobInfo = isExperiment
       ? res.pipeline_job_info
       : res.instances[0]?.pipeline_job_info;
@@ -149,45 +127,40 @@ const FunctionalExecutionPipelinesView = (props) => {
       initialFiles: res?.input_files,
       initialBranch: pipeJobInfo?.ref,
       initialCommit: pipeJobInfo?.commit_sha,
+      dataOperatorsExecuted: addInformationToProcessors(
+        isExperiment ? [res.processing] : res.data_operations,
+      ),
     });
-  });
+  }).catch((err) => toastr.error('Error', err.message)), [endpointCall]);
 
-  const [isProcessorsFetching, executeFetchProcessors] = useLoading(fetchProcessors);
-  const [isFetchingInitialInfo, executeFetchInitInfo] = useLoading(
-    dataId
-      ? fetchInitialInfo
-      : async () => {},
-  );
-
-  useEffect(() => {
-    if (selectedProject.id) {
-      executeFetchProcessors();
-      executeFetchInitInfo();
-    }
-  }, [selectedProject.id, operationTypeToExecute]);
-
-  if (isFetching || isProcessorsFetching || isFetchingInitialInfo) {
-    return (
-      <MLoadingSpinnerContainer active />
-    );
-  }
-
-  const customCrumbs = [
+  const customCrumbs = useMemo(() => [
     {
       name: 'Data',
       href: `/${namespace}/${slug}`,
     },
     {
-      name: `${breadCrumbPerPipeline}`,
-      href: `/${namespace}/${slug}/-/${breadCrumbRoute}`,
+      name: `${breadCrumbPerPipeline.toLowerCase()}`,
+      href: `/${namespace}/${slug}/-/${breadCrumbPerPipeline.toLowerCase()}`,
     },
     {
       name: 'New',
     },
-  ];
+  ], [namespace, slug, breadCrumbPerPipeline]);
+
+  const [isFetchingInitialInfo, executeFetchInitInfo] = useLoading(fetchInitialInfo);
+
+  useEffect(() => {
+    if (dataId && selectedProject.id) executeFetchInitInfo();
+  }, [selectedProject.id]);
+
+  if (isFetching || isFetchingInitialInfo) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
-    <Provider currentProcessors={processorsAndProjects} initialInformation={initialInformation}>
+    <Provider initialInformation={initialInformation} dataId={dataId}>
       <SelectDataPipelineModal />
       <ExecutePipelineModal
         type={operationTypeToExecute}
@@ -219,11 +192,12 @@ const FunctionalExecutionPipelinesView = (props) => {
             <FilesSelector
               instructions={(
                 <p>
-                  Start by selecting your data file(s) you want to include
-                  <br />
-                  in your
+                  First, select a data input path (folder or file)
+                  you want your
                   {' '}
                   {pipelinesTypeExecutionTitle}
+                  {' '}
+                  to be trained on
                 </p>
                 )}
             />
@@ -233,8 +207,6 @@ const FunctionalExecutionPipelinesView = (props) => {
             <DragDropZone
               isExperiment={isExperiment}
               prefix={prefix}
-              initialDataOperators={dataOperatorsExecuted}
-              actions={actions}
             />
           </MCard.Section>
         </MCard>
@@ -244,7 +216,13 @@ const FunctionalExecutionPipelinesView = (props) => {
           title={operatorsTitle}
         >
           <MCard.Section>
-            <ProcessorsList operationTypeToExecute={operationTypeToExecute?.toLowerCase()} />
+            <div className="data-operations">
+              <ProcessorFilters
+                namespace={namespace}
+                operationTypeToExecute={operationTypeToExecute?.toLowerCase()}
+              />
+              <ProcessorsList operationTypeToExecute={operationTypeToExecute?.toLowerCase()} />
+            </div>
           </MCard.Section>
         </MCard>
       </div>
@@ -259,7 +237,6 @@ FunctionalExecutionPipelinesView.propTypes = {
       typePipelines: string,
     }).isRequired,
   }).isRequired,
-  actions: shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
@@ -268,12 +245,4 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators({
-      ...userActions,
-    }, dispatch),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(FunctionalExecutionPipelinesView);
+export default connect(mapStateToProps)(FunctionalExecutionPipelinesView);

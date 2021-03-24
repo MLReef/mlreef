@@ -20,13 +20,13 @@ $border-size: 0 0 1px 1.5px;
 }
 
 .pipe-line-execution{
-    width: 65%;
+    width: 60%;
     min-height: 700px;
     border-radius: 0.3vw;
 }
 
 .pipe-line-execution.tasks-list{
-    width: 34% !important;
+    width: 40% !important;
     margin-left: 8px;
     overflow: hidden;
 }
@@ -38,53 +38,45 @@ $border-size: 0 0 1px 1.5px;
     margin-top: 8px;
 }
 
-.data-operations-select {
-    margin-top: 2%;
-    padding: 1% 15% 1% 0.5%;
-    height: 2.3em;
+.data-operations {
+  &-list {
+    height: 100%;
+    max-height: 80vh;
+    overflow-y: scroll;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #e5e5e5;
+    margin-top: 8px;
+    padding: 0 0.5rem;
 
+    &-item {
+      border: 1px solid #e5e5e5;
+      background-color: white;
+      width: -webkit-fill-available;
+      width: -moz-available;
+      padding: 2% 2% 2% 3%;
+      margin: 0.75rem 0 0.75rem 0;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      
+      &.algorithm {
+        box-shadow: $border-size #E99444;
+      }
+      
+      &.operation {
+        box-shadow: $border-size #D2519D;
+      }
+      
+      &.visualization {
+        box-shadow: $border-size #735DA8;
+      }
+    }
+
+    &item:hover {
+      box-shadow: $border-size var(--info) !important;
+      cursor: pointer;
+    }
+  }
 }
-
-#data-operations-list {
-  height: 100%;
-  max-height: 80vh;
-  overflow-y: scroll;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #e5e5e5;
-  margin-top: 8px;
-  padding: 0 0.5rem;
-}
-
-/* ---------------data-operations-item-header----------- */
-
-.data-operations-item {
-  border: 1px solid #e5e5e5;
-  background-color: white;
-  width: -webkit-fill-available;
-  width: -moz-available;
-  padding: 2% 2% 2% 3%;
-  margin: 0.75rem 0 0.75rem 0;
-  transition: transform 200ms ease, box-shadow 200ms ease;
-}
-
-.data-operations-item:hover{
-  box-shadow: $border-size var(--info) !important;
-  cursor: pointer;
-}
-
-.data-operations-item.algorithm {
-  box-shadow: $border-size #E99444;
-}
-
-.data-operations-item.operation {
-  box-shadow: $border-size #D2519D;
-}
-
-.data-operations-item.visualization {
-  box-shadow: $border-size #735DA8;
-}
-
 
 /* ------------------------Dropdown zone--------------------------- */
 

@@ -1,0 +1,40 @@
+.select-comp {
+  .dropdown {
+    background-color: var(--white);
+    color: var(--dark);
+    border: 1px solid var(--dark);
+    border-radius: 0.25rem;
+
+    ul {
+      box-shadow: 0 2px 4px var(--dark);
+      display: block !important;
+      position: absolute;
+      background-color: var(--white);
+      border-radius: 0.5em;
+      list-style-type: none;
+      padding: 0;
+      width: 16ch;
+
+      li {
+        justify-content: center;
+        button {
+          border: none;
+          padding: 0.5rem;
+          background-color: var(--white);
+          cursor: pointer;
+          width: 100%;
+          &:hover { 
+            background-color: var(--dark) !important;
+            color: var(--white);
+          }
+        }
+      }
+    }
+  }
+
+  .dropdown:hover {
+    background-color: var(--dark);
+    color: var(--white);
+    border: 1px solid var(--dark);
+  }
+  }

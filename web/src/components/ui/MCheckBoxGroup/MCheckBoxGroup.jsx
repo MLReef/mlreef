@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { arrayOf } from 'prop-types';
 import cx from 'classnames';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import './MCheckBoxGroup.scss';
@@ -9,7 +9,7 @@ const MCheckBoxGroup = (props) => {
     className,
     name,
     options,
-    value,
+    values,
     onSelect,
   } = props;
 
@@ -17,7 +17,7 @@ const MCheckBoxGroup = (props) => {
     onSelect(nextValue);
   };
 
-  const checkOption = (optionValue) => optionValue === value;
+  const checkOption = (optionValue) => values.includes(optionValue);
 
   return (
     <div className={cx('m-check-box-group', className)}>
@@ -45,13 +45,13 @@ const MCheckBoxGroup = (props) => {
 
 MCheckBoxGroup.defaultProps = {
   className: '',
-  value: null,
+  values: [],
 };
 
 MCheckBoxGroup.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
-  value: PropTypes.number,
+  values: arrayOf(PropTypes.number),
   options: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string.isRequired,
     value: PropTypes.oneOfType([

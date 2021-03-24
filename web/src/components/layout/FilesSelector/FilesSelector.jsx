@@ -26,13 +26,35 @@ const FilesSelector = (props) => {
   }
 
   return (
-    <div className={`${className} files-selector tutorial-data`}>
+    <div
+      className={`${className} files-selector tutorial-data`}
+      style={{ height: files.length === 0 ? '80vh' : 'max-content' }}
+    >
+      {files.length === 0 && (
+        <div className="files-selector-image-container">
+          <img src="/images/svg/PipelineStep01.svg" alt="" />
+        </div>
+      )}
+      <div className="data-button-container d-flex">
+        {files.length === 0 && (
+          <button
+            type="button"
+            tabIndex="0"
+            id="select-data-btn"
+            className="btn btn-primary"
+            onClick={handleSelectData}
+            onKeyDown={handleSelectData}
+          >
+            {buttonLabel}
+          </button>
+        )}
+      </div>
       {files.length === 0 ? (
-        <div className="instruction">
+        <div className="files-selector-instruction">
           {instructions}
         </div>
       ) : (
-        <div className="px-3 d-flex tutorial-data-loaded">
+        <div className="files-selector-data px-3 d-flex tutorial-data-loaded">
           <div className="mr-auto d-flex" style={{ alignItems: 'center' }}>
             <div className="mr-4">
               <p>Data: </p>
@@ -57,7 +79,7 @@ const FilesSelector = (props) => {
           </div>
           <button
             type="button"
-            className="btn btn-hidden mr-0"
+            className="files-selector-data-button-select btn btn-hidden mr-0"
             onClick={handleSelectData}
           >
             <b>
@@ -66,21 +88,6 @@ const FilesSelector = (props) => {
           </button>
         </div>
       )}
-
-      <div className="data-button-container mt-3 d-flex">
-        {files.length === 0 && (
-          <button
-            type="button"
-            tabIndex="0"
-            id="select-data-btn"
-            className="btn btn-primary"
-            onClick={handleSelectData}
-            onKeyDown={handleSelectData}
-          >
-            {buttonLabel}
-          </button>
-        )}
-      </div>
     </div>
   );
 };
@@ -93,7 +100,7 @@ FilesSelector.defaultProps = {
     </p>
   ),
   className: '',
-  buttonLabel: 'Select data',
+  buttonLabel: 'Select input path',
 };
 
 FilesSelector.propTypes = {

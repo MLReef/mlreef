@@ -34,6 +34,7 @@
 .input-component-container > div > input {
     padding: 4px 6px 4px 6px;
     height: 1.5em;
+    min-width: max-content;
 }
 
 .grey-border {

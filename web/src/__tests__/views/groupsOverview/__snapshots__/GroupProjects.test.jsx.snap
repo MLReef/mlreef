@@ -194,16 +194,13 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
           </p>
           <button
             aria-label="dropdown-btn"
-            className="btn btn-icon btn-hidden p-1"
+            className="btn btn-icon btn-hidden p-1 fa fa-chevron-down "
             id=""
             onClick={[Function]}
             style={Object {}}
             type="button"
           >
             
-            <i
-              className="fa fa-chevron-down "
-            />
           </button>
         </div>
         <div
@@ -302,16 +299,13 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
           </p>
           <button
             aria-label="dropdown-btn"
-            className="btn btn-icon btn-hidden p-1"
+            className="btn btn-icon btn-hidden p-1 fa fa-chevron-down "
             id=""
             onClick={[Function]}
             style={Object {}}
             type="button"
           >
             
-            <i
-              className="fa fa-chevron-down "
-            />
           </button>
         </div>
         <div

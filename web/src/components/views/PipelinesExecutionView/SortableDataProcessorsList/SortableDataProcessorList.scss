@@ -1,7 +1,6 @@
 @import '../../../../styles/breakpoints';
 
-.sortable-data-operation {
-  &-list-item {
+.sortable-data-operation-list-item {
     position: relative;
     display: flex;
     align-items: center;
@@ -9,133 +8,76 @@
     padding-bottom: 0.5rem;
     padding-top: 0.5rem;
     
-    #advanced-dropdown-btn {
-      border: 1px solid var(--dark);
-      width: 3rem;
-      margin: 0 !important;
-    }
-    
-    #advanced-dropdown-btn:hover {
-      background-color: var(--dark);
-      color: var(--white);
-    }
+    &-container {
+      width: -webkit-fill-available;
+      width: -moz-available;
 
-    #showform-button {
-      border: 1px solid var(--dark);
-      width: 3rem;
-    }
+      &-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 0rem 1rem;
 
-    #showform-button:hover {
-      background-color: var(--dark);
-      color: var(--white);
-    }
+        &-title {
 
-    .select-comp {
-      .dropdown {
-        background-color: var(--white);
-        color: var(--dark);
-        border: 1px solid var(--dark);
-        border-radius: 0.25rem;
+        }
 
-        ul {
-          box-shadow: 0 2px 4px var(--dark);
-          display: block !important;
-          position: absolute;
-          background-color: var(--white);
-          border-radius: 0.5em;
-          list-style-type: none;
-          padding: 0;
-          width: 16ch;
+        &-options {
+          display: flex;
+          padding: 1rem;
 
-          li {
-            justify-content: center;
+          div {
+            height: min-content;
+            border: 1px solid var(--almostWhite);
+            padding: 0.1rem;
+            border-radius: 0.25rem;
+
             button {
+              width: 3rem;
+              padding: 0.3rem 0;
+            }
+
+            .close:hover {
+              background-color: var(--danger);
+              color: white;
+            }
+
+            button.render-form-button {
+              background-color: transparent;
               border: none;
-              padding: 0.5rem;
-              background-color: var(--white);
+            }
+            
+            button.render-form-button:hover {
+              background-color: var(--dark);
+              color: var(--white);
               cursor: pointer;
-              width: 100%;
-              &:hover { 
-                background-color: var(--dark) !important;
-                color: var(--white);
-              }
             }
           }
         }
       }
 
-      .dropdown:hover {
-        background-color: var(--dark);
-        color: var(--white);
-        border: 1px solid var(--dark);
+      &-form-advanced {
+        &-ops {
+          display: flex;
+          justify-content: space-between;
+          padding: 1rem 2rem 1rem 1rem;
+          .drop-down {
+            width: 3rem;
+            background-color: transparent;
+            border: none;
+          }
+
+          .drop-down:hover {
+            background-color: var(--dark);
+            color: white;
+          }
+        }
+
+        &-params {
+
+        }
       }
-
-      
-    }
-
-    &:not(:first-child) {
-      &::after {
-        position: absolute;
-        top: 0;
-        left: 1rem;
-        content: "";
-        height: 40%;
-        border-right: solid 1px var(--light);
-      }
-    }
-
-    &:not(:last-child) {
-      &::before {
-        position: absolute;
-        bottom: 0;
-        left: 1rem;
-        content: "";
-        height: 40%;
-        border-right: solid 1px var(--light);
-      }
-    }
-
-    &-arrow {
-      display: none;
-    }
-
-    &:not(:last-child) &-arrow {
-      display: block;
-      position: absolute;
-      z-index: 1;
-      bottom: -1rem;
-      width: 1rem;
-      left: 0.5rem;
-      height: 1rem;
-      background-image: url(/images/triangle-01.png);
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-
-      &::after {
-        position: absolute;
-        content: "";
-        bottom: -0.5rem;
-        right: 0;
-        width: calc(100% - 3.5rem);
-        border-bottom: solid 1px var(--light);
-      }
-    }
-
-    &-separator {
-      display: none;
-    }
-
-    &:not(:last-child) &-separator {
-      display: block;
-      width: calc(100% - 3.5rem);
-      position: absolute;
-      bottom: -0.5rem;
-      right: 0;
-      border-bottom: solid 1px var(--light);
     }
   }
-}
 
 // this is to hide arrow hints when user is in experiments and visualizations
 .pipe-line-execution-container:not(.data-pipeline) {

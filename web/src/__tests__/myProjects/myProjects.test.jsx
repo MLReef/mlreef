@@ -110,8 +110,9 @@ describe('test functionality', () => {
       .simulate('click');
 
     const body = JSON.parse(global.fetch.mock.calls[1][0]._bodyText);
-    expect(body.input_data_types[0]).toBe('TEXT');
-    expect(body.input_data_types[1]).toBe('VIDEO');
+
+    expect(body.input_data_types_or[0]).toBe('TEXT');
+    expect(body.input_data_types_or[1]).toBe('VIDEO');
   });
 
   afterEach(() => {

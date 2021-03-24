@@ -349,7 +349,7 @@ export const buildProjectsRequestBody = (hash, dataTypes = []) => {
     };
   }
 
-  body = { ...body, input_data_types: [...dataTypes]}
+  body = { ...body, input_data_types_or: [...dataTypes]}
 
   return body;
 };

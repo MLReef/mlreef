@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import {
+  bool, func, shape, string,
+} from 'prop-types';
 import './arrowButton.scss';
 
 const ArrowButton = ({
@@ -31,21 +33,22 @@ const ArrowButton = ({
       type="button"
       id={id}
       ref={buttonRef}
-      className={className || 'btn btn-icon btn-hidden p-1'}
+      className={`btn btn-icon btn-hidden p-1 fa fa-chevron-${isOpened ? 'up' : 'down'} ${className}`}
     >
       {placeholder && (
         placeholder
       )}
-      <i className={`fa fa-chevron-down ${isOpened ? 'background-rotate' : ''}`} />
     </button>
   );
 };
 
 ArrowButton.propTypes = {
-  placeholder: PropTypes.string,
-  callback: PropTypes.func,
-  id: PropTypes.string,
-  buttonStyle: PropTypes.shape({}),
+  placeholder: string,
+  callback: func,
+  id: string,
+  buttonStyle: shape({}),
+  className: string,
+  initialIsOpened: bool,
 };
 
 ArrowButton.defaultProps = {
@@ -53,6 +56,8 @@ ArrowButton.defaultProps = {
   callback: () => {},
   id: '',
   buttonStyle: {},
+  className: '',
+  initialIsOpened: false,
 };
 
 export default ArrowButton;
