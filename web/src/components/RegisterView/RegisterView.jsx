@@ -15,8 +15,6 @@ const RegisterView = (props) => {
   const { auth } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  // if already logged when mount then logout (do not include auth in deps)
-  // eslint-disable-next-line
   useEffect(() => { if (auth) dispatch(logout()); }, []);
 
   const onRegistrySuccess = () => {
