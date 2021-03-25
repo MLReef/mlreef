@@ -88,8 +88,8 @@ class Login extends React.Component {
     const { actions } = this.props;
 
     const formData = {
-      username: email,
-      email,
+      username: email.toLowerCase(),
+      email: email.toLowerCase(),
       password,
     };
 
@@ -158,7 +158,7 @@ class Login extends React.Component {
                 <input
                   id="email"
                   type="text"
-                  value={email}
+                  value={email.toLowerCase()}
                   onChange={this.handleChange}
                 />
               </div>

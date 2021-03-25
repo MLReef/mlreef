@@ -141,7 +141,7 @@ const RegisterForm = (props) => {
 
 const handleErrors = (errorRes) => (errorRes.json ? errorRes.json() : Promise.reject(errorRes))
   .then((error) => ({
-    title: `Error`,
+    title: 'Error',
     message: error.error_message || 'Something happened.',
   }))
   .catch(() => ({
@@ -167,8 +167,8 @@ const validations = {
 
     const userData = {
       name: `${payload.firstName} ${payload.lastName}`,
-      username: payload.username,
-      email: payload.email,
+      username: payload.username.toLowerCase(),
+      email: payload.email.toLowerCase(),
       password: payload.password,
     };
 
