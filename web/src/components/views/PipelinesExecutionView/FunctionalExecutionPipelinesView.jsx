@@ -92,12 +92,10 @@ const FunctionalExecutionPipelinesView = (props) => {
   let pipelinesTypeExecutionTitle;
   let operationTypeToExecute = ALGORITHM;
   let operatorsTitle = 'Select a model';
-  let prefix = 'Op.';
   let breadCrumbPerPipeline = 'Experiments';
   if (isExperiment) {
     activeFeature = 'experiments';
     pipelinesTypeExecutionTitle = 'Experiment';
-    prefix = 'Model.';
   } else if (isDataset) {
     breadCrumbPerPipeline = 'Datasets';
     instructionDataModel = dataPipelineInstructionData;
@@ -206,7 +204,6 @@ const FunctionalExecutionPipelinesView = (props) => {
           <MCard.Section>
             <DragDropZone
               isExperiment={isExperiment}
-              prefix={prefix}
             />
           </MCard.Section>
         </MCard>
@@ -221,7 +218,9 @@ const FunctionalExecutionPipelinesView = (props) => {
                 namespace={namespace}
                 operationTypeToExecute={operationTypeToExecute?.toLowerCase()}
               />
-              <ProcessorsList operationTypeToExecute={operationTypeToExecute?.toLowerCase()} />
+              <ProcessorsList
+                operationTypeToExecute={operationTypeToExecute?.toLowerCase()}
+              />
             </div>
           </MCard.Section>
         </MCard>
