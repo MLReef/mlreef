@@ -5,7 +5,6 @@ import { ADD_NEW_PROCESSOR } from './DataPipelineHooks/actions';
 
 const DragDropZone = (prop) => {
   const {
-    prefix,
     isExperiment,
   } = prop;
   const [{
@@ -13,6 +12,12 @@ const DragDropZone = (prop) => {
     processorDataSelected,
     filesSelectedInModal,
   }, dispatch] = useContext(DataPipelinesContext);
+
+  let prefix = 'Op.';
+
+  if (isExperiment) {
+    prefix = 'Model.';
+  }
 
   const allowDrop = () => dispatch({ type: ADD_NEW_PROCESSOR });
 
@@ -23,23 +28,21 @@ const DragDropZone = (prop) => {
   return (
     <>
       <SortableProcessorsList prefix={prefix} />
-      {((isExperiment && processorsSelected.length === 0) || !isExperiment) && (
-        <div
-          id="drop-zone"
-          className={`drop-zone d-flex ml-1 ${processorDataSelected ? 'moving' : ''}`}
-          onDragEnter={allowDrop}
-        >
-          <p className="drop-zone-operation-counter">
-            {`${prefix}${processorsSelected.length + 1}:`}
-          </p>
-          <i className="drop-zone-ico fas fa-plus" />
-          <p className="drop-zone-instruction">
-            Drag and drop an operator from the right
-            <br />
-            list
-          </p>
-        </div>
-      )}
+      <div
+        id="drop-zone"
+        className={`drop-zone d-flex ml-1 ${processorDataSelected ? 'moving' : ''}`}
+        onDragEnter={allowDrop}
+      >
+        <p className="drop-zone-operation-counter">
+          {`${prefix}${processorsSelected.length + 1}:`}
+        </p>
+        <i className="drop-zone-ico fas fa-plus" />
+        <p className="drop-zone-instruction">
+          Drag and drop an operator from the right
+          <br />
+          list
+        </p>
+      </div>
     </>
   );
 };
