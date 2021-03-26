@@ -1,11 +1,17 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import JobLog from 'components/ExperimentDetails/MenuOptions/jobLog';
+import JobLog from 'components/commons/JobLog';
 import { jobLogMock, jobMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
-import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
+// import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
 import jobActions from 'components/ExperimentDetails/actions';
 import { MemoryRouter as Router } from 'react-router-dom';
+import dayjs from 'dayjs';
+import durationModule from 'dayjs/plugin/duration';
+import relativeModule from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(durationModule);
+dayjs.extend(relativeModule);
 
 const jobLogResponse = {
   ok: true,
@@ -38,25 +44,22 @@ describe('assert that component includes information about job', () => {
   });
 
   test('main info', () => {
-    wrapper.setProps({});
-    const { created_at } = jobMock;
-    const jobTimeCreatedAgo = getTimeCreatedAgo(created_at, new Date());
-    const titleText = wrapper.find('#number-and-time-ago-cont').text();
+    const { created_at: createdAt } = jobMock;
+
+    const jobTimeCreatedAgo = dayjs(createdAt).fromNow();
+    const titleText = wrapper.find('[data-testid="created"]').text();
+
     expect(titleText.includes(jobMock.id)).toBe(true);
     expect(titleText.includes(jobTimeCreatedAgo)).toBe(true);
   });
 
   test('additional info', () => {
     const { duration, runner } = jobMock;
-    const additionalInfo = wrapper.find('#additional-info-job');
-    const parsedDuration = parseDurationInSeconds(duration);
-    const children = additionalInfo.children();
-    const jobInfoLine = children.first().children();
-    const runnerInfo = children.at(1).children().first();
 
-    expect(jobInfoLine.at(0).text().includes(parsedDuration));
-    expect(jobInfoLine.at(1).text().includes(jobMock.pipeline.id));
-    expect(runnerInfo.text().includes(runner.description));
-    expect(runnerInfo.text().includes(runner.id));
+    expect(wrapper.find('[data-testid="duration"]').text()
+      .includes(dayjs.duration(duration, 'seconds').format('H[h] m[m] s[s]')));
+    expect(wrapper.find('[data-testid="pipeline"]').text().includes(jobMock.pipeline.id));
+    expect(wrapper.find('[data-testid="runner"]').text().includes(runner.description));
+    expect(wrapper.find('[data-testid="runner"]').text().includes(runner.id));
   });
 });

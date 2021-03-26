@@ -39,7 +39,7 @@ const Insights = (props) => {
     {
       path: `/${namespace}/${slug}/insights/-/jobs/${logId}`,
       exact: true,
-      main: () => <JobLogById projectId={gid} logId={logId} />,
+      main: () => <JobLogById projectId={gid} logId={parseInt(logId, 10)} />,
     },
   ];
 
@@ -125,6 +125,5 @@ Insights.propTypes = {
     params: shape({}),
   }).isRequired,
 };
-
 
 export default Insights;
