@@ -1,0 +1,73 @@
+#!/bin/bash
+set -x
+# change to the repository root folder via the scripts location
+cd "$(dirname "$0")"/..
+
+########################################
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
+########################################
+
+# Function usage to show usage of script
+usage()
+{
+cat<<EOF
+Usage: $0 image_tar_path
+EOF
+}
+
+MLREEF_TAR="mlreef.tar"
+# Check if command line arguments exist, if not print usage
+if [ $# -lt 1 ]; then
+  usage
+  exit
+else
+  IMAGE_TAR_PATH="$1"
+fi
+
+# Check if tar directory exists
+if [ -d $IMAGE_TAR_PATH ]; then
+  MLREEF_IMAGE=$(docker load -i $IMAGE_TAR_PATH/$MLREEF_TAR | awk '{print $3}')
+ echo $MLREEF_IMAGE
+else
+  echo "The $IMAGE_TAR_PATH does not exists, give a valid path"
+  exit
+fi
+
+DOCKER_NETWORK="mlreef-docker-network"
+### Create mlreef-docker-network if already not there
+  docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || \
+  docker network create -d bridge $DOCKER_NETWORK
+
+
+
+docker run -d -it --rm --name mlreef                 \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --net $DOCKER_NETWORK                 \
+  --volume mlreef-opt:/var/opt/gitlab   \
+  --volume mlreef-etc:/etc/gitlab       \
+  --volume mlreefdb-opt:/var/opt/mlreef \
+  --publish 2022:22                     \
+  --publish 80:80                       \
+  --publish 8081:8081                   \
+  --publish 5050:5050                   \
+  --publish 10080:10080                 \
+  --publish 6000:6000                   \
+  --env OFFLINE_MODE=true               \
+  $MLREEF_IMAGE
+
+sleep 60
+
+### Copy all images to nautilus container
+for FILE in $IMAGE_TAR_PATH; do
+  if [ "$FILE" != "$MLREEF_TAR" ]; then
+    docker cp $FILE mlreef:/
+    docker exec -it mlreef docker load -i /$FILE
+  fi
+done
+
+### Call offline-setup script to do post setup job in nautilus container
+
+docker exec -it mlreef /assets/offline-setup

@@ -1,0 +1,49 @@
+#!/bin/bash
+# change directory scripts location
+cd "$(dirname "$0")"
+########################################
+set -x  # output all commands
+set -o pipefail
+set -e # exit on immediately on every error
+set -u # error on usage of undefined variables
+########################################
+
+# Set the bashrc to setup derived env variables
+source /etc/bash.bashrc
+
+
+log() {
+  echo "### $(date +%Y-%m-%d\ %H:%M:%S) ### $1"
+}
+
+checkProjectExists() {
+  curl "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups/$MLREEF_GITLAB_LOCAL_REGISTRY_GROUP/projects?search=$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT" | jq -M 'map(select(.name == "'$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT'"))| .[0].name'
+}
+
+until [ "$(checkProjectExists)" == "$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT" ]; do
+  printf '.'
+  sleep 5;
+done
+log "Expecting the $MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT to exists. Found $MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT"
+
+
+##################################
+# Local registry EPF image upload
+export MLREEF_DOCKER_REGISTRY_USER=root
+
+if [ -n "${MLREEF_DOCKER_REGISTRY_EXTERNAL_URL+x}" ] && [ -n "${MLREEF_DOCKER_REGISTRY_USER+x}" ] && [ -n "${GITLAB_ADMIN_TOKEN+x}" ]; then
+          echo "$GITLAB_ADMIN_TOKEN" | docker login "$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL" --username="$MLREEF_DOCKER_REGISTRY_USER" --password-stdin
+fi
+
+## The OFFLINE_MODE variable is not set by default, so the images for local repo ar created at runtime and get pushed
+## When the OFFLINE_MODE variable is set, it means the server is offline, in that case the images are uploaded as below 
+## , when the container is up and running and get pushed to registry
+if [[ ! -z $OFFLINE_MODE ]] ; then
+docker image tag "$GITLAB_REGISTRY_EXPERIMENT_IMAGE_PATH" "$LOCAL_EXPERIMENT_IMAGE_PATH"
+docker push "$LOCAL_EXPERIMENT_IMAGE_PATH"
+log "$LOCAL_EXPERIMENT_IMAGE_PATH has been successfully uploaded "
+
+docker image tag "$GITLAB_REGISTRY_EPF_IMAGE_PATH" "$LOCAL_EPF_IMAGE_PATH"
+docker push "$LOCAL_EPF_IMAGE_PATH"
+log "$LOCAL_EPF_IMAGE_PATH has been successfully uploaded "
+fi

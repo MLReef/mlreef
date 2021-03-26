@@ -12,6 +12,7 @@ ENV TENSORFLOW_VERSION 2.1.0
 RUN apt-get update                  && \
     apt-get install -y apt-utils    && \
     apt-get install --yes git       && \
+    apt-get install -y wget         && \
     apt-get clean
 
 ##### ADD files to the image
