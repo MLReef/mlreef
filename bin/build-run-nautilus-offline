@@ -58,10 +58,11 @@ docker run -d -it --rm --name mlreef                 \
   --env OFFLINE_MODE=true               \
   $MLREEF_IMAGE
 
-sleep 60
+sleep 30
 
 ### Copy all images to nautilus container
-for FILE in $IMAGE_TAR_PATH; do
+cd $IMAGE_TAR_PATH
+for FILE in *; do
   if [ "$FILE" != "$MLREEF_TAR" ]; then
     docker cp $FILE mlreef:/
     docker exec -it mlreef docker load -i /$FILE
