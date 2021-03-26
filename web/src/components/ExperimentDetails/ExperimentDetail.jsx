@@ -8,11 +8,11 @@ import {
 import hooks from 'customHooks/useSelectedProject';
 import './ExperimentDetail.scss';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
+import JobLog from 'components/commons/JobLog';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import DetailsSummary from './MenuOptions/DetailSummary';
 import Files from './MenuOptions/ExperimentArtifacts';
-import JobLog from './MenuOptions/jobLog';
 import actions from './actions';
 
 export const ExperimentDetails = (props) => {

@@ -1,0 +1,86 @@
+.job-log {
+
+  &-header {
+    display: flex;
+    border-bottom: solid 1px var(--secondary);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+
+    &-status {
+      align-self: flex-end;
+      margin-left: auto;
+      margin-right: 0;
+      font-weight: bold;
+
+      &.success {
+        color: var(--success);
+      }
+
+      &.running {
+        color: var(--info);
+      }
+
+      &.pending {
+        color: var(--warning);
+      }
+
+      &.canceled {
+        color: var(--danger);
+      }
+    }
+  }
+
+  &-info-extra {
+    display: flex;
+
+    &-left {
+      flex: 1;
+    }
+
+    &-label {
+      display: inline-block;
+      min-width: 5rem;
+    }
+
+  }
+  &-user {
+    display: inline-flex;
+    justify-content: flex-end;
+    position: relative;
+    top: 0.5em;
+    margin-left: 0.5em;
+
+    &-avatar {
+      height: 1.5em;
+      border-radius: 50%;
+      margin-right: 0.5em;
+    }
+
+    &-name {
+      text-align: center;
+      vertical-align: middle;
+      line-height: 140%;
+    }
+  }
+
+
+  .log-line {
+    display: flex;
+    color: var(--white);
+    margin: 0 0 0 0.5em;
+    padding: 0.35em;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+
+  .number-span-container {
+    flex: 0 0 4ch;
+    margin-right: 0.5em;
+  }
+
+  & #top-job-log-div {
+    padding: .5em;
+    background-color: var(--light);
+    border: 1px solid var(--almostWhite);
+  }
+}

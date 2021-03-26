@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
@@ -6,12 +6,15 @@ import {
   shape, number, string,
 } from 'prop-types';
 import moment from 'moment';
+import { suscribeRT } from 'functions/apiCalls';
 import greyLogo from 'images/icon_grey-01.png';
 import './jobs.scss';
 import JobsApi from 'apis/JobsApi';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import { determineJobClass } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
+
+const timeout = 60 * 1000;
 
 const dataPipeApi = new DataPipelineApi();
 const jobsApi = new JobsApi();
@@ -21,18 +24,24 @@ const Jobs = (props) => {
   const [jobList, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [backendPipes, setBackendPipes] = useState([]);
-  useEffect(() => {
-    if (id) {
-      dataPipeApi.getProjectPipelines(id)
-        .then((backendPipelines) => setBackendPipes(backendPipelines))
-        .then(() => jobsApi.getPerProject(gid))
-        .then((res) => {
-          setFilteredJobs(res);
-          setJobs(res);
-        })
-        .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
-    }
-  }, [id, gid]);
+
+  const fetchJob = useCallback(
+    () => {
+      if (id) {
+        dataPipeApi.getProjectPipelines(id)
+          .then((backendPipelines) => setBackendPipes(backendPipelines))
+          .then(() => jobsApi.getPerProject(gid))
+          .then((res) => {
+            setFilteredJobs(res);
+            setJobs(res);
+          })
+          .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
+      }
+    },
+    [id, gid, setBackendPipes, setFilteredJobs, setJobs],
+  );
+
+  useEffect(() => suscribeRT({ timeout })(fetchJob), [fetchJob]);
 
   const handleButtonsClick = (e) => {
     if (e.target.parentNode) {
