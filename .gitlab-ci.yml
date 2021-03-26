@@ -18,7 +18,7 @@ variables:
   S3_DATA_BUCKET:       "mlreef-application-data"          # see also ec2 startup script
   DATA_ARCHIVE:         "mlreef-data-master.zip"
 
-.except-docu-branches:
+.except-docu-branches: &except-docu-branches
   except:
     variables:
       # $CI_COMMIT_REF_NAME is the complete branch name e.g. "feature/my-cool-new-branch"
@@ -50,9 +50,9 @@ variables:
       - README.md
 
 deploy_review:
-  extends: [".except-docu-branches"]
   stage: deploy
   <<: *run-on-all-code-changes
+  <<: *except-docu-branches
   image:
     name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
     entrypoint: ["/bin/bash", "-c"]
@@ -70,9 +70,9 @@ deploy_review:
 
 
 post-deploy:
-  extends: [".except-docu-branches"]
   stage: post-deploy
   <<: *run-on-all-code-changes
+  <<: *except-docu-branches
   image: docker:19.03.12
   services:
     - name: docker:19.03.12-dind
@@ -86,7 +86,7 @@ post-deploy:
     - k8s/gitlab-post-deployment
 
 stop_review:
-  extends: [".except-docu-branches"]
+  <<: *except-docu-branches
   image:
     name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
     entrypoint: ["/bin/bash", "-c"]
@@ -121,9 +121,9 @@ stop_review:
       https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/registry/repositories/1196730/tags/$CI_COMMIT_REF_SLUG
 
 clean rest docs folder:
-  extends: [.except-docu-branches]
   stage: maintenance
   <<: *run-on-pages-relevant-changes
+  <<: *except-docu-branches
   image: registry.gitlab.com/systemkern/s5:1
   allow_failure: true
   cache:
@@ -155,9 +155,9 @@ pages:
       - public
 
 test rest docs are present:
-  extends: [.except-docu-branches]
   stage: test
   <<: *run-on-pages-relevant-changes
+  <<: *except-docu-branches
   image: registry.gitlab.com/systemkern/s5:1
   allow_failure: true
   # See bin/ci-pages for the exact path to where rest docs are deployed
@@ -180,9 +180,9 @@ test rest docs are present:
 
 
 smoke tests:
-  extends: [.except-docu-branches]
   stage: test
   <<: *run-on-all-code-changes
+  <<: *except-docu-branches
   when: delayed
   start_in: 5 minutes
   image: registry.gitlab.com/systemkern/s5:latest-git
@@ -192,17 +192,18 @@ smoke tests:
 
 end2end tests:
   #import the centralised caching configuration for npm caches (from web/.gitlab-ci.yml)
-  extends: [".except-docu-branches", ".npm-cache-config"]
+  extends: [".npm-cache-config"]
   stage: test
   <<: *run-on-all-code-changes
+  <<: *except-docu-branches
   #The image should be the same image as web/Dockerfile and the "build frontend" job
   image: node:10.19.0-alpine
   allow_failure: true ##Temporary till the time bug gets fixed
   script: web/bin/ci-run-end2end-tests
 
 .system-tests:
-  extends: [".except-docu-branches"]
   <<: *run-on-all-code-changes
+  <<: *except-docu-branches
   except:
     refs:
       - master
