@@ -6,9 +6,7 @@ ADD . /workdir
 # Sets the default starting directory of this image to
 WORKDIR /workdir
 # Add dependencies
-RUN apt-get update   && \
-    apt-get install -y wget
-    
+## Any apt repo dependencies should be added in the base image than here to support offline mode    
 
 # if requirements.txt exist run pip3 install
 RUN if [ -f requirements.txt ]; then  pip3 install -r requirements.txt; fi

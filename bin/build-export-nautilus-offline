@@ -1,0 +1,34 @@
+#!/bin/bash
+## The script to tar all required images for setting up mlreef on offline server
+cd "$(dirname "$0")"/..
+. k8s/includes/ci-environment
+########################################
+set -x  # output all commands
+set -o  pipefail
+set -e  # exit on immediately on every error
+set -u  # error on usage of undefined variables
+########################################
+
+mkdir mlreef-images-tar
+cd mlreef-images-tar
+
+##Save all the required images for the mlreef setup
+
+docker pull registry.gitlab.com/mlreef/mlreef:$IMAGE_TAG
+docker save -o mlreef.tar registry.gitlab.com/mlreef/mlreef:$IMAGE_TAG
+
+docker pull $EXPERIMENT_IMAGE_PATH
+docker save -o experiment.tar $EXPERIMENT_IMAGE_PATH
+
+docker pull $EPF_IMAGE_PATH
+docker save -o epf.tar $EPF_IMAGE_PATH
+
+docker pull registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker:latest
+docker save -o publishing-base-docker.tar registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker:latest
+
+docker pull docker:19.03.12-dind
+docker save -o docker-dind.tar docker:19.03.12-dind
+
+# scp all tar files from  mlreef_images_tar directory to the offline server
+
+

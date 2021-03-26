@@ -20,15 +20,11 @@ services:
 job:
   tags:
     - local-docker
-  image: docker:19.03.12
+  # Any package dependency for the job should be added in the following base image
+  image: registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker
   only:
     - master
-  #tags:
-  #  - local-docker
   when: on_success
-  before_script:
-    - apk add --update curl || true
-    - apk add --update wget || true
   script:
     - echo "$CI_REGISTRY"
     # Build the docker image in the repositories root directory
