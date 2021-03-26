@@ -64,11 +64,6 @@ const Tutorial = (props) => {
     [contents, records, actions, ctxDispatch],
   );
 
-  const handleClose = () => {
-    ctxDispatch({ type: 'HIDE_DIALOG' });
-    if (actions) actions.setActive(false);
-  };
-
   const handleResumeTutorial = (id) => selectTutorial(id);
 
   const handleStartFreshTutorial = (id) => selectTutorial(id, true);
@@ -208,7 +203,7 @@ const Tutorial = (props) => {
         <button
           type="button"
           label="close"
-          onClick={handleClose}
+          onClick={() => ctxDispatch({ type: 'HIDE_DIALOG' })}
           className="tutorial-dialog-container-close btn btn-hidden fa fa-times"
         />
         <div className="tutorial-dialog">
