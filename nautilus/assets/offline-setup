@@ -20,7 +20,7 @@ checkProjectExists() {
   curl "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups/$MLREEF_GITLAB_LOCAL_REGISTRY_GROUP/projects?search=$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT" | jq -M 'map(select(.name == "'$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT'"))| .[0].name'
 }
 
-until [ "$(checkProjectExists)" == "$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT" ]; do
+until [ "$(checkProjectExists)" == "\"$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT\"" ]; do
   printf '.'
   sleep 5;
 done
