@@ -12,6 +12,7 @@ import ProjectInfo from './ProjectTitleNActions';
 
 const ProjectContainer = (props) => {
   const {
+    isEmptyProject,
     activeFeature,
     globalColorMarker,
     project,
@@ -53,24 +54,24 @@ const ProjectContainer = (props) => {
             {isDataProject ? 'Data' : 'Code'}
           </Link>
 
-          {isDataProject && (
-          <AuthWrapper className="tab-disabled">
-            <Link
-              onClick={forceShowExperimentList}
-              to={`/${namespace}/${slug}/-/experiments`}
-              className="feature"
-              id="experiments"
-            >
-              Experiments
-            </Link>
-          </AuthWrapper>
-          )}
-          {isDataProject && (
-          <AuthWrapper className="tab-disabled">
-            <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
-              Insights
-            </Link>
-          </AuthWrapper>
+          {(isDataProject && !isEmptyProject) && (
+            <>
+              <AuthWrapper className="tab-disabled">
+                <Link
+                  onClick={forceShowExperimentList}
+                  to={`/${namespace}/${slug}/-/experiments`}
+                  className="feature"
+                  id="experiments"
+                >
+                  Experiments
+                </Link>
+              </AuthWrapper>
+              <AuthWrapper className="tab-disabled">
+                <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
+                  Insights
+                </Link>
+              </AuthWrapper>
+            </>
           )}
           <AuthWrapper
             owneronly
@@ -100,14 +101,12 @@ function mapStateToProps(state) {
   };
 }
 ProjectContainer.defaultProps = {
-  viewName: 'Data',
   breadcrumbs: [],
 };
 
 ProjectContainer.propTypes = {
   project: objectOf(shape).isRequired,
   activeFeature: string.isRequired,
-  viewName: string,
   breadcrumbs: arrayOf(shape),
 };
 

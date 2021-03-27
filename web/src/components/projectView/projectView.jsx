@@ -211,6 +211,7 @@ class ProjectView extends React.Component {
         <div style={{ display: isForking ? 'none' : 'block' }}>
           {gid && (
             <ProjectContainer
+              isEmptyProject={project.emptyRepo}
               setIsForking={this.setIsForking}
               activeFeature="data"
               breadcrumbs={generateBreadCrumbs(project, customCrumbs)}

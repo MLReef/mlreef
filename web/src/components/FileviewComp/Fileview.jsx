@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MCodeRenderer from 'components/layout/MCodefileRenderer/MCodefileRenderer';
 import './Fileview.scss';
 import { connect } from 'react-redux';
@@ -16,6 +16,8 @@ import MWrapper from 'components/ui/MWrapper';
 import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import useLoading from 'customHooks/useLoading';
+import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import functions from './functions';
 
 import ProjectContainer from '../projectContainer';
@@ -45,13 +47,17 @@ const FileView = (props) => {
   const [fileData, setFileData] = useState(null);
   const [isDeleteModalVisible, setIsModalVisible] = useState(false);
 
+  const fetchFileData = useCallback(() => functions.getFileAndInformation(gid, file, branch, commit)
+    .then(({ fData, commitInfoDet }) => {
+      setFileData(fData);
+      setCommitInfo(commitInfoDet);
+    }), [gid, file, branch, commit]);
+
+  const [isLoadingFileData, executeFileFetch] = useLoading(fetchFileData);
+
   useEffect(() => {
     if (gid) {
-      functions.getFileAndInformation(gid, file, branch, commit)
-        .then(({ fData, commitInfoDet }) => {
-          setFileData(fData);
-          setCommitInfo(commitInfoDet);
-        });
+      executeFileFetch();
     }
   }, [selectedProject]);
 
@@ -256,33 +262,58 @@ const FileView = (props) => {
             </div>
           </div>
         </div>
-        <div
-          itemProp="text"
-          className="fileview-file-container-content"
-        >
-          <div className="fileview-file-container-content-blob">
-            {extension === 'jpg' || extension === 'png' ? (
-              <div className="d-flex">
-                <img
-                  className="file-img mx-auto"
-                  src={`data:image/png;base64,${fileData.content}`}
-                  alt={fileName}
-                />
-              </div>
-            ) : (
-              fileContent && (
-              <MCodeRenderer
-                code={fileContent}
-                fileExtension={extension}
-              />
-              )
-            )}
-          </div>
-        </div>
+        {isLoadingFileData
+          ? (
+            <div
+              className="d-flex"
+              style={{
+                height: '3rem',
+                justifyContent: 'center',
+              }}
+            >
+              <MLoadingSpinner active />
+            </div>
+          )
+          : (
+            <FileSection
+              extension={extension}
+              fileName={fileName}
+              fileContent={fileContent}
+              rawFileContent={fileData?.content}
+            />
+          )}
       </div>
     </div>
   );
 };
+
+const FileSection = ({
+  extension, fileName, fileContent, rawFileContent,
+}) => (
+  <div
+    itemProp="text"
+    className="fileview-file-container-content"
+  >
+    <div className="fileview-file-container-content-blob">
+      {extension === 'jpg' || extension === 'png' ? (
+        <div className="d-flex">
+          <img
+            className="file-img mx-auto"
+            src={`data:image/png;base64,${rawFileContent}`}
+            alt={fileName}
+          />
+        </div>
+      ) : (
+        fileContent && (
+        <MCodeRenderer
+          code={fileContent}
+          fileExtension={extension}
+        />
+        )
+      )}
+    </div>
+  </div>
+);
 
 FileView.propTypes = {
   match: shape({
