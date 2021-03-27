@@ -118,7 +118,9 @@ touch /var/log/configuration.log
     --run-untagged="true" \
     --locked="false" \
     --access-level="not_protected"   \
-    --docker-extra-hosts "$INSTANCE_HOST:$CONTAINER_IP"
+    --docker-extra-hosts "$INSTANCE_HOST:$CONTAINER_IP" \
+    --docker-pull-policy always                         \
+    --docker-pull-policy if-not-present
 
   gitlab-runner start
 
