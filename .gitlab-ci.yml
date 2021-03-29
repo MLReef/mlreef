@@ -86,11 +86,11 @@ post-deploy:
     - k8s/gitlab-post-deployment
 
 stop_review:
+  stage: maintenance
   <<: *except-docu-branches
   image:
     name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
     entrypoint: ["/bin/bash", "-c"]
-  stage: maintenance
   variables:
     GIT_STRATEGY: none
   when: manual
@@ -204,9 +204,6 @@ end2end tests:
 .system-tests:
   <<: *run-on-all-code-changes
   <<: *except-docu-branches
-  except:
-    refs:
-      - master
   stage: test
   image: java:8
   services:
