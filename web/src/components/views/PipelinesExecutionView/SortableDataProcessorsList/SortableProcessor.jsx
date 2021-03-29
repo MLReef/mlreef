@@ -8,6 +8,7 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import InputParam from './InputParam';
 import { SelectComp } from '../SelectComp/SelectComp';
 import { REMOVE_DATA_PROCESSOR_BY_ID, VALIDATE_FORM } from '../DataPipelineHooks/actions';
+import DataOperatorCodeSection from './DataOperatorCodeSection/DataOperatorCodeSection';
 
 const SortableProcessor = SortableElement(({
   value,
@@ -87,9 +88,10 @@ const SortableProcessor = SortableElement(({
               </div>
             </div>
           </div>
-
+          <hr />
           {isFormdivVisible && (
           <div className="sortable-data-operation-list-item-container-form">
+            <p className="advice-1">You need to set the following parameters</p>
             <br />
             <div style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
               <ParametersSection
@@ -110,9 +112,6 @@ const SortableProcessor = SortableElement(({
                   />
                   Advanced
                 </label>
-                {nameSpace && (
-                  <a href={`/${nameSpace}/${slug}`} target="_blank" rel="noopener noreferrer"><b>View Repository</b></a>
-                )}
               </div>
               {isAdvancedSectionVisible && (
               <div className="sortable-data-operation-list-item-container-form-advanced-params" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
@@ -124,6 +123,7 @@ const SortableProcessor = SortableElement(({
               )}
             </>
             )}
+            <DataOperatorCodeSection processor={value} />
           </div>
           )}
         </div>

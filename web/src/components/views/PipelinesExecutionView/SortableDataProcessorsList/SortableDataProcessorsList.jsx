@@ -37,7 +37,7 @@ const SortableListContainer = ({ prefix }) => {
   });
 
   return (
-    <SortableProcessorsList items={items} prefix={prefix} onSortEnd={onSortEnd} pressDelay={50} />
+    <SortableProcessorsList items={items} prefix={prefix} onSortEnd={onSortEnd} pressDelay={100} />
   );
 };
 

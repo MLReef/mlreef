@@ -32,7 +32,7 @@ const MCodeRenderer = ({
       language={languagesPerExtensions[fileExtension]}
       theme={theme}
       value={code}
-      options={{ ...options, disableMonospaceOptimizations: true }}
+      options={{ ...options, disableMonospaceOptimizations: true, renderIndentGuides: false }}
       onChange={(val) => onChange(val)}
       editorDidMount={(editor) => {
         editor.focus();
