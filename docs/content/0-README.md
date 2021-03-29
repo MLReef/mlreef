@@ -4,9 +4,12 @@ Welcome to [MLReef](https://mlreef.com) documentation.
 
 > MLReef is currently on **closed alpha** and therefore, this documentation is subject to change.
 
-For all early access user we suggest starting with this [**early access documentation**](5-early_access_guide.md). It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
+For all early access user we suggest starting with this [**early access documentation**](5-early_access_guide.md).
+It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
 
-> If you need support and you can´t find help here, don´t hesitate to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues), connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at help@mlreef.com. You are never alone in the reef!
+> If you need more support than you can find here, feel free to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues,
+> connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at help@mlreef.com.
+> You are never alone in the reef!
 
 
 ## Overview
