@@ -1,6 +1,12 @@
 import React, { Suspense } from 'react';
 
-const Monaco = React.lazy(() => import('react-monaco-editor'));
+let Monaco;
+
+try {
+  Monaco = React.lazy(() => import('react-monaco-editor'));
+} catch (error) {
+  console.error(error);
+}
 require('monaco-editor');
 
 const MonacoEditor = (props) => (

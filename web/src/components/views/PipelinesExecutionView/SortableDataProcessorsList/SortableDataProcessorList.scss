@@ -54,26 +54,31 @@
           }
         }
       }
-
-      &-form-advanced {
-        &-ops {
-          display: flex;
-          justify-content: space-between;
-          padding: 1rem 2rem 1rem 1rem;
-          .drop-down {
-            width: 3rem;
-            background-color: transparent;
-            border: none;
-          }
-
-          .drop-down:hover {
-            background-color: var(--dark);
-            color: white;
-          }
+      &-form {
+        .advice-1 {
+          color: var(--almostWhite);
+          margin: 0 0 0 1rem;
         }
+        &-advanced {
+          &-ops {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 2rem 1rem 1rem;
+            .drop-down {
+              width: 3rem;
+              background-color: transparent;
+              border: none;
+            }
 
-        &-params {
+            .drop-down:hover {
+              background-color: var(--dark);
+              color: white;
+            }
+          }
 
+          &-params {
+
+          }
         }
       }
     }
