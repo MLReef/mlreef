@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { sortAsc, sortDesc } from 'components/ui/MDataTable/functions';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
+import MAccordion from 'components/ui/MAccordion';
+import ExperimentTableOverall from './ExperimentTableOverall';
 import ExperimentTableRow from './ExperimentTableRow';
 import ExperimentTableFilters from './ExperimentTableFilters';
 import ExperimentTableCustomizeColumns from './ExperimentTableCustomizeColumns';
@@ -22,11 +24,24 @@ const sorters = {
 const initCols = (cols) => cols.filter((c) => c.type !== 'metric')
   .map((c) => c.x);
 
+const tabs = [
+  {
+    title: 'Experiments overview',
+    subtitle: 'Graph and compare all experiments based on their performance metrics.',
+  },
+  {
+    title: 'Experiment list',
+    subtitle: 'View all your experiments and expand each row to gain more insights.',
+  },
+];
+
 const ExperimentTable = (props) => {
   const {
     className,
     style,
     experiments,
+    store,
+    actions,
     onDeleteExperiments,
     onStopExperiments,
     onUpdateExperiments,
@@ -46,6 +61,7 @@ const ExperimentTable = (props) => {
   const [selectedColIds, setSelectedColIds] = useState(initCols(header.cols));
   const [filteredRows, setFilteredRows] = useState(data);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [hiddenExpIds, setHiddenExpIds] = useState([]);
 
   const filterSelectedCols = useCallback(
     (cols) => selectedColIds.map((id) => cols.find((c) => c.x === id)),
@@ -94,6 +110,14 @@ const ExperimentTable = (props) => {
     [filteredRows, mods],
   );
 
+  const changeHiddenExpIds = (id) => {
+    const nextIds = hiddenExpIds.some((expId) => expId === id)
+      ? hiddenExpIds.filter((expId) => expId !== id)
+      : hiddenExpIds.concat(id);
+
+    setHiddenExpIds(nextIds);
+  };
+
   const actives = [
     // { color: '#CC88FF', cols: [4, 6] },
   ];
@@ -103,101 +127,117 @@ const ExperimentTable = (props) => {
 
   return (
     <div className={cx('experiment-table-container', className)} style={style}>
-      <div className="experiment-table-header">
-        <ExperimentTableFilters
-          rows={data}
-          setFilteredRows={setFilteredRows}
-        />
-        <div className="experiment-table-btn-group">
-          {selectedRows.length > 0 && (
-            <button
-              type="button"
-              label="delete"
-              className="experiment-table-btn delete fa fa-times border-rounded"
-              onClick={handleDeleteExperiments}
-            />
-          )}
-          {selectedRows.length > 0 && (
-            <button
-              type="button"
-              label="stop"
-              className="experiment-table-btn stop fa fa-stop border-rounded"
-              onClick={handleStopExperiments}
-            />
-          )}
-          <button
-            type="button"
-            label="update"
-            className="experiment-table-btn reload fa fa-redo border-rounded"
-            onClick={onUpdateExperiments}
+      <MAccordion>
+        <MAccordion.Item title={tabs[0].title} subtitle={tabs[0].subtitle} defaultExpanded>
+          <ExperimentTableOverall
+            experiments={experiments}
+            onUpdateExperiments={onUpdateExperiments}
+            hiddenExpIds={hiddenExpIds}
+            className="mb-4"
+            store={store}
+            actions={actions}
           />
-        </div>
-        <ExperimentTableCustomizeColumns
-          allCols={header.cols}
-          selectedColIds={selectedColIds}
-          setSelectedColIds={setSelectedColIds}
-        />
-      </div>
-      {data.length > 0 && (
-        <table className="experiment-table">
-          <thead>
-            <tr data-row="header">
-              <th data-col="index" className="experiment-table-row-cell">
-                N
-              </th>
-              <th data-col="actions" label="actions-label" className="border-rounded-left">
-                <MCheckBox
-                  small
-                  name="all"
-                  callback={toggleSelectAll}
-                  checked={selectedRows.length === experiments.length}
+        </MAccordion.Item>
+        <MAccordion.Item title={tabs[1].title} subtitle={tabs[1].subtitle}>
+          <div className="experiment-table-header">
+            <ExperimentTableFilters
+              rows={data}
+              setFilteredRows={setFilteredRows}
+            />
+            <div className="experiment-table-btn-group">
+              {selectedRows.length > 0 && (
+                <button
+                  type="button"
+                  label="delete"
+                  className="experiment-table-btn delete fa fa-times border-rounded"
+                  onClick={handleDeleteExperiments}
                 />
-              </th>
-
-              {filterSelectedCols(header.cols).map((th, index, arr) => (
-                <th
-                  key={`thead-${th.x}`}
-                  data-col={th.x}
-                  title="Click to sort"
-                  onClick={toggleSort(th.x)}
-                  className={cx('experiment-table-header-cell', {
-                    active: mods[1] === th.x && mods[0],
-                    'border-rounded-right': arr.length - 1 === index,
-                  })}
-                  style={{
-                    backgroundColor: actives.find((a) => a.cols.includes(th.x))?.color,
-                  }}
-                >
-                  <span className="experiment-table-header-cell-label">
-                    {th.value}
-                  </span>
-                  <i className={cx('fa', {
-                    'fa-sort-up': mods[1] === th.x && mods[0] === 'sortAsc',
-                    'fa-sort-down': mods[1] === th.x && mods[0] === 'sortDesc',
-                  })}
-                  />
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {displayedData.map(({ cols, id, uuid }, i) => (
-              <ExperimentTableRow
-                key={`tr-${id}`}
-                id={id}
-                uuid={uuid}
-                cols={filterSelectedCols(cols)}
-                index={i}
-                actives={actives}
-                decimals={decimals}
-                experiments={experiments}
-                selectedRows={selectedRows}
-                onSelection={toggleSelected}
+              )}
+              {selectedRows.length > 0 && (
+                <button
+                  type="button"
+                  label="stop"
+                  className="experiment-table-btn stop fa fa-stop border-rounded"
+                  onClick={handleStopExperiments}
+                />
+              )}
+              <button
+                type="button"
+                label="update"
+                className="experiment-table-btn reload fa fa-redo border-rounded"
+                onClick={onUpdateExperiments}
               />
-            ))}
-          </tbody>
-        </table>
-      )}
+            </div>
+            <ExperimentTableCustomizeColumns
+              allCols={header.cols}
+              selectedColIds={selectedColIds}
+              setSelectedColIds={setSelectedColIds}
+            />
+          </div>
+          {data.length > 0 && (
+            <table className="experiment-table">
+              <thead>
+                <tr data-row="header">
+                  <th data-col="index" className="experiment-table-row-cell">
+                    N
+                  </th>
+                  <th data-col="actions" label="actions-label" className="border-rounded-left">
+                    <MCheckBox
+                      small
+                      name="all"
+                      callback={toggleSelectAll}
+                      checked={selectedRows.length === experiments.length}
+                    />
+                  </th>
+
+                  {filterSelectedCols(header.cols).map((th, index, arr) => (
+                    <th
+                      key={`thead-${th.x}`}
+                      data-col={th.x}
+                      title="Click to sort"
+                      onClick={toggleSort(th.x)}
+                      className={cx('experiment-table-header-cell', {
+                        active: mods[1] === th.x && mods[0],
+                        'border-rounded-right': arr.length - 1 === index,
+                      })}
+                      style={{
+                        backgroundColor: actives.find((a) => a.cols.includes(th.x))?.color,
+                      }}
+                    >
+                      <span className="experiment-table-header-cell-label">
+                        {th.value}
+                      </span>
+                      <i className={cx('fa', {
+                        'fa-sort-up': mods[1] === th.x && mods[0] === 'sortAsc',
+                        'fa-sort-down': mods[1] === th.x && mods[0] === 'sortDesc',
+                      })}
+                      />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {displayedData.map(({ cols, id, uuid }, i) => (
+                  <ExperimentTableRow
+                    key={`tr-${id}`}
+                    id={id}
+                    uuid={uuid}
+                    cols={filterSelectedCols(cols)}
+                    index={i}
+                    actives={actives}
+                    decimals={decimals}
+                    experiments={experiments}
+                    selectedRows={selectedRows}
+                    onSelection={toggleSelected}
+                    hidden={hiddenExpIds.includes(uuid)}
+                    onVisibilityChange={changeHiddenExpIds}
+                  />
+                ))}
+              </tbody>
+            </table>
+          )}
+        </MAccordion.Item>
+      </MAccordion>
     </div>
   );
 };
@@ -205,6 +245,8 @@ const ExperimentTable = (props) => {
 ExperimentTable.defaultProps = {
   className: '',
   style: {},
+  store: {},
+  actions: null,
 };
 
 ExperimentTable.propTypes = {
@@ -227,6 +269,13 @@ ExperimentTable.propTypes = {
   onDeleteExperiments: PropTypes.func.isRequired,
   onStopExperiments: PropTypes.func.isRequired,
   onUpdateExperiments: PropTypes.func.isRequired,
+  store: PropTypes.shape({
+    projects: PropTypes.shape({}),
+    currentProjectId: PropTypes.string,
+  }),
+  actions: PropTypes.shape({
+    setGraphs: PropTypes.func.isRequired,
+  }),
 };
 
 export default ExperimentTable;

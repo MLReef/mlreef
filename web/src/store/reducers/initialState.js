@@ -101,4 +101,11 @@ export default {
   },
   visualizations: [],
   datainstances: [],
+  experiments: {
+    projects: {
+      'any-uuid': {
+        graphs: [],
+      },
+    },
+  },
 };

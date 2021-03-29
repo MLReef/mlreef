@@ -75,6 +75,10 @@
       background-color: var(--light);
     }
 
+    &.hidden {
+      opacity: 0.6;
+    }
+
     &-panel {
       // height: 300px;
       &-cards {
@@ -99,13 +103,22 @@
          &:not(:last-child) {
           margin-right: 1rem;
         }
+
         &-title {
+          position: relative;
           background-color: var(--secondary);
           color: var(--dark);
           text-align: center;
           padding: 0.5rem;
           font-weight: bold;
 
+          & .menu-btn {
+            position: absolute;
+            right: 0;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+          }
         }
 
         &-content {
@@ -291,6 +304,30 @@
 
     &-group {
       margin-left: auto;
+    }
+  }
+
+  &-overall {
+    &-menu {
+      display: flex;
+      margin: 0;
+  }
+
+    &-content {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    &-graph {
+      // width: fit-content;
+      margin: 1rem 0;
+
+      &-select {
+        margin: 1rem 1rem 0 auto;
+        width: fit-content;
+        min-width: 100px;
+      }
     }
   }
 }
