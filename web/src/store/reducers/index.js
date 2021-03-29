@@ -12,6 +12,7 @@ import actionModal from './actionModalReducer';
 import groups from './groupsReducer';
 import globalMarker from './globalMarkerReducer';
 import tutorial from './tutorialReducer';
+import experiments from './experimentsReducer';
 import visualizations from './visualizationsReducer';
 import datainstances from './datainstancesReducer';
 import errors from './errorsReducer';
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
   groups,
   globalMarker,
   tutorial,
+  experiments,
   visualizations,
   datainstances,
   errors,

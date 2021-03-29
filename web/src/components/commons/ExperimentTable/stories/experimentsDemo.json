@@ -1,20 +1,20 @@
 [{
-  "id": "d68c611c-defb-4a00-ba16-18235cffbeb9",
-  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "id": "f400e5d9-486c-4230-96e5-fa305fa818cc",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
   "dataInstanceId": null,
-  "slug": "experiment-wanted-starfish-2212021-0",
-  "name": "experiment/wanted-starfish_2212021-0",
-  "number": 4,
+  "slug": "experiment-heroic-seal-1732021-0",
+  "name": "experiment/heroic-seal_1732021-0",
+  "number": 3,
   "sourceBranch": "master",
-  "targetBranch": "experiment/wanted-starfish_2212021-0",
+  "targetBranch": "experiment/heroic-seal_1732021-0",
   "status": "success",
   "pipelineJobInfo": {
-    "id": 16,
-    "ref": "experiment/wanted-starfish_2212021-0",
-    "commitSha": "b311d4427a0d7c9efa55afe97fb0653887bf1959",
-    "createdAt": "2021-01-22T11:48:21.057Z",
-    "updatedAt": "2021-01-22T12:13:36.341Z",
-    "finishedAt": "2021-01-22T12:13:51.773Z"
+    "id": 9,
+    "ref": "experiment/heroic-seal_1732021-0",
+    "commitSha": "ffceffcbb70c7bf67f412e99e19d6d3af1890888",
+    "createdAt": "2021-03-18T02:00:49.563Z",
+    "updatedAt": "2021-03-18T02:22:50.146Z",
+    "finishedAt": "2021-03-18T02:24:22.283Z"
   },
   "inputFiles": [{
     "location": "train",
@@ -24,100 +24,251 @@
   "processing": {
     "slug": "commons-resnet-50",
     "parameters": [{
-      "name": "input-path",
-      "value": "train",
-      "type": "STRING",
-      "required": true,
-      "description": "Data input, path to the images used for training"
-    }, {
       "name": "output-path",
       "value": "output",
       "type": "STRING",
       "required": true,
-      "description": "path to output metrics and model"
+      "description": "output path where the models and logs of the training will be saved"
+    }, {
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Path to the location of the dataset. With the current version, it is recommended to use only one directory where all the data exists"
     }, {
       "name": "height",
-      "value": "224",
+      "value": "200",
       "type": "INTEGER",
       "required": true,
-      "description": "height of images (int)"
+      "description": "height in pixels of image to use in training"
     }, {
       "name": "width",
-      "value": "224",
+      "value": "200",
       "type": "INTEGER",
       "required": true,
-      "description": "width of images (int)"
+      "description": "width in pixels of image to use in training"
     }, {
       "name": "epochs",
-      "value": "5",
+      "value": "8",
       "type": "INTEGER",
       "required": true,
-      "description": "number of epochs for training"
+      "description": "Number of epochs the model should train for"
     }, {
       "name": "channels",
       "value": "3",
       "type": "INTEGER",
       "required": false,
-      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+      "description": "Number of channels of the image that should be fed into the network. 1 for grayscale, 3 for rbg and 4 for rgba "
     }, {
       "name": "use-pretrained",
-      "value": "true",
-      "type": "BOOLEAN",
+      "value": "True",
+      "type": "STRING",
       "required": false,
-      "description": "use pretrained ResNet50 weights (bool)"
+      "description": "use a pretrained model or train from scratch"
     }, {
-      "name": "batch-size",
-      "value": "10",
-      "type": "INTEGER",
-      "required": false,
-      "description": "batch size fed to the neural network (int)"
-    }, {
-      "name": "validation-split",
-      "value": "0.2",
-      "type": "FLOAT",
-      "required": false,
-      "description": "fraction of images to be used for validation (float)"
-    }, {
-      "name": "class_mode",
+      "name": "class-mode",
       "value": "sparse",
       "type": "STRING",
       "required": true,
-      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+      "description": "Mode of the classes that the experiment aims to solve. Possible values: categorical, binary, sparse, input, or None."
     }, {
-      "name": "learning-rate",
-      "value": "0.0001",
+      "name": "batch-size",
+      "value": "5",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch-size used for training usually more than 10"
+    }, {
+      "name": "validation-split",
+      "value": ".2",
       "type": "FLOAT",
       "required": false,
-      "description": "learning rate of Adam Optimizer (float)"
+      "description": "percentage of the data that will be used for validation"
+    }, {
+      "name": "learning-rate",
+      "value": ".0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate used for training, Adam optimization in this case"
     }, {
       "name": "loss",
       "value": "sparse_categorical_crossentropy",
       "type": "STRING",
       "required": false,
-      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+      "description": "loss function used to compile model"
     }],
-    "id": "1c7a69ad-1871-4bef-bd5f-6007e60e1b62",
+    "id": "26164f4a-52af-47c0-b5f9-c2a0a5c665aa",
     "name": "Resnet50"
   },
-  "jsonBlob": "[{\"epoch\": 0, \"acc\": 0.8910256624221802, \"val_acc\": 0.925000011920929, \"loss\": 1.8094469286336858, \"val_loss\": 0.31471356749534607}, {\"epoch\": 1, \"acc\": 0.9807692170143127, \"val_acc\": 0.925000011920929, \"loss\": 0.07138669920523469, \"val_loss\": 1.5643727779388428}, {\"epoch\": 2, \"acc\": 0.9935897588729858, \"val_acc\": 0.925000011920929, \"loss\": 0.006441401550950205, \"val_loss\": 1.2028130186081398e-05}, {\"epoch\": 3, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 4.2181003925051277e-07, \"val_loss\": 0.0005474972422234714}, {\"epoch\": 4, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 1.788137593550232e-08, \"val_loss\": 1.0355331897735596}]",
+  "jsonBlob": "[{\"epoch\": 0, \"acc\": 0.888198733329773, \"val_acc\": 0.925000011920929, \"loss\": 1.8128983682354882, \"val_loss\": 0.00029778556199744344}, {\"epoch\": 1, \"acc\": 0.9937888383865356, \"val_acc\": 0.925000011920929, \"loss\": 0.0113821063209138, \"val_loss\": 0.004012808669358492}, {\"epoch\": 2, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 0.0010408945429975286, \"val_loss\": 0.0}, {\"epoch\": 3, \"acc\": 0.9939393997192383, \"val_acc\": 0.925000011920929, \"loss\": 0.004570351729601078, \"val_loss\": 4.149822235107422}, {\"epoch\": 4, \"acc\": 0.993630588054657, \"val_acc\": 0.925000011920929, \"loss\": 0.005701682127053053, \"val_loss\": 8.131525993347168}, {\"epoch\": 5, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 0.0014260210739372914, \"val_loss\": 0.0}, {\"epoch\": 6, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 3.6989884814412716e-07, \"val_loss\": 0.0}, {\"epoch\": 7, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 2.774094018956255e-06, \"val_loss\": 18.506614685058594}]",
   "authorName": "mlreef"
 }, {
-  "id": "09a09fdc-9efc-43ee-bf01-1d881ae60732",
-  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
+  "id": "47a7fa48-9694-4432-949d-0a390f3d26d7",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
   "dataInstanceId": null,
-  "slug": "experiment-patient-flounder-2212021-0",
-  "name": "experiment/patient-flounder_2212021-0",
-  "number": 3,
+  "slug": "experiment-sensible-eel-1732021-0",
+  "name": "experiment/sensible-eel_1732021-0",
+  "number": 1,
   "sourceBranch": "master",
-  "targetBranch": "experiment/patient-flounder_2212021-0",
+  "targetBranch": "experiment/sensible-eel_1732021-0",
+  "status": "canceled",
+  "pipelineJobInfo": {
+    "id": 3,
+    "ref": "experiment/sensible-eel_1732021-0",
+    "commitSha": "f1d596e96a34cd9abfc4c631e2becf391048e323",
+    "createdAt": "2021-03-18T00:08:19.7Z",
+    "updatedAt": "2021-03-18T00:08:19.907Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "can-publish-code-project",
+    "parameters": [{
+      "name": "cropFactor",
+      "value": "1.0",
+      "type": "FLOAT",
+      "required": true,
+      "description": ""
+    }, {
+      "name": "imageFiles",
+      "value": "[]",
+      "type": "LIST",
+      "required": true,
+      "description": ""
+    }, {
+      "name": "optionalFilterParam",
+      "value": "1",
+      "type": "INTEGER",
+      "required": true,
+      "description": ""
+    }],
+    "id": "0a24756d-3056-4072-85e8-fca5ba2e1e35",
+    "name": "Can publish code project"
+  },
+  "jsonBlob": "",
+  "authorName": "mlreef"
+}, {
+  "id": "99c6e215-210b-4236-be5b-03f6e717dc28",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
+  "dataInstanceId": null,
+  "slug": "experiment-willing-seal-1732021-0",
+  "name": "experiment/willing-seal_1732021-0",
+  "number": 2,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/willing-seal_1732021-0",
+  "status": "success",
+  "pipelineJobInfo": {
+    "id": 6,
+    "ref": "experiment/willing-seal_1732021-0",
+    "commitSha": "5b5171c1b762ec25f3c619e13d0d73013fa78155",
+    "createdAt": "2021-03-18T00:36:00.055Z",
+    "updatedAt": "2021-03-18T00:55:33.78Z",
+    "finishedAt": "2021-03-18T00:57:07.35Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "output path where the models and logs of the training will be saved"
+    }, {
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Path to the location of the dataset. With the current version, it is recommended to use only one directory where all the data exists"
+    }, {
+      "name": "height",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height in pixels of image to use in training"
+    }, {
+      "name": "width",
+      "value": "224",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width in pixels of image to use in training"
+    }, {
+      "name": "epochs",
+      "value": "5",
+      "type": "INTEGER",
+      "required": true,
+      "description": "Number of epochs the model should train for"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "Number of channels of the image that should be fed into the network. 1 for grayscale, 3 for rbg and 4 for rgba "
+    }, {
+      "name": "use-pretrained",
+      "value": "True",
+      "type": "STRING",
+      "required": false,
+      "description": "use a pretrained model or train from scratch"
+    }, {
+      "name": "class-mode",
+      "value": "sparse",
+      "type": "STRING",
+      "required": true,
+      "description": "Mode of the classes that the experiment aims to solve. Possible values: categorical, binary, sparse, input, or None."
+    }, {
+      "name": "batch-size",
+      "value": "10",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch-size used for training usually more than 10"
+    }, {
+      "name": "validation-split",
+      "value": ".2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "percentage of the data that will be used for validation"
+    }, {
+      "name": "learning-rate",
+      "value": ".0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate used for training, Adam optimization in this case"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": "loss function used to compile model"
+    }],
+    "id": "c3527000-53fd-4646-bed3-89ee1c26a12b",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "[{\"epoch\": 0, \"acc\": 0.8910256624221802, \"val_acc\": 0.925000011920929, \"loss\": 1.355946102816769, \"val_loss\": 0.30052509903907776}, {\"epoch\": 1, \"acc\": 0.987500011920929, \"val_acc\": 0.925000011920929, \"loss\": 0.06278794367709661, \"val_loss\": 5.722043852074421e-07}, {\"epoch\": 2, \"acc\": 0.9934210777282715, \"val_acc\": 0.925000011920929, \"loss\": 0.008965765540429955, \"val_loss\": 3.7216108466964215e-05}, {\"epoch\": 3, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 7.427380997417397e-07, \"val_loss\": 0.4641738831996918}, {\"epoch\": 4, \"acc\": 1.0, \"val_acc\": 0.925000011920929, \"loss\": 5.0285722529325885e-06, \"val_loss\": 0.40068745613098145}]",
+  "authorName": "mlreef"
+}, {
+  "id": "2d55d122-8536-48a5-8b29-3e8495321b3e",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
+  "dataInstanceId": null,
+  "slug": "experiment-legal-lobster-1832021-0",
+  "name": "experiment/legal-lobster_1832021-0",
+  "number": 4,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/legal-lobster_1832021-0",
   "status": "success",
   "pipelineJobInfo": {
     "id": 12,
-    "ref": "experiment/patient-flounder_2212021-0",
-    "commitSha": "00aae2d9412b18539cf4250d38508ff5a3fb6136",
-    "createdAt": "2021-01-22T10:44:37.707Z",
-    "updatedAt": "2021-01-22T11:10:20.837Z",
-    "finishedAt": "2021-01-22T11:10:36.207Z"
+    "ref": "experiment/legal-lobster_1832021-0",
+    "commitSha": "ccf3589d392d41638068973fb30920e639a8c442",
+    "createdAt": "2021-03-18T15:05:27.127Z",
+    "updatedAt": "2021-03-18T15:31:42.476Z",
+    "finishedAt": "2021-03-18T15:33:15.323Z"
   },
   "inputFiles": [{
     "location": "train",
@@ -127,492 +278,281 @@
   "processing": {
     "slug": "commons-resnet-50",
     "parameters": [{
-      "name": "input-path",
-      "value": "train",
-      "type": "STRING",
-      "required": true,
-      "description": "Data input, path to the images used for training"
-    }, {
       "name": "output-path",
       "value": "output",
       "type": "STRING",
       "required": true,
-      "description": "path to output metrics and model"
+      "description": "output path where the models and logs of the training will be saved"
     }, {
-      "name": "height",
-      "value": "224",
-      "type": "INTEGER",
-      "required": true,
-      "description": "height of images (int)"
-    }, {
-      "name": "width",
-      "value": "224",
-      "type": "INTEGER",
-      "required": true,
-      "description": "width of images (int)"
-    }, {
-      "name": "epochs",
-      "value": "2",
-      "type": "INTEGER",
-      "required": true,
-      "description": "number of epochs for training"
-    }, {
-      "name": "channels",
-      "value": "3",
-      "type": "INTEGER",
-      "required": false,
-      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
-    }, {
-      "name": "use-pretrained",
-      "value": "true",
-      "type": "BOOLEAN",
-      "required": false,
-      "description": "use pretrained ResNet50 weights (bool)"
-    }, {
-      "name": "batch-size",
-      "value": "2",
-      "type": "INTEGER",
-      "required": false,
-      "description": "batch size fed to the neural network (int)"
-    }, {
-      "name": "validation-split",
-      "value": "0.2",
-      "type": "FLOAT",
-      "required": false,
-      "description": "fraction of images to be used for validation (float)"
-    }, {
-      "name": "class_mode",
-      "value": "sparse",
-      "type": "STRING",
-      "required": true,
-      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
-    }, {
-      "name": "learning-rate",
-      "value": "0.0001",
-      "type": "FLOAT",
-      "required": false,
-      "description": "learning rate of Adam Optimizer (float)"
-    }, {
-      "name": "loss",
-      "value": "sparse_categorical_crossentropy",
-      "type": "STRING",
-      "required": false,
-      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
-    }],
-    "id": "f4f9471d-6ddd-492e-839f-1f9392227b3f",
-    "name": "Resnet50"
-  },
-  "jsonBlob": "{\"0\": {\"acc\": 0.1428571492433548, \"val_acc\": 0.5, \"loss\": 10.956614358084542, \"val_loss\": 2271.182373046875}, \"1\": {\"acc\": 0.375, \"val_acc\": 0.5, \"loss\": 17.714797258377075, \"val_loss\": 76.2244873046875}}",
-  "authorName": "mlreef"
-}, {
-  "id": "f71714b2-7f73-4a9e-a82c-7076fa4f340c",
-  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
-  "dataInstanceId": null,
-  "slug": "experiment-clean-nessie-2712021-0",
-  "name": "experiment/clean-nessie_2712021-0",
-  "number": 5,
-  "sourceBranch": "master",
-  "targetBranch": "experiment/clean-nessie_2712021-0",
-  "status": "success",
-  "pipelineJobInfo": {
-    "id": 27,
-    "ref": "experiment/clean-nessie_2712021-0",
-    "commitSha": "5c60d52a57961a4ac093ac58bdf664bf3d52edd4",
-    "createdAt": "2021-01-27T19:55:23.084Z",
-    "updatedAt": "2021-01-27T20:57:57.63Z",
-    "finishedAt": "2021-01-27T20:58:12.859Z"
-  },
-  "inputFiles": [{
-    "location": "train",
-    "location_type": "PATH_FOLDER"
-  }],
-  "postProcessing": [],
-  "processing": {
-    "slug": "commons-resnet-50",
-    "parameters": [{
       "name": "input-path",
       "value": "train",
       "type": "STRING",
       "required": true,
-      "description": "Data input, path to the images used for training"
-    }, {
-      "name": "output-path",
-      "value": "output",
-      "type": "STRING",
-      "required": true,
-      "description": "path to output metrics and model"
+      "description": "Path to the location of the dataset. With the current version, it is recommended to use only one directory where all the data exists"
     }, {
       "name": "height",
       "value": "224",
       "type": "INTEGER",
       "required": true,
-      "description": "height of images (int)"
+      "description": "height in pixels of image to use in training"
     }, {
       "name": "width",
       "value": "224",
       "type": "INTEGER",
       "required": true,
-      "description": "width of images (int)"
-    }, {
-      "name": "epochs",
-      "value": "5",
-      "type": "INTEGER",
-      "required": true,
-      "description": "number of epochs for training"
-    }, {
-      "name": "channels",
-      "value": "3",
-      "type": "INTEGER",
-      "required": false,
-      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
-    }, {
-      "name": "use-pretrained",
-      "value": "true",
-      "type": "BOOLEAN",
-      "required": false,
-      "description": "use pretrained ResNet50 weights (bool)"
-    }, {
-      "name": "batch-size",
-      "value": "25",
-      "type": "INTEGER",
-      "required": false,
-      "description": "batch size fed to the neural network (int)"
-    }, {
-      "name": "validation-split",
-      "value": "0.2",
-      "type": "FLOAT",
-      "required": false,
-      "description": "fraction of images to be used for validation (float)"
-    }, {
-      "name": "class_mode",
-      "value": "sparse",
-      "type": "STRING",
-      "required": true,
-      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
-    }, {
-      "name": "learning-rate",
-      "value": "0.0001",
-      "type": "FLOAT",
-      "required": false,
-      "description": "learning rate of Adam Optimizer (float)"
-    }, {
-      "name": "loss",
-      "value": "sparse_categorical_crossentropy",
-      "type": "STRING",
-      "required": false,
-      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
-    }],
-    "id": "caf13e42-68e0-4a36-9a6b-24c061abc6a8",
-    "name": "Resnet50"
-  },
-  "jsonBlob": "[{\"acc\": 0.5306122303009033, \"val_acc\": 0.6800000071525574, \"loss\": 10.830393963930558, \"val_loss\": 597.1852416992188}, {\"acc\": 0.6000000238418579, \"val_acc\": 0.7586206793785095, \"loss\": 5.279029548168182, \"val_loss\": 133.3538360595703}, {\"acc\": 0.6770833134651184, \"val_acc\": 0.6896551847457886, \"loss\": 3.448480291912953, \"val_loss\": 55.60952377319336}, {\"acc\": 0.5600000023841858, \"val_acc\": 0.7400000095367432, \"loss\": 3.5234352201223373, \"val_loss\": 99.13957214355469}, {\"acc\": 0.6020408272743225, \"val_acc\": 0.4482758641242981, \"loss\": 2.0744390256550846, \"val_loss\": 14.941675186157227}]",
-  "authorName": "mlreef"
-}, {
-  "id": "3321c353-9fe2-4107-84d8-046284b25670",
-  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
-  "dataInstanceId": null,
-  "slug": "experiment-outgoing-moby-dick-2812021-0",
-  "name": "experiment/outgoing-moby-dick_2812021-0",
-  "number": 6,
-  "sourceBranch": "master",
-  "targetBranch": "experiment/outgoing-moby-dick_2812021-0",
-  "status": "failed",
-  "pipelineJobInfo": {
-    "id": 33,
-    "ref": "experiment/outgoing-moby-dick_2812021-0",
-    "commitSha": "dc0382a100168f3376312b3d03a1ad12097b35e1",
-    "createdAt": "2021-01-28T21:23:22.143Z",
-    "updatedAt": "2021-01-28T21:23:22.337Z",
-    "finishedAt": "2021-01-28T22:18:14.502Z"
-  },
-  "inputFiles": [{
-    "location": "train",
-    "location_type": "PATH_FOLDER"
-  }],
-  "postProcessing": [],
-  "processing": {
-    "slug": "commons-resnet-50",
-    "parameters": [{
-      "name": "input-path",
-      "value": "train",
-      "type": "STRING",
-      "required": true,
-      "description": "Data input, path to the images used for training"
-    }, {
-      "name": "output-path",
-      "value": ".",
-      "type": "STRING",
-      "required": true,
-      "description": "path to output metrics and model"
-    }, {
-      "name": "height",
-      "value": "9",
-      "type": "INTEGER",
-      "required": true,
-      "description": "height of images (int)"
-    }, {
-      "name": "width",
-      "value": "9",
-      "type": "INTEGER",
-      "required": true,
-      "description": "width of images (int)"
-    }, {
-      "name": "epochs",
-      "value": "9",
-      "type": "INTEGER",
-      "required": true,
-      "description": "number of epochs for training"
-    }, {
-      "name": "channels",
-      "value": "3",
-      "type": "INTEGER",
-      "required": false,
-      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
-    }, {
-      "name": "use-pretrained",
-      "value": "true",
-      "type": "BOOLEAN",
-      "required": false,
-      "description": "use pretrained ResNet50 weights (bool)"
-    }, {
-      "name": "batch-size",
-      "value": "25",
-      "type": "INTEGER",
-      "required": false,
-      "description": "batch size fed to the neural network (int)"
-    }, {
-      "name": "validation-split",
-      "value": "0.2",
-      "type": "FLOAT",
-      "required": false,
-      "description": "fraction of images to be used for validation (float)"
-    }, {
-      "name": "class_mode",
-      "value": "categorical",
-      "type": "STRING",
-      "required": true,
-      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
-    }, {
-      "name": "learning-rate",
-      "value": "0.0001",
-      "type": "FLOAT",
-      "required": false,
-      "description": "learning rate of Adam Optimizer (float)"
-    }, {
-      "name": "loss",
-      "value": "sparse_categorical_crossentropy",
-      "type": "STRING",
-      "required": false,
-      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
-    }],
-    "id": "0d646088-b462-4031-9eb2-f00743447dfa",
-    "name": "Resnet50"
-  },
-  "jsonBlob": "",
-  "authorName": "mlreef"
-}, {
-  "id": "221e8ed0-fa7c-435c-bd88-4fa109ac74ed",
-  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
-  "dataInstanceId": null,
-  "slug": "experiment-musical-octopus-2212021-0",
-  "name": "experiment/musical-octopus_2212021-0",
-  "number": 2,
-  "sourceBranch": "master",
-  "targetBranch": "experiment/musical-octopus_2212021-0",
-  "status": "canceled",
-  "pipelineJobInfo": {
-    "id": 10,
-    "ref": "experiment/musical-octopus_2212021-0",
-    "commitSha": "47e4cdc88b61068c3c8d0e698a4973db8f77971f",
-    "createdAt": "2021-01-22T10:39:23.395Z",
-    "updatedAt": "2021-01-22T10:39:23.491Z"
-  },
-  "inputFiles": [{
-    "location": "train",
-    "location_type": "PATH_FOLDER"
-  }],
-  "postProcessing": [],
-  "processing": {
-    "slug": "commons-resnet-50",
-    "parameters": [{
-      "name": "input-path",
-      "value": "train",
-      "type": "STRING",
-      "required": true,
-      "description": "Data input, path to the images used for training"
-    }, {
-      "name": "output-path",
-      "value": "output",
-      "type": "STRING",
-      "required": true,
-      "description": "path to output metrics and model"
-    }, {
-      "name": "height",
-      "value": "224",
-      "type": "INTEGER",
-      "required": true,
-      "description": "height of images (int)"
-    }, {
-      "name": "width",
-      "value": "224",
-      "type": "INTEGER",
-      "required": true,
-      "description": "width of images (int)"
-    }, {
-      "name": "epochs",
-      "value": "3",
-      "type": "INTEGER",
-      "required": true,
-      "description": "number of epochs for training"
-    }, {
-      "name": "channels",
-      "value": "3",
-      "type": "INTEGER",
-      "required": false,
-      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
-    }, {
-      "name": "use-pretrained",
-      "value": "true",
-      "type": "BOOLEAN",
-      "required": false,
-      "description": "use pretrained ResNet50 weights (bool)"
-    }, {
-      "name": "batch-size",
-      "value": "25",
-      "type": "INTEGER",
-      "required": false,
-      "description": "batch size fed to the neural network (int)"
-    }, {
-      "name": "validation-split",
-      "value": "0.2",
-      "type": "FLOAT",
-      "required": false,
-      "description": "fraction of images to be used for validation (float)"
-    }, {
-      "name": "class_mode",
-      "value": "sparse",
-      "type": "STRING",
-      "required": true,
-      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
-    }, {
-      "name": "learning-rate",
-      "value": "0.0001",
-      "type": "FLOAT",
-      "required": false,
-      "description": "learning rate of Adam Optimizer (float)"
-    }, {
-      "name": "loss",
-      "value": "sparse_categorical_crossentropy",
-      "type": "STRING",
-      "required": false,
-      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
-    }],
-    "id": "1ac6b280-c20a-4290-826f-3930aa185c62",
-    "name": "Resnet50"
-  },
-  "jsonBlob": "",
-  "authorName": "mlreef"
-}, {
-  "id": "03da6eda-b8cf-4792-aafc-2860161b1f57",
-  "dataProjectId": "352d78b9-8818-45a5-9161-f5e095388c46",
-  "dataInstanceId": null,
-  "slug": "experiment-big-megalodon-2112021-0",
-  "name": "experiment/big-megalodon_2112021-0",
-  "number": 1,
-  "sourceBranch": "master",
-  "targetBranch": "experiment/big-megalodon_2112021-0",
-  "status": "failed",
-  "pipelineJobInfo": {
-    "id": 2,
-    "ref": "experiment/big-megalodon_2112021-0",
-    "commitSha": "7b4ef7cc106cd0c94dc20ac41ec393d1ffe7342e",
-    "createdAt": "2021-01-21T22:48:26.748Z",
-    "updatedAt": "2021-01-21T23:17:23.174Z",
-    "finishedAt": "2021-01-22T00:07:55.076Z"
-  },
-  "inputFiles": [{
-    "location": "train",
-    "location_type": "PATH_FOLDER"
-  }],
-  "postProcessing": [],
-  "processing": {
-    "slug": "commons-resnet-50",
-    "parameters": [{
-      "name": "input-path",
-      "value": "train",
-      "type": "STRING",
-      "required": true,
-      "description": "Data input, path to the images used for training"
-    }, {
-      "name": "output-path",
-      "value": "output",
-      "type": "STRING",
-      "required": true,
-      "description": "path to output metrics and model"
-    }, {
-      "name": "height",
-      "value": "224",
-      "type": "INTEGER",
-      "required": true,
-      "description": "height of images (int)"
-    }, {
-      "name": "width",
-      "value": "224",
-      "type": "INTEGER",
-      "required": true,
-      "description": "width of images (int)"
+      "description": "width in pixels of image to use in training"
     }, {
       "name": "epochs",
       "value": "10",
       "type": "INTEGER",
       "required": true,
-      "description": "number of epochs for training"
+      "description": "Number of epochs the model should train for"
     }, {
       "name": "channels",
       "value": "3",
       "type": "INTEGER",
       "required": false,
-      "description": "channels of images: 1 = grayscale, 3 = RGB ,4=RGBA (int)"
+      "description": "Number of channels of the image that should be fed into the network. 1 for grayscale, 3 for rbg and 4 for rgba "
     }, {
       "name": "use-pretrained",
-      "value": "true",
-      "type": "BOOLEAN",
+      "value": "True",
+      "type": "STRING",
       "required": false,
-      "description": "use pretrained ResNet50 weights (bool)"
+      "description": "use a pretrained model or train from scratch"
     }, {
-      "name": "batch-size",
-      "value": "25",
-      "type": "INTEGER",
-      "required": false,
-      "description": "batch size fed to the neural network (int)"
-    }, {
-      "name": "validation-split",
-      "value": "0.2",
-      "type": "FLOAT",
-      "required": false,
-      "description": "fraction of images to be used for validation (float)"
-    }, {
-      "name": "class_mode",
+      "name": "class-mode",
       "value": "sparse",
       "type": "STRING",
       "required": true,
-      "description": "class mode : if class_mode is categorical (default value) it must include the label column with the class/es of each image. Values in column can be string/list/tuple if a single class or list/tuple if multiple classes. if class_mode is binary or sparse it must include the given label column with class values as strings. if class_mode is raw or multi_output it should contain the columns specified in labels. if class_mode is input or None no extra column is needed."
+      "description": "Mode of the classes that the experiment aims to solve. Possible values: categorical, binary, sparse, input, or None."
     }, {
-      "name": "learning-rate",
-      "value": "0.0001",
+      "name": "batch-size",
+      "value": "6",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch-size used for training usually more than 10"
+    }, {
+      "name": "validation-split",
+      "value": ".2",
       "type": "FLOAT",
       "required": false,
-      "description": "learning rate of Adam Optimizer (float)"
+      "description": "percentage of the data that will be used for validation"
+    }, {
+      "name": "learning-rate",
+      "value": ".0005",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate used for training, Adam optimization in this case"
     }, {
       "name": "loss",
       "value": "sparse_categorical_crossentropy",
       "type": "STRING",
       "required": false,
-      "description": ": Use sparse_categorical_crossentropy loss function when there are two or more label classes. We expect labels to be provided as integers. If you want to provide labels using one-hot representation, please use categorial_crossentropy loss, binary_crossentropy means that the labels (there can be only 2) are encoded as float32 scalars with values 0 or 1."
+      "description": "loss function used to compile model"
     }],
-    "id": "11e82faa-e46d-4f49-bc20-096f2aed317c",
+    "id": "ba9cca06-05dc-4fa5-9368-a52263434696",
     "name": "Resnet50"
   },
-  "jsonBlob": "{}",
+  "jsonBlob": "[{\"epoch\": 0, \"acc\": 0.875, \"val_acc\": 0.9444444179534912, \"loss\": 5.717636243160814, \"val_loss\": 0.0}, {\"epoch\": 1, \"acc\": 0.8999999761581421, \"val_acc\": 0.8823529481887817, \"loss\": 2.2755096455832, \"val_loss\": 0.0}, {\"epoch\": 2, \"acc\": 0.9437500238418579, \"val_acc\": 0.9411764740943909, \"loss\": 0.13331084620116865, \"val_loss\": 1.469495415687561}, {\"epoch\": 3, \"acc\": 0.9750000238418579, \"val_acc\": 0.8823529481887817, \"loss\": 0.06089506683570818, \"val_loss\": 0.6411666870117188}, {\"epoch\": 4, \"acc\": 0.9937499761581421, \"val_acc\": 1.0, \"loss\": 0.011253793534358047, \"val_loss\": 0.006284721661359072}, {\"epoch\": 5, \"acc\": 1.0, \"val_acc\": 0.9117646813392639, \"loss\": 0.0017413660166083922, \"val_loss\": 0.01549460832029581}, {\"epoch\": 6, \"acc\": 1.0, \"val_acc\": 0.9117646813392639, \"loss\": 7.132351429128825e-05, \"val_loss\": 0.04492560029029846}, {\"epoch\": 7, \"acc\": 1.0, \"val_acc\": 0.9722222089767456, \"loss\": 3.2668213287090354e-05, \"val_loss\": 0.06294075399637222}, {\"epoch\": 8, \"acc\": 1.0, \"val_acc\": 0.8529411554336548, \"loss\": 4.781314330862777e-06, \"val_loss\": 0.4737459719181061}, {\"epoch\": 9, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 1.5279713512408337e-05, \"val_loss\": 0.09910199791193008}]",
+  "authorName": "mlreef"
+}, {
+  "id": "3979fb8c-002b-4e09-b015-250e1ed32005",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
+  "dataInstanceId": null,
+  "slug": "experiment-pretty-walrus-1832021-0",
+  "name": "experiment/pretty-walrus_1832021-0",
+  "number": 5,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/pretty-walrus_1832021-0",
+  "status": "success",
+  "pipelineJobInfo": {
+    "id": 14,
+    "ref": "experiment/pretty-walrus_1832021-0",
+    "commitSha": "c3773d6076b4a33faeb6eda30a83a8c15216f308",
+    "createdAt": "2021-03-18T15:10:52.787Z",
+    "updatedAt": "2021-03-18T15:50:44.062Z",
+    "finishedAt": "2021-03-18T15:51:34.414Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "commons-resnet-50",
+    "parameters": [{
+      "name": "output-path",
+      "value": "output",
+      "type": "STRING",
+      "required": true,
+      "description": "output path where the models and logs of the training will be saved"
+    }, {
+      "name": "input-path",
+      "value": "train",
+      "type": "STRING",
+      "required": true,
+      "description": "Path to the location of the dataset. With the current version, it is recommended to use only one directory where all the data exists"
+    }, {
+      "name": "height",
+      "value": "128",
+      "type": "INTEGER",
+      "required": true,
+      "description": "height in pixels of image to use in training"
+    }, {
+      "name": "width",
+      "value": "128",
+      "type": "INTEGER",
+      "required": true,
+      "description": "width in pixels of image to use in training"
+    }, {
+      "name": "epochs",
+      "value": "24",
+      "type": "INTEGER",
+      "required": true,
+      "description": "Number of epochs the model should train for"
+    }, {
+      "name": "channels",
+      "value": "3",
+      "type": "INTEGER",
+      "required": false,
+      "description": "Number of channels of the image that should be fed into the network. 1 for grayscale, 3 for rbg and 4 for rgba "
+    }, {
+      "name": "use-pretrained",
+      "value": "True",
+      "type": "STRING",
+      "required": false,
+      "description": "use a pretrained model or train from scratch"
+    }, {
+      "name": "class-mode",
+      "value": "binary",
+      "type": "STRING",
+      "required": true,
+      "description": "Mode of the classes that the experiment aims to solve. Possible values: categorical, binary, sparse, input, or None."
+    }, {
+      "name": "batch-size",
+      "value": "32",
+      "type": "INTEGER",
+      "required": false,
+      "description": "batch-size used for training usually more than 10"
+    }, {
+      "name": "validation-split",
+      "value": ".2",
+      "type": "FLOAT",
+      "required": false,
+      "description": "percentage of the data that will be used for validation"
+    }, {
+      "name": "learning-rate",
+      "value": ".0001",
+      "type": "FLOAT",
+      "required": false,
+      "description": "learning rate used for training, Adam optimization in this case"
+    }, {
+      "name": "loss",
+      "value": "sparse_categorical_crossentropy",
+      "type": "STRING",
+      "required": false,
+      "description": "loss function used to compile model"
+    }],
+    "id": "71eb3c84-d562-4307-b058-53bc2d81f313",
+    "name": "Resnet50"
+  },
+  "jsonBlob": "[{\"epoch\": 0, \"acc\": 0.7089552283287048, \"val_acc\": 0.90625, \"loss\": 2.814305854377679, \"val_loss\": 0.30626925826072693}, {\"epoch\": 1, \"acc\": 0.9125000238418579, \"val_acc\": 1.0, \"loss\": 1.1298967368900776, \"val_loss\": 0.024956753477454185}, {\"epoch\": 2, \"acc\": 0.9402984976768494, \"val_acc\": 0.90625, \"loss\": 0.3332099914550781, \"val_loss\": 0.4482074975967407}, {\"epoch\": 3, \"acc\": 0.9850746393203735, \"val_acc\": 1.0, \"loss\": 0.058112803568590936, \"val_loss\": 0.012979742139577866}, {\"epoch\": 4, \"acc\": 1.0, \"val_acc\": 0.9375, \"loss\": 0.0017699929994162617, \"val_loss\": 0.3283592462539673}, {\"epoch\": 5, \"acc\": 0.9925373196601868, \"val_acc\": 0.875, \"loss\": 0.026750595721506527, \"val_loss\": 0.5312363505363464}, {\"epoch\": 6, \"acc\": 1.0, \"val_acc\": 0.9375, \"loss\": 0.00035965287581836777, \"val_loss\": 0.3407194912433624}, {\"epoch\": 7, \"acc\": 1.0, \"val_acc\": 0.875, \"loss\": 8.30451229464429e-05, \"val_loss\": 0.5631448030471802}, {\"epoch\": 8, \"acc\": 1.0, \"val_acc\": 0.90625, \"loss\": 0.0003006852391990833, \"val_loss\": 0.5360287427902222}, {\"epoch\": 9, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 0.0002995166352449624, \"val_loss\": 0.001809639623388648}, {\"epoch\": 10, \"acc\": 1.0, \"val_acc\": 0.90625, \"loss\": 0.00032024610297426014, \"val_loss\": 0.6634959578514099}, {\"epoch\": 11, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 0.00019979266070509061, \"val_loss\": 0.0005976104293949902}, {\"epoch\": 12, \"acc\": 1.0, \"val_acc\": 0.90625, \"loss\": 0.0005651085807788951, \"val_loss\": 0.7653589844703674}, {\"epoch\": 13, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 2.362312316108728e-05, \"val_loss\": 0.0002581116568762809}, {\"epoch\": 14, \"acc\": 1.0, \"val_acc\": 0.96875, \"loss\": 0.0004692056344437232, \"val_loss\": 0.2371581345796585}, {\"epoch\": 15, \"acc\": 1.0, \"val_acc\": 0.75, \"loss\": 0.0001607501563285041, \"val_loss\": 2.5893588066101074}, {\"epoch\": 16, \"acc\": 1.0, \"val_acc\": 0.9375, \"loss\": 0.00016787541643503546, \"val_loss\": 0.7131341695785522}, {\"epoch\": 17, \"acc\": 1.0, \"val_acc\": 0.875, \"loss\": 7.273874686702516e-05, \"val_loss\": 1.252651572227478}, {\"epoch\": 18, \"acc\": 1.0, \"val_acc\": 0.90625, \"loss\": 9.042612292609219e-05, \"val_loss\": 1.1672497987747192}, {\"epoch\": 19, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 7.395320603791334e-05, \"val_loss\": 4.738543793791905e-06}, {\"epoch\": 20, \"acc\": 1.0, \"val_acc\": 0.90625, \"loss\": 0.00021591758526630305, \"val_loss\": 1.2854418754577637}, {\"epoch\": 21, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 6.451352172333108e-05, \"val_loss\": 1.6540233218620415e-06}, {\"epoch\": 22, \"acc\": 1.0, \"val_acc\": 0.90625, \"loss\": 1.6143114027543597e-05, \"val_loss\": 1.3830924034118652}, {\"epoch\": 23, \"acc\": 1.0, \"val_acc\": 1.0, \"loss\": 6.177315250318963e-05, \"val_loss\": 8.642662123747868e-07}]",
+  "authorName": "mlreef"
+}, {
+  "id": "07df5e66-ff14-4812-8ac5-896a6ad0f108",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
+  "dataInstanceId": null,
+  "slug": "experiment-well-nessie-2232021-0",
+  "name": "experiment/well-nessie_2232021-0",
+  "number": 6,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/well-nessie_2232021-0",
+  "status": "canceled",
+  "pipelineJobInfo": {
+    "id": 18,
+    "ref": "experiment/well-nessie_2232021-0",
+    "commitSha": "74ceb86633e844b7d34123f31dda80b176485fa2",
+    "createdAt": "2021-03-22T15:46:14.969Z",
+    "updatedAt": "2021-03-22T15:46:15.359Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "can-publish-code-project",
+    "parameters": [{
+      "name": "cropFactor",
+      "value": "1.0",
+      "type": "FLOAT",
+      "required": true,
+      "description": ""
+    }, {
+      "name": "imageFiles",
+      "value": "[]",
+      "type": "LIST",
+      "required": true,
+      "description": ""
+    }, {
+      "name": "optionalFilterParam",
+      "value": "1",
+      "type": "INTEGER",
+      "required": true,
+      "description": ""
+    }],
+    "id": "b2c8abf8-1a4b-46b4-bbb4-826fb10922b5",
+    "name": "Can publish code project"
+  },
+  "jsonBlob": "",
+  "authorName": "mlreef"
+}, {
+  "id": "6b305d5d-8cf3-4dbe-a495-30fd2accd710",
+  "dataProjectId": "5d005488-afb6-4a0c-852a-f471153a04b5",
+  "dataInstanceId": null,
+  "slug": "experiment-calm-nessie-2232021-0",
+  "name": "experiment/calm-nessie_2232021-0",
+  "number": 7,
+  "sourceBranch": "master",
+  "targetBranch": "experiment/calm-nessie_2232021-0",
+  "status": "success",
+  "pipelineJobInfo": {
+    "id": 20,
+    "ref": "experiment/calm-nessie_2232021-0",
+    "commitSha": "5aa105d77cd3c71ec624b6d022806bfbb66ed05b",
+    "createdAt": "2021-03-22T16:29:55.25Z",
+    "updatedAt": "2021-03-22T16:29:55.421Z",
+    "finishedAt": "2021-03-22T20:36:57.211Z"
+  },
+  "inputFiles": [{
+    "location": "train",
+    "location_type": "PATH_FOLDER"
+  }],
+  "postProcessing": [],
+  "processing": {
+    "slug": "can-publish-code-project",
+    "parameters": [{
+      "name": "cropFactor",
+      "value": "0.8",
+      "type": "FLOAT",
+      "required": true,
+      "description": ""
+    }, {
+      "name": "imageFiles",
+      "value": "[]",
+      "type": "LIST",
+      "required": true,
+      "description": ""
+    }, {
+      "name": "optionalFilterParam",
+      "value": "1",
+      "type": "INTEGER",
+      "required": true,
+      "description": ""
+    }],
+    "id": "2dae6974-e81c-48fc-bc63-92e6967191f1",
+    "name": "Can publish code project"
+  },
+  "jsonBlob": "",
   "authorName": "mlreef"
 }]

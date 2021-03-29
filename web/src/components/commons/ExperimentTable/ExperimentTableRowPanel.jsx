@@ -25,6 +25,7 @@ const config = {
   ],
   displaylogo: false,
   showTips: true,
+  responsive: true,
 };
 
 const mlSearchApi = new MLSearchApi();
@@ -119,8 +120,8 @@ const ExperimentTableRowPanel = (props) => {
   const copyParameters = () => {
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(JSON.stringify(parameters))
-        .then(null, (er) => {
-          
+        .then(null, (/* err */) => {
+
         });
     }
   };
@@ -128,8 +129,8 @@ const ExperimentTableRowPanel = (props) => {
   const copyCommitSha = () => {
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(commitSha)
-        .then(null, (er) => {
-          
+        .then(null, (/* err */) => {
+
         });
     }
   };
@@ -211,9 +212,10 @@ const ExperimentTableRowPanel = (props) => {
                 Latest commit:
               </span>
               <span className="link-append">
-                <Link className="link-append-link border-rounded-left" to={`${basePath}/-/commits/${currentExperiment?.pipelineJobInfo?.commitSha}`}>
+                <Link className="link-append-link border-rounded-left" to={`${basePath}/-/commits/${currentExperiment.pipelineJobInfo.commitSha}`}>
                   {currentExperiment.pipelineJobInfo?.commitSha?.substring(0, 8)}
                 </Link>
+                {/* eslint-disable-next-line */}
                 <i
                   onClick={copyCommitSha}
                   className="link-append-copy border-rounded-right fa fa-copy t-dark"

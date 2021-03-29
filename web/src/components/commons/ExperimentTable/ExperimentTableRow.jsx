@@ -29,6 +29,8 @@ const ExperimentTableRow = (props) => {
     experiments,
     selectedRows,
     onSelection,
+    onVisibilityChange,
+    hidden,
   } = props;
 
   const { pathname } = useLocation();
@@ -55,7 +57,7 @@ const ExperimentTableRow = (props) => {
 
   return (
     <>
-      <tr className={cx('experiment-table-row', { selected })} data-row={id}>
+      <tr className={cx('experiment-table-row', { selected, hidden })} data-row={id}>
         <td data-row={id} data-col="index" className="experiment-table-row-cell">
           {index}
         </td>
@@ -80,7 +82,11 @@ const ExperimentTableRow = (props) => {
             <button
               type="button"
               label="toggle"
-              className="btn fa fa-eye experiment-table-action-btn"
+              className={cx(
+                'btn  experiment-table-action-btn',
+                hidden ? 'fas fa-eye-slash' : 'fa fa-eye',
+              )}
+              onClick={() => onVisibilityChange(uuid)}
             />
           </div>
         </td>
@@ -171,6 +177,7 @@ const ExperimentTableRow = (props) => {
             className={cx('experiment-table-row-cell', { active: actives.includes(field.x) })}
           >
             <span className="experiment-table-field">
+              {/* eslint-disable-next-line */}
               {isNaN(field.value) ? field.value : round(decimals)(field.value)}
             </span>
           </td>
@@ -205,6 +212,8 @@ ExperimentTableRow.propTypes = {
   experiments: PropTypes.arrayOf(PropTypes.shape).isRequired,
   selectedRows: PropTypes.arrayOf(PropTypes.string).isRequired,
   onSelection: PropTypes.func.isRequired,
+  onVisibilityChange: PropTypes.func.isRequired,
+  hidden: PropTypes.bool.isRequired,
 };
 
 export default ExperimentTableRow;
