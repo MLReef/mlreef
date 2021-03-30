@@ -12,7 +12,7 @@ describe('test basic UI presence', () => {
   let wrapper;
 
   beforeEach(() => {
-    actions.getEntryPointFileCode = jest.fn(() => new Promise((resolve) => resolve({ content: 'c29tZSBjb250ZW50' })));
+    actions.getEntryPointFileInfo = jest.fn(() => new Promise((resolve) => resolve({ content: 'c29tZSBjb250ZW50' })));
     wrapper = setup();
   });
 
@@ -24,6 +24,6 @@ describe('test basic UI presence', () => {
 
     codeSectionRenderBtn.simulate('click');
     expect(wrapper.find('MLoadingSpinner').length).toBe(1);
-    expect(actions.getEntryPointFileCode).toHaveBeenCalled();
+    expect(actions.getEntryPointFileInfo).toHaveBeenCalled();
   });
 });
