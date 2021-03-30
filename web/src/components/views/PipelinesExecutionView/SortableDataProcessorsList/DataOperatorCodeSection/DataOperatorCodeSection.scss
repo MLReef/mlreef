@@ -4,5 +4,23 @@
   &-div {
     margin-top: 1rem;
     min-height: 2rem;
+
+    &-content {
+      &-f-info {
+        display: flex;
+        height: min-content;
+        margin: 2rem 0 0.3rem 0;
+        #first-part {
+          margin: 0 0.4rem 0 0;
+          color: var(--lessWhite);
+        }
+
+        #file-name {
+          font-weight: bold;
+          color: var(--dark);
+          margin: 0;
+        }
+      }
+    }
   }
 }

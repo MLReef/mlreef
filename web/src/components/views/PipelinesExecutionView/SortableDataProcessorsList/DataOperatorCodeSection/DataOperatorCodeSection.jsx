@@ -12,23 +12,25 @@ const DataOperatorCodeSection = (props) => {
     processor,
   } = props;
 
-  const { nameSpace, slug } = processor;
+  const { codeProjectId, nameSpace, slug } = processor;
 
   const [isCodeVisible, setIsCodeVisible] = useState(false);
-  const [fileCode, setCode] = useState('');
+  const [fileInfo, setFileInfo] = useState({});
 
   const apiCallBack = useCallback(() => actions
-    .getEntryPointFileCode(processor.codeProjectId)
-    .then((fileInfo) => setCode(Base64.decode(fileInfo.content)))
-    .catch((err) => toastr.error('Error', err?.message)), [processor]);
+    .getEntryPointFileInfo(codeProjectId)
+    .then((fi) => {
+      setFileInfo(fi);
+    })
+    .catch((err) => toastr.error('Error', err?.message)), [codeProjectId]);
 
   const [isLoading, executeCall] = useLoading(apiCallBack);
 
   useEffect(() => {
-    if (isCodeVisible && fileCode === '') {
+    if (isCodeVisible && !fileInfo.content) {
       executeCall();
     }
-  }, [isCodeVisible, fileCode]);
+  }, [isCodeVisible, fileInfo]);
   return (
     <div className="sortable-data-operation-list-item-form-container-code">
       <div className="d-flex" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
@@ -43,7 +45,7 @@ const DataOperatorCodeSection = (props) => {
           code
         </button>
         {nameSpace && (
-          <a m-2 style={{ color: 'var(--info)', fontWeight: 'bold' }} href={`/${nameSpace}/${slug}`} target="_blank" rel="noopener noreferrer">View Repository</a>
+          <a style={{ color: 'var(--info)', fontWeight: 'bold' }} href={`/${nameSpace}/${slug}`} target="_blank" rel="noopener noreferrer">View Repository</a>
         )}
       </div>
       {isCodeVisible && (
@@ -54,7 +56,15 @@ const DataOperatorCodeSection = (props) => {
             </div>
           ) : (
             <div className="sortable-data-operation-list-item-form-container-code-div-content">
-              <MCodeRenderer code={fileCode} fileExtension="py" theme="vs-dark" />
+              <div className="sortable-data-operation-list-item-form-container-code-div-content-f-info">
+                <p id="first-part">
+                  Viewing
+                </p>
+                <p id="file-name">
+                  {` ${fileInfo.file_name}`}
+                </p>
+              </div>
+              <MCodeRenderer code={Base64.decode(fileInfo.content || '')} fileExtension="py" theme="vs-dark" />
             </div>
           )}
         </div>

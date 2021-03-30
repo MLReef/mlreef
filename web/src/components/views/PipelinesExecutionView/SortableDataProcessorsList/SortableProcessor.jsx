@@ -101,7 +101,7 @@ const SortableProcessor = SortableElement(({
             </div>
 
             {advancedParameters?.length > 0 && (
-            <>
+            <div className="sortable-data-operation-list-item-container-form-advanced">
               <div className="sortable-data-operation-list-item-container-form-advanced-ops">
                 <label htmlFor="open-ad-params">
                   <ArrowButton
@@ -113,6 +113,9 @@ const SortableProcessor = SortableElement(({
                   Advanced
                 </label>
               </div>
+              <p className="advice-2">
+                Advanced arameters are optional and always have a different value
+              </p>
               {isAdvancedSectionVisible && (
               <div className="sortable-data-operation-list-item-container-form-advanced-params" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
                 <ParametersSection
@@ -121,7 +124,7 @@ const SortableProcessor = SortableElement(({
                 />
               </div>
               )}
-            </>
+            </div>
             )}
             <DataOperatorCodeSection processor={value} />
           </div>

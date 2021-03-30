@@ -5,7 +5,7 @@ const projectApi = new ProjectGeneralInfoApi();
 
 const filesApi = new FilesApi();
 
-const getEntryPointFileCode = (codeProjectId) => projectApi
+const getEntryPointFileInfo = (codeProjectId) => projectApi
   .getProjectPublishStatus(codeProjectId)
   .then(({ path, publish_info: { commit_sha: commitSha } }) => ({ path, commitSha }))
   .then(async ({ path, commitSha }) => {
@@ -16,5 +16,5 @@ const getEntryPointFileCode = (codeProjectId) => projectApi
   });
 
 export default {
-  getEntryPointFileCode,
+  getEntryPointFileInfo,
 };
