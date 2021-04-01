@@ -39,6 +39,14 @@ const FilesTable = (props) => {
         </thead>
         <tbody>
           {isReturnOptVisible && <ReturnLink getBack={getBack} />}
+          {files.length >= 100 && (
+            <div data-test="warning" className="m-alert warning">
+              <i className="fas fa-exclamation-triangle ml-2 mr-3" />
+              <span>
+                Too many items to show. To preserve performance only 100 items are displayed.
+              </span>
+            </div>
+          )}
           {files.map((file) => (
             <tr key={`${file.id}-${file.name}`} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
               {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
