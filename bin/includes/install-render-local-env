@@ -77,7 +77,12 @@ DOCKER_DAEMON_JSON=${DOCKER_DAEMON_JSON}
 MLREEF_DOCKER_REGISTRY_PORT=${MLREEF_DOCKER_REGISTRY_PORT}
 IMAGE_TAG=$IMAGE_TAG
 LOCAL_EPF_IMAGE_PATH=$MLREEF_GITLAB_LOCAL_REGISTRY_IMAGE/epf:$IMAGE_TAG
-LOCAL_EXPERIMENT_IMAGE_PATH=$MLREEF_GITLAB_LOCAL_REGISTRY_IMAGE/experiment:$IMAGE_TAG
+LOCAL_EXPERIMENT_IMAGE_PATH=""
+# LOCAL_EXPERIMENT_IMAGE_PATH has been set to blank temporarily as k8s runner has issue in pulling it as base image
+# Due to insecure registry. Once gitlab moves to https, it can be fixed as below :
+# LOCAL_EXPERIMENT_IMAGE_PATH=$MLREEF_GITLAB_LOCAL_REGISTRY_IMAGE/experiment:$IMAGE_TAG
 
+# Set PIP_SERVER to blank. In Nautilus, it could be used to local pip server to run Nautilus in offline mode
+PIP_SERVER=""
 
 HEREDOC

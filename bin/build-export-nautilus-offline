@@ -9,8 +9,11 @@ set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
 ########################################
 
-mkdir mlreef-images-tar
-cd mlreef-images-tar
+TAR_LOCATION="mlreef-images-tar"
+if [ ! -d $TAR_LOCATION ]; then
+  mkdir $TAR_LOCATION
+fi
+cd $TAR_LOCATION
 
 ##Save all the required images for the mlreef setup
 
