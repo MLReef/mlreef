@@ -34,35 +34,7 @@ RUN echo "----------------------------------------------------------------------
     echo "------------------------------------------------------------------------" && \
     apt-get update                                                                  && \
     apt-get install -y libsm6  libfontconfig1 libxrender1                           && \
-    python --version                                                                && \
-    python -m pip install --upgrade --force pip                                     && \
-    pip install virtualenv                                                          && \
-    # Switch Python to virtualenv "venv"                                            && \
-    virtualenv venv                                                                 && \
-    # source venv/bin/activate                                                      && \
-    pip install 'keras==2.3.0'                                                      && \
-    pip install sklearn                                                             && \
-    pip install pillow                                                              && \
-    pip install scikit-learn                                                        && \
-    pip install matplotlib                                                          && \
-    pip install opencv-python                                                       && \
-    pip install pandas                                                              && \
-    pip install scikit-image
-
-
-##### Run Tests
-RUN cd /epf/tests                                                                   && \
-    python3 -m pip install --upgrade pip                                            && \
-    pip3 install -r requirements.txt                                                && \
-    python3 -m unittest -v im_transformations_tests.Test                            && \
-    echo "Tests successful"
-
-## sentinel credentials
-RUN echo "Sentinel hub credential set up"                                           && \
-    sentinelhub.config --instance_id 'dac7e689-21fb-4f26-9835-64d74826b1c5'         && \
-    sentinelhub.config --sh_client_id 'b85a3e06-e348-4446-b62e-7bc2ad5bb4f3'         && \
-    sentinelhub.config --sh_client_secret '(zSc]ZZS8w(D3HKI3l<z^+N51P9Na0[I;~h/>X}_' && \
-    sentinelhub.config --show
+    python --version                                                                
 
 
 ##### Add container startup script
