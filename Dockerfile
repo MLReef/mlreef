@@ -120,6 +120,9 @@ ENV REDIS_HOST "localhost"
 ENV STARTUP_DELAY "30"
 # EPF image tag, by default it will pick up master
 ENV EPF_IMAGE_TAG "master"
+# Set PIP_SERVER to blank. In Nautilus, it could be set to local pip server to run Nautilus in offline mode
+ENV PIP_SERVER ""
+
 
 ###
 ### Modify Gitlab Omnibus scripts

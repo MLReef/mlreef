@@ -54,7 +54,7 @@ data:
           [runners.cache.gcs]
           [runners.cache.azure]
         [runners.kubernetes]
-          host = "https://34.91.108.245"
+          host = "@K8S_RUNNER_HOST@"
           ca_file = "/etc/ssl/certs/k8s-runner-ca.crt"
           bearer_token_overwrite_allowed = false
           bearer_token = "@K8S_RUNNER_BEARER_TOKEN@"
@@ -64,14 +64,14 @@ data:
           privileged = true
           pull_policy = "always"
           helper_image = "registry.gitlab.com/mlreef/devops/k8s-images/gitlab-runner-helper:latest"
-          cpu_limit = "1.9"
-          memory_limit = "52G"
+          cpu_limit = "@GITLAB_RUNNER_LIMITS_CPU@"
+          memory_limit = "@GITLAB_RUNNER_LIMITS_MEMORY@"
           extended_resource_name = "nvidia.com/gpu"
           extended_resource_limit = "1"
-          service_cpu_limit = "300m"
-          service_memory_limit = "4G"
-          helper_cpu_limit = "500m"
-          helper_memory_limit = "100Mi"
+          service_cpu_limit = "@GITLAB_RUNNER_LIMITS_SVC_CPU@"
+          service_memory_limit = "@GITLAB_RUNNER_LIMITS_SVC_MEMORY@"
+          helper_cpu_limit = "@GITLAB_RUNNER_LIMITS_HELPER_CPU@"
+          helper_memory_limit = "@GITLAB_RUNNER_LIMITS_HELPER_MEMORY@"
           poll_interval = 5
           poll_timeout = 3600
           service_account_overwrite_allowed = ""
