@@ -18,6 +18,7 @@ class Login extends React.Component {
       email: '',
       password: '',
       isFetching: false,
+      passwordShown: false,
     };
 
     this.submit = this.submit.bind(this);
@@ -25,6 +26,7 @@ class Login extends React.Component {
     this.validateForm = this.validateForm.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.redirectIfAuthenticated = this.redirectIfAuthenticated.bind(this);
+    this.togglePasswordShown = this.togglePasswordShown.bind(this);
   }
 
   componentDidMount() {
@@ -124,12 +126,19 @@ class Login extends React.Component {
     });
   }
 
+  togglePasswordShown() {
+    const { passwordShown } = this.state;
+
+    this.setState({ passwordShown: !passwordShown });
+  }
+
   render() {
     const {
       email,
       password,
       hasErrors,
       isFetching,
+      passwordShown,
     } = this.state;
 
     return (
@@ -177,12 +186,21 @@ class Login extends React.Component {
                     </Link>
                   </div>
                 </div>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={this.handleChange}
-                />
+                <div className="password-container">
+                  <input
+                    id="password"
+                    type={passwordShown ? 'text' : 'password'}
+                    value={password}
+                    onChange={this.handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="password-show-btn btn btn-hidden btn-link"
+                    onClick={this.togglePasswordShown}
+                  >
+                    {passwordShown ? 'hide' : 'show'}
+                  </button>
+                </div>
               </div>
               <div id="sign-in-btn" className="input-container">
                 <MButton

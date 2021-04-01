@@ -124,3 +124,14 @@
     justify-content: flex-end;
     margin: 1rem 2rem;
 }
+
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-container .password-show-btn {
+  position: absolute;
+  right: 1em;
+  height: 100%;
+}
