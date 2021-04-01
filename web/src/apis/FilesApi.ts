@@ -15,7 +15,7 @@ export default class FilesApi extends ApiDirector {
     params.set('ref', ref);
     params.set('recursive', recursive);
     params.set('path', path);
-    params.set('per_page', '50');
+    params.set('per_page', '100');
     blBuilder.setUrlParams(params);
     blBuilder.buildUrlWithParams();
     return fetch(blBuilder.build())

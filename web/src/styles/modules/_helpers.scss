@@ -280,3 +280,12 @@
     }
   }
 }
+
+.m-alert {
+  padding: 1rem;
+
+  &.warning {
+    background-color: #E9944440;
+    color: var(--warning);
+  }
+}
