@@ -35,7 +35,11 @@ Copy bin/build-run-nautilus-offline script to offline server.
 
 On the offline host:
 ```
-bin/build-run-nautilus-offline $THE_PATH_OF_TAR_FILES
+bin/build-run-nautilus-offline -d $THE_PATH_OF_TAR_FILES -s $PIP_SERVER(optional)
 ```
+Example:
+bin/build-run-nautilus-offline -d mlreef-images-tar
+bin/build-run-nautilus-offline -d mlreef-images-tar -s https://python.example.com/
+
 The container comes up with a default runner running on same docker network on localhost.
 

@@ -14,25 +14,54 @@ set -u  # error on usage of undefined variables
 usage()
 {
 cat<<EOF
-Usage: $0 image_tar_path
+Usage: $0 options
+OPTIONS:
+ -d    relative or full path of directory where all the image tars exist
+ -s    local pip server detail (optional)
 EOF
 }
 
-MLREEF_TAR="mlreef.tar"
-# Check if command line arguments exist, if not print usage
-if [ $# -lt 1 ]; then
-  usage
-  exit
-else
-  IMAGE_TAR_PATH="$1"
+# Check the command line args and assign given value to variables
+while getopts hd:s: OPTION
+do
+     case $OPTION in
+         d)
+             imageTarPath=$OPTARG
+             ;;
+         s)
+             pipServer=$OPTARG
+             ;;
+         ?)
+             usage
+             exit
+             ;;
+     esac
+done
+
+# Check validity of args
+# -s is otopnal, so if blank assign default value
+if [[ -z ${pipServer:-} ]]
+then
+        pipServer=""
 fi
 
+# -d is mandatory argument , so exit if not given
+
+if [[ -z ${imageTarPath:-} ]]
+then
+     usage
+     exit 1
+fi
+
+
+MLREEF_TAR="mlreef.tar"
+
 # Check if tar directory exists
-if [ -d $IMAGE_TAR_PATH ]; then
-  MLREEF_IMAGE=$(docker load -i $IMAGE_TAR_PATH/$MLREEF_TAR | awk '{print $3}')
+if [ -d $imageTarPath ]; then
+  MLREEF_IMAGE=$(docker load -i $imageTarPath/$MLREEF_TAR | awk '{print $3}')
  echo $MLREEF_IMAGE
 else
-  echo "The $IMAGE_TAR_PATH does not exists, give a valid path"
+  echo "The $imageTarPath does not exists, give a valid path"
   exit
 fi
 
@@ -56,12 +85,13 @@ docker run -d -it --rm --name mlreef                 \
   --publish 10080:10080                 \
   --publish 6000:6000                   \
   --env OFFLINE_MODE=true               \
+  --env PIP_SERVER=$pipServer           \
   $MLREEF_IMAGE
 
 sleep 30
 
 ### Copy all images to nautilus container
-cd $IMAGE_TAR_PATH
+cd $imageTarPath
 for FILE in *; do
   if [ "$FILE" != "$MLREEF_TAR" ]; then
     docker cp $FILE mlreef:/

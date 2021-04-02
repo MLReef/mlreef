@@ -28,7 +28,8 @@ function sed_files() {
       sed -i "s/__KUBE_INGRESS_BASE_DOMAIN__/${KUBE_INGRESS_BASE_DOMAIN}/" $file_name
       sed -i "s/@GITLAB_GKE_DOMAIN@/$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN/" $file_name
       sed -i "s/@K8S_RUNNER_BEARER_TOKEN@/$K8S_RUNNER_BEARER_TOKEN/" $file_name
-      sed -i "s/@K8S_RUNNER_HOST@/$DEV_GITLAB_RUNNER_K8S_CLUSTER/" $file_name
+      #Using sed delimiter as = for K8S_RUNNER_HOST as the value contains / like https://"
+      sed -i "s=@K8S_RUNNER_HOST@=$GITLAB_RUNNER_K8S_CLUSTER=" $file_name
     else
       echo "Applying SED on compose Yamls"
       sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" docker-compose.yml
