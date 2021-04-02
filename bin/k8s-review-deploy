@@ -16,6 +16,7 @@ cat out/instance.info
 
 ## Export variable that will be included in all final yml files
 export dashed_domain="${CI_ENVIRONMENT_SLUG}"
+export GITLAB_RUNNER_K8S_CLUSTER="${DEV_GITLAB_RUNNER_K8S_CLUSTER}"
 # Define seperate k8s authentication variables for dev and prod environment
 if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
   export K8S_RUNNER_BEARER_TOKEN=$PROD_K8S_RUNNER_BEARER_TOKEN
