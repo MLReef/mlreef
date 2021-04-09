@@ -9,14 +9,15 @@ import {
 import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import AuthWrapper from 'components/AuthWrapper';
 import * as jobsActions from 'store/actions/jobsActions';
 import * as userActions from 'store/actions/userActions';
 import { fireModal } from 'store/actions/actionModalActions';
+import BranchesApi from 'apis/BranchesApi';
 import ExperimentsApi from 'apis/experimentApi';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ExperimentTable from 'components/commons/ExperimentTable';
-// import experimentsDemo from 'components/commons/ExperimentTable/stories/experimentsDemo.json';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
@@ -31,6 +32,7 @@ export const buttons = [
   'Canceled',
 ];
 
+const branchesApi = new BranchesApi();
 const experimentApi = new ExperimentsApi();
 const gitlabApi = new GitlabPipelinesApi();
 
@@ -65,10 +67,10 @@ const ExperimentsOverview = (props) => {
   );
 
   const deleteExperiment = useCallback(
-    (experiment) => experimentApi
-      .delete(id, experiment.id)
+    (experiment, keepBranch) => experimentApi.delete(id, experiment.id)
+      .then(() => keepBranch ? Promise.resolve() : branchesApi.delete(gid, experiment.targetBranch))
       .catch(() => toastr.error('Error', `Deleting ${experiment.name} failed.`)),
-    [id],
+    [id, gid],
   );
 
   const stopExperiment = useCallback(
@@ -82,6 +84,7 @@ const ExperimentsOverview = (props) => {
   const handleDeleteExperiments = useCallback(
     (ids) => {
       const exps = ids.map((i) => experiments.find((exp) => exp.id === i));
+      let deleteBranches = true;
 
       actions.fireModal({
         title: 'Delete experiments?',
@@ -104,10 +107,18 @@ const ExperimentsOverview = (props) => {
                   </li>
                 ))}
               </ul>
+              <MCheckBox
+                small
+                name="delete-branches"
+                className="mt-5"
+                labelValue="Also delete related branches"
+                checked={deleteBranches}
+                callback={(_, __, status) => { deleteBranches = status; }}
+              />
             </div>
           </section>
         ),
-        onPositive: () => Promise.all(exps.map(deleteExperiment))
+        onPositive: () => Promise.all(exps.map((exp) => deleteExperiment(exp, !deleteBranches)))
           .then(() => {
             toastr.success('Success', 'Experiments deleted');
             fetchExperiments();

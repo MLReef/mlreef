@@ -24,6 +24,8 @@ const sorters = {
 const initCols = (cols) => cols.filter((c) => c.type !== 'metric')
   .map((c) => c.x);
 
+const byStoppable = (exp) => (exp.status === 'running') || exp.status === 'pending';
+
 const tabs = [
   {
     title: 'Experiments overview',
@@ -94,7 +96,7 @@ const ExperimentTable = (props) => {
 
   const handleStopExperiments = () => {
     const runningExpIds = experiments
-      .filter((exp) => (exp.status === 'running') || exp.status === 'pending')
+      .filter(byStoppable)
       .map((exp) => exp.id);
 
     onStopExperiments(selectedRows.filter((r) => runningExpIds.includes(r)));
@@ -108,6 +110,12 @@ const ExperimentTable = (props) => {
       return transform ? transform(filteredRows) : filteredRows;
     },
     [filteredRows, mods],
+  );
+
+  const hasStoppables = useMemo(
+    () => selectedRows.map((id) => experiments.find((exp) => exp.id === id))
+      .filter(byStoppable).length > 0,
+    [selectedRows, experiments],
   );
 
   const changeHiddenExpIds = (id) => {
@@ -153,7 +161,7 @@ const ExperimentTable = (props) => {
                   onClick={handleDeleteExperiments}
                 />
               )}
-              {selectedRows.length > 0 && (
+              {hasStoppables && (
                 <button
                   type="button"
                   label="stop"
