@@ -493,14 +493,14 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         } returns repoTreePage
     }
 
-    protected fun mockFilesInBranchOnlyOnce(fileName: String, fileNameAlwaysPresent: String) {
+    protected fun mockFilesInBranch2Times(fileName: String, fileNameAlwaysPresent: String) {
         val alwaysRepoTree = RepositoryTree(UUID.randomUUID().toString(), fileNameAlwaysPresent, RepositoryTreeType.BLOB, "/", "064")
         val repoTree = RepositoryTree(UUID.randomUUID().toString(), fileName, RepositoryTreeType.BLOB, "/", "064")
         val repoTreePage = RepositoryTreePaged(listOf(repoTree, alwaysRepoTree), 1, 1, 1, 1)
         val repoTreePageEmpty = RepositoryTreePaged(listOf(alwaysRepoTree), 1, 1, 1, 1)
         every {
             restClient.adminGetProjectTree(any(), any(), any(), any())
-        } returns repoTreePage andThen repoTreePageEmpty
+        } returns repoTreePage andThen repoTreePage andThen repoTreePageEmpty
     }
 
     protected fun mockNoFilesInBranch(fileName: String) {

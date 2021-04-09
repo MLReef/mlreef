@@ -103,7 +103,7 @@ internal class CodeProjectPublishingController(
         @PathVariable id: UUID,
         token: TokenDetails
     ): CodeProjectPublishingDto {
-        publishingService.unPublishProject(userToken = token.accessToken, projectId = id)
+        publishingService.unPublishProject(userToken = token.accessToken, projectId = id, exceptionIfNotPublished = false)
         return publishingService.startPublishing(
             mainFilePath = request.path,
             environmentId = request.environment,

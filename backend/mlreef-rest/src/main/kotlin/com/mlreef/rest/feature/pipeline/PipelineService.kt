@@ -20,6 +20,7 @@ import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabIncorrectAnswerException
+import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.PipelineStartException
 import com.mlreef.rest.exceptions.RestException
@@ -47,6 +48,7 @@ import org.springframework.util.DigestUtils
 import java.nio.charset.Charset
 import java.util.UUID
 import java.util.UUID.randomUUID
+import javax.annotation.PostConstruct
 
 
 @Service
@@ -63,6 +65,7 @@ class PipelineService(
     private val authService: AuthService,
     private val yamlFileGenerator: YamlFileGenerator,
 ) {
+    private val DEFAULT_BASE_IMAGE_PATH = "registry.gitlab.com/mlreef/mlreef/experiment:master"
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
     private val botEmailDomain: String = ""
@@ -71,6 +74,11 @@ class PipelineService(
     private val botPasswordLength: Int = 0
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+    @PostConstruct
+    fun init() {
+        if (conf.epf.experimentImagePath.isNullOrBlank()) throw IncorrectApplicationConfiguration("No experiment image path was provided")
+    }
 
     fun getPipelinesForProject(projectId: UUID): List<PipelineConfig> {
         return pipelineConfigRepository.findAllByDataProjectId(projectId)
@@ -162,6 +170,7 @@ class PipelineService(
                 epfPipelineSecret = secret,
                 epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/pipeline_instance/${pipelineInstance.id}",
                 epfGitlabUrl = conf.epf.gitlabUrl,
+                baseImagePath = getExperimentImagePath(),
                 epfImageTag = conf.epf.imageTag,
                 sourceBranch = pipelineInstance.sourceBranch,
                 targetBranch = pipelineInstance.targetBranch,
@@ -362,4 +371,9 @@ class PipelineService(
         pipelineInstanceRepository.save(
             instance.copy(status = PipelineStatus.CANCELED)
         )
+
+    private fun getExperimentImagePath(): String {
+        return conf.epf.experimentImagePath!!
+    }
+
 }

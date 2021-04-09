@@ -77,6 +77,9 @@ class EpfConfiguration {
     lateinit var imageTag: String
     lateinit var gitlabUrl: String
     lateinit var backendUrl: String
+    var epfImagePath: String? = null
+    var experimentImagePath: String? = null
+    var pipServer: String? = null
 }
 
 @ConfigurationProperties(prefix = "mlreef.proxy")

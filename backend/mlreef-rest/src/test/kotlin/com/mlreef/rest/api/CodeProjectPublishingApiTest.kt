@@ -187,7 +187,7 @@ class CodeProjectPublishingApiTest : AbstractRestApiTest() {
             environment = pipelineTestPreparationTrait.baseEnv2.id
         )
 
-        this.mockFilesInBranchOnlyOnce(MLREEF_NAME, "main.py")
+        this.mockFilesInBranch2Times(MLREEF_NAME, "main.py")
         this.mockGetUserProjectsList(listOf(codeProject.id), account, AccessLevel.OWNER)
         this.createVersionForDataProcessor(
             this.createDataProcessor(codeProject = codeProject), published = true

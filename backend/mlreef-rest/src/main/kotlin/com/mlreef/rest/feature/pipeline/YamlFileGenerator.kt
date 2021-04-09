@@ -35,6 +35,7 @@ const val INPUT_MOUNT_POINTS = "%INPUT_MOUNT_POINTS%"
 const val OUTPUT_MOUNT_POINTS = "%OUTPUT_MOUNT_POINTS%"
 const val FINAL_OUTPUT_PATH = "%FINAL_OUTPUT_PATH%"
 const val IS_ALGORITHM = "%IS_ALGORITHM%"
+const val BASE_IMAGE_PATH = "%BASE_IMAGE_PATH%"
 
 val NEWLINE = System.lineSeparator()
 
@@ -51,6 +52,7 @@ class YamlFileGenerator {
         epfPipelineSecret: String,
         epfPipelineUrl: String,
         epfGitlabUrl: String,
+        baseImagePath: String,
         epfImageTag: String,
         sourceBranch: String,
         targetBranch: String,
@@ -74,6 +76,7 @@ class YamlFileGenerator {
             .replace(SOURCE_BRANCH, newValue = sourceBranch)
             .replace(TARGET_BRANCH, newValue = targetBranch)
             .replace(EPF_IMAGE_TAG, newValue = epfImageTag)
+            .replace(BASE_IMAGE_PATH, newValue = baseImagePath)
             .replace(EPF_PIPELINE_SECRET, newValue = epfPipelineSecret)
             .replace(EPF_GITLAB_HOST, normilizeGitlabHost(epfGitlabUrl)
                 .removePrefix("http://")

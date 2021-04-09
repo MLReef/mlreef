@@ -83,6 +83,9 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     GitlabMembershipDeleteFailed(2117, "Unable to revoke user's membership"),
     GitlabBranchNotExists(2118, "Branch does not exist in Gitlab"),
     GitlabUserModificationFailed(2101, "Cannot modify user in Gitlab"),
+
+    //Internal errors
+    IncorrectConfiguration(5001, "Not correct configuration"),
 }
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
@@ -148,26 +151,46 @@ open class UnknownGroupException(message: String? = null)
     : NotFoundException(ErrorCode.GroupNotExisting, message ?: "Group is unknown and does not exist")
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Project not found")
-open class UnknownProjectException(message: String? = null)
-    : NotFoundException(ErrorCode.ProjectNotExisting, message ?: "Project is unknown and does not exist")
+open class UnknownProjectException(message: String? = null) :
+    NotFoundException(ErrorCode.ProjectNotExisting, message ?: "Project is unknown and does not exist")
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Python file was parsed incorrectly")
 class PythonFileParsingException(message: String) : RestException(ErrorCode.PythonFileParsingError, message)
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Python file was parsed incorrectly")
-class PythonFileParsingErrors(errorMessagesMap: Map<String, List<String>>)
-    : RestException(ErrorCode.PythonFileParsingError, errorMessagesMap.map {
-    "${it.key.toUpperCase()}:$NEWLINE\t${it.value.joinToString("$NEWLINE\t")}"
-}.joinToString(NEWLINE))
+class PythonFileParsingErrors(errorMessagesMap: Map<String, List<String>>) :
+    RestException(ErrorCode.PythonFileParsingError, errorMessagesMap.map {
+        "${it.key.toUpperCase()}:$NEWLINE\t${it.value.joinToString("$NEWLINE\t")}"
+    }.joinToString(NEWLINE))
 
-class UserNotFoundException(userId: UUID? = null, userName: String? = null, email: String? = null, personId: UUID? = null, gitlabId: Long? = null, subjectId: UUID? = null)
-    : NotFoundException(ErrorCode.UserNotExisting, generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId))
+class IncorrectApplicationConfiguration(message: String) : RestException(ErrorCode.IncorrectConfiguration, message)
 
-class GroupNotFoundException(groupId: UUID? = null, groupName: String? = null, subjectId: UUID? = null, gitlabId: Long? = null, path: String? = null)
-    : UnknownGroupException(generateGroupNotFoundMessage(groupId, groupName, subjectId, gitlabId, path))
+class UserNotFoundException(
+    userId: UUID? = null,
+    userName: String? = null,
+    email: String? = null,
+    personId: UUID? = null,
+    gitlabId: Long? = null,
+    subjectId: UUID? = null
+) : NotFoundException(
+    ErrorCode.UserNotExisting,
+    generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId)
+)
 
-class ProjectNotFoundException(projectId: UUID? = null, projectName: String? = null, gitlabId: Long? = null, path: String? = null)
-    : UnknownProjectException(generateProjectNotFoundMessage(projectId, projectName, gitlabId, path))
+class GroupNotFoundException(
+    groupId: UUID? = null,
+    groupName: String? = null,
+    subjectId: UUID? = null,
+    gitlabId: Long? = null,
+    path: String? = null
+) : UnknownGroupException(generateGroupNotFoundMessage(groupId, groupName, subjectId, gitlabId, path))
+
+class ProjectNotFoundException(
+    projectId: UUID? = null,
+    projectName: String? = null,
+    gitlabId: Long? = null,
+    path: String? = null
+) : UnknownProjectException(generateProjectNotFoundMessage(projectId, projectName, gitlabId, path))
 
 class ExperimentCreateException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
 class ExperimentUpdateException(message: String) : RestException(ErrorCode.ExperimentCannotBeChanged, message)
