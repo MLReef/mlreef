@@ -55,16 +55,20 @@ before_script:
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
   - echo "The final output path is $$LAST_OUTPUT_PATH"
-  #only run background-push if it is an experiment
-  - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM &
-  #Run dockerd and respective base image changes
-  - dockerd --host=unix:///var/run/docker.sock --insecure-registry=${CI_REGISTRY} &
+  # Redirect background job output to a file. https://gitlab.com/mlreef/mlreef/-/issues/1004 . 
+  # As the background_process output needs to be shown on terminal, can't use  > /dev/null 2>&1
+  # only run background-push if it is an experiment 
+  - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM > background.out &
+  # Run dockerd and respective base image changes
+  - dockerd --host=unix:///var/run/docker.sock --insecure-registry=${CI_REGISTRY} > /dev/null 2>&1 &
   - sleep 10
   - ldconfig
   # Check if nvidia driver is accessible in the base container then add gpu capabilities to docker run
   - nvidia-smi && DOCKER_COMMAND="docker run --rm --gpus=all " || DOCKER_COMMAND="docker run --rm "
 after_script:
   - epf-finish
+  - echo "---The background push output---"
+  - cat background.out || echo "No background push log found"
 
 mlreef-pipeline:
   artifacts:
