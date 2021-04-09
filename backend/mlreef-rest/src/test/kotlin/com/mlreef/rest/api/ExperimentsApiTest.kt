@@ -349,7 +349,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             .contentAsString
 
         assertThat(result).isNotEmpty()
-        assertThat(result).contains("image: registry.gitlab.com/mlreef/mlreef/experiment:")
     }
 
     @Transactional

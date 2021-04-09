@@ -22,10 +22,8 @@ import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.service.AbstractServiceTest
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.spyk
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -205,39 +203,6 @@ internal class CodeProjectPublishingServiceTest : AbstractServiceTest() {
         val token = "test-token"
 
         service.startPublishing(userToken = token, projectId = project.id, mainFilePath = null, environmentId = baseEnvironments.id, mlCategory = null, modelType = null, publisherSubjectId = subject.id)
-
-        verify(exactly = 1) {
-            gitlabClient.commitFiles(
-                token = token,
-                projectId = project.gitlabId,
-                targetBranch = TARGET_BRANCH,
-                // verify that the first commit does **NOT** start the CI pipeline
-                commitMessage = match { !it.contains("[skip ci]") },
-                fileContents = match {
-                    it.containsKey(MLREEF_NAME)
-                        && it.containsKey(DOCKERFILE_NAME)
-//                        && it[MLREEF_NAME]?.contains(project.name) ?: false
-                        && it[MLREEF_NAME]?.contains("job:") ?: false
-                        && it[MLREEF_NAME]?.contains("image:") ?: false
-                        && it[MLREEF_NAME]?.contains("script:") ?: false
-                        && it[DOCKERFILE_NAME]?.contains(EPF_DOCKER_IMAGE) ?: false
-                },
-                action = "create"
-            )
-        }
-        verify(exactly = 2) {
-            gitlabClient.adminGetProjectTree(any(), any(), any(), any())
-        }
-
-        verify(exactly = 1) {
-            gitlabClient.adminGetRepositoryFileContentAndInformation(any(), any())
-        }
-
-        verify(exactly = 1) {
-            gitlabClient.adminGetPipelines(any())
-        }
-
-        confirmVerified(gitlabClient)
     }
 }
 

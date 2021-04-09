@@ -27,7 +27,6 @@ class YamlFileGeneratorTest {
     fun `Template contains all necessary constants`() {
         with(yamlFileGenerator) {
             assertThat(template).isNotEmpty()
-            assertThat(template).contains(EPF_IMAGE_TAG)
             assertThat(template).contains(EPF_GITLAB_HOST)
             assertThat(template).contains(EPF_PIPELINE_URL)
             assertThat(template).contains(EPF_PIPELINE_SECRET)
@@ -46,6 +45,7 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
@@ -70,6 +70,7 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
@@ -88,6 +89,7 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
@@ -110,6 +112,7 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",

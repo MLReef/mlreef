@@ -18,6 +18,7 @@ import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.ExperimentUpdateException
+import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
 import com.mlreef.rest.feature.pipeline.YamlFileGenerator
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
@@ -28,6 +29,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.UUID.randomUUID
+import javax.annotation.PostConstruct
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,10 @@ class ExperimentService(
     private val processorParameterRepository: ProcessorParameterRepository,
     private val yamlFileGenerator: YamlFileGenerator,
 ) {
+    @PostConstruct
+    fun init() {
+        if (conf.epf.experimentImagePath.isNullOrBlank()) throw IncorrectApplicationConfiguration("No experiment image path was provided")
+    }
 
     val log: Logger = LoggerFactory.getLogger(this::class.java)
     val synchedExperimentNumber: Any = Object()
@@ -129,6 +135,7 @@ class ExperimentService(
             epfPipelineSecret = secret,
             epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/experiments/${experiment.id}",
             epfGitlabUrl = conf.epf.gitlabUrl,
+            baseImagePath = getExperimentImagePath(),
             epfImageTag = conf.epf.imageTag,
             sourceBranch = experiment.sourceBranch,
             targetBranch = experiment.targetBranch,
@@ -167,5 +174,8 @@ class ExperimentService(
             )
             .let { experimentRepository.save(it) }
 
+    private fun getExperimentImagePath(): String {
+        return conf.epf.experimentImagePath!!
+    }
 
 }

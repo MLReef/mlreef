@@ -41,3 +41,7 @@ spring:
       flush-mode: on_save
       namespace: spring:session
 
+mlreef:
+  epf:
+    backend-url: https://backend.test.domain.com
+

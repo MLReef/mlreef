@@ -12,6 +12,7 @@ import com.mlreef.rest.PublishingMachineType
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
 import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.PipelineStartException
@@ -34,9 +35,11 @@ import org.springframework.expression.common.TemplateParserContext
 import org.springframework.expression.spel.standard.SpelExpressionParser
 import org.springframework.expression.spel.support.StandardEvaluationContext
 import org.springframework.stereotype.Service
+import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.stream.Collectors
+import javax.annotation.PostConstruct
 
 const val TARGET_BRANCH = "master"
 const val DOCKERFILE_NAME = "Dockerfile"
@@ -45,13 +48,12 @@ const val PUBLISH_COMMIT_MESSAGE = "Publish: Adding $DOCKERFILE_NAME and $MLREEF
 const val UNPUBLISH_COMMIT_MESSAGE = "Unpublish: Removing $DOCKERFILE_NAME and $MLREEF_NAME files from repository"
 const val NEWLINE = "\n"
 
-const val EPF_DOCKER_IMAGE = "registry.gitlab.com/mlreef/mlreef/epf:master"
-
 const val PROJECT_NAME_VARIABLE = "CI_PROJECT_SLUG"
 const val IMAGE_NAME_VARIABLE = "IMAGE_NAME"
 const val MAIN_SCRIPT_NAME_VARIABLE = "MAIN_SCRIPT"
 const val EPF_PUBLISH_URL = "EPF_PUBLISH_URL"
 const val EPF_PUBLISH_SECRET = "EPF_PUBLISH_SECRET"
+const val PIP_SERVER_URL = "PIP_SERVER_URL"
 
 
 val dockerfileTemplate: String = ClassPathResource("code-publishing-dockerfile-template")
@@ -76,13 +78,21 @@ class PublishingService(
     private val subjectRepository: SubjectRepository,
     private val pipelineService: PipelineService,
 ) {
-    val log: Logger = LoggerFactory.getLogger(this::class.java)
+    final val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+    @PostConstruct
+    fun init() {
+        if (conf.epf.epfImagePath.isNullOrBlank()) throw IncorrectApplicationConfiguration("No epf image path was provided")
+    }
 
     fun getPublishingInfo(projectId: UUID): ProcessorVersion {
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
-        if (!isProjectPublished(project)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project is not published")
+        if (!isProjectPublished(project)) throw ProjectPublicationException(
+            ErrorCode.ProjectIsInIncorrectState,
+            "Project is not published"
+        )
 
         return dataProcessorService.getProcessorVersionByProjectId(project.id)
             ?: throw NotFoundException(ErrorCode.NotFound, "Data processor for $projectId not found")
@@ -154,7 +164,7 @@ class PublishingService(
                 targetBranch = TARGET_BRANCH,
                 commitMessage = PUBLISH_COMMIT_MESSAGE,
                 fileContents = mapOf(
-                    DOCKERFILE_NAME to generateCodePublishingDockerFile(EPF_DOCKER_IMAGE),
+                    DOCKERFILE_NAME to generateCodePublishingDockerFile(getEpfDockerImagePath()),
                     MLREEF_NAME to generateCodePublishingYAML(project.name, secret, finishUrl)
                 ),
                 action = "create"
@@ -193,14 +203,23 @@ class PublishingService(
      *   2. parse data processor
      *   3. ... ?
      */
-    fun unPublishProject(userToken: String, projectId: UUID): Commit? {
+    fun unPublishProject(userToken: String, projectId: UUID, exceptionIfNotPublished: Boolean = true): Commit? {
         val project = projectResolverService.resolveProject(projectId = projectId)
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
         if (projectHasActivePublishPipeline(project)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Cannot unpublish. Project is publishing. Please wait until it is finished")
-        if (!isProjectPublished(project, userToken)) throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project is not published yet")
 
-        return setProjectToUnpublishState(project, userToken).first
+        if (isPublishingInCorruptedState(project)) {
+            setProjectToUnpublishState(project, userToken)
+        }
+
+        val published = isProjectPublished(project, userToken)
+
+        if (!published && exceptionIfNotPublished) {
+            throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project is not published yet")
+        }
+
+        return if (published) setProjectToUnpublishState(project, userToken).first else null
     }
 
     // Here we just set internal state of project to Unpublish. No any images are removed from registry
@@ -348,6 +367,13 @@ class PublishingService(
         }
     }
 
+    private fun isPublishingInCorruptedState(project: Project): Boolean {
+        val mlreefInRepo = repositoryService.findFileInRepository(project.gitlabId, MLREEF_NAME) != null
+        val publishTimePresent = dataProcessorService.getProcessorVersionByProjectId(project.id)?.publishingInfo?.finishedAt != null
+
+        return (mlreefInRepo && !publishTimePresent || !mlreefInRepo && publishTimePresent)
+    }
+
     private fun isProjectPublished(project: Project, userToken: String? = null): Boolean {
         val mlreefInRepo = repositoryService.findFileInRepository(project.gitlabId, MLREEF_NAME) != null
         val publishTimePresent = dataProcessorService.getProcessorVersionByProjectId(project.id)?.publishingInfo?.finishedAt != null
@@ -355,9 +381,7 @@ class PublishingService(
         if (!mlreefInRepo && !publishTimePresent) return false
         if (mlreefInRepo && publishTimePresent) return true
 
-        setProjectToUnpublishState(project, userToken)
-
-        return false
+        throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Project was not published successfully or publishing is still running")
     }
 
     private fun generateCodePublishingYAML(projectName: String, secret: String, finishUrl: String): String {
@@ -376,7 +400,7 @@ class PublishingService(
             null
         }
 
-        return template ?: throw InternalException("Template cannot be not parsed")
+        return template ?: throw InternalException("Template cannot be parsed")
     }
 
     private fun generateCodePublishingDockerFile(imageName: String): String {
@@ -384,6 +408,7 @@ class PublishingService(
         val context = StandardEvaluationContext()
 
         context.setVariable(IMAGE_NAME_VARIABLE, adaptProjectName(imageName))
+        context.setVariable(PIP_SERVER_URL, getPipServerUrl())
 
         val template = try {
             val expression = expressionParser.parseExpression(dockerfileTemplate, TemplateParserContext())
@@ -393,12 +418,34 @@ class PublishingService(
             null
         }
 
-        return template ?: throw InternalException("Template cannot be not parsed")
+        return template ?: throw InternalException("Template cannot be parsed")
     }
 
     private fun adaptProjectName(projectName: String): String =
         projectName
             .replace(" ", "_")
             .toLowerCase()
+
+    private fun getEpfDockerImagePath(): String {
+        return conf.epf.epfImagePath!!
+    }
+
+    private fun getPipServerUrl(): String {
+        return if (!conf.epf.pipServer.isNullOrBlank()) {
+            val pipHost = URI(conf.epf.pipServer!!).host
+            " -i ${conf.epf.pipServer} --trusted-host $pipHost "
+        } else " "
+    }
+
+    private fun getDomainName(): String {
+        try {
+            if (conf.epf.backendUrl.isBlank()) return ""
+            val uri = URI(conf.epf.backendUrl)
+            return if (uri.host.startsWith("backend.")) uri.host.substring(8) else uri.host
+        } catch (ex: Exception) {
+            log.error("Cannot get domain: $ex")
+            return ""
+        }
+    }
 }
 

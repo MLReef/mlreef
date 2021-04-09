@@ -7,7 +7,8 @@
 #################################################################################
 
 # This is the docker image your model training will be executed in
-image: registry.gitlab.com/mlreef/mlreef/experiment:%EPF_IMAGE_TAG%
+# %BASE_IMAGE_PATH%
+image: %BASE_IMAGE_PATH%
 
 variables:
   # Variables containing the prefix CI_ are provided directly by the the pipeline environment
@@ -54,7 +55,7 @@ before_script:
   - git config --global user.name "$GIT_PUSH_NAME"
   - echo "Target branch is $TARGET_BRANCH"
   - echo "The final output path is $$LAST_OUTPUT_PATH"
-  #only run background-push if it is an experiment 
+  #only run background-push if it is an experiment
   - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM &
   #Run dockerd and respective base image changes
   - dockerd --host=unix:///var/run/docker.sock --insecure-registry=${CI_REGISTRY} &
@@ -88,7 +89,7 @@ mlreef-pipeline:
   script: |
     git checkout -B $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
-    # Run docker command to run experiment with project image. 
+    # Run docker command to run experiment with project image.
     # PIPELINE_STRING gets populate by backend/mlreef-rest/src/main/kotlin/com/mlreef/rest/feature/pipeline/YamlFileGenerator.kt
     ${DOCKER_COMMAND}%PIPELINE_STRING%
     git add .
