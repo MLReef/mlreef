@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import PropTypes, { func, shape, string } from 'prop-types';
 import { updateUserClosedInstructions } from 'store/actions/userActions';
 import advice01 from '../../images/advice-01.png';
 import './instruction.css';
 
 const Instruction = ({
-  id, titleText, paragraph, closedInstructions, actions,
+  id, titleText, paragraph, htmlParagraph, closedInstructions, actions,
 }) => {
   const isShown = useMemo(() => !closedInstructions[id] || false, [id, closedInstructions]);
 
@@ -27,9 +27,11 @@ const Instruction = ({
               {' '}
               <b>{titleText}</b>
             </p>
+            {htmlParagraph || (
             <p>
               {paragraph}
             </p>
+            )}
           </div>
           <div id="xButton">
             <button
@@ -53,13 +55,18 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 Instruction.propTypes = {
-  id: PropTypes.string.isRequired,
-  titleText: PropTypes.string.isRequired,
-  paragraph: PropTypes.string.isRequired,
-  closedInstructions: PropTypes.shape({}).isRequired,
-  actions: PropTypes.shape({
-    updateUserClosedInstructions: PropTypes.func.isRequired,
+  id: string.isRequired,
+  titleText: string.isRequired,
+  paragraph: string.isRequired,
+  closedInstructions: shape({}).isRequired,
+  actions: shape({
+    updateUserClosedInstructions: func.isRequired,
   }).isRequired,
+  htmlParagraph: string,
+};
+
+Instruction.defaultProps = {
+  htmlParagraph: null,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Instruction);

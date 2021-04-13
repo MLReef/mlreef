@@ -34,6 +34,7 @@ import ForkView from 'components/views/ForkView';
 import ForkProgressView from 'components/views/ForkView/ForkProgressView';
 import PublishingView from 'components/views/PublishingView';
 import PublishProcessView from 'components/views/PublishProcessView';
+import DashboardV2 from 'components/views/DashboardV2';
 import NotFoundView from 'components/views/ErrorView/NotFoundView';
 import Redirect from 'components/commons/Redirect';
 
@@ -51,6 +52,15 @@ export default [
     name: 'home',
     path: '/',
     exact: true,
+    component: DashboardV2,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'dashboard-v1',
+    path: '/dashboard-deprecated',
+    exact: true,
     component: ProjectsView,
     meta: {
       authRequired: true,
@@ -58,18 +68,36 @@ export default [
   },
   {
     name: 'dashboard',
+    path: '/dashboard-deprecated/:classification',
+    exact: true,
+    component: ProjectsView,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'dashboard-v2',
+    path: '/dashboard/:classification1/:classification2',
+    exact: true,
+    component: DashboardV2,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'dashboard-v2',
+    path: '/dashboard/:classification1',
+    exact: true,
+    component: DashboardV2,
+    meta: {
+      authRequired: true,
+    },
+  },
+  {
+    name: 'dashboard-v2',
     path: '/dashboard',
     exact: true,
-    component: ProjectsView,
-    meta: {
-      authRequired: true,
-    },
-  },
-  {
-    name: 'dashboard',
-    path: '/dashboard/:classification',
-    exact: true,
-    component: ProjectsView,
+    component: DashboardV2,
     meta: {
       authRequired: true,
     },

@@ -25,7 +25,7 @@ export const mergeWithGitlabProject = (project) => projectApi.getProjectInfoApi(
  * @param {*} projects: raw projects array to merge with users
  * @returns: same projects array but with the members added
  */
-const mergeGitlabResource = (projects) => projects.map((project) => ({
+export const mergeGitlabResource = (projects) => projects.map((project) => ({
   ...project,
   members: projectApi.getUsers(project.gitlabId).catch(() => []),
 }));
@@ -353,3 +353,38 @@ export const buildProjectsRequestBody = (hash, dataTypes = []) => {
 
   return body;
 };
+
+
+export const buildProjectsRequestBodyV2 = (hash, dataTypes = [], minimumStars, publishStatus) => {
+  let body = {};
+  const { user: { username } } = store.getState();
+  if (hash === '' || hash === 'my-repositories') {
+    body = {
+      ...body,
+      namespace: username,
+    };
+  } else if (hash === 'all') {
+    body = {
+      ...body,
+      visibility: 'PUBLIC',
+    };
+  } else if (hash === 'starred') {
+    body = {
+      ...body,
+      min_stars: 1,
+    };
+  }
+
+  body = { ...body, input_data_types_or: [...dataTypes]}
+
+  if (minimumStars > 0) {
+    body = { ...body, min_stars: minimumStars };
+  }
+
+  if ( publishStatus !== null) {
+    body = { ...body, published: publishStatus }
+  }
+
+  return body;
+};
+

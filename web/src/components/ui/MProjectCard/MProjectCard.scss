@@ -1,20 +1,22 @@
 $border-size: 0 0 1px 1.5px;
 
-.ml-project-marker {
+.data_project-marker {
   background-color: #91BD44;
 }
 
-.model-marker {
+.algorithm-marker {
   background-color: #E99444;
 }
 
-.data-operation-marker {
+.operation-marker {
   background-color: #D2519D;
 }
 
-.data-visualization-marker {
+.visualization-marker {
   background-color: #735DA8;
 }
+
+
 
 .project-card {
   &-container {
@@ -55,28 +57,27 @@ $border-size: 0 0 1px 1.5px;
 
   &-container {
     padding: 1.25rem;
-    border-radius: 7.5px;
+  }
+
+  &-container.data_project {
+    box-shadow: $border-size #91BD44 !important;
+  }
+
+  &-container.algorithm {
+    box-shadow: $border-size #E99444 !important;
+  }
+
+  &-container.operation {
+    box-shadow: $border-size #D2519D !important;
+  }
+
+  &-container.visualization {
+    box-shadow: $border-size #735DA8 !important;
   }
 
   &-container:hover {
     box-shadow: $border-size var(--info) !important;
     cursor: pointer;
-  }
-
-  .ml-project {
-    box-shadow: $border-size #91BD44;
-  }
-
-  .model {
-    box-shadow: $border-size #E99444;
-  }
-
-  .data-operation {
-    box-shadow: $border-size #D2519D;
-  }
-
-  .data-visualization {
-    box-shadow: $border-size #735DA8;
   }
 
   &-avatar {
