@@ -1,7 +1,6 @@
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import MLSearchApi from 'apis/MLSearchApi';
 import { handlePaginationWithAdditionalInfo, createPagination } from 'functions/apiCalls';
 import store from 'store';
@@ -74,25 +73,6 @@ export const getProjectsList = (page, size) => async (dispatch) => {
 
   const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
   setInformationInTheStorage(completeArrayOfProjects, pagination)(dispatch);
-};
-
-/**
- * @param {*} query: get data projects by some parameters in a query string
- * @param {*} isFirstpage: indicates whether the result will be the first page or not
- */
-export const getPaginatedProjectsByQuery = (body, page, size) => async (dispatch) => {
-  dispatch(setProjectsInfoSuccessfully([]));
-  return mlSearchApi
-    .searchPaginated(PROJECT_TYPES.DATA, body, page, size)
-    .then(handlePaginationWithAdditionalInfo)
-    .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }))
-    .then(({ projects, pagination }) => {
-      const { projects: stateProjects } = store.getState();
-      setInformationInTheStorage(
-        page === 0 ? projects : [...stateProjects.all, ...projects],
-        pagination,
-      )(dispatch);
-    });
 };
 
 export function setSelectedProjectSuccesfully(project) {
@@ -177,33 +157,6 @@ export function removeProject(id) {
       setTimeout(() => dispatch(setSelectedProjectSuccesfully({})), 0);
     });
 }
-
-/**
- *
- * @param {*} searchableType: types of projects and processors.
-    DATA_PROJECT, CODE_PROJECT (ALL Processors)
-    OPERATION, VISUALIZATION, ALGORITHM.
- * @param {*} body: options to search by.
- * @param {*} page: the page of the response array.
- * @param {*} size: size of the page.
- */
-
-export const getProcessorsPaginated = (
-  searchableType, body = {}, page, size,
-) => (dispatch) => {
-  dispatch(setProjectsInfoSuccessfully([]));
-
-  return mlSearchApi
-    .searchPaginated(searchableType, body, page, size)
-    .then(handlePaginationWithAdditionalInfo)
-    .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }))
-    .then(({ projects, pagination }) => {
-      const { projects: stateProjects } = store.getState();
-
-      const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
-      setInformationInTheStorage(completeArrayOfProjects, pagination)(dispatch);
-    });
-};
 
 /**
  *
@@ -318,73 +271,3 @@ export function getProjectPipelines(gid) {
   return (dispatch) => gitlabPipelinesApi.getPipesByProjectId(gid)
     .then((pipes) => dispatch(setProjectPipelines(pipes)));
 }
-
-/**
-* @param {*} sortingType: the type of function to sort projects. 
-*/
-
-export const sortProjects = (sortingType) => (dispatch) => {
-  dispatch(
-    { type: types.SET_SORTING, sorting: sortingType },
-  );
-};
-
-export const buildProjectsRequestBody = (hash, dataTypes = []) => {
-  let body = {};
-  const { user: { username } } = store.getState();
-  if (hash === '' || hash === '#personal') {
-    body = {
-      ...body,
-      namespace: username,
-    };
-  } else if (hash === '#explore') {
-    body = {
-      ...body,
-      visibility: 'PUBLIC',
-    };
-  } else if (hash === '#starred') {
-    body = {
-      ...body,
-      min_stars: 1,
-    };
-  }
-
-  body = { ...body, input_data_types_or: [...dataTypes]}
-
-  return body;
-};
-
-
-export const buildProjectsRequestBodyV2 = (hash, dataTypes = [], minimumStars, publishStatus) => {
-  let body = {};
-  const { user: { username } } = store.getState();
-  if (hash === '' || hash === 'my-repositories') {
-    body = {
-      ...body,
-      namespace: username,
-    };
-  } else if (hash === 'all') {
-    body = {
-      ...body,
-      visibility: 'PUBLIC',
-    };
-  } else if (hash === 'starred') {
-    body = {
-      ...body,
-      min_stars: 1,
-    };
-  }
-
-  body = { ...body, input_data_types_or: [...dataTypes]}
-
-  if (minimumStars > 0) {
-    body = { ...body, min_stars: minimumStars };
-  }
-
-  if ( publishStatus !== null) {
-    body = { ...body, published: publishStatus }
-  }
-
-  return body;
-};
-

@@ -1,4 +1,3 @@
-import ProjectsView from 'components/myProjects/myProjects';
 import LoginView from 'components/login/login';
 import RegisterView from 'components/RegisterView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
@@ -53,24 +52,6 @@ export default [
     path: '/',
     exact: true,
     component: DashboardV2,
-    meta: {
-      authRequired: true,
-    },
-  },
-  {
-    name: 'dashboard-v1',
-    path: '/dashboard-deprecated',
-    exact: true,
-    component: ProjectsView,
-    meta: {
-      authRequired: true,
-    },
-  },
-  {
-    name: 'dashboard',
-    path: '/dashboard-deprecated/:classification',
-    exact: true,
-    component: ProjectsView,
     meta: {
       authRequired: true,
     },
