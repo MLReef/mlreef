@@ -98,14 +98,16 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
     </div>
     <div
       className="user-options"
+      onClick={[Function]}
     >
       <a
         className="option-link mb-3 danger-box"
-        href="/#explore"
+        href="/dashboard/ml-project#explore"
         onClick={[Function]}
       >
         <div
           className="option-icon"
+          id="explore-link-icon"
           style={
             Object {
               "backgroundColor": "var(--danger)",
@@ -114,14 +116,17 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
         />
         <div
           className="state-body"
+          id="explore-link-content"
         >
           <h4
             className="state-title mt-0"
+            id="explore-link-title"
           >
             Explore Public Projects
           </h4>
           <p
             className="state-text"
+            id="explore-link-text-content"
           >
             Public projects are an easy way to get started. Explore the ever growing number of projects, get inspired and be part of the reef
           </p>
@@ -134,6 +139,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
       >
         <div
           className="option-icon"
+          id="new-project-link-icon"
           style={
             Object {
               "backgroundColor": "var(--dark)",
@@ -142,14 +148,17 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
         />
         <div
           className="state-body pl-3"
+          id="new-project-link-content"
         >
           <h4
             className="state-title mt-0"
+            id="new-project-link-title"
           >
             Create a Project
           </h4>
           <p
             className="state-text mt-0"
+            id="new-project-link-text-content"
           >
             In MLReef there are ML projects, which host your data and experiments. Furthermore you can create code only projects for data operations, data visualizations and ML models.
           </p>
@@ -162,6 +171,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
       >
         <div
           className="option-icon"
+          id="new-group-link-icon"
           style={
             Object {
               "backgroundColor": "var(--success)",
@@ -170,14 +180,17 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
         />
         <div
           className="state-body"
+          id="new-group-link-content"
         >
           <h4
             className="state-title mt-0"
+            id="new-group-link-title"
           >
             Create a Group
           </h4>
           <p
             className="state-text"
+            id="new-group-link-text-content"
           >
             In a group you can manage shared projects and coordinate with your group members.
           </p>
@@ -191,6 +204,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
       >
         <div
           className="option-icon"
+          id="documentation-link-icon"
           style={
             Object {
               "backgroundColor": "var(--warning)",
@@ -199,14 +213,17 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
         />
         <div
           className="state-body"
+          id="documentation-link-content"
         >
           <h4
             className="state-title mt-0"
+            id="documentation-link-title"
           >
             Learn more about MLReef
           </h4>
           <p
             className="state-text"
+            id="documentation-link-text-content"
           >
             Take a look at the documentation to know about all capabilities of MLReef
           </p>
