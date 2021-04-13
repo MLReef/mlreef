@@ -1,4 +1,5 @@
 import MLSearchApi from 'apis/MLSearchApi';
+import store from 'store';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { mergeGitlabResource } from 'store/actions/projectInfoActions';
 import { dataTypes, sortingOPtions } from './constants';
@@ -50,6 +51,49 @@ const getValuesStateOptions = (publishedStateOption) => {
   }
 };
 
+/**
+ * 
+ * @param {*} classifcation1: string to sort project into: my own, starred or public
+ * @param {*} dataTypes: input data types: Text, video, image, etc.
+ * @param {*} minimumStars: minimum threshold of stars to request
+ * @param {*} publishStatus: published or not, maybe null to not discriminate 
+ * and include projects of both states.
+ * @returns: body containing request filters.
+ */
+
+const buildProjectsRequestBodyV2 = (classifcation1, dTypes = [], minimumStars, publishStatus) => {
+  let body = {};
+  const { user: { username } } = store.getState();
+  if (classifcation1 === '' || classifcation1 === 'my-repositories') {
+    body = {
+      ...body,
+      namespace: username,
+    };
+  } else if (classifcation1 === 'all') {
+    body = {
+      ...body,
+      visibility: 'PUBLIC',
+    };
+  } else if (classifcation1 === 'starred') {
+    body = {
+      ...body,
+      min_stars: 1,
+    };
+  }
+
+  body = { ...body, input_data_types_or: [...dTypes]}
+
+  if (minimumStars > 0) {
+    body = { ...body, min_stars: minimumStars };
+  }
+
+  if ( publishStatus !== null) {
+    body = { ...body, published: publishStatus }
+  }
+
+  return body;
+};
+
 const getProjects = (searchableType, body = {}, page, size) => mlSearchApi
   .searchPaginated(searchableType, body, page, size)
   .then((projsPag) => ({
@@ -61,5 +105,6 @@ export default {
   getDataTypeNames,
   getValuesStateOptions,
   buildTagsArray,
+  buildProjectsRequestBodyV2,
   getProjects,
 };

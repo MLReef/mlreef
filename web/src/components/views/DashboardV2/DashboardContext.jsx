@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { publishedStateOptions, sortingOPtions } from './constants';
 
-const reducer = (state, { type, payload }) => {
+export const reducer = (state, { type, payload }) => {
   switch (type) {
     case 'SET_SELECTED_DATA_TYPE':
       return {

@@ -10,7 +10,6 @@ import {
 import { connect } from 'react-redux';
 import MBricksWall from 'components/ui/MBricksWall';
 import * as userActions from 'store/actions/userActions';
-import { buildProjectsRequestBodyV2 } from 'store/actions/projectInfoActions';
 import iconGrey from 'images/icon_grey-01.png';
 import MProjectCard from 'components/ui/MProjectCard';
 import dashboardActions from './dashBoardActions';
@@ -33,7 +32,7 @@ const ProjectsArraySection = (props) => {
 
   const executeFetch = useCallback(() => dashboardActions.getProjects(
     classification2.toUpperCase(),
-    buildProjectsRequestBodyV2(
+    dashboardActions.buildProjectsRequestBodyV2(
       classification1,
       dashboardActions.getDataTypeNames(dataTypes, selectedDataTypes),
       minimumStars,
