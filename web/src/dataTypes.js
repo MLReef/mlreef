@@ -1,6 +1,7 @@
 import lock from 'images/lock-01.png';
 import global from 'images/global-01.png';
 import { PROJECT_DATA_TYPES } from 'domain/project/ProjectDataTypes';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 export const INTEGER = 'INTEGER';
 export const FLOAT = 'FLOAT';
@@ -100,6 +101,7 @@ export const DATA_VISUALIZATION = 'data-visualization';
 
 export const projectClassificationsProps = [{
   classification: ML_PROJECT,
+  searchableType: PROJECT_TYPES.DATA,
   label: 'ML Project',
   color: '#91BD44',
   description: `A Machine Learning (ML) project is where you house your data set (repository),
@@ -109,6 +111,7 @@ export const projectClassificationsProps = [{
 {
   classification: MODEL,
   typeOfProcessor: ALGORITHM,
+  searchableType: PROJECT_TYPES.ALGORITHM,
   label: 'Model',
   color: '#E99444',
   description: `
@@ -122,6 +125,7 @@ export const projectClassificationsProps = [{
 {
   classification: DATA_OPERATION,
   typeOfProcessor: OPERATION,
+  searchableType: PROJECT_TYPES.OPERATION,
   label: 'Data Operation',
   color: '#D2519D',
   description: `A data operation transforms your data in a data pre-processing pipeline. 
@@ -133,6 +137,7 @@ export const projectClassificationsProps = [{
 {
   classification: DATA_VISUALIZATION,
   typeOfProcessor: VISUALIZATION,
+  searchableType: PROJECT_TYPES.VISUALIZATION,
   label: 'Data visualization',
   color: '#735DA8',
   description: `A data visualization create undestandable representations of the structure in your data. 

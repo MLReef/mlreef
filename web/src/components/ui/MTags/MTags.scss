@@ -1,0 +1,14 @@
+.m-tags {
+  display: flex;
+
+  &-item {
+    border: 1px solid var(--info);
+    background-color: var(--info);
+    color: white;
+    padding: 0.5rem;
+    margin-right: 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+}
