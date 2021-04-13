@@ -199,9 +199,9 @@
     extended_resource_name = "nvidia.com/gpu"
     extended_resource_limit = "1"
     service_cpu_limit = "300m"
-    service_memory_limit = "4G"
+    service_memory_limit = "3G"
     helper_cpu_limit = "500m"
-    helper_memory_limit = "100Mi"
+    helper_memory_limit = "700Mi"
     poll_interval = 5
     poll_timeout = 3600
     service_account_overwrite_allowed = ""
