@@ -1,5 +1,7 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
+import { setErrors } from 'store/actions/errorsActions';
 import './NotFoundView.scss';
 
 const NotFoundView = (props) => {
@@ -7,6 +9,16 @@ const NotFoundView = (props) => {
     errorCode,
     errorMessage,
   } = props;
+
+  const dispatch = useDispatch();
+
+  const handleGoBack = () => {
+    window.history.go(-1);
+    // this delay is needed to let browser navigate back before clear the error
+    setTimeout(() => {
+      dispatch(setErrors({ hasErrors: false, info: {} }));
+    }, 100);
+  };
 
   return (
     <div className="not-found-view">
@@ -25,7 +37,7 @@ const NotFoundView = (props) => {
         <div className="not-found-view-actions">
           <button
             type="button"
-            onClick={() => window.history.back()}
+            onClick={handleGoBack}
             className="btn btn-basic-primary mx-2"
           >
             Back
