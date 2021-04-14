@@ -188,6 +188,7 @@ const SettingsViewMembers = (props) => {
                   className="btn btn-outline-primary"
                   onClick={handleAddUser}
                   waiting={waiting}
+                  disabled={!selectedUser.id}
                   label="Add"
                 />
               </div>

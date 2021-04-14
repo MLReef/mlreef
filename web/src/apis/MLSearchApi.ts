@@ -60,6 +60,7 @@ export default class MLSearchApi extends ApiDirector {
     );
 
     return fetch(builder.build())
+      .then(handleResponse)
       .then((results) => Array.isArray(results) ? results : [])
       .then(filterRoot)
       .then(filterBots);
