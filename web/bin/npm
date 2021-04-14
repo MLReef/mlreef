@@ -3,7 +3,7 @@
 # Thereby creating a predictable environment for development, building, and debugging
 
 # This image must correspond with the base image in web/Dockerfile
-IMAGE="node:10.19.0-alpine"
+IMAGE="node:14.16.1-alpine"
 COMMAND="npm"
 
 export DOCKER_OPTS="${DOCKER_OPTS:--it}"

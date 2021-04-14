@@ -3,7 +3,7 @@
 # Stage 1: build the React app in production mode
 #
 # The image must correspond with the image used in bin/npm
-FROM node:10.19.0-alpine AS BUILDER
+FROM node:14.16.1-alpine AS BUILDER
 ARG CI_COMMIT_REF_SLUG
 ARG CI_PIPELINE_ID=-1
 ARG CI_PIPELINE_URL="CI URL N/A"
@@ -37,8 +37,8 @@ RUN echo "Gitlab Pipeline $CI_PIPELINE_ID built on "$(date +%Y-%m-%d\ %H:%M:%S) 
 
 # install all NPM packages and compile the react app
 RUN echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
-    npm install --global --silent react-scripts@3.0.1       && \
-    npm install --silent .                                  && \
+    npm install --global --silent react-scripts@3.4.3       && \
+    npm ci --silent .                                       && \
     echo "Frontend Build Time: $(date +%Y-%m-%d\ %H:%M:%S)" && \
     # execute tests first, so there should be a halt when compiling if tests fail
     # npm test                                                && \
