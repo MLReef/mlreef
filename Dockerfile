@@ -19,7 +19,7 @@ RUN gradle -x test :mlreef-rest:bootJar :mlreef-rest:prepareDocker -x :mlreef-re
 
 
 # The image must correspond with the image used in bin/npm
-FROM node:10.19.0-alpine AS FRONTEND_BUILDER
+FROM node:14.16.1-alpine AS FRONTEND_BUILDER
 ARG CI_COMMIT_REF_SLUG
 ARG CI_PIPELINE_ID=-1
 ARG CI_PIPELINE_URL="CI URL N/A"
