@@ -126,7 +126,9 @@ const SortableProcessor = SortableElement(({
               )}
             </div>
             )}
-            <DataOperatorCodeSection processor={value} />
+            {value.codeProjectId && (
+              <DataOperatorCodeSection processor={value} />
+            )}
           </div>
           )}
         </div>
