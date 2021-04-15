@@ -7,7 +7,7 @@ import {
 const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 const getPipelinesAdditionalInformation = (gid, pipes) => Promise.all(
-  pipes?.map((pipe) => gitlabPipelinesApi.getPipesById(gid, pipe.id)),
+  pipes?.map((pipe) => gitlabPipelinesApi.getPipesById(gid, pipe?.id)),
 ).then((pipesAddInfo) => pipesAddInfo
   .map(parseToCamelCase)
   .map((parsed) => ({ ...parsed, user: parseToCamelCase(parsed.user) })));

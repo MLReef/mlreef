@@ -501,10 +501,6 @@ export default [
     path: '/:namespace/:slug/-/publications',
     component: Publications,
     exact: true,
-    meta: {
-      authRequired: true,
-      role: 10,
-    },
   },
   {
     name: 'detailed-view-1',
