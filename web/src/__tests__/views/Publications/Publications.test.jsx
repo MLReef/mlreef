@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import { Provider } from 'react-redux';
 import Publications from 'components/views/Publications/Publications';
-import { storeFactory } from 'functions/testUtils';
+import { generatePromiseResponse, sleep, storeFactory } from 'functions/testUtils';
 import { projectsArrayMock } from 'testData';
 import { MemoryRouter } from 'react-router-dom';
 import PublicationInfoRow from 'components/views/Publications/PublicationInfoRow';
@@ -48,8 +48,11 @@ const pipe = {
   },
 };
 
+const { projects } = projectsArrayMock;
+
 const setup = () => {
-  const store = storeFactory({ projects: projectsArrayMock.projects });
+  projects.selectedProject.pipelines = [{}];
+  const store = storeFactory({ projects });
   return mount(
     <MemoryRouter>
       <Provider store={store}>
@@ -71,6 +74,12 @@ const headingTitles = [
 describe('test elements presence and functionality', () => {
   let wrapper;
   beforeEach(() => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => generatePromiseResponse(
+      200,
+      true,
+      [{}],
+      100,
+    ));
     wrapper = setup();
   });
   test('assert that UI elements are present', () => {
@@ -102,11 +111,12 @@ describe('test elements presence and functionality', () => {
 });
 
 describe('test rendering', () => {
-  test('assert that "getPipelinesAdditionalInformation" is called by lifecycle methods', () => {
+  test('assert that "getPipelinesAdditionalInformation" is called by lifecycle methods', async () => {
+    const wrapper = setup();
     actions
       .getPipelinesAdditionalInformation = jest.fn(() => new Promise((resolve) => resolve([pipe])));
-    const wrapper = setup();
     wrapper.setProps({});
+    await sleep(200);
     expect(actions.getPipelinesAdditionalInformation).toHaveBeenCalled();
   });
 });

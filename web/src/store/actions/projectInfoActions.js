@@ -269,5 +269,9 @@ export const setProjectPipelines = (pipes = []) => ({
 
 export function getProjectPipelines(gid) {
   return (dispatch) => gitlabPipelinesApi.getPipesByProjectId(gid)
-    .then((pipes) => dispatch(setProjectPipelines(pipes)));
+    .then((pipes) => {
+      dispatch(setProjectPipelines(pipes))
+
+      return pipes;
+    });
 }

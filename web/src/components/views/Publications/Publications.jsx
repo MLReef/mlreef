@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
+import { bindActionCreators } from 'redux';
 import Navbar from 'components/navbar/navbar';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import MLoadingSpinner from 'components/ui/MLoadingSpinner';
+import hooks from 'customHooks/useSelectedProject';
 import './Publications.scss';
 import iconGrey from 'images/icon_grey-01.png';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import MTabs from 'components/ui/MTabs';
-import { projectClassificationsProps } from 'dataTypes';
+import * as projectActions from 'store/actions/projectInfoActions';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import actionsAndFunctions from './PublicationActionsAndFunctions';
 import PublicationInfoRow from './PublicationInfoRow';
 
@@ -19,13 +23,14 @@ const Publications = (props) => {
         slug,
       },
     },
-    project: {
-      gid,
-      name: projectName,
-      pipelines,
-    },
+    actions,
     user: { globalColorMarker },
   } = props;
+
+  const [{
+    gid,
+    name: projectName,
+  }, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const [selectedStatus, setStatus] = useState('all');
   const [pipes, setPipes] = useState([]);
@@ -40,11 +45,14 @@ const Publications = (props) => {
   const hasPublicationPipes = selectedPipes.length > 0;
 
   useEffect(() => {
-    actionsAndFunctions.getPipelinesAdditionalInformation(gid, pipelines)
-      .then((pipesAddInfo) => setPipes(
-        pipesAddInfo,
-      )).catch((err) => toastr.error(err?.message));
-  }, [gid, pipelines]);
+    if (gid) {
+      actions.getProjectPipelines(gid)
+        .then((pipelines) => actionsAndFunctions.getPipelinesAdditionalInformation(gid, pipelines))
+        .then((pipesAddInfo) => setPipes(pipesAddInfo))
+        .catch((err) => toastr.error('Error', err?.message));
+    }
+  }, [gid]);
+
   const customCrumbs = [
     {
       name: namespace,
@@ -60,6 +68,12 @@ const Publications = (props) => {
   ];
 
   const handler = (status) => () => setStatus(status);
+
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
     <div className="publications" style={{ backgroundColor: 'var(--almostWhite)' }}>
@@ -108,6 +122,7 @@ const Publications = (props) => {
                 <tbody>
                   {hasPublicationPipes && selectedPipes.map((pipe) => (
                     <PublicationInfoRow
+                      key={pipe.id}
                       namespace={namespace}
                       slug={slug}
                       pipe={pipe}
@@ -156,4 +171,12 @@ Publications.propTypes = {
   }).isRequired,
 };
 
-export default connect(mapStateToProps)(Publications);
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({
+      ...projectActions,
+    }, dispatch),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Publications);
