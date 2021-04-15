@@ -431,9 +431,15 @@ class PublishingService(
     }
 
     private fun getPipServerUrl(): String {
-        return if (!conf.epf.pipServer.isNullOrBlank()) {
-            val pipHost = URI(conf.epf.pipServer!!).host
-            " -i ${conf.epf.pipServer} --trusted-host $pipHost "
+        val pipServerUrl = conf.epf.pipServer?.trim()
+        return if (!pipServerUrl.isNullOrBlank()) {
+            try {
+                val pipHost = URI(pipServerUrl).host
+                " -i ${pipServerUrl} --trusted-host $pipHost "
+            } catch (ex: Exception) {
+                log.error("Cannot parse pip server URI $pipServerUrl")
+                throw ex
+            }
         } else " "
     }
 
