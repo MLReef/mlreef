@@ -53,9 +53,6 @@ FROM nginx:latest AS PROD
 # Copy frontend production build from the NPM stage
 # This path has to correspond to the configuration in nginx_default.conf
 COPY --from=BUILDER /workdir/build /usr/share/nginx/html
-# Copy the test coverage report to the final stage
-# The CI pipeline later extracts this report and makes it available in Gitlab
-#COPY --from=BUILDER /workdir/coverage /usr/share/coverage
 
 # Add nginx configuration. Note the name change of the file
 ADD nginx_default.conf /etc/nginx/conf.d/default.conf
