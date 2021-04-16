@@ -11,6 +11,7 @@ import {
 } from 'prop-types';
 import MBranchSelector from 'components/ui/MBranchSelector';
 import { generateBreadCrumbs } from 'functions/helpers';
+import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import Navbar from '../navbar/navbar';
@@ -18,7 +19,6 @@ import ProjectContainer from '../projectContainer';
 import './CommitView.scss';
 import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import actions from './actions';
-import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 
 export const UnconnectedCommitsView = (props) => {
   const {
@@ -274,9 +274,6 @@ UnconnectedCommitsView.propTypes = {
     name: string.isRequired,
     avatar_url: string.isRequired,
   })).isRequired,
-  projects: shape({
-    selectedProject: objectOf(shape).isRequired,
-  }).isRequired,
 };
 
 function mapStateToProps(state) {

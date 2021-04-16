@@ -1,7 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
-import renderer from 'react-test-renderer';
 import { storeFactory } from 'functions/testUtils';
 import SettingsViewGeneral from 'components/views/SettingsView/SettingsViewGeneral';
 
@@ -26,12 +25,6 @@ describe('presence of basic user elements', () => {
 
   beforeEach(() => {
     wrapper = mount(<ProvidedComponent {...initProps} />);
-  });
-
-  // skipped because it displays dynamic content
-  test.skip('assert that snapshot matches', () => {
-    const snapShot = renderer.create(<ProvidedComponent {...initProps} />).toJSON();
-    expect(snapShot).toMatchSnapshot();
   });
 
   test('assert that props are tested', () => {

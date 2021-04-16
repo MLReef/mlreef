@@ -1,12 +1,12 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { UnconnectedCommitsView, CommitDiv } from 'components/CommitsView/CommitView';
+import CommitsView, { CommitDiv } from 'components/CommitsView/CommitView';
 import actions from 'components/CommitsView/actions';
+import { Provider } from 'react-redux';
 import { storeFactory } from 'functions/testUtils';
 import { branchesMock, projectsArrayMock, commitMockObject } from 'testData';
-import hooks from 'customHooks/useSelectedProject';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
-import MemoryRouter from 'router/MemoryRouter';
+import { MemoryRouter } from 'react-router-dom';
 
 const commits = [{
   ...commitMockObject, title: 'first commit',
@@ -21,69 +21,63 @@ const history = { push };
 
 const setup = () => {
   actions.getCommits = jest.fn(() => new Promise((resolve) => resolve(commits)));
-  hooks.useSelectedProject = jest.fn(() => [jest.fn()]);
   const match = { params: { namespace: 'namespace', slug: 'slug', branch: 'master' } };
+  const store = storeFactory({
+    projects: projectsArrayMock.projects,
+    users: projectsArrayMock.users,
+    branches: branchesMock,
+  });
   return mount(
-    <MemoryRouter>
-      <UnconnectedCommitsView
-        match={match}
-        history={history}
-        projects={projectsArrayMock.projects}
-        branches={branchesMock}
-        users={projectsArrayMock.users}
-      />
-    </MemoryRouter>,
+    <Provider store={store}>
+      <MemoryRouter>
+        <CommitsView
+          match={match}
+          history={history}
+        />
+      </MemoryRouter>
+    </Provider>,
   );
 };
 
-/* describe('test UI only', () => {
+describe('test basic rendering', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
   });
 
-  test('assert component renders and contains UI elements', () => {
-    expect(wrapper.find('MBranchSelector')).toHaveLength(1);
-    expect(wrapper.find('input#commits-filter-input')).toHaveLength(1);
+  test('assert that commit view comp is displayed correclty', () => {
     wrapper.setProps({});
-    console.log(wrapper.debug());
+    expect(wrapper.find('div.search-branch').at(0).childAt(0).find('li')).toHaveLength(branchesMock.length);
+    expect(wrapper.find('input#commits-filter-input')).toHaveLength(1);
+    expect(wrapper.find('CommitDiv')).toHaveLength(commits.length);
   });
 
-  test('assert that branch changes trigger the event and handle functions', () => {
-    const onBranchSelectedMock = jest.fn();
-     wrapper.instance().onBranchSelected = onBranchSelectedMock;
-     wrapper
-      .instance()
-      .setState({
-        commits,
-      });
-    expect(wrapper.find('CommitDiv')).toHaveLength(commits.length);
+  test('assert that branches selector works ', () => {
+    wrapper.setProps({});
     wrapper
-      .find('MBranchSelector')
-      .dive()
-      .dive()
+      .find('div.search-branch')
+      .at(0)
+      .childAt(0)
       .find('li')
       .at(0)
-      .simulate('click', branchesMock[0].name);
-    expect(onBranchSelectedMock).toHaveBeenCalledWith(branchesMock[0].name);
+      .simulate('click');
+    expect(actions.getCommits.mock.calls.length).toBe(2);
+    expect(actions.getCommits.mock.calls[1][1]).toBe(branchesMock[0].name);
   });
 
-  test('assert that branch changes trigger the event and handle functions', () => {
+  test('assert that commits filtering works', () => {
+    wrapper.setProps({});
     wrapper
-      .instance()
-      .setState({
-        commits,
-      });
-    const mockedEV = { target: { value: 'first' } };
-    expect(wrapper.find('input#commits-filter-input').simulate('change', mockedEV));
+      .find('input#commits-filter-input')
+      .simulate('change', { target: { value: 'first commit' } });
     expect(wrapper.find('CommitDiv')).toHaveLength(1);
   });
 
   afterEach(() => {
-    history.push.mockClear();
+    actions.getCommits.mockClear();
   });
 });
- */
+
 describe('test CommitDiv', () => {
   test('assert that CommitDiv renders and events are triggered correclty', () => {
     const userName = 'mlreef';
@@ -103,7 +97,6 @@ describe('test CommitDiv', () => {
       ,
     );
     const links = wrapper.find('Link');
-    /* expect(links.at(0).props().to).toBe(`/${userName}`); */
     expect(links.at(0).props().to).toBe(`/namespace/slug/-/commits/feature/a-branch/-/${commitMockObject.id}`);
     const today = new Date();
     const previous = new Date(commitMockObject.committed_date);
