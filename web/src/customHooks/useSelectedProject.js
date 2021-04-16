@@ -8,7 +8,7 @@ import { calculateColor } from 'components/projectView/projectView';
 
 const projectApi = new ProjectApi();
 
-const useSelectedProject = (namespace, slug) => {
+export const useSelectedProject = (namespace, slug) => {
   const selectedProject = useSelector((state) => state.projects.selectedProject);
   const [finalSelectedProject, setFinalSelectedProject] = useState(selectedProject);
   const [isFetching, setIsFetching] = useState(false);
@@ -32,9 +32,7 @@ const useSelectedProject = (namespace, slug) => {
           });
       }
     }
-  // eslint-disable-next-line
   }, []);
-
   return [finalSelectedProject, isFetching];
 };
 

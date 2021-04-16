@@ -6,10 +6,11 @@ import {
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import FilesTable from '../files-table/filesTable';
+import filesContainerActions from './filesContainerActions';
 import FilesApi from '../../apis/FilesApi.ts';
-import BranchesApi from '../../apis/BranchesApi.ts';
 
 const filesApi = new FilesApi();
+
 const FilesContainer = ({
   projectId, path, urlBranch, defaultBranch, namespace, slug,
 }) => {
@@ -18,9 +19,7 @@ const FilesContainer = ({
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
   const [files, setFiles] = useState([]);
-  const errorMessage = 'Error getting files info';
   const finalBranch = urlBranch && urlBranch !== 'null' && urlBranch !== 'null' ? urlBranch : defaultBranch;
-  const isTheBranchDefault = defaultBranch === finalBranch;
 
   useEffect(() => {
     if (projectId) {
@@ -31,29 +30,26 @@ const FilesContainer = ({
         path,
         false,
         finalBranch,
-      ).then((files) => setFiles(files))
-        .catch(() => {
-          toastr.error('Error', 'Something went wrong getting files');
-        })
+      ).then((fs) => setFiles(fs))
+        .catch(() => toastr.error('Error', 'Something went wrong getting files'))
         .finally(() => { setWaiting(false); });
     }
 
-    if (!isTheBranchDefault) {
-      const brApi = new BranchesApi();
-      brApi.compare(projectId, finalBranch, defaultBranch)
-        .then((res) => setAhead(res.commits.length))
-        .catch(() => toastr.error('Error', errorMessage));
-      brApi.compare(projectId, defaultBranch, finalBranch)
-        .then((res) => setBehind(res.commits.length))
-        .catch(() => toastr.error('Error', errorMessage));
+    if (!(defaultBranch === finalBranch)) {
+      filesContainerActions.compareBranchesFunction(projectId, defaultBranch, finalBranch)
+        .then(({ ahead: a, behind: b }) => {
+          setAhead(a.length);
+          setBehind(b.length);
+        })
+        .catch((err) => toastr.error('Error', err?.message));
     }
-  }, [projectId, path, finalBranch, defaultBranch, isTheBranchDefault]);
+  }, [projectId, path, finalBranch, defaultBranch]);
 
   const hasChanges = !!(ahead || behind);
 
   return (
     <div className="files-container pt-3">
-      {!isTheBranchDefault && hasChanges && (
+      {hasChanges && (
       <div className="commit-status">
         <p id="commitStatus">
           This branch is
