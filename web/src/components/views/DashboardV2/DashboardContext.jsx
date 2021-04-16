@@ -35,7 +35,7 @@ export const DashboardContext = React.createContext();
 const DashboardProvider = ({ children }) => {
   const initialState = JSON.parse(sessionStorage.getItem('dashboard-filterings')) || {
     selectedDataTypes: [],
-    minimumStars: 0,
+    minimumStars: '',
     sorting: sortingOPtions[0],
     publishState: publishedStateOptions[0],
   };
