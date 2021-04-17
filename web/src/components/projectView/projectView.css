@@ -288,16 +288,6 @@ p.stat-no {
 
 /* ----- plus drodown btn ------*/
 
-.plus-dropdown{
-  width: 200px;
-  height: auto;
-  background: #fff;
-  border-radius: 3px;
-  top: 100%;
-  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
-  position: absolute
-}
-
 .plus-list{
   list-style: none;
   padding: 0;

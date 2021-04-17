@@ -135,68 +135,64 @@ exports[`The branches list should be displayed when dropdown button is clicked d
       role="button"
       tabIndex="0"
     >
-      <div
-        className="plus-dropdown"
+      <ul
+        className="plus-list"
       >
-        <ul
-          className="plus-list"
+        <li>
+          This directory
+        </li>
+        <li
+          className="plus-option"
         >
-          <li>
-            This directory
-          </li>
-          <li
-            className="plus-option"
+          <a
+            href="/my-namespace/the-project-name/master/upload-file/path/src"
+            onClick={[Function]}
           >
-            <a
-              href="/my-namespace/the-project-name/master/upload-file/path/src"
-              onClick={[Function]}
-            >
-              Upload File
-            </a>
-          </li>
-          <li
-            className="plus-option"
-          >
-            <button
-              className="btn btn-hidden"
-              data-tutorial="new-directory-btn"
-              onClick={[Function]}
-              style={
-                Object {
-                  "fontSize": "1rem",
-                }
+            Upload File
+          </a>
+        </li>
+        <li
+          className="plus-option"
+        >
+          <button
+            className="btn btn-hidden"
+            data-tutorial="new-directory-btn"
+            onClick={[Function]}
+            style={
+              Object {
+                "fontSize": "1rem",
               }
-              type="button"
-            >
-              New directory
-            </button>
-          </li>
-          <li
-            className="plus-option"
+            }
+            type="button"
           >
-            <a
-              href="/my-namespace/the-project-name/-/tree/branch/master/path/src/file/editor/new"
-              onClick={[Function]}
-            >
-              New file
-            </a>
-          </li>
-          <hr />
-          <li>
-            This repository
-          </li>
-          <li
-            className="plus-option"
+            New directory
+          </button>
+        </li>
+        <li
+          className="plus-option"
+        >
+          <a
+            href="/my-namespace/the-project-name/-/tree/branch/master/path/src/file/editor/new"
+            onClick={[Function]}
           >
-            <a
-              href="/my-namespace/the-project-name/-/branches/new"
-              onClick={[Function]}
-            >
-              New branch
-            </a>
-          </li>
-        </ul>
-      </div>
+            New file
+          </a>
+        </li>
+        <hr />
+        <li>
+          This repository
+        </li>
+        <li
+          className="plus-option"
+        >
+          <a
+            href="/my-namespace/the-project-name/-/branches/new"
+            onClick={[Function]}
+          >
+            New branch
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
   <a

@@ -1,5 +1,6 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { bool, shape, string } from 'prop-types';
+import useDropdown from 'customHooks/useDropdown';
 import validateInput from 'functions/validations';
 import MTooltip from 'components/ui/MTooltip';
 import ArrowButton from 'components/arrow-button/arrowButton';
@@ -16,6 +17,7 @@ export const SelectComp = ({
   let options;
   let defaultValue;
   const [, dispatch] = useContext(DataPipelinesContext);
+  const [dropDownRef, toggleShow, isDropdownOpen] = useDropdown();
   if (isBoolean) {
     defaultValue = param.value || param.default_value;
     options = [
@@ -28,18 +30,15 @@ export const SelectComp = ({
     defaultValue = param.value || '';
   }
   options = [{ label: 'Select..', value: '' }, ...options];
-  const dropDownRef = useRef();
   const [value, setValue] = useState(defaultValue);
   const [placeHolder, setPlaceHolder] = useState(value || 'Select..');
   const [hasErrors, setHasErrors] = useState(false);
-  const [isShowingOptions, setIsShowingOptions] = useState(false);
 
   function handleSelectClick(opt) {
     setPlaceHolder(opt.label || opt.value);
     setValue(opt.value);
     const isValid = validateInput(opt.value, param.type, param.required);
     setHasErrors(!isValid);
-    setIsShowingOptions(!isShowingOptions);
     dispatch({
       type: 'UPDATE_PARAM_VALUE_IN_DATA_OPERATOR',
       newParamValue: opt.value,
@@ -48,14 +47,6 @@ export const SelectComp = ({
       isValid,
     });
     dispatch({ type: VALIDATE_FORM });
-  }
-
-  function handleBodyClick(e) {
-    const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
-    if (!dropDownRef.current) return;
-    if (!dropDownRef.current.contains(clickedElement)) {
-      setIsShowingOptions(false);
-    }
   }
 
   return (
@@ -80,19 +71,10 @@ export const SelectComp = ({
           <ArrowButton
             placeholder={placeHolder}
             buttonStyle={{ width: '16ch', display: 'flex', justifyContent: 'space-evenly' }}
-            initialIsOpened={isShowingOptions}
-            callback={() => {
-              const nextIsShowingOoptions = !isShowingOptions;
-              const bodyTag = document.body;
-              if (nextIsShowingOoptions) {
-                bodyTag.addEventListener('click', handleBodyClick);
-              } else {
-                bodyTag.removeEventListener('click', handleBodyClick);
-              }
-              setIsShowingOptions(nextIsShowingOoptions);
-            }}
+            initialIsOpened={isDropdownOpen}
+            callback={() => toggleShow()}
           />
-          {isShowingOptions && (
+          {isDropdownOpen && (
             <ul style={{ zIndex: 1 }}>
               {options.map((opt) => (
                 <li
