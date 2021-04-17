@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import ArrowButton from 'components/arrow-button/arrowButton';
 import { arrayOf, func, string } from 'prop-types';
 import './MInputSelect.scss';
+import useDropdown from 'customHooks/useDropdown';
 
 const MInputSelect = ({
   options,
@@ -9,29 +10,8 @@ const MInputSelect = ({
   onClick,
   onInputChange,
 }) => {
-  const dropDownRef = useRef();
-
-  const [areOptionsVisible, setAreOptionsVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
-
-  const handleBodyClick = (e) => {
-    const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
-    if (!dropDownRef.current) return;
-    if (!dropDownRef.current.contains(clickedElement)) {
-      setAreOptionsVisible(false);
-    }
-  };
-
-  const toggleShow = () => {
-    const nextAreOptsVisible = !areOptionsVisible;
-    const bodyTag = document.body;
-    if (nextAreOptsVisible) {
-      bodyTag.addEventListener('click', handleBodyClick);
-    } else {
-      bodyTag.removeEventListener('click', handleBodyClick);
-    }
-    setAreOptionsVisible(nextAreOptsVisible);
-  };
+  const [dropDownRef, toggleShow, isDropdownOpen] = useDropdown();
 
   return (
     <div className="m-input-select" ref={dropDownRef}>
@@ -40,7 +20,7 @@ const MInputSelect = ({
         className="btn btn-switch"
         callback={() => toggleShow()}
       />
-      {areOptionsVisible && (
+      {isDropdownOpen && (
       <div className="m-input-select-options">
         <ul>
           <li>

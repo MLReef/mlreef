@@ -111,39 +111,37 @@ export class RepoFeatures extends Component {
             className="mr-2 mt-3"
             label={<i className="fa fa-plus" />}
             component={(
-              <div className="plus-dropdown">
-                <ul className="plus-list">
-                  <li>This directory</li>
-                  <li className="plus-option">
-                    <Link to={`/${namespace}/${slug}/${currentBranch}/upload-file/path/${path}`}>
-                      Upload File
-                    </Link>
-                  </li>
-                  <li className="plus-option">
-                    <button
-                      type="button"
-                      className="btn btn-hidden"
-                      style={{ fontSize: '1rem' }}
-                      data-tutorial="new-directory-btn"
-                      onClick={this.showCreateDirectoryModal}
-                    >
-                      New directory
-                    </button>
-                  </li>
-                  <li className="plus-option">
-                    <Link to={`/${namespace}/${slug}/-/tree/branch/${currentBranch}/${path ? `path/${path}/` : ''}file/editor/new`}>
-                      New file
-                    </Link>
-                  </li>
-                  <hr />
-                  <li>This repository</li>
-                  <li className="plus-option">
-                    <Link to={`/${namespace}/${slug}/-/branches/new`}>
-                      New branch
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+              <ul className="plus-list">
+                <li>This directory</li>
+                <li className="plus-option">
+                  <Link to={`/${namespace}/${slug}/${currentBranch}/upload-file/path/${path}`}>
+                    Upload File
+                  </Link>
+                </li>
+                <li className="plus-option">
+                  <button
+                    type="button"
+                    className="btn btn-hidden"
+                    style={{ fontSize: '1rem' }}
+                    data-tutorial="new-directory-btn"
+                    onClick={this.showCreateDirectoryModal}
+                  >
+                    New directory
+                  </button>
+                </li>
+                <li className="plus-option">
+                  <Link to={`/${namespace}/${slug}/-/tree/branch/${currentBranch}/${path ? `path/${path}/` : ''}file/editor/new`}>
+                    New file
+                  </Link>
+                </li>
+                <hr />
+                <li>This repository</li>
+                <li className="plus-option">
+                  <Link to={`/${namespace}/${slug}/-/branches/new`}>
+                    New branch
+                  </Link>
+                </li>
+              </ul>
             )}
           />
         </AuthWrapper>

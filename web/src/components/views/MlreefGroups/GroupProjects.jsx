@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -9,33 +9,13 @@ import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import iconGrey from '../../../images/icon_grey-01.png';
 import MProjectCard from '../../ui/MProjectCard';
 import './GroupView.scss';
+import useDropdown from 'customHooks/useDropdown';
 
 const GroupProjects = (props) => {
   const { allProjects, projects, groupPath, groupName, user: { id: userId }, } = props;
-  
-  const [dropdown, setDropDown] = useState(false);
-  const dropDownRef = useRef();
+  const [dropDownRef, toggleShow, isDropdownOpen] = useDropdown();
   const finalGroupProjects = allProjects
     ?.filter((obj) => projects.some((obj2) => obj.gitlabId === obj2.id));
-
-  const handleBodyClick = (e) => {
-    const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
-    if (!dropDownRef.current) return;
-    if (!dropDownRef.current.contains(clickedElement)) {
-      setDropDown(false);
-    }
-  }
-
-  const toggleShow = () => {
-    const dropped = !dropdown;
-    const bodyTag = document.body;
-    if(dropped){
-      bodyTag.addEventListener('click', handleBodyClick);
-    } else {
-      bodyTag.removeEventListener('click', handleBodyClick);
-    }
-    setDropDown(dropped);
-  };
 
   const projectTypes = [
     { label: 'ML project' },
@@ -72,9 +52,9 @@ const GroupProjects = (props) => {
               New Project
             </button>
             <button className="dropdown-btn-arrow" onClick={toggleShow}>
-              <i className={`fa fa-chevron-${dropdown ? 'up' : 'down'} t-primary p-1 my-auto`} />
+              <i className={`fa fa-chevron-${isDropdownOpen ? 'up' : 'down'} t-primary p-1 my-auto`} />
             </button>
-            {dropdown && 
+            {isDropdownOpen && 
               <div className="dropdown-content mt-1">
                 <Link to={`/new-project/classification/ml-project/${groupPath}`}>
                   <h5 className="t-primary m-0 mb-1">New ML project</h5>

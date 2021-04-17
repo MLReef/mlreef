@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import './MDropdown.scss';
+import useDropdown from 'customHooks/useDropdown';
 
 // doc/developer/ui/MDropdown.md
 
@@ -16,32 +17,9 @@ const MDropdown = (props) => {
     items,
   } = props;
 
-  const [isShown, setIsShown] = useState(false);
+  const [dropDownRef, toggleShow, isDropdownOpen] = useDropdown();
 
-  const dropDownRef = useRef();
-
-  const handleBodyClick = (e) => {
-    const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
-    if (!dropDownRef.current) return;
-    if (!dropDownRef.current.contains(clickedElement)) {
-      close();
-    }
-  }
-
-  const toggleShow = () => {
-    const nextIsShown = !isShown;
-    const bodyTag = document.body;
-    if(nextIsShown){
-      bodyTag.addEventListener('click', handleBodyClick);
-    } else {
-      bodyTag.removeEventListener('click', handleBodyClick);
-    }
-    setIsShown(nextIsShown);
-  };
-
-  const close = () => setIsShown(false);
-
-  const handleContainerClick = () => onClickClose && close();
+  const handleContainerClick = () => onClickClose && isDropdownOpen && toggleShow();
 
   const showCorrectDropDown = () => {
     if (component) {
@@ -69,12 +47,12 @@ const MDropdown = (props) => {
   };
 
   return (
-    <div ref={dropDownRef} className={`m-dropdown ${isShown ? 'show' : ''} ${className}`}>
+    <div ref={dropDownRef} className={`m-dropdown ${isDropdownOpen ? 'show' : ''} ${className}`}>
       <div className="m-dropdown-button">
         <button
           type="button"
           label="toggle"
-          className={`${buttonClasses} ${isShown ? 'active' : ''}`}
+          className={`${buttonClasses} ${isDropdownOpen ? 'active' : ''}`}
           onClick={toggleShow}
         >
           {label}
