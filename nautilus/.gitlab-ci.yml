@@ -15,3 +15,8 @@ build nautilus:
   script: |
     docker build --tag $NAUTILUS_IMAGE_PATH -f Dockerfile .
     docker push "$NAUTILUS_IMAGE_PATH"
+    if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then 
+      NAUTILUS_LATEST_IMAGE_PATH=$(echo $NAUTILUS_IMAGE_PATH | sed 's/:\(.*\)$/:latest/')
+      docker tag $NAUTILUS_IMAGE_PATH $NAUTILUS_LATEST_IMAGE_PATH
+      docker push $NAUTILUS_LATEST_IMAGE_PATH
+    fi

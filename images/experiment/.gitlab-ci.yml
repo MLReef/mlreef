@@ -14,3 +14,8 @@ build experiment:
     chmod +x images/experiment/bin/ci-build-experiment
     images/experiment/bin/ci-build-experiment
     docker push "$EXPERIMENT_IMAGE_PATH"
+    if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then 
+      EXPERIMENT_LATEST_IMAGE_PATH=$(echo $EXPERIMENT_IMAGE_PATH | sed 's/:\(.*\)$/:latest/')
+      docker tag $EXPERIMENT_IMAGE_PATH $EXPERIMENT_LATEST_IMAGE_PATH
+      docker push $EXPERIMENT_LATEST_IMAGE_PATH
+    fi
