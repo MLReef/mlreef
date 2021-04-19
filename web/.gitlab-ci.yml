@@ -28,3 +28,8 @@ build gateway:
       --build-arg CI_COMMIT_REF_SLUG="$CI_COMMIT_REF_SLUG"          \
       --build-arg CI_PIPELINE_ID="$CI_PIPELINE_ID"
     docker push "$GATEWAY_IMAGE_PATH"
+    if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
+      GATEWAY_LATEST_IMAGE_PATH=$(echo $GATEWAY_IMAGE_PATH | sed 's/:\(.*\)$/:latest/')
+      docker tag $GATEWAY_IMAGE_PATH $GATEWAY_LATEST_IMAGE_PATH
+      docker push $GATEWAY_LATEST_IMAGE_PATH
+    fi
