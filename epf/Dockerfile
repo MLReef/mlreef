@@ -1,8 +1,4 @@
-FROM tensorflow/tensorflow:2.1.0-py3
-# The above image does not contain cuda drivers, so it can be run inside container using docker run --gpus=all option 
-#    from a container that contains nvidia driver
-# If the image is being used as base image, it will need cuda drivers, then following image should be used
-# FROM tensorflow/tensorflow:2.1.0-gpu-py3
+FROM tensorflow/tensorflow:2.1.0-gpu-py3
 MAINTAINER MLReef
 
 ENV TENSORFLOW_VERSION 2.1.0
