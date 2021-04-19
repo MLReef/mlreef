@@ -6,7 +6,7 @@
       - backend/Dockerfile
       - backend/gradle.properties
       - backend/settings.gradle
-      - backend/.gitlab-ci.yaml
+      - backend/.gitlab-ci.yml
 
 
 test backend:

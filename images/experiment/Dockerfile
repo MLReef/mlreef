@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/mlreef/devops/k8s-images/ubuntu-nvidia-dind:latest
+FROM registry.gitlab.com/mlreef/devops/ubuntu-nvidia-dind/ubuntu-nvidia-dind-base:10.1
 MAINTAINER MLReef
 
 ########## MLREEF ##########
