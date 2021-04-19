@@ -38,9 +38,12 @@ Copy bin/build-run-nautilus-offline script to offline server.
 bin/build-run-nautilus-offline -d $THE_PATH_OF_TAR_FILES -s $PIP_SERVER(optional)
 ```
 Example:
+```
 bin/build-run-nautilus-offline -d mlreef-images-tar
 bin/build-run-nautilus-offline -d mlreef-images-tar -s http://172.17.0.1:10100
 bin/build-run-nautilus-offline -d mlreef-images-tar -s https://python.example.com/
+
+```
 
 The container comes up with a default runner running on same docker network on localhost.
 
@@ -63,23 +66,26 @@ The container comes up with a default runner running on same docker network on l
 * If the pip server is running on some other host in intra network, the DNS host entry needs to be configured for docker.
 
   Example for Ubuntu:
-```
+
 1. Get the DNS Server IP:
 $ nmcli dev show | grep 'IP4.DNS'
 IP4.DNS[1]:                             192.168.0.1
 2. Edit 'dns' in /etc/docker/daemon.json (create this file if already not there). Multiple DNS server IPs can be added separated by comma.
 
+```
 {
     "dns": ["192.168.0.1"]
 }
+```
+
 3. Restart docker
+```
 $ sudo service docker restart
 
 ```
 Now, the PIP server host should be accessible from mlreef service as well.
 
-Installing a pypi server 
---------------------
+**Installing a pypi server** 
 
 Install pypiserver (https://pypi.org/project/pypiserver) with this command:
 ```
