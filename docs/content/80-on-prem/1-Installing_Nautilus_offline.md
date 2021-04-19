@@ -68,8 +68,14 @@ The container comes up with a default runner running on same docker network on l
   Example for Ubuntu:
 
 1. Get the DNS Server IP:
+
+```
+
 $ nmcli dev show | grep 'IP4.DNS'
 IP4.DNS[1]:                             192.168.0.1
+
+```
+
 2. Edit 'dns' in /etc/docker/daemon.json (create this file if already not there). Multiple DNS server IPs can be added separated by comma.
 
 ```
@@ -79,15 +85,18 @@ IP4.DNS[1]:                             192.168.0.1
 ```
 
 3. Restart docker
+
 ```
 $ sudo service docker restart
 
 ```
+
 Now, the PIP server host should be accessible from mlreef service as well.
 
 **Installing a pypi server** 
 
 Install pypiserver (https://pypi.org/project/pypiserver) with this command:
+
 ```
 pip install pypiserver                
 mkdir ~/packages                      # put offline python packages into this directory.
@@ -102,15 +111,15 @@ python3 -m pip download -d ~/packages -r <requirements file>
 ```
 
 Start the server with this command, you can choose a different port number:
+
 ```
 pypi-server -p 8080 ~/packages &      # Will listen to all IPs.
 
 ```
 
 From the client computer, type this to test if the pypip server is working:
+
 ```
 pip install --extra-index-url http://localhost:8080/simple/ <package-name>
 
 ```
-
-
