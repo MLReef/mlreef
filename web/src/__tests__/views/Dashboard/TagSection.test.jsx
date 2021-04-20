@@ -39,7 +39,7 @@ describe('test UI and functionality', () => {
   test('assert that min stars is removed correclty from tag click', () => {
     const tags = wrapper.find('button.m-tags-item');
     tags.at(2).simulate('click');
-    expect(dispatch).toHaveBeenCalledWith({ type: 'SET_SORTING', payload: -1 });
+    expect(dispatch).toHaveBeenCalledWith({ type: 'SET_SORTING', payload: 0 });
   });
 
   test('assert that min stars is removed correclty from tag click', () => {
