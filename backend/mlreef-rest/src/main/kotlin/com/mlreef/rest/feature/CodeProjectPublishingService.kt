@@ -438,7 +438,7 @@ class PublishingService(
                 " -i ${pipServerUrl} --trusted-host $pipHost "
             } catch (ex: Exception) {
                 log.error("Cannot parse pip server URI $pipServerUrl")
-                throw ex
+                " "
             }
         } else " "
     }
