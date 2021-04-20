@@ -25,7 +25,7 @@ const TagSection = () => {
           } else if (tag.type === 'METRICS') {
             dispatch({ type: 'SET_MINIMUM_STARS', payload: '' });
           } else if (tag.type === 'SORTING') {
-            dispatch({ type: 'SET_SORTING', payload: -1 });
+            dispatch({ type: 'SET_SORTING', payload: 0 });
           } else if (tag.type === 'PUBLISH_STATE') {
             dispatch({ type: 'SET_PUBLISH_STATE', payload: -1 });
           }

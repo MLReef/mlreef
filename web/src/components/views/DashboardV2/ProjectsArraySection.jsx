@@ -17,8 +17,8 @@ import { DashboardContext } from './DashboardContext';
 import { dataTypes } from './constants';
 
 const comparingFunctions = {
-  0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase()), // All
-  1: (PA, PB) => (PB.starsCount > PA.starsCount), // Popular
+  0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase() ? 1 : -1), // All
+  1: (PA, PB) => PB.starsCount > PA.starsCount ? 1 : -1, // Popular
 };
 
 const ProjectsArraySection = (props) => {
