@@ -19,7 +19,7 @@ import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatains
 import AuthWrapper from 'components/AuthWrapper';
 import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
-import DataInstanceActions from '../data-instance/DataInstanceActions';
+import DataInstanceActions from '../views/Datainstances/DataInstanceActions';
 import './dataVisualizationCard.css';
 
 const DataVisualizationCard = (

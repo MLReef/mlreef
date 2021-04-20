@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import Readme from 'components/ReadMe/ReadMe';
+import Readme from 'components/ui/ReadMe/ReadMe';
 
 const props = {
   projectId: 11,

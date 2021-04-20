@@ -4,7 +4,7 @@ import { string, number } from 'prop-types';
 import ReactMarkdown from 'react-markdown/with-html';
 import './Readme.scss';
 import { Base64 } from 'js-base64';
-import FilesApi from '../../apis/FilesApi.ts';
+import FilesApi from 'apis/FilesApi.ts';
 
 const filesApi = new FilesApi();
 

@@ -15,8 +15,8 @@ import BranchesView from 'components/branches-list-view/branchesView';
 import NewBranchView from 'components/views/NewBranch';
 import MergeRequestsView from 'components/views/MergeRequests/MergeRequestsOverview';
 import NewMergeRequestView from 'components/views/MergeRequests/NewMergeReq';
-import DataInstancesView from 'components/data-instance/DataInstancesOverview';
-import DataInstanceDetailsView from 'components/data-instance/dataInstanceDetails';
+import DataInstancesView from 'components/views/Datainstances/DataInstancesOverview';
+import DataInstanceDetailsView from 'components/views/Datainstances/dataInstanceDetails';
 import ExperimentsView from 'components/experiments-overview/ExperimentsView';
 import ExperimentDetailsView from 'components/ExperimentDetails/ExperimentDetail';
 import FunctionalExecutionPipelinesView from 'components/views/PipelinesExecutionView';
@@ -42,7 +42,7 @@ import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import Publications from 'components/views/Publications/Publications';
 import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview'
-import Fileview from 'components/FileviewComp/Fileview';
+import Fileview from 'components/views/FileviewComp/Fileview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 
 export default [

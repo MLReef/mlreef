@@ -24,19 +24,15 @@ export default class BranchesApi extends ApiDirector {
     return response.ok ? response.json() : Promise.reject(response);
   }
 
-  async getBranches(projectId: number) {
+  getBranches(projectId: number) {
     const url = `/api/v4/projects/${projectId}/repository/branches`;
     const BLbuilder = new BodyLessApiRequestCallBuilder(
       METHODS.GET, 
       this.buildBasicHeaders(validServicesToCall.GITLAB),
       url
     );
-    const response = await fetch(BLbuilder.build())
-
-    if (!response.ok) {
-      Promise.reject(response);
-    }
-    return response.json();
+    return fetch(BLbuilder.build())
+      .then(handleResponse)
   }
 
   compare(projectId: number, from: string, to: string) {

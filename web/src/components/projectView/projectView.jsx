@@ -16,7 +16,7 @@ import * as userActions from 'store/actions/userActions';
 import * as jobsActions from 'store/actions/jobsActions';
 import * as mergeActions from 'store/actions/mergeActions';
 import * as pipelineActions from 'store/actions/pipelinesActions';
-import ReadMeComponent from '../ReadMe/ReadMe';
+import ReadMeComponent from '../ui/ReadMe/ReadMe';
 import ProjectContainer from '../projectContainer';
 import RepoInfo from '../repoInfo';
 import RepoFeatures from '../repoFeatures';

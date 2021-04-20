@@ -20,10 +20,10 @@ import useLoading from 'customHooks/useLoading';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import functions from './functions';
 
-import ProjectContainer from '../projectContainer';
+import ProjectContainer from '../../projectContainer';
 
-import Navbar from '../navbar/navbar';
-import DeleteFileModal from '../DeleteFileModal/DeleteFileModal';
+import Navbar from '../../navbar/navbar';
+import DeleteFileModal from '../../DeleteFileModal/DeleteFileModal';
 import ContributorsSection from './ContributorsSection';
 
 dayjs.extend(relativeTime);

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter } from 'react-router-dom';
-import ContributorsSection from 'components/FileviewComp/ContributorsSection';
+import ContributorsSection from 'components/views/FileviewComp/ContributorsSection';
 import {
   usersArrayMock,
 } from '../../../testData';

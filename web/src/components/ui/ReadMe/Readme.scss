@@ -1,0 +1,189 @@
+/* ---------------------------- Readme section ----------------------------*/
+@import '../../../styles/breakpoints';
+
+$dark-red: #c0341d;
+$light-red: #fbe5e1;
+
+.readme-container {
+    border-top: 0;
+    border-radius: 4px;
+    background-color: var(--white);
+    border: 1px solid var(--almostWhite);
+    margin: 1rem 0;
+  }
+  
+  .readme-titlebar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0px auto;
+    border-radius: 0.3vw 0.3vw 0 0;
+    background-color: var(--almostWhite);
+    border-bottom: 1px solid var(--lessWhite);
+  }
+  
+  .readme-profile-pic {
+    height: 2em;
+    width: 2em;
+    background-color: var(--white);
+    border: 1px solid var(--lessWhite);
+    border-radius: 0.3vw;
+    margin-left: 3%;
+    display: flex;
+  }
+  
+  .readme-name {
+    margin-left: 2.5%;
+    color: var(--dark);
+  }
+
+  .file-preview {
+    max-width: 990px;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--white);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Ubuntu, Cantarell, "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+
+    &.md {
+     padding: 2rem; 
+    }
+  }
+
+  .md {
+    position: relative;
+    color: var(--dark);
+    font-size: 1.2em;
+
+    & *:first-child {
+      margin-top: 0;
+    };
+
+    a {
+      color: var(--info);
+    };
+
+    a.absent {
+      color: $dark-red;
+    };
+
+    a.anchor {
+      display: block;
+      padding-left: 30px;
+      margin-left: -30px;
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: var(--dark);
+    };
+
+    ul, ol {
+      padding: 0;
+      margin: 0 0 1rem;
+    };
+
+    li {
+      margin-left: 2rem;
+      padding-left: 0;
+      line-height: 1.6em;
+    };
+
+    code {
+      font-family: "Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
+      white-space: pre-wrap;
+      word-wrap: normal;
+      word-break: keep-all;
+    };
+
+    p>code {
+      font-weight: inherit;
+    };
+
+    pre {
+      margin-bottom: 1rem;
+      font-size: 13px;
+      line-height: 1.6em;
+      overflow-x: auto;
+      border-radius: 2px;
+    };
+
+    pre code {
+      white-space: pre;
+      background-color: inherit;
+      padding: unset;
+      color: var(--dark)
+    };
+
+    blockquote {
+      border-left: 4px solid var(--lessWhite);
+      padding: 0 15px;
+      color: #777777;
+    };
+
+    blockquote > :first-child {
+      margin-top: 0;
+    };
+
+    blockquote > :last-child {
+      margin-bottom: 0;
+    };
+
+    table {
+      padding: 0;
+    };
+
+    table tr {
+      border-top: 1px solid var(--almostWhite);
+      background-color: var(--white);
+      margin: 0;
+      padding: 0;
+    };
+
+    table tr th {
+      font-weight: bold;
+      border: 1px solid var(--almostWhite);
+      text-align: left;
+      margin: 0;
+      padding: 6px 13px;
+    };
+
+    table tr td {
+      border: 1px solid var(--almostWhite);
+      text-align: left;
+      margin: 0;
+      padding: 6px 13px;
+    };
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  code {
+    padding: 2px 4px;
+    color: $dark-red;
+    background-color: $light-red;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+
+  pre {
+    font-family: "Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.5rem;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: var(--dark);
+    background-color: var(--white);
+    border: 1px solid var(--almostWhite);
+    border-radius: 2px;
+  }
