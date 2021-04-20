@@ -20,7 +20,7 @@ import './dataVisualizationDetail.scss';
 import Navbar from '../navbar/navbar';
 import FilesTable from '../files-table/filesTable';
 import ProjectContainer from '../projectContainer';
-import actions from '../data-instance/DataInstanceActions';
+import actions from '../views/Datainstances/DataInstanceActions';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 

@@ -3,8 +3,8 @@ import { mount } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { storeFactory } from 'functions/testUtils';
-import FileView from 'components/FileviewComp/Fileview';
-import functions from 'components/FileviewComp/functions';
+import FileView from 'components/views/FileviewComp/Fileview';
+import functions from 'components/views/FileviewComp/functions';
 import {
   branchesMock, mockedFileDetails, commitMockObject,
 } from '../../../testData';

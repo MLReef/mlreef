@@ -236,6 +236,7 @@ export const projectsArrayMock = {
       gid: 12395599,
       description: 'This is MLReef´s demo repository.',
       gitlabName: 'demo',
+      gitlabNamespace: 'mlreef',
       name: 'demo',
       namespace: 'my-namespace',
       slug: 'the-project-name',
@@ -3361,3 +3362,293 @@ export const mockedOperations = {
 	"number": 0,
 	"empty": false
 }
+
+
+export const mockedDataInstanceDetails = {
+	"id": "66df3da0-ea13-41e7-8f75-f75d5b46b515",
+	"pipeline_type": "DATA",
+	"data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+	"slug": "data-pipeline-gentle-warwhal-18012021223245",
+	"name": "data-pipeline/gentle-warwhal-18012021223245",
+	"source_branch": "master",
+	"target_branch_pattern": "data-pipeline/gentle-warwhal-18012021223245-$NUMBER",
+	"data_operations": [
+		{
+			"slug": "commons-color-modifier",
+			"parameters": [
+				{
+					"name": "input-path",
+					"value": "data",
+					"type": "STRING",
+					"required": true,
+					"description": "Data input, path to the images used for transformation"
+				},
+				{
+					"name": "output-path",
+					"value": ".",
+					"type": "STRING",
+					"required": true,
+					"description": "output directory to save images"
+				},
+				{
+					"name": "brightness",
+					"value": "0.5",
+					"type": "FLOAT",
+					"required": false,
+					"description": "Brightness value"
+				},
+				{
+					"name": "contrast",
+					"value": "0.5",
+					"type": "FLOAT",
+					"required": false,
+					"description": "contrast value"
+				},
+				{
+					"name": "saturation",
+					"value": "2",
+					"type": "FLOAT",
+					"required": false,
+					"description": "saturation value"
+				}
+			],
+			"id": "e0505e2b-3749-47f8-afda-283383f514ee",
+			"name": "Color modifier"
+		}
+	],
+	"input_files": [
+		{
+			"location": "data",
+			"location_type": "PATH_FOLDER"
+		}
+	],
+	"instances": [
+		{
+			"id": "59159554-393d-4c0a-afd7-32c8c575432f",
+			"pipeline_type": "DATA",
+			"pipeline_config_id": "66df3da0-ea13-41e7-8f75-f75d5b46b515",
+			"data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+			"slug": "data-pipeline-gentle-warwhal-18012021223245-1",
+			"name": "data-pipeline/gentle-warwhal-18012021223245",
+			"source_branch": "master",
+			"target_branch": "data-pipeline/gentle-warwhal-18012021223245-1",
+			"data_operations": [
+				{
+					"slug": "commons-color-modifier",
+					"parameters": [
+						{
+							"name": "input-path",
+							"value": "data",
+							"type": "STRING",
+							"required": true,
+							"description": "Data input, path to the images used for transformation"
+						},
+						{
+							"name": "output-path",
+							"value": ".",
+							"type": "STRING",
+							"required": true,
+							"description": "output directory to save images"
+						},
+						{
+							"name": "brightness",
+							"value": "0.5",
+							"type": "FLOAT",
+							"required": false,
+							"description": "Brightness value"
+						},
+						{
+							"name": "contrast",
+							"value": "0.5",
+							"type": "FLOAT",
+							"required": false,
+							"description": "contrast value"
+						},
+						{
+							"name": "saturation",
+							"value": "2",
+							"type": "FLOAT",
+							"required": false,
+							"description": "saturation value"
+						}
+					],
+					"id": "b5e7a25e-e0a2-4e41-a5fd-62c1a990fc31",
+					"name": "Color modifier"
+				}
+			],
+			"input_files": [
+				{
+					"location": "data",
+					"location_type": "PATH_FOLDER"
+				}
+			],
+			"number": 1,
+			"commit": null,
+			"status": "SUCCESS",
+			"pipeline_job_info": {
+				"id": 94,
+				"ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+				"commit_sha": "1ab182a63edbdbb04c9b190860d29f4215c52afc",
+				"created_at": "2021-01-18T22:32:50.846Z",
+				"updated_at": "2021-01-18T22:32:50.936Z",
+				"finished_at": "2021-01-18T22:33:33.532Z"
+			}
+		}
+	]
+}
+
+export const mockedRawPipelines = [
+	{
+		"id": 97,
+		"sha": "4b9dc8c8fabf9d68d3cb7ede07bc4a4bb1c83b8e",
+		"ref": "data-visualization/fresh-seal-18012021225907-1",
+		"status": "failed",
+		"created_at": "2021-01-18T22:59:14.163Z",
+		"updated_at": "2021-01-18T22:59:43.947Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/97"
+	},
+	{
+		"id": 96,
+		"sha": "4b9dc8c8fabf9d68d3cb7ede07bc4a4bb1c83b8e",
+		"ref": "data-visualization/fresh-seal-18012021225907-1",
+		"status": "skipped",
+		"created_at": "2021-01-18T22:59:13.432Z",
+		"updated_at": "2021-01-18T22:59:13.432Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/96"
+	},
+	{
+		"id": 95,
+		"sha": "9a37890e25af2f26264a2907c25a8146237d94f7",
+		"ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+		"status": "skipped",
+		"created_at": "2021-01-18T22:33:04.031Z",
+		"updated_at": "2021-01-18T22:33:04.031Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/95"
+	},
+	{
+		"id": 94,
+		"sha": "1ab182a63edbdbb04c9b190860d29f4215c52afc",
+		"ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+		"status": "failed",
+		"created_at": "2021-01-18T22:32:50.846Z",
+		"updated_at": "2021-01-18T22:33:33.751Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/94"
+	},
+	{
+		"id": 93,
+		"sha": "1ab182a63edbdbb04c9b190860d29f4215c52afc",
+		"ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+		"status": "skipped",
+		"created_at": "2021-01-18T22:32:49.579Z",
+		"updated_at": "2021-01-18T22:32:49.579Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/93"
+	},
+	{
+		"id": 92,
+		"sha": "394f5ce3b04aa68d81ff2a776a913b9da2b5e6cf",
+		"ref": "data-pipeline/fit-dolphin-18012021215828-1",
+		"status": "skipped",
+		"created_at": "2021-01-18T21:58:54.255Z",
+		"updated_at": "2021-01-18T21:58:54.255Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/92"
+	},
+	{
+		"id": 91,
+		"sha": "5181b255c631bfa4ffbeb58d9a076b06e8dae1ae",
+		"ref": "data-pipeline/fit-dolphin-18012021215828-1",
+		"status": "failed",
+		"created_at": "2021-01-18T21:58:39.578Z",
+		"updated_at": "2021-01-18T21:59:23.943Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/91"
+	},
+	{
+		"id": 90,
+		"sha": "5181b255c631bfa4ffbeb58d9a076b06e8dae1ae",
+		"ref": "data-pipeline/fit-dolphin-18012021215828-1",
+		"status": "skipped",
+		"created_at": "2021-01-18T21:58:34.920Z",
+		"updated_at": "2021-01-18T21:58:34.920Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/90"
+	},
+	{
+		"id": 57,
+		"sha": "f6b106efad7427caabc1915904936ed0964d00c2",
+		"ref": "experiment/perfect-barracuda_1312021-1",
+		"status": "skipped",
+		"created_at": "2021-01-13T23:27:42.977Z",
+		"updated_at": "2021-01-13T23:27:42.977Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/57"
+	},
+	{
+		"id": 56,
+		"sha": "ab67f32fc4de9e89f552ed68dc20abb511d605da",
+		"ref": "experiment/perfect-barracuda_1312021-0",
+		"status": "skipped",
+		"created_at": "2021-01-13T23:27:42.570Z",
+		"updated_at": "2021-01-13T23:27:42.570Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/56"
+	},
+	{
+		"id": 55,
+		"sha": "f6b106efad7427caabc1915904936ed0964d00c2",
+		"ref": "experiment/perfect-barracuda_1312021-1",
+		"status": "failed",
+		"created_at": "2021-01-13T23:26:30.882Z",
+		"updated_at": "2021-01-13T23:31:07.676Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/55"
+	},
+	{
+		"id": 54,
+		"sha": "ab67f32fc4de9e89f552ed68dc20abb511d605da",
+		"ref": "experiment/perfect-barracuda_1312021-0",
+		"status": "failed",
+		"created_at": "2021-01-13T23:26:30.579Z",
+		"updated_at": "2021-01-13T23:31:08.080Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/54"
+	},
+	{
+		"id": 53,
+		"sha": "c73b72cf073fc243d6bfcca5c7908baed6c9ee23",
+		"ref": "experiment/touched-starfish_1312021",
+		"status": "skipped",
+		"created_at": "2021-01-13T23:16:20.802Z",
+		"updated_at": "2021-01-13T23:16:20.802Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/53"
+	},
+	{
+		"id": 52,
+		"sha": "eb11645cfafca34d30cb828b45e5c87f8b5aeeb4",
+		"ref": "experiment/touched-starfish_1312021",
+		"status": "canceled",
+		"created_at": "2021-01-13T23:14:37.268Z",
+		"updated_at": "2021-01-13T23:16:18.784Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/52"
+	},
+	{
+		"id": 51,
+		"sha": "eb11645cfafca34d30cb828b45e5c87f8b5aeeb4",
+		"ref": "experiment/touched-starfish_1312021",
+		"status": "skipped",
+		"created_at": "2021-01-13T23:14:32.470Z",
+		"updated_at": "2021-01-13T23:14:32.470Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/51"
+	},
+	{
+		"id": 12,
+		"sha": "e4829f475160ce64bc5e3cba85d0e4659cb4f69a",
+		"ref": "experiment/literate-plancton_812021",
+		"status": "failed",
+		"created_at": "2021-01-08T20:31:52.361Z",
+		"updated_at": "2021-01-08T20:36:48.452Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/12"
+	},
+	{
+		"id": 11,
+		"sha": "e4829f475160ce64bc5e3cba85d0e4659cb4f69a",
+		"ref": "experiment/literate-plancton_812021",
+		"status": "skipped",
+		"created_at": "2021-01-08T20:31:51.176Z",
+		"updated_at": "2021-01-08T20:31:51.176Z",
+		"web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/11"
+	}
+]

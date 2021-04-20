@@ -10,11 +10,11 @@ import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import { filterPipelinesOnStatus } from 'functions/pipeLinesHelpers';
 import { getProjectPipelinesByType } from 'store/actions/pipelinesActions';
 import hooks from 'customHooks/useSelectedProject';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
+import Navbar from '../../navbar/navbar';
+import ProjectContainer from '../../projectContainer';
 import './dataInstanceOverview.css';
-import Instruction from '../instruction/instruction';
-import { getTimeCreatedAgo, parseToCamelCase } from '../../functions/dataParserHelpers';
+import Instruction from '../../instruction/instruction';
+import { getTimeCreatedAgo, parseToCamelCase } from '../../../functions/dataParserHelpers';
 import DataInstancesCard from './DataInstancesCard';
 
 const DataInstanceOverview = (props) => {

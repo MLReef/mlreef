@@ -13,11 +13,11 @@ import { generateBreadCrumbs } from 'functions/helpers';
 import { getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
-import FilesTable from '../files-table/filesTable';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
+import FilesTable from '../../files-table/filesTable';
+import Navbar from '../../navbar/navbar';
+import ProjectContainer from '../../projectContainer';
 import './dataInstanceDetails.scss';
-import FilesApi from '../../apis/FilesApi.ts';
+import FilesApi from 'apis/FilesApi.ts';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
@@ -41,7 +41,7 @@ const DataInstanceDetails = (props) => {
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-  const { gitlabId } = selectedProject;
+  const { gid } = selectedProject;
 
   const [files, setFiles] = useState([]);
   const [dataInstance, setDataInstance] = useState({});
@@ -75,22 +75,23 @@ const DataInstanceDetails = (props) => {
   const showFilesInfo = diStatus === undefined || diStatus === RUNNING || diStatus === PENDING;
 
   useEffect(() => {
-    if(gitlabId) {
-      getBranchesList(gitlabId)
-        .then(() => actions.getDataInstanceAndAllItsInformation(gitlabId, dataId))
+    if(gid) {
+      getBranchesList(gid);
+      actions.getDataInstanceAndAllItsInformation(gid, dataId)
         .then(setDataInstance)
+        .catch((err) => toastr.error('Error', err?.name));
     }
     
     if (branchName) {
       filesApi.getFilesPerProject(
-        gitlabId,
+        gid,
         path || '',
         false,
         branchName,
       ).then((filesPerProject) => setFiles(filesPerProject))
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
     }
-  }, [gitlabId, path, branchName, dataId]);
+  }, [gid, path, branchName, dataId]);
 
   const customCrumbs = [
     {
@@ -150,12 +151,12 @@ const DataInstanceDetails = (props) => {
                           .then(() => history.push(`/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}/-/datasets`))
                           .catch((err) => toastr.error('Error', err?.message))
                         : actions.abortDataInstance(
-                          gitlabId,
+                          gid,
                           id,
                           instances[0].id,
                           gitlabPipelineId
                         ).then(() => toastr.success('Success', 'The data instace was aborted'))
-                          .then(actions.getDataInstanceAndAllItsInformation(gitlabId, dataId))
+                          .then(actions.getDataInstanceAndAllItsInformation(gid, dataId))
                           .then(setDataInstance)
                         .catch((err) => toastr.error('Error', err?.message))
                       })
@@ -352,7 +353,6 @@ DataInstanceDetails.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    project: state.projects.selectedProject,
     branches: state.branches,
   };
 }

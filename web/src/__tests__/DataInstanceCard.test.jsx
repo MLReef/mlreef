@@ -2,7 +2,7 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { shallow } from 'enzyme';
-import DataInstancesCard from 'components/data-instance/DataInstancesCard';
+import DataInstancesCard from 'components/views/Datainstances/DataInstancesCard';
 
 const props = {
   name: 'data-pipeline/dear-nessie-4112020-1',
