@@ -20,14 +20,14 @@ const CodeDiffSection = (props) => {
 
   const [originalCode, setOriginalCode] = useState(null);
   const [modifiedCode, setModifiedCode] = useState(null);
-  const isMounted = useMount();
+  const unmounted = useMount();
 
   const options = {
     readOnly: true,
   };
 
   useEffect(() => {
-    if (isMounted) {
+    if (!unmounted) {
       setOriginalCode(original);
       setModifiedCode(modified);
     }

@@ -14,11 +14,11 @@ const ChangesMrSection = (props) => {
   const [reseting, setReseting] = useState(false);
   const [count, setCount] = useState(0);
 
-  const isMounted = useMount();
+  const unomunted = useMount();
 
   const fetchDiffs = () => fetchFileDiffInfo(projectId, aheadCommits)
     .then((files) => {
-      if (files.length > 0) {
+      if (files.length > 0 && !unomunted) {
         setFiles(files.filter((f) => f.length > 0).map((f) => f[0]));
       }
     });
@@ -26,7 +26,7 @@ const ChangesMrSection = (props) => {
   const [isLoading, executeDiffsFetch] = useLoading(fetchDiffs);
 
   useEffect(() => {
-    if (projectId && isMounted) {
+    if (projectId && !unomunted) {
       executeDiffsFetch(projectId, aheadCommits);
     }
   }, [projectId, aheadCommits]);
@@ -63,7 +63,7 @@ const ChangesMrSection = (props) => {
             />
           );
         }
-        return isMounted && !isLoading && !reseting ? (
+        return !unomunted && !isLoading && !reseting ? (
           <CodeDiffSection
             key={`c-${fileToRender.id}`}
             fileInfo={fileToRender}
