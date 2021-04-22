@@ -1,10 +1,9 @@
 #!/bin/bash
-set -x
 # change to the repository root folder via the scripts location
 cd "$(dirname "$0")"/..
 
 ########################################
-set -x  # output all commands
+#set -x  # output all commands
 set -o  pipefail
 set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
@@ -55,11 +54,13 @@ fi
 
 
 MLREEF_TAR="mlreef.tar"
+MLREEF_CONTAINER="mlreef"
 
 # Check if tar directory exists
 if [ -d $imageTarPath ]; then
+  echo "Loading the mlreef.tar file...."
   MLREEF_IMAGE=$(docker load -i $imageTarPath/$MLREEF_TAR | awk '{print $3}')
- echo $MLREEF_IMAGE
+  echo "The mlreef image : $MLREEF_IMAGE"
 else
   echo "The $imageTarPath does not exists, give a valid path"
   exit
@@ -70,9 +71,13 @@ DOCKER_NETWORK="mlreef-docker-network"
   docker network inspect $DOCKER_NETWORK >/dev/null 2>&1 || \
   docker network create -d bridge $DOCKER_NETWORK
 
+# Get the mlreef network gateway IP
+MLREEF_NW_GATEWAY=$(docker network inspect $DOCKER_NETWORK | grep Gateway |cut -d'"' -f 4)
+# Replace localhost address with mlreef network gateway IP to reach localhost service
+pipServer=$(echo $pipServer | sed "s/^\(localhost:\|http:\/\/localhost:\)/http:\/\/${MLREEF_NW_GATEWAY}:/")
 
-
-docker run -d -it --rm --name mlreef                 \
+echo "Launching container $MLREEF_CONTAINER"
+docker run -d -it --rm --name $MLREEF_CONTAINER      \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --net $DOCKER_NETWORK                 \
   --volume mlreef-opt:/var/opt/gitlab   \
@@ -90,15 +95,33 @@ docker run -d -it --rm --name mlreef                 \
 
 sleep 30
 
+echo "The container is up. Logs could be checked by command : docker logs -f $MLREEF_CONTAINER"
+
 ### Copy all images to nautilus container
+echo "Loading required images for offline $MLREEF_CONTAINER"
 cd $imageTarPath
 for FILE in *; do
   if [ "$FILE" != "$MLREEF_TAR" ]; then
-    docker cp $FILE mlreef:/
-    docker exec -it mlreef docker load -i /$FILE
+    docker cp $FILE $MLREEF_CONTAINER:/
+    docker exec -it $MLREEF_CONTAINER docker load -i /$FILE
+  fi
+done
+
+### Check if gitlab is up in mlreef-wrapper script
+echo "Ensuring that Gitlab is completely up"
+until docker logs $MLREEF_CONTAINER | grep "Gitlab is ready"; do
+  printf '.'
+  sleep 5;
+  if [ $(docker ps -q -f name=$MLREEF_CONTAINER  | wc -l) = 0 ]; then
+    echo "$MLREEF_CONTAINER container could not come up"
+    exit 1
   fi
 done
 
 ### Call offline-setup script to do post setup job in nautilus container
 
-docker exec -it mlreef /assets/offline-setup
+echo "Executing offline setup script for $MLREEF_CONTAINER"
+docker exec -it $MLREEF_CONTAINER /assets/offline-setup
+
+# Sleep sometime to finish things properly
+sleep 30

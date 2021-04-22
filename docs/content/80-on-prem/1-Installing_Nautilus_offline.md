@@ -40,7 +40,7 @@ bin/build-run-nautilus-offline -d $THE_PATH_OF_TAR_FILES -s $PIP_SERVER(optional
 Example:
 ```
 bin/build-run-nautilus-offline -d mlreef-images-tar
-bin/build-run-nautilus-offline -d mlreef-images-tar -s http://172.17.0.1:10100
+bin/build-run-nautilus-offline -d mlreef-images-tar -s localhost:10010/simple
 bin/build-run-nautilus-offline -d mlreef-images-tar -s https://python.example.com/
 
 ```
@@ -49,19 +49,7 @@ The container comes up with a default runner running on same docker network on l
 
 **Notes for pip server in offline mode:**
 
-* If the pip server is running on the same offline host with MLReef, use the bridge docker0 IP as pip_server IP.
-
-  Example:
-```
-  sudo ip addr show docker0
-  4: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
-    link/ether 56:84:7a:fe:97:99 brd ff:ff:ff:ff:ff:ff
-    inet 172.17.0.1/16 scope global docker0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::5484:7aff:fefe:9799/64 scope link
-       valid_lft forever preferred_lft forever
-```
-  So, 172.17.0.1 needs to be used for IP.
+* If the pip server is running on the same offline host with MLReef, `localhost` needs to be used for pip server URL, e.g : `localhost:10010/simple` .
 
 * If the pip server is running on some other host in intra network, the DNS host entry needs to be configured for docker.
 
@@ -113,13 +101,13 @@ python3 -m pip download -d ~/packages -r <requirements file>
 Start the server with this command, you can choose a different port number:
 
 ```
-pypi-server -p 8080 ~/packages &      # Will listen to all IPs.
+pypi-server -p 10010 ~/packages &      # Will listen to all IPs.
 
 ```
 
 From the client computer, type this to test if the pypip server is working:
 
 ```
-pip install --extra-index-url http://localhost:8080/simple/ <package-name>
+pip install --extra-index-url http://localhost:10010/simple/ <package-name>
 
 ```

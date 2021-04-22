@@ -197,6 +197,8 @@ tail -f /dev/null
 # Wait for SIGTERM
 wait
 
+log "mlreef-wrapper is finished" 
+
 #Bring the first process to foreground
 fg %1
 
