@@ -15,12 +15,12 @@ import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import { getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { generateBreadCrumbs } from 'functions/helpers';
-import FilesApi from '../../apis/FilesApi.ts';
+import FilesApi from 'apis/FilesApi.ts';
 import './dataVisualizationDetail.scss';
-import Navbar from '../navbar/navbar';
-import FilesTable from '../files-table/filesTable';
-import ProjectContainer from '../projectContainer';
-import actions from '../views/Datainstances/DataInstanceActions';
+import Navbar from '../../navbar/navbar';
+import FilesTable from '../../files-table/filesTable';
+import ProjectContainer from '../../projectContainer';
+import actions from '../Datainstances/DataInstanceActions';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 
@@ -35,9 +35,9 @@ const DataVisualizationDetails = ({ ...props }) => {
         path, visId, namespace, slug,
       },
     },
-    setPreconfOps,
     history,
     fireModal,
+    getBranchesList,
   } = props;
   const [dataInstance, setDataInstance] = useState({});
   const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
@@ -311,7 +311,6 @@ const DataVisualizationDetails = ({ ...props }) => {
 
 function mapStateToProps(state) {
   return {
-    project: state.projects.selectedProject,
     branches: state.branches,
   };
 }

@@ -6,7 +6,7 @@ import DataInstanceDetails from 'components/views/Datainstances/dataInstanceDeta
 import { generatePromiseResponse, sleep, storeFactory } from 'functions/testUtils';
 import {
   branchesMock, filesMock, mockedDataInstanceDetails, mockedRawPipelines,
-} from '../testData';
+} from '../../../testData';
 
 const pushMock = jest.fn();
 

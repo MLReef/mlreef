@@ -3,8 +3,6 @@ import {
   func, string, arrayOf, shape,
 } from 'prop-types';
 import { Link } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import {
   RUNNING,
   SUCCESS,
@@ -14,26 +12,26 @@ import {
 } from 'dataTypes';
 import { toastr } from 'react-redux-toastr';
 import { useHistory } from 'router';
-import { closeModal, fireModal } from 'store/actions/actionModalActions';
+import hooks from 'customHooks/useSelectedProject';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import AuthWrapper from 'components/AuthWrapper';
 import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
-import DataInstanceActions from '../views/Datainstances/DataInstanceActions';
-import './dataVisualizationCard.css';
+import DataInstanceActions from '../Datainstances/DataInstanceActions';
+import './dataVisualizationCard.scss';
 
-const DataVisualizationCard = (
-  {
-    classification,
-    namespace,
-    slug,
-    callback,
-    fireModal,
-  },
-) => {
+const DataVisualizationCard = ({
+  classification,
+  namespace,
+  slug,
+  callback,
+  fireModal,
+}) => {
   const history = useHistory();
   const today = new Date();
   const { statusTitle } = getInfoFromStatus(classification?.status);
+  const [selectedProject] = hooks.useSelectedProject(namespace, slug);
+  const { gid } = selectedProject;
 
   function getButtonsDiv(dataVisualizationState, val) {
     let buttons;
@@ -47,18 +45,20 @@ const DataVisualizationCard = (
             style={{ width: 'max-content' }}
             onClick={() => {
               fireModal({
-                title: `Delete ${val?.name}`,
+                title: `Abort ${val?.name}`,
                 type: 'danger',
                 closable: true,
                 content: <DataInstanteDeleteModal dataInstanceName={val?.name} />,
                 onPositive: () => {
-                  DataInstanceActions.deleteDataInstance(
-                    val?.pipelineBackendId,
-                    val?.backendInstanceId,
+                  DataInstanceActions.abortDataInstance(
+                    gid,
+                    val?.backendPipeline?.id,
+                    val?.backendPipeline?.instances[0]?.id,
+                    val?.backendPipeline?.instances[0]?.pipeline_job_info?.id,
                   )
-                    .then(callback)
+                    .then(() => callback())
                     .then(() => toastr.success('Success', 'Pipeline was deleted'))
-                    .catch((error) => toastr.error('Error', error?.message));
+                    .catch((error) => toastr.error('Error', error?.message || 'Please try in a minute, your job has not been generated yet.'));
                 },
               });
             }}
@@ -67,47 +67,9 @@ const DataVisualizationCard = (
           </button>
         </AuthWrapper>,
       ];
-    } else if (
-      dataVisualizationState === SUCCESS
-    ) {
-      buttons = [
-        <button
-          type="button"
-          key="experiment-button"
-          className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => history.push(`/${namespace}/${slug}/-/visualizations/${val?.backendPipeline?.id}/rebuild`)}
-        >
-          View Pipeline
-        </button>,
-        <AuthWrapper minRole={30}>
-          <button
-            type="button"
-            key="delete-button"
-            onClick={() => {
-              fireModal({
-                title: `Delete ${val?.name}`,
-                type: 'danger',
-                closable: true,
-                content: <DataInstanteDeleteModal dataInstanceName={val?.name} />,
-                onPositive: () => {
-                  DataInstanceActions.deleteDataInstance(
-                    val?.pipelineBackendId,
-                    val?.backendInstanceId,
-                  )
-                    .then(callback)
-                    .then(() => toastr.success('Success', 'Pipeline was deleted'))
-                    .catch((error) => toastr.error('Error', error?.message));
-                },
-              });
-            }}
-            className="btn btn-danger btn-icon my-auto"
-          >
-            <i className="fa fa-times" />
-          </button>
-        </AuthWrapper>,
-      ];
     } else if (dataVisualizationState === FAILED
-      || dataVisualizationState === CANCELED) {
+      || dataVisualizationState === CANCELED
+      || dataVisualizationState === SUCCESS) {
       buttons = [
         <button
           type="button"
@@ -127,15 +89,13 @@ const DataVisualizationCard = (
                 type: 'danger',
                 closable: true,
                 content: <DataInstanteDeleteModal dataInstanceName={val?.name} />,
-                onPositive: () => {
-                  DataInstanceActions.deleteDataInstance(
-                    val?.pipelineBackendId,
-                    val?.backendInstanceId,
-                  )
-                    .then(callback)
-                    .then(() => toastr.success('Success', 'Pipeline was deleted'))
-                    .catch((error) => toastr.error('Error', error?.message));
-                },
+                onPositive: () => DataInstanceActions.deleteDataInstance(
+                  val?.backendPipeline?.id,
+                  val?.backendPipeline?.instances[0]?.id,
+                )
+                  .then(() => callback())
+                  .then(() => toastr.success('Success', 'Pipeline was deleted'))
+                  .catch((error) => toastr.error('Error', error?.message || 'Please try in a minute, your job has not been generated yet.')),
               });
             }}
           >
@@ -206,11 +166,4 @@ DataVisualizationCard.propTypes = {
   callback: func.isRequired,
 };
 
-function mapActionsToProps(dispatch) {
-  return {
-    fireModal: bindActionCreators(fireModal, dispatch),
-    closeModal: bindActionCreators(closeModal, dispatch),
-  };
-}
-
-export default connect(null, mapActionsToProps)(DataVisualizationCard);
+export default DataVisualizationCard;
