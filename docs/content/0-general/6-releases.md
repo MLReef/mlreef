@@ -7,6 +7,18 @@ This will guide you through the most significant changes in MLReef. We will try 
 
 ## Release log 
 
+### r-01-04/2021
+With the latest release we solved many bugs and issues during this beta phase and worked on general stability. 
+
+In addition, now you can: 
+* Create multiple experiments at the time (although there is still no concurrent pipelines)
+* General stability and improved test coverage
+* Rework of the publishing process to be more light-weight and agile
+  * Including publishing up to 10 versions of master and unlimited branches
+* Rework of the experiment tracking and experiment management section now including graphs and more functionality
+* Include the possibility to see the entry point script in all pipelines
+
+
 ### r-02-01/2021
 This release moves MLReef to beta stage, involving broad changes to the entire infrastructure and baseline. 
 

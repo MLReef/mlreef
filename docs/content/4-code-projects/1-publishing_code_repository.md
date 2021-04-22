@@ -52,7 +52,7 @@ Annotations are **non-intrusive** additions to your scripts, they will have no o
 
 **The following annotations are mandatory for every script: data input path and data output path**:
 
-```
+```py
     def data_processor(*args, **kwargs):
         pass
         return data_processor
@@ -87,7 +87,7 @@ You can use the **same annotation format for any other parameter** you want to h
 
 In addition to the parameter annotations, you will need to include a definition how to process arguments, as following: 
 
-```
+```py
 def process_arguments(args):
     parser = argparse.ArgumentParser(description='your code project name')
     parser.add_argument('--input-path', action='store', help='path to directory of images')

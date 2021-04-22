@@ -48,11 +48,11 @@ MLReef has a broad scope and vision, and we are constantly iterating on existing
 
 | Data management | Experiments | Inference |
 |---|---|---|
-| **ML project repositories**<br>Minimal | **Model pipelines**<br>Minimal | **Automatic REST deployment**<br>Planned |
+| **ML project repositories**<br>Viable | **Model pipelines**<br>Viable | **Automatic REST deployment**<br>Planned |
 |**Data visualization**<br>Minimal|**Experiment metrics**<br>Minimal | |
-|**Data processing**<br>Minimal|**Model output**<br>Minimal||
-|**Dataset**<br>Minimal|**Cloud execution**<br>Minimal||
-|**Data versioning with Git**<br>Minimal|**Local execution**<br>Planned||
+|**Data processing**<br>Viable|**Model output**<br>Minimal||
+|**Dataset**<br>Viable|**Cloud execution**<br>Viable||
+|**Data versioning with Git**<br>Viable|**Local execution**<br>Minimal||
 |**Storage optimization**<br>Planned|**Hyperparameter optimization**<br>Planned||
 |**Data source integrations**<br>Planned|||
 

@@ -2,13 +2,13 @@
 
 Welcome to [MLReef](https://mlreef.com) documentation.
 
-> MLReef is currently on **closed alpha** and therefore, this documentation is subject to change.
+> MLReef is currently on **beta stage** and therefore, this documentation is subject to change and incomplete.
 
 For all early access user we suggest starting with this [**early access documentation**](5-early_access_guide.md).
 It will give you a fast introduction to the basic concepts and features of MLReef and guide you savely on your pioneering voyage.
 
-> If you need more support than you can find here, feel free to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues,
-> connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at help@mlreef.com.
+> If you need more support than you can find here, feel free to either [raise a ticket](https://gitlab.com/mlreef/frontend/issues),
+> connect with the MLReef community through our [slack channel](https://mlreefcommunity.slack.com) or send us an email at **help@mlreef.com**.
 > You are never alone in the reef!
 
 
@@ -33,9 +33,9 @@ Take a look at some of our most popular documentation resources:
 | [Repository classes in MLReef](0-general/1-repositories/0-README.md)  | Understand the classes and functions of data and code repositories in MLReef. |
 
 
-## The entire MLOps cycle
+## The ML life cycle
 
-MLReef aims to be the first single application for the entire value chain when creating Machine Learning (ML) projects.
+MLReef aims to be the first single application for the entire Machine Learning (ML) life cycle.
 MLReef builds on the experience gathered in [Concurrent DevOps](https://en.wikipedia.org/wiki/DevOps) and ML specific operations that will enable you to work faster, more transparent and use the power of the entire MLReef community to create best Machine Learning.
 
 MLReef provides solutions for [all the stages in MLOps](0-general/0-concepts/0-mlops/0-README.md)
