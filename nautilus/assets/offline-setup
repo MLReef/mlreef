@@ -20,6 +20,11 @@ checkProjectExists() {
   curl "${INSTANCE_HOST}:${GITLAB_PORT}/api/v4/groups/$MLREEF_GITLAB_LOCAL_REGISTRY_GROUP/projects?search=$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT" | jq -M 'map(select(.name == "'$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT'"))| .[0].name'
 }
 
+checkBackendPort() {
+  curl --silent --output /dev/null -w ''%{http_code}'' "$INSTANCE_HOST":"$MLREEF_BACKEND_PORT"/"${1-}"
+}
+
+
 until [ "$(checkProjectExists)" == "\"$MLREEF_GITLAB_LOCAL_REGISTRY_PROJECT\"" ]; do
   printf '.'
   sleep 5;
@@ -47,3 +52,12 @@ docker image tag "$GITLAB_REGISTRY_EPF_IMAGE_PATH" "$LOCAL_EPF_IMAGE_PATH"
 docker push "$LOCAL_EPF_IMAGE_PATH"
 log "$LOCAL_EPF_IMAGE_PATH has been successfully uploaded "
 fi
+
+
+log "Ensuring availability of the Backend to start"
+until [ "$(checkBackendPort /)" = "200" ]; do
+  printf '.'
+  sleep 5;
+done
+log "Expecting code 200; received: $(checkBackendPort /)"
+
