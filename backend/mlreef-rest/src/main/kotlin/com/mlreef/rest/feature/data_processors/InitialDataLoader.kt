@@ -69,30 +69,16 @@ class InitialDataLoader {
             // ############## ENVIRONMENT
             val environment = environment {
                 id = python_environment_id
-                title = "Base environment python-3.6-GPU"
+                title = "Base environment tensorflow/tensorflow:2.1.0-gpu-py3"
                 dockerImage = "tensorflow/tensorflow:2.1.0-gpu-py3"
-                description = "GPU nvidia drivers and TF 2.1, python 3.6"
+                description = "GPU nvidia drivers and TF 2.1, compatible python 3.6-3.8"
                 requirements = """
-                        |cycler==0.10.0
-                        |decorator==4.4.2
-                        |imageio==2.8.0
-                        |joblib==0.14.1
-                        |kiwisolver==1.2.0
-                        |matplotlib==3.2.1
-                        |networkx==2.4
-                        |numpy==1.18.4
-                        |nltk==3.5
-                        |num2words==0.5.10
-                        |opencv-python==4.2.0.34
-                        |Pillow==7.1.2
-                        |pyparsing==2.4.7
-                        |python-dateutil==2.8.1
-                        |PyWavelets==1.1.1
-                        |scikit-image==0.16.2
-                        |scikit-learn==0.23.1
-                        |scipy==1.4.1
-                        |six==1.14.0
-                        """.trimMargin()
+                                Ubuntu
+                                python3
+                                tensorflow-gpu 2.1.0
+                                CUDA 10.1
+                                CUDNN 7
+                """.trimMargin()
                 machineType = PublishingMachineType.GPU
                 sdkVersion = "3.6"
             }
