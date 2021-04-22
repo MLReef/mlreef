@@ -17,10 +17,10 @@ In MLReef you have a built-in experiment pipeline, which allows you train one mo
 
 These are the limitations currently present in MLReef for experiments: 
 
-1. The experiment pipeline does not support **parallel execution** of more than one algorithm at the time.
+1. The experiment pipeline does not support **parallel execution** of more than one experiment pipeline. The second experiment will start as soon as the first one is finished.
 2. The experiments will currently always run on a GPU machine.
 3. Hyperparameter tuning is currently not supported.
-4. Only hosted execution is possible. We are working on local execution.
+4. Only hosted execution is possible using mlreef.com. We are working on being able to download a pipeline for local execution. 
 
 ## Name convention
 
