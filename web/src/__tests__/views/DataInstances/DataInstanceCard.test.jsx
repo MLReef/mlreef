@@ -1,8 +1,11 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import DataInstancesCard from 'components/views/Datainstances/DataInstancesCard';
+import { FAILED, RUNNING } from 'dataTypes';
+
+const fireModal = jest.fn();
 
 const props = {
   name: 'data-pipeline/dear-nessie-4112020-1',
@@ -23,7 +26,7 @@ const props = {
       userName: 'mlreef',
     },
   ],
-  fireModal: jest.fn(),
+  fireModal,
 };
 
 test('assert that snapshot matches', () => {
@@ -45,19 +48,23 @@ test('assert that snapshot matches', () => {
   expect(snapShot).toMatchSnapshot();
 });
 
-const setup = () => {
-  const testWrapper = shallow(
-    <DataInstancesCard
-      key={props.name}
-      name={props.name}
-      namespace={props.namespace}
-      slug={props.slug}
-      params={{
-        currentState: props.currentState,
-        instances: props.instances,
-      }}
-      fireModal={props.fireModal}
-    />,
+const setup = (currentState) => {
+  props.currentState = currentState;
+  props.instances[0].currentState = currentState;
+  const testWrapper = mount(
+    <Router>
+      <DataInstancesCard
+        key={props.name}
+        name={props.name}
+        namespace={props.namespace}
+        slug={props.slug}
+        params={{
+          currentState: props.currentState,
+          instances: props.instances,
+        }}
+        fireModal={props.fireModal}
+      />
+    </Router>,
   );
 
   return testWrapper;
@@ -66,17 +73,29 @@ const setup = () => {
 describe('assert basic UI text elements are rendered', () => {
   let wrapper;
 
-  beforeEach(() => {
-    wrapper = setup();
-  });
   test('pipeline info is displayed', () => {
+    wrapper = setup(FAILED);
     expect(wrapper.find('img').prop('alt')).toEqual('failed');
     expect(wrapper.find('.title-div').text()).toBe('Failed');
-    expect(wrapper.find('Link').children().text()).toBe('dear-nessie-4112020-1');
-    expect(wrapper.find('a').text()).toBe('mlreef');
+    expect(wrapper.find('Link').find('a').text()).toBe('dear-nessie-4112020-1');
+    expect(wrapper.find('a').at(1).text()).toBe('mlreef');
   });
 
-  test('assert that pipeline functinal buttons are rendered', () => {
-    expect(wrapper.find('.buttons-div').children()).toHaveLength(2);
+  test('assert that firemodal is called with failed', () => {
+    wrapper = setup(FAILED);
+    wrapper.find('button.btn-danger').simulate('click');
+    expect(fireModal).toHaveBeenCalled();
+    expect(fireModal.mock.calls[0][0].title.includes('Delete')).toBeTruthy();
+  });
+
+  test('assert that firemodal is called', () => {
+    wrapper = setup(RUNNING);
+    wrapper.find('button.btn-danger').simulate('click');
+    expect(fireModal).toHaveBeenCalled();
+    expect(fireModal.mock.calls[0][0].title.includes('Abort')).toBeTruthy();
+  });
+
+  afterEach(() => {
+    fireModal.mockClear();
   });
 });

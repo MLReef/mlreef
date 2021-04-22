@@ -5,16 +5,15 @@ import {
   shape, string,
 } from 'prop-types';
 import hooks from 'customHooks/useSelectedProject';
-import './dataVisualizationOverview.css';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getProjectPipelinesByType } from 'store/actions/pipelinesActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import { generateBreadCrumbs } from 'functions/helpers';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
-import Instruction from '../instruction/instruction';
+import Navbar from '../../navbar/navbar';
+import ProjectContainer from '../../projectContainer';
+import Instruction from '../../instruction/instruction';
 import DataVisualizationCard from './dataVisualizationCard';
-import { filterPipelinesOnStatus } from '../../functions/pipeLinesHelpers';
+import { filterPipelinesOnStatus } from '../../../functions/pipeLinesHelpers';
 
 export const DataVisualizationOverview = (props) => {
   const {
@@ -26,25 +25,26 @@ export const DataVisualizationOverview = (props) => {
     },
     visualizations: vis,
     getProjectVisualizations,
+    fireModal,
   } = props;
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
   const { id, gid } = selectedProject;
-  const [visualizations, setVisualizations] = useState(vis);
+  const [visualizations, setVisualizations] = useState([]);
   const [all, setAll] = useState(vis);
+
+  const fetchVisualizations = useCallback(() => getProjectVisualizations(id, gid, 'VISUALIZATION'), [id, gid]);
 
   useEffect(() => {
     if (gid) {
-      getProjectVisualizations(id, gid, 'VISUALIZATION');
+      fetchVisualizations();
     }
   }, [selectedProject]);
-
-  const fetchVisualizations = useCallback(() => getProjectPipelinesByType(id, gid, 'VISUALIZATION'), [id, gid]);
 
   useEffect(() => {
     setVisualizations(vis);
     setAll(vis);
-  }, [selectedProject, vis]);
+  }, [vis]);
 
   const customCrumbs = [
     {
@@ -130,7 +130,6 @@ export const DataVisualizationOverview = (props) => {
           .map((visClass) => (
             <DataVisualizationCard
               classification={visClass}
-              projectId={gid}
               namespace={namespace}
               slug={slug}
               key={visClass.status}

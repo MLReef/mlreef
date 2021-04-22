@@ -20,8 +20,8 @@ import DataInstanceDetailsView from 'components/views/Datainstances/dataInstance
 import ExperimentsView from 'components/experiments-overview/ExperimentsView';
 import ExperimentDetailsView from 'components/ExperimentDetails/ExperimentDetail';
 import FunctionalExecutionPipelinesView from 'components/views/PipelinesExecutionView';
-import VisualizationsView from 'components/data-visualization/dataVisualizationOverview';
-import VisualizationDetailView from 'components/data-visualization/dataVisualizationDetail';
+import VisualizationsView from 'components/views/DataVisualization/dataVisualizationOverview';
+import VisualizationDetailView from 'components/views/DataVisualization/dataVisualizationDetail';
 import SettingsView from 'components/views/SettingsView';
 import CreateGroupView from 'components/views/create-group/createGroup';
 import CommitsView from 'components/CommitsView/CommitView';

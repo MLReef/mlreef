@@ -52,46 +52,10 @@ const DataInstancesCard = (props) => {
         </button>,
       ];
     } else if (
-      currentState === SUCCESS
-    ) {
-      buttons = [
-        <button
-          type="button"
-          key="experiment-button"
-          className="btn btn-outline-dark my-auto mr-1"
-          onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${instance?.pipelineBackendId}/rebuild`)}
-        >
-          View Pipeline
-        </button>,
-        <button
-          type="button"
-          key="delete-button"
-          onClick={
-              () => {
-                fireModal({
-                  title: `Delete ${instance.descTitle}`,
-                  type: 'danger',
-                  closable: true,
-                  content: <DataInstanteDeleteModal dataInstanceName={instance.descTitle} />,
-                  onPositive: () => {
-                    DataInstanceActions.deleteDataInstance(
-                      instance.pipelineBackendId,
-                      instance.backendInstanceId,
-                    )
-                      .then(fetchPipelines)
-                      .then(() => toastr.success('Success', 'Pipeline was deleted'))
-                      .catch((error) => toastr.error('Error', error?.message));
-                  },
-                });
-              }
-            }
-          className="btn btn-danger btn-icon my-auto"
-        >
-          <i className="fa fa-times" />
-        </button>,
-      ];
-    } else if (currentState === FAILED
-        || currentState === CANCELED) {
+        currentState === FAILED
+          || currentState === CANCELED
+          || currentState === SUCCESS
+      ) {
       buttons = [
         <button
           type="button"
@@ -111,15 +75,13 @@ const DataInstancesCard = (props) => {
               type: 'danger',
               closable: true,
               content: <DataInstanteDeleteModal dataInstanceName={instance.descTitle} />,
-              onPositive: () => {
-                DataInstanceActions.deleteDataInstance(
+              onPositive: () => DataInstanceActions.deleteDataInstance(
                   instance.pipelineBackendId,
                   instance.backendInstanceId,
                 )
                   .then(fetchPipelines)
                   .then(() => toastr.success('Success', 'Pipeline was deleted'))
-                  .catch((error) => toastr.error('Error', error?.message));
-              },
+                  .catch((error) => toastr.error('Error', error?.message)),
             });
           }}
         >

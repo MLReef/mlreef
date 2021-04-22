@@ -1,0 +1,36 @@
+.data-visualization-card-content {
+  display: flex;
+  color: #1C2B40;
+  padding: 1rem;
+  border-top: 2px solid #e5e5e5;
+}
+
+.data-visualization-card-content > .general-information {
+  width: 30%;
+  flex: 1;
+  text-align: left;
+}
+
+.data-visualization-card-content > .detailed-information-1 {
+  width: 17.5%;
+  text-align: center;
+}
+
+.data-visualization-card-content > .detailed-information-2 {
+  width: 17.5%;
+  text-align: center;
+}
+
+.data-visualization-card-content > #pipeline-buttons-div {
+  display: flex;
+  justify-content: flex-end;
+  height: max-content;
+}
+
+#buttons-container > button {
+  margin-right: 1em;
+}
+
+.data-visualization-card-content > #pipeline-buttons-div > button {
+  margin: 1%;
+}

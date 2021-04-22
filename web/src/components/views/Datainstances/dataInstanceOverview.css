@@ -23,26 +23,6 @@
     margin: 4px;
 }
 
-/* Instance  dropdown*/
-
-.save-instance {
-    box-shadow: 0 2px 4px rgb(0, 0, 0, 0.3);
-    position: absolute;
-    display: block !important;
-    width: 300px;
-    height: auto;
-    background: #fff;
-    top: 50%;
-    right: 0.5em;
-    z-index: 1;
-    border-radius: 4px;
-}
-
-.save-instance .search-branch > div:hover{
-    background-color: #ececec;
-    cursor: pointer;
-}
-
 #data-ins-summary-data {
   padding: 1rem;
 }

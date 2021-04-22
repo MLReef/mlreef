@@ -1,0 +1,92 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assert that snapshot matches 1`] = `
+<div
+  className="pipeline-card"
+>
+  <div
+    className="header"
+  >
+    <div
+      className="title-div"
+    >
+      <p>
+        <b>
+          In progress
+        </b>
+      </p>
+    </div>
+  </div>
+  <div
+    className="data-visualization-card-content"
+    data-key="data-visualization/fresh-seal-18012021225907-2"
+  >
+    <img
+      alt="running"
+      height="30"
+      src={
+        Object {
+          "canInstrument": true,
+          "createTransformer": [Function],
+          "getCacheKey": [Function],
+          "process": [Function],
+        }
+      }
+      width="30"
+    />
+    <div
+      className="general-information ml-2"
+    >
+      <a
+        href="/mlreef/project-slug/-/visualizations/b3b05d6b-d3ae-4c58-8bf9-ed7a47f34566"
+        onClick={[Function]}
+      >
+        <b>
+          fresh-seal-18012021225907-2
+        </b>
+      </a>
+      <p
+        className="m-0 mt-1"
+      >
+        Created by
+         
+        <a
+          href="/mlreef"
+        >
+          <b>
+            mlreef
+          </b>
+        </a>
+         
+        3 month(s)
+          ago
+      </p>
+    </div>
+    <div
+      className="auth-wrapper ownership-required group-role-required"
+      title="Please login"
+    >
+      <div
+        className="auth-wrapper-cover"
+        onClick={[Function]}
+      />
+      <div
+        className="auth-wrapper-wrapped"
+      >
+        <button
+          className="btn btn-danger border-solid my-auto"
+          onClick={[Function]}
+          style={
+            Object {
+              "width": "max-content",
+            }
+          }
+          type="button"
+        >
+          Abort
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
