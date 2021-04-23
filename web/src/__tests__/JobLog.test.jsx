@@ -1,10 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import JobLog from 'components/commons/JobLog';
-import { jobLogMock, jobMock } from 'testData';
-import { storeFactory } from 'functions/testUtils';
-// import { getTimeCreatedAgo, parseDurationInSeconds } from 'functions/dataParserHelpers';
-import jobActions from 'components/ExperimentDetails/actions';
+import { jobMock } from 'testData';
+import b64toBlob from 'b64-to-blob';
+import { sleep, storeFactory } from 'functions/testUtils';
 import { MemoryRouter as Router } from 'react-router-dom';
 import dayjs from 'dayjs';
 import durationModule from 'dayjs/plugin/duration';
@@ -15,7 +14,12 @@ dayjs.extend(relativeModule);
 
 const jobLogResponse = {
   ok: true,
-  blob: async () => jobLogMock,
+  blob: async () => {
+    const contentType = 'img/png';
+    const b64Data = 'YWphamFqYWphamFqYWphamFqYWpqYQ==';
+
+    return b64toBlob(b64Data, contentType);
+  },
 };
 
 const store = storeFactory({
@@ -27,7 +31,7 @@ const store = storeFactory({
 });
 
 const setup = () => {
-  jobActions.getJobLog = jest.fn(() => new Promise((resolve) => resolve(jobLogResponse)));
+  jest.spyOn(global, 'fetch').mockImplementation(() => new Promise((resolve) => resolve(jobLogResponse)));
   const wrapper = mount(
     <Router>
       <JobLog projectId={14448940} store={store} job={jobMock} currentState="" />
@@ -43,7 +47,9 @@ describe('assert that component includes information about job', () => {
     wrapper = setup();
   });
 
-  test('main info', () => {
+  test('main info', async () => {
+    await sleep(200);
+    wrapper.setProps({});
     const { created_at: createdAt } = jobMock;
 
     const jobTimeCreatedAgo = dayjs(createdAt).fromNow();
@@ -51,9 +57,16 @@ describe('assert that component includes information about job', () => {
 
     expect(titleText.includes(jobMock.id)).toBe(true);
     expect(titleText.includes(jobTimeCreatedAgo)).toBe(true);
+
+    const logLine = wrapper.find('div.log-line');
+    expect(logLine).toHaveLength(1);
+
+    expect(logLine.children().at(1).text()).toBe('ajajajajajajajajajajja');
   });
 
-  test('additional info', () => {
+  test('additional info', async () => {
+    await sleep(200);
+    wrapper.setProps({});
     const { duration, runner } = jobMock;
 
     expect(wrapper.find('[data-testid="duration"]').text()
@@ -61,5 +74,9 @@ describe('assert that component includes information about job', () => {
     expect(wrapper.find('[data-testid="pipeline"]').text().includes(jobMock.pipeline.id));
     expect(wrapper.find('[data-testid="runner"]').text().includes(runner.description));
     expect(wrapper.find('[data-testid="runner"]').text().includes(runner.id));
+  });
+
+  afterEach(() => {
+    global.fetch.mockClear();
   });
 });

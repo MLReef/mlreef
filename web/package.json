@@ -63,6 +63,7 @@
     "@storybook/react": "^6.1.11",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.1.4",
+    "b64-to-blob": "^1.2.19",
     "babel-jest": "^24.9.0",
     "cypress": "^4.5.0",
     "dayjs": "^1.10.4",
