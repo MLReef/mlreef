@@ -56,7 +56,6 @@ class QueryBuilder<T>(
     private val currentGroupingSelections = mutableListOf<Selection<*>>()
     private val currentGroupingList = mutableListOf<Expression<*>>()
 
-
     private var limit: Int? = null
     private var offset: Int? = null
 
@@ -86,14 +85,17 @@ class QueryBuilder<T>(
     fun select(page: Pageable?, distinct: Boolean? = null): Page<T> {
         if (grouping) throw RuntimeException("Grouping query builder. Use 'grouping=false' in constructor or selectGrouped() method instead")
 
-        if (page != null) {
-            this.withLimit(page.pageSize)
-            this.withOffset(page.pageNumber)
-            this.orderBy(page.sort)
+        page?.takeIf { it.isPaged }?.let {
+            this.withLimit(it.pageSize)
+            this.withOffset(it.pageNumber * it.pageSize)
+            this.orderBy(it.sort)
         }
 
         val content = this.select(distinct)
-        val pageable = if (page != null) PageRequest.of(page.pageNumber, page.pageSize, page.sort) else Pageable.unpaged()
+
+        val pageable = page?.takeIf { it.isPaged }?.let {
+            PageRequest.of(it.pageNumber, it.pageSize, it.sort)
+        } ?: Pageable.unpaged()
 
         return PageImpl<T>(content, pageable, this.count(distinct))
     }
