@@ -13,13 +13,15 @@ const getProjectPipelines = (id) => dataPipeApi.getProjectPipelines(id)
 
 const getJobInfo = (projectId, jobId) => jobsApi.getJobById(projectId, jobId);
 
-const getJobLog = (projectId, jobId) => jobsApi.getLog(projectId, jobId);
-
-
 const getExperimentDetails = (backendId, experimentId) => experimentApi
   .getExperimentDetails(backendId, experimentId);
 
 const getJobsPerProject = (projectId) => jobsApi.getPerProject(projectId);
+
+const getJobsByPipeline = (
+  gitlabProjId, 
+  pipelineId
+) => jobsApi.getJobsByPipelineId(gitlabProjId, pipelineId);
 
 export const parseLine = (line) => {
   let classList = 'line-span';
@@ -50,7 +52,7 @@ export const parseLine = (line) => {
 export default {
   getProjectPipelines,
   getJobInfo,
-  getJobLog,
+  getJobsByPipeline,
   getExperimentDetails,
   getJobsPerProject
 };

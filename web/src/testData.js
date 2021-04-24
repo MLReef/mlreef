@@ -2417,6 +2417,14 @@ export const experimentMock = {
     ref: 'experiment/kind-kraken_1062020',
     updatedAt: '2020-06-10T15:08:19.505Z',
   },
+  pipeline_job_info: {
+    commitSha: 'abd778adfa9b53f02d903c6c03fbd7ba03e113c1',
+    createdAt: '2020-06-10T15:06:51.382Z',
+    finishedAt: '2020-06-10T15:08:36.583Z',
+    id: 26,
+    ref: 'experiment/kind-kraken_1062020',
+    updatedAt: '2020-06-10T15:08:19.505Z',
+  },
   postProcessing: [],
   processing: {
     slug: 'resnet50',

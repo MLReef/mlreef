@@ -38,17 +38,24 @@ export const ExperimentDetails = (props) => {
   const experimentName = experiment.name;
   const uniqueName = experimentName && experimentName.split('/')[1];
   const experimentJob = jobs.filter((job) => job.ref === experiment.name)[0];
+
   useEffect(() => {
-    if (id && gid) {
+    if (id && experimentId) {
       actions.getExperimentDetails(id, experimentId)
         .then((res) => setExperiment(res))
         .catch(() => toastr.error('Error', 'Could not fetch the experiment'));
+    }
+  }, [id, experimentId]);
 
-      actions.getJobsPerProject(gid)
-        .then((js) => setJobs(js))
+  useEffect(() => {
+    if (pipelineInfo?.id) {
+      actions.getJobsByPipeline(gid, pipelineInfo.id)
+        .then((js) => {
+          setJobs(js);
+        })
         .catch((err) => toastr.error('Error', err.message));
     }
-  }, [gid, id, experimentId]);
+  }, [pipelineInfo]);
 
   const breadcrumbs = useMemo(
     () => [

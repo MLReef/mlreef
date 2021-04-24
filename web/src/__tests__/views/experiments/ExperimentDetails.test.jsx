@@ -9,14 +9,14 @@ import { MemoryRouter } from 'react-router-dom';
 
 const getExperimentDetailsMock = jest.fn(() => new Promise((resolve) => resolve(experimentMock)));
 
-const getJobsPerProjectMock = jest.fn(
+const getJobsByPipelineMock = jest.fn(
   () => new Promise((resolve) => resolve([{ ...jobMock, ref: experimentMock.name }])),
 );
 
 const setup = () => {
   const store = storeFactory({ projects: projectsArrayMock.projects });
   actions.getExperimentDetails = getExperimentDetailsMock;
-  actions.getJobsPerProject = getJobsPerProjectMock;
+  actions.getJobsByPipeline = getJobsByPipelineMock;
   const match = { params: { namespace: 'namespace', slug: 'some-slug', experimentId: '8789890-890890-89089' } };
   return mount(
     <MemoryRouter>
@@ -43,7 +43,8 @@ describe('test the UI and functionality', () => {
   });
 
   test('assert that life cycle methods call fetch data correctly', () => {
+    wrapper.setProps({});
     expect(getExperimentDetailsMock).toHaveBeenCalled();
-    expect(getJobsPerProjectMock).toHaveBeenCalled();
+    expect(getJobsByPipelineMock).toHaveBeenCalled();
   });
 });
