@@ -7,7 +7,7 @@ import MRadio from 'components/ui/MRadio';
 import './executePipeLineModal.scss';
 import MSelect from 'components/ui/MSelect';
 import { ALGORITHM, OPERATION, VISUALIZATION } from 'dataTypes';
-import createExperimentInProject, { randomNameGenerator, createPipelineInProject } from '../../../../functions/pipeLinesHelpers';
+import { randomNameGenerator, createExperimentInProject, createPipelineInProject } from '../../../../functions/pipeLinesHelpers';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from '../DataPipelineHooks/actions';
 
@@ -68,7 +68,6 @@ const ExecutePipelineModal = (props) => {
   } = operationsMetaData[type];
   const pipelineType = type === OPERATION ? 'DATA' : 'VISUALIZATION';
   const branchName = `${commandName}/${uniqueName}`;
-  const generatedOperationName = `${commandName}/${uniqueName}`;
   function cleanForm() {
     setIsFirstOptSelected(false);
     setIsSecondOptSelected(false);
@@ -221,7 +220,7 @@ const ExecutePipelineModal = (props) => {
           {section === 2 && (
           <div className="execute-pipeline-modal-section2">
             <p>
-              {`${prettyName}: ${generatedOperationName}`}
+              {`${prettyName}`}
             </p>
             <div className="execute-pipeline-modal-section2-status mt-4">
               <MProgressBar color="info" />
@@ -232,7 +231,7 @@ const ExecutePipelineModal = (props) => {
                 <b> “Insights/Jobs”</b>
               </p>
               <p className="t-center">
-                {`or jump directly to your newly created instance ${generatedOperationName}`}
+                or jump directly to your newly created instance
               </p>
             </div>
           </div>
@@ -240,8 +239,9 @@ const ExecutePipelineModal = (props) => {
         </div>
         <div className="modal-actions">
           <div className="row w-100 mx-4 mb-3">
-            <div className="col-6 t-left" style={{ display: 'flex', width: '50%' }}>
+            <div className="d-flex w-50 col-6 t-left">
               <button
+                id="return-to-pipes"
                 type="button"
                 className="btn btn-outline-dark"
                 onClick={() => cleanForm()}

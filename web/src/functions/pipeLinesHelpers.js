@@ -62,7 +62,7 @@ export const createPipelineInProject = (
  * @param {*} branchSelected: gitlab branch in which files will be read
  * @param {*} filesSelectedInModal: files that will be used as input for models or operations
  */
-const createExperimentInProject = (
+export const createExperimentInProject = (
   dataOperationsSelected,
   backendId,
   branchName,
@@ -93,7 +93,6 @@ const createExperimentInProject = (
     .then((experiment) => expApi.startExperiment(backendId, experiment.id))
   )[0];
 
-export default createExperimentInProject;
 
 /* ---------------------------  ----------------------------------  ------------------------------*/
 

@@ -41,7 +41,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   } = props;
   const [filePath, setFilepath] = useState('');
   const [jobs, setJobs] = useState([]);
-  const [branchSelected, setBranchSelected] = useState(initialBranch || defaultBranch);
+  const [branchSelected, setBranchSelected] = useState(defaultBranch);
   const [showReturnOption, setShowReturnOption] = useState(false);
   const [files, setfiles] = useState(null);
   const unmounted = useMount();
@@ -51,7 +51,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
       gid,
       path,
       initialCommit,
-      branchSelected,
+      initialBranch || branchSelected,
       initialFiles,
     )
       .then((filesRes) => actions.handleFiles(filesRes, initialFiles))
@@ -60,9 +60,9 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
         if (initialFiles.length > 0) {
           dispatch({
             type: UPDATE_FILES_SELECTED_IN_MODAL,
-            filesSelectedInModal: newfilesSelected,
+            filesSelectedInModal: newfilesSelected.filter((f) => f.checked),
           });
-          dispatch({ type: SET_BRANCH_SELECTED, initialBranch });
+          dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
         }
       })
       .catch((err) => toastr.error('Error', err.message));

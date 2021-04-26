@@ -74,6 +74,9 @@ describe('pass initial files', () => {
     const checkedFiles = checkBoxesProps.filter((f) => f.checked).length;
     expect(disabledFiles.length).toBe(filesMock.length - 1);
     expect(checkedFiles).toBe(1);
+    wrapper.find('button#accept').simulate('click');
+    expect(dispatchMock.mock.calls[3][0].filesSelectedInModal.length).toBe(1);
+    expect(dispatchMock.mock.calls[4][0].branchSelected).toBe('master');
   });
 
   afterEach(() => {
