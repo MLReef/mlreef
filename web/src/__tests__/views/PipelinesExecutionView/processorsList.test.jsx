@@ -5,9 +5,11 @@ import ProcessorsList, { Processor } from 'components/views/PipelinesExecutionVi
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
 import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
 
+const dispatchMock = jest.fn();
+
 const mockUseReducer = [
   { ...initialState, currentProcessors: dataPipeLines },
-  jest.fn(),
+  dispatchMock,
 ];
 
 const setup = () => mount(
@@ -22,6 +24,7 @@ const setupProcessor = () => mount(
   <DataPipelinesContext.Provider value={mockUseReducer}>
     <Processor
       processorData={mockedProcessor}
+      dispatch={dispatchMock}
     />
   </DataPipelinesContext.Provider>,
 );
@@ -49,5 +52,15 @@ describe('test specific features in processor comp', () => {
     expect(titleContent.text()).toBe(mockedProcessor.name);
     expect(wrapper.find('.processor-content > p').text()).toBe(mockedProcessor.description);
     expect(imageIcon.find('.mr-2 > fa-images'));
+  });
+
+  test('assert that double click triggers a select data pipe', () => {
+    wrapper.find('div.data-operations-list-item').simulate('doubleclick');
+    expect(dispatchMock.mock.calls).toHaveLength(3);
+    expect(dispatchMock.mock.calls[0][0])
+      .toStrictEqual({ type: 'SET_PROCESSOR_SELECTED', processorData: mockedProcessor });
+    expect(dispatchMock.mock.calls[1][0]).toStrictEqual({ type: 'ADD_NEW_PROCESSOR' });
+    expect(dispatchMock.mock.calls[2][0])
+      .toStrictEqual({ type: 'SET_PROCESSOR_SELECTED', processorData: null });
   });
 });
