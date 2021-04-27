@@ -56,16 +56,14 @@ const ProjectContainer = (props) => {
 
           {(isDataProject && !isEmptyProject) && (
             <>
-              <AuthWrapper className="tab-disabled">
-                <Link
-                  onClick={forceShowExperimentList}
-                  to={`/${namespace}/${slug}/-/experiments`}
-                  className="feature"
-                  id="experiments"
-                >
-                  Experiments
-                </Link>
-              </AuthWrapper>
+              <Link
+                onClick={forceShowExperimentList}
+                to={`/${namespace}/${slug}/-/experiments`}
+                className="feature"
+                id="experiments"
+              >
+                Experiments
+              </Link>
               <AuthWrapper className="tab-disabled">
                 <Link to={`/${namespace}/${slug}/insights/-/jobs`} className="feature" id="insights">
                   Insights

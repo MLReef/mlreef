@@ -1,3 +1,5 @@
+import { generateColor } from 'functions/helpers';
+
 const parseExperiments = (exps) => {
   const expWithMetrics = exps.find((exp) => exp.jsonBlob);
   const jsonBlob = expWithMetrics && JSON.parse(expWithMetrics.jsonBlob);
@@ -63,7 +65,7 @@ const parseExperiments = (exps) => {
         x: 1,
         y: 1 + i,
         type: 'label',
-        color: `hsl(${25 + (400 * i) / 7}, 85%, 50%)`,
+        color: generateColor(i),
         value: exp.name,
       },
       {

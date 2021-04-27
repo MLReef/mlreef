@@ -92,3 +92,14 @@ export const fixHostname = (url) => {
 };
 
 export const toCamelCase = (stringEl) => `${stringEl[0].toUpperCase()}${stringEl.substr(1, stringEl.length - 1).toLowerCase()}`;
+
+export const generateColor = (i) => {
+  const div = 7;
+  const initial = 30; // orange
+  const offset = 13;
+  const laps = Math.floor(i / div);
+  const prev = (initial + (360 * i) / div) + (laps * offset);
+  const hue = Math.round(prev % 360);
+
+  return `hsl(${hue}, 90%, 50%)`;
+};

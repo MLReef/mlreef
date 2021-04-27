@@ -7,6 +7,7 @@ import React, {
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import MSimpleSelect from 'components/ui/MSimpleSelect';
+import { generateColor } from 'functions/helpers';
 
 const Plot = React.lazy(() => import('customImports/ReactPlotly'));
 
@@ -66,7 +67,7 @@ const ExperimentTableOverallGraph = (props) => {
       name: exp.name,
       line: {
         width: 2,
-        color: `hsl(${25 + (400 * i) / 7}, 85%, 50%)`,
+        color: generateColor(i),
       },
       y: exp.data[label] || [],
     })),
