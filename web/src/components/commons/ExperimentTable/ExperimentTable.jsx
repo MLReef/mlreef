@@ -136,7 +136,7 @@ const ExperimentTable = (props) => {
   return (
     <div className={cx('experiment-table-container', className)} style={style}>
       <MAccordion>
-        <MAccordion.Item title={tabs[0].title} subtitle={tabs[0].subtitle} defaultExpanded>
+        <MAccordion.Item title={tabs[0].title} subtitle={tabs[0].subtitle}>
           <ExperimentTableOverall
             experiments={experiments}
             onUpdateExperiments={onUpdateExperiments}
@@ -146,7 +146,7 @@ const ExperimentTable = (props) => {
             actions={actions}
           />
         </MAccordion.Item>
-        <MAccordion.Item title={tabs[1].title} subtitle={tabs[1].subtitle}>
+        <MAccordion.Item title={tabs[1].title} subtitle={tabs[1].subtitle} defaultExpanded>
           <div className="experiment-table-header">
             <ExperimentTableFilters
               rows={data}
