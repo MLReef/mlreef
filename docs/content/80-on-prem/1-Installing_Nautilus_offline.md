@@ -44,8 +44,18 @@ bin/build-run-nautilus-offline -d mlreef-images-tar -s localhost:10010/simple
 bin/build-run-nautilus-offline -d mlreef-images-tar -s https://python.example.com/
 
 ```
+This will start up a local instance of mlreef with persistent docker volumes named `mlreef-opt`, `mlreef-etc`,
+and `mlreefdb-opt` containing all user data. The container comes up with a default runner running on same docker network on localhost.
 
-The container comes up with a default runner running on same docker network on localhost.
+In order to run MLReef Nautilus locally with local volume binding, you will have to replace docker volumes in `docker run` command of `bin/build-run-nautilus-offline` script with persistent data volumes. 
+
+Example:
+```
+  --volume /root/mlreef-gitlab-opt:/var/opt/gitlab   \
+  --volume /root/mlreef-gitlab-etc:/etc/gitlab       \
+  --volume /root/mlreefdb-opt:/var/opt/mlreef        \
+
+```
 
 **Notes for pip server in offline mode:**
 

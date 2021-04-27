@@ -151,6 +151,8 @@ if [ $projectId == "null" ]; then
 fi
 echo "Project Id: $projectId" 
 
+log "Default mlreef project created"
+
 # Local EPF image upload
 export MLREEF_DOCKER_REGISTRY_USER=root
 

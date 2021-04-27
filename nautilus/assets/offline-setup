@@ -55,9 +55,9 @@ fi
 
 
 log "Ensuring availability of the Backend to start"
-until [ "$(checkBackendPort /)" = "200" ]; do
+until [ "$(checkBackendPort)" = "200" ]; do
   printf '.'
   sleep 5;
 done
-log "Expecting code 200; received: $(checkBackendPort /)"
+log "Expecting code 200; received: $(checkBackendPort)"
 
