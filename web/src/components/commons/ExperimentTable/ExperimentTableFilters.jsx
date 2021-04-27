@@ -34,7 +34,7 @@ const ExperimentTableFilters = (props) => {
       running: filterRowsByStatus(rows, 'running').length,
       success: filterRowsByStatus(rows, 'success').length,
       failed: filterRowsByStatus(rows, 'failed').length,
-      cancelled: filterRowsByStatus(rows, 'cancelled').length,
+      canceled: filterRowsByStatus(rows, 'canceled').length,
     }),
     [rows],
   );
@@ -91,14 +91,14 @@ const ExperimentTableFilters = (props) => {
       </button>
       <button
         type="button"
-        className={cx('btn btn-switch btn-sm mr-2 px-3', { active: active === 'cancelled' })}
-        onClick={handleClick('cancelled')}
+        className={cx('btn btn-switch btn-sm mr-2 px-3', { active: active === 'canceled' })}
+        onClick={handleClick('canceled')}
       >
         <span className="mr-1">
-          {counter.cancelled}
+          {counter.canceled}
         </span>
         <span className="experiment-table-filters-btn-label">
-          Cancelled
+          Canceled
         </span>
       </button>
     </div>
