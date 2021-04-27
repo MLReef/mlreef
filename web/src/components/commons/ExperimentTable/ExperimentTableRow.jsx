@@ -35,7 +35,7 @@ const ExperimentTableRow = (props) => {
 
   const { pathname } = useLocation();
 
-  const [panelExpanded, setPanelExpanded] = useState(false);
+  const [panelExpanded, setPanelExpanded] = useState(!index);
 
   const selected = useMemo(
     () => selectedRows.includes(uuid),
