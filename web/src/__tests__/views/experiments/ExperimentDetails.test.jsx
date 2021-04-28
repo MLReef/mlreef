@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ExperimentDetail from 'components/ExperimentDetails/ExperimentDetail';
-import actions from 'components/ExperimentDetails/actions';
+import ExperimentDetail from 'components/views/ExperimentDetails/ExperimentDetail';
+import actions from 'components/views/ExperimentDetails/actions';
 import { experimentMock, jobMock, projectsArrayMock } from 'testData';
 import { storeFactory } from 'functions/testUtils';
 import { Provider } from 'react-redux';

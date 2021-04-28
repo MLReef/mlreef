@@ -41,13 +41,13 @@ const setup = () => {
   return wrapper;
 };
 
-describe('assert that component includes information about job', () => {
+describe('test minimal and additional info is displayed', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
   });
 
-  test('main info', async () => {
+  test('assert that general project info is included', async () => {
     await sleep(200);
     wrapper.setProps({});
     const { created_at: createdAt } = jobMock;

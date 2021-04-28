@@ -2,10 +2,10 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
+import Insights from 'components/views/ExperimentInsights/ExperimentInsights';
 
 import { projectsArrayMock } from '../testData';
 import { storeFactory } from '../functions/testUtils';
-import Insights from '../components/insights/insights';
 
 const match = {
   path: '/my-projects/:projectId/insights/-/jobs',

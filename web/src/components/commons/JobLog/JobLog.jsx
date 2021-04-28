@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import durationModule from 'dayjs/plugin/duration';
 import { toastr } from 'react-redux-toastr';
 import { Link } from 'react-router-dom';
-import { parseLine } from 'components/ExperimentDetails/actions';
+import { parseLine } from 'components/views/ExperimentDetails/actions';
 import JobsApi from 'apis/JobsApi';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import './JobLog.scss';

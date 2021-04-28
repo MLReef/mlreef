@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import renderer from 'react-test-renderer';
-import DetailSummary from 'components/ExperimentDetails/MenuOptions/DetailSummary';
+import DetailSummary from 'components/views/ExperimentDetails/MenuOptions/DetailSummary';
 import { RUNNING } from 'dataTypes';
 
 const mockPush = jest.fn();

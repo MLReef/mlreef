@@ -1,4 +1,4 @@
-import { parseLine } from 'components/ExperimentDetails/actions';
+import { parseLine } from 'components/views/ExperimentDetails/actions';
 import experimentActions from 'components/experiments-overview/ExperimentActions';
 import { backendExperiments, jobLogMock } from 'testData';
 
