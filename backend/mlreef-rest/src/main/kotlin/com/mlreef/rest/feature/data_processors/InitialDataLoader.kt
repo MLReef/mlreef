@@ -73,14 +73,14 @@ class InitialDataLoader {
                 dockerImage = "tensorflow/tensorflow:2.1.0-gpu-py3"
                 description = "GPU nvidia drivers and TF 2.1, compatible python 3.6-3.8"
                 requirements = """
-                                Ubuntu
-                                python3
+                                Ubuntu 20.04
+                                python 3.6.9
                                 tensorflow-gpu 2.1.0
                                 CUDA 10.1
                                 CUDNN 7
                 """.trimMargin()
                 machineType = PublishingMachineType.GPU
-                sdkVersion = "3.6"
+                sdkVersion = "3.6.9"
             }
 
             // ############## OPERATION
