@@ -4,11 +4,11 @@ import {
 } from 'prop-types';
 import { FAILED, SUCCESS } from 'dataTypes';
 import FileSaver from 'file-saver';
+import { INFORMATION_UNITS } from 'domain/informationUnits';
 import { toastr } from 'react-redux-toastr';
 import iconGrey from 'images/icon_grey-01.png';
-import FilesTable from '../../files-table/filesTable';
-import JobsApi from '../../../apis/JobsApi.ts';
-import { INFORMATION_UNITS } from 'domain/informationUnits';
+import FilesTable from 'components/files-table/filesTable';
+import JobsApi from 'apis/JobsApi.ts';
 
 /**
  * @param {*} numberOfUnits: number of bytes to transform

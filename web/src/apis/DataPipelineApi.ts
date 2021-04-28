@@ -29,7 +29,11 @@ export default class DataPiplineApi extends ApiDirector {
    */
   getProjectPipelines(projectUUID: number) {
     const url = `/api/v1/data-projects/${projectUUID}/pipelines`;
-    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.BACKEND), url);
+    const builder = new BLApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      url,
+    );
 
     return fetch(builder.build())
       .then(handleResponse);

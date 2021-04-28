@@ -4,12 +4,12 @@ import hooks from 'customHooks/useSelectedProject';
 import { shape } from 'prop-types';
 import { generateBreadCrumbs } from 'functions/helpers';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import JobLogById from 'components/insights/insights-menu/jobLogById';
 import TabularData from 'components/commons/TabularData';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
+import Navbar from 'components/navbar/navbar';
+import ProjectContainer from 'components/projectContainer';
+import JobLogById from './InsightMenu/JoblogsById';
 import './insights.scss';
-import Jobs from './insights-menu/jobs';
+import Jobs from './InsightMenu/jobs';
 
 const Insights = (props) => {
   const {

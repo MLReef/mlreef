@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   shape, number, string, arrayOf, func,
@@ -10,19 +10,14 @@ import MBranchSelector from 'components/ui/MBranchSelector';
 import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import commitDetailActions from 'components/commits-details/actionsAndFunctions';
+import CommitsList from 'components/CommitList';
 import actions from './mergeReqActions';
 import ProjectContainer from '../../projectContainer';
 import Navbar from '../../navbar/navbar';
 import './newMergeRequest.css';
 import BranchesApi from '../../../apis/BranchesApi.ts';
 import ImageDiffSection from '../../imageDiffSection/imageDiffSection';
-import CommitsList from '../../CommitList';
-import commitDetailActions from "components/commits-details/actionsAndFunctions";
-
-const imageFormats = [
-  '.png',
-  '.jpg',
-];
 
 const brApi = new BranchesApi();
 

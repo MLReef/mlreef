@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
-  number, shape, string, arrayOf,
+  shape, string, arrayOf,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import { Link } from 'react-router-dom';
@@ -17,12 +17,12 @@ import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import AuthWrapper from 'components/AuthWrapper';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import hooks from 'customHooks/useSelectedProject';
+import CommitsList from 'components/CommitList';
 import MButton from 'components/ui/MButton';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
 import Navbar from '../navbar/navbar';
-import CommitsList from '../CommitList';
 import MergeRequestAPI from '../../apis/MergeRequestApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import ProjectContainer from '../projectContainer';

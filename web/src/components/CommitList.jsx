@@ -3,7 +3,7 @@ import {
   arrayOf, number, shape, string,
 } from 'prop-types';
 import { pluralize } from 'functions/dataParserHelpers';
-import { CommitDiv } from './CommitsView/CommitView';
+import { CommitDiv } from 'components/views/CommitsView/CommitView';
 
 const CommitsList = ({
   commits, users, projectId, changesNumber, namespace, slug, branch

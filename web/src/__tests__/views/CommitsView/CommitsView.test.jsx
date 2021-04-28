@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import CommitsView, { CommitDiv } from 'components/CommitsView/CommitView';
-import actions from 'components/CommitsView/actions';
+import CommitsView, { CommitDiv } from 'components/views/CommitsView/CommitView';
+import actions from 'components/views/CommitsView/actions';
 import { Provider } from 'react-redux';
 import { storeFactory } from 'functions/testUtils';
 import { branchesMock, projectsArrayMock, commitMockObject } from 'testData';

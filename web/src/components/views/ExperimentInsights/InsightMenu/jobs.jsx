@@ -12,7 +12,7 @@ import './jobs.scss';
 import JobsApi from 'apis/JobsApi';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import { determineJobClass } from 'functions/pipeLinesHelpers';
-import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
+import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 
 const timeout = 60 * 1000;
 
@@ -29,12 +29,12 @@ const Jobs = (props) => {
     () => {
       if (id) {
         dataPipeApi.getProjectPipelines(id)
-          .then((backendPipelines) => setBackendPipes(backendPipelines))
-          .then(() => jobsApi.getPerProject(gid))
-          .then((res) => {
-            setFilteredJobs(res);
-            setJobs(res);
-          })
+          .then((backendPipelines) => setBackendPipes(backendPipelines));
+
+        jobsApi.getPerProject(gid).then((res) => {
+          setFilteredJobs(res);
+          setJobs(res);
+        })
           .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
       }
     },

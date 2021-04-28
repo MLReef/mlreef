@@ -14,10 +14,10 @@ import { generateBreadCrumbs } from 'functions/helpers';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
+import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
+import Navbar from 'components/navbar/navbar';
+import ProjectContainer from 'components/projectContainer';
 import './CommitView.scss';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import actions from './actions';
 
 export const UnconnectedCommitsView = (props) => {
