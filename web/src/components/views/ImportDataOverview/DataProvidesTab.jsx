@@ -9,7 +9,7 @@ const iconGrey = '/images/icon_grey-01.png';
 const simulatedPromise = new Promise((resolve) => {
   setTimeout(() => {
     resolve(dataArchives);
-  }, 5000);
+  }, 2000);
 });
 
 const DataProvidersTab = () => {
@@ -17,9 +17,9 @@ const DataProvidersTab = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    simulatedPromise.then((data) => {
-      setDataProvs(data);
-    }).finally(() => setIsLoading(false));
+    simulatedPromise
+      .then((data) => setDataProvs(data))
+      .finally(() => setIsLoading(false));
   });
 
   function renderCardsAndPlaceholders(data, loading) {
@@ -45,6 +45,8 @@ const DataProvidersTab = () => {
             dataTypes={dataProv.dataTypes}
             tags={dataProv.tags}
             starsCount={dataProv.starsCount}
+            avatarUrl={dataProv.avatarUrl}
+            descriptionImage={dataProv.descriptionImage}
           />
         ))}
       />

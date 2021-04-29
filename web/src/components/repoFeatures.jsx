@@ -141,6 +141,11 @@ export class RepoFeatures extends Component {
                     New branch
                   </Link>
                 </li>
+ {/*                <li className="plus-option">
+                  <Link to={`/${namespace}/${slug}/-/import-data/-/overview`}>
+                    Import data
+                  </Link>
+                </li> */}
               </ul>
             )}
           />

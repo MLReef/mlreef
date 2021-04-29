@@ -530,7 +530,7 @@ export default [
   },
   {
     name: 'import-data',
-    path: '/import-data/-/overview',
+    path: '/:namespace/:slug/-/import-data/-/overview',
     exact: true,
     component: ImportDataOverview,
   },

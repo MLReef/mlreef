@@ -1,28 +1,42 @@
-export const dataArchives = [
-  {
-    name: 'Data archive 1',
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. `,
-    dataTypes: [
-      'TEXT',
-      'HIERARCHICAL',
-      'TABULAR',
-      'NUMBER',
-    ],
-    tags: [{ name: 'tag 1' }, { name: 'tag 2' }, { name: 'tag 3' }],
-    starsCount: 2154,
-  },
-  {
-    name: 'Data archive 2',
-    description: `Venenatis eleifend leo sodales ultricies nunc parturient nec platea nisl massa torquent,
-     id laoreet curabitur sagittis elementum mus lacus lacinia magna eros maecenas pulvinar`,
-    dataTypes: [
-      'VIDEO',
-    ],
-    tags: [{ name: 'tag 1' }, { name: 'tag 2' }, { name: 'tag 3' }, { name: 'tag 4' }],
-    starsCount: 1997,
-  },
-];
+export const dataArchives = [{
+  name: 'Sentinel Hub',
+  avatarUrl: 'images/sentinelHub.jpg',
+  description: `We make satellite data(Sentinels, landsat, and other providers)
+      easily accessible for you to be browsed or analyzed,
+      within our cloud GIS or within your own environment`,
+  descriptionImage: 'images/images.png',
+  dataTypes: [
+    'VIDEO',
+    'HIERARCHICAL',
+  ],
+  tags: [
+    { name: 'Earth Observation' },
+    { name: 'Sattelite imagery' },
+    { name: 'Sentinel 1' },
+    { name: 'Sentinel 2' },
+    { name: 'ESA' },
+  ],
+  starsCount: 2154,
+},
+{
+  name: 'Radiant Earth',
+  avatarUrl: 'images/colorSpots.jpg',
+  description: `Radiant Earth Foundation is focused on applying machine learning for
+      Earth observation to meet the Sustainable Development Goals - the world's most critical challenges`,
+  descriptionImage: 'images/picturesRainbow.jpg',
+  dataTypes: [
+    'IMAGE',
+  ],
+  tags: [
+    { name: 'Earth Observation data' },
+    { name: 'EO' },
+    { name: 'NASA' },
+    { name: 'ESA' },
+    { name: 'sattelite imagery' },
+    { name: 'sustainable development goals' },
+  ],
+  starsCount: 1997,
+}];
 
 export const filters = [{
   name: 'Data type',

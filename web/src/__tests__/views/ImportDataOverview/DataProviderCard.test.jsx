@@ -34,10 +34,9 @@ describe('test html elements', () => {
         .text()
         .toLowerCase()
         .trim());
-    expect(projectCardValues[0]).toBe('text');
+    console.log(projectCardValues);
+    expect(projectCardValues[0]).toBe('video');
     expect(projectCardValues[1]).toBe('hier');
-    expect(projectCardValues[2]).toBe('tabular');
-    expect(projectCardValues[3]).toBe('number');
     expect(
       wrapper
         .find('.data-provider-card-container-tags-zone')
