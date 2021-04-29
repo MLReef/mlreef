@@ -19,6 +19,8 @@ import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.ExperimentUpdateException
 import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
+import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.pipeline.YamlFileGenerator
 import com.mlreef.utils.Slugs
 import lombok.RequiredArgsConstructor
@@ -30,6 +32,8 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.annotation.PostConstruct
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +46,7 @@ class ExperimentService(
     private val pipelineInstanceRepository: PipelineInstanceRepository,
     private val processorParameterRepository: ProcessorParameterRepository,
     private val yamlFileGenerator: YamlFileGenerator,
+    private val gitlabRestClient: GitlabRestClient,
 ) {
     @PostConstruct
     fun init() {
@@ -122,7 +127,7 @@ class ExperimentService(
         }
     }
 
-    fun createExperimentFile(author: Account, experiment: Experiment, secret: String): String {
+    fun createExperimentFile(author: Account, experiment: Experiment, secret: String, overrideTargetBranch: String? = null): String {
         val processors: MutableList<DataProcessorInstance> = arrayListOf()
         experiment.getProcessor()?.let { processors.add(it) }
         processors.addAll(experiment.postProcessing)
@@ -138,7 +143,7 @@ class ExperimentService(
             baseImagePath = getExperimentImagePath(),
             epfImageTag = conf.epf.imageTag,
             sourceBranch = experiment.sourceBranch,
-            targetBranch = experiment.targetBranch,
+            targetBranch = overrideTargetBranch ?: experiment.targetBranch,
             dataProcessors = processors,
         )
     }
@@ -166,16 +171,49 @@ class ExperimentService(
             ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, name)
 
 
-    fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo): Experiment =
+    fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo, targetBranch: String? = null): Experiment =
         experiment
             .copy(
                 status = ExperimentStatus.PENDING,
                 pipelineJobInfo = pipelineJobInfo,
+                targetBranch = targetBranch ?: experiment.targetBranch,
             )
             .let { experimentRepository.save(it) }
 
     private fun getExperimentImagePath(): String {
         return conf.epf.experimentImagePath!!
+    }
+
+    fun getTargetBranchForExperiment(experiment: Experiment): String {
+        val dataProject = dataProjectRepository.findByIdOrNull(experiment.dataProjectId)
+            ?: throw NotFoundException(ErrorCode.NotFound, "Data project ${experiment.dataProjectId} not found")
+
+        if (!branchExists(dataProject.gitlabId, experiment.targetBranch)) {
+            return experiment.targetBranch
+        }
+
+        var branchWithNumber = "${experiment.targetBranch}-${experiment.number}"
+
+        if (!branchExists(dataProject.gitlabId, branchWithNumber)) {
+            return branchWithNumber
+        }
+
+        branchWithNumber = "${experiment.targetBranch}-${Random.nextLong().absoluteValue}"
+
+        if (!branchExists(dataProject.gitlabId, branchWithNumber)) {
+            return branchWithNumber
+        }
+
+        throw ExperimentCreateException(ErrorCode.ExperimentCreationDataInstanceMissing, "Cannot create any branch for experiment ${experiment.slug} (${experiment.id})")
+    }
+
+    private fun branchExists(projectId: Long, branch: String): Boolean {
+        return try {
+            gitlabRestClient.adminGetBranch(projectId = projectId, branch = branch)
+            true
+        } catch (ex: Exception) {
+            false
+        }
     }
 
 }

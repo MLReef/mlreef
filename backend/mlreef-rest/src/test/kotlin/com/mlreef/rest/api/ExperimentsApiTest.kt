@@ -11,8 +11,11 @@ import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
+import com.mlreef.rest.exceptions.ErrorCode
+import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -365,6 +368,8 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     fun `Can start own Experiment as gitlab pipeline`() {
         val experiment1 = createExperiment(dataProject.id, dataOp1)
+
+        every { restClient.adminGetBranch(any(), any()) } throws GitlabCommonException(404, ErrorCode.NotFound, "Branch not found exception")
 
         val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", token)
             .andExpect(status().isOk)

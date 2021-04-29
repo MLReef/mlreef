@@ -119,13 +119,25 @@ internal class ExperimentsController(
 
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.PENDING)
 
+        val finalTargetBranch = service.getTargetBranchForExperiment(experiment)
         val secret = pipelineService.createSecret()
-        val fileContent = service.createExperimentFile(experiment = experiment, author = account, secret = secret)
+        val fileContent = service.createExperimentFile(
+            experiment = experiment,
+            author = account,
+            secret = secret,
+            overrideTargetBranch = finalTargetBranch
+        )
 
-        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(userToken = userToken.accessToken, projectGitlabId = dataProject.gitlabId,
-            targetBranch = experiment.targetBranch, fileContent = fileContent, sourceBranch = experiment.sourceBranch, secret = secret)
+        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(
+            userToken = userToken.accessToken,
+            projectGitlabId = dataProject.gitlabId,
+            targetBranch = finalTargetBranch,
+            fileContent = fileContent,
+            sourceBranch = experiment.sourceBranch,
+            secret = secret
+        )
 
-        return service.savePipelineInfo(experiment, pipelineJobInfo)
+        return service.savePipelineInfo(experiment, pipelineJobInfo, finalTargetBranch)
             .pipelineJobInfo!!
             .toDto()
     }
