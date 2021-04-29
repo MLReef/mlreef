@@ -459,6 +459,18 @@ class GitlabRestClient(
             }
     }
 
+    //https://docs.gitlab.com/ee/api/branches.html#get-single-repository-branch
+    fun adminGetBranch(projectId: Long, branch: String): Branch {
+        return GitlabHttpEntity("", createAdminHeaders())
+            .addErrorDescription(404, ErrorCode.GitlabBranchNotExists, "Cannot get branch $branch in project with id $projectId.")
+            .makeRequest {
+                val encodedBranch = URLEncoder.encode(branch, StandardCharsets.UTF_8.name())
+                val url = "$gitlabServiceRootUrl/projects/$projectId/repository/branches/$encodedBranch"
+                restTemplate(builder).exchange(URI(url), HttpMethod.GET, it, Branch::class.java)
+            }
+    }
+
+    //https://docs.gitlab.com/ee/api/branches.html#list-repository-branches
     //GET /projects/:id/repository/branches/:branch
     fun getBranches(token: String, projectId: Long): List<Branch> {
         return GitlabHttpEntity("", createUserHeaders(token))

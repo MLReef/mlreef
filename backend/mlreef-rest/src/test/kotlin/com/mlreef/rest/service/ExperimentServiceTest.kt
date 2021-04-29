@@ -119,6 +119,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             processorVersionRepository = processorVersionRepository,
             processorParameterRepository = processorParameterRepository,
             yamlFileGenerator = yamlFileGenerator,
+            gitlabRestClient = gitlabRestClient,
         )
         val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
