@@ -94,8 +94,24 @@ const buildProjectsRequestBodyV2 = (classifcation1, dTypes = [], minimumStars, p
   return body;
 };
 
-const getProjects = (searchableType, body = {}, page, size) => mlSearchApi
-  .searchPaginated(searchableType, body, page, size)
+const getProjects = (
+  searchableType, 
+  classification1, 
+  selectedDataTypes, 
+  minimumStars, 
+  publishState, 
+  page, 
+  size
+) => mlSearchApi
+  .searchPaginated(searchableType.toUpperCase(), 
+    buildProjectsRequestBodyV2(
+      classification1,
+      getDataTypeNames(dataTypes, selectedDataTypes),
+      minimumStars,
+      getValuesStateOptions(publishState),
+    ),
+    page, 
+    size)
   .then((projsPag) => ({
     ...projsPag,
     projects: mergeGitlabResource(projsPag.content.map(parseToCamelCase)),

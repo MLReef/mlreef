@@ -1,6 +1,6 @@
 import React, {
   useCallback,
-  useContext, useEffect, useMemo, useState,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
@@ -12,9 +12,9 @@ import MBricksWall from 'components/ui/MBricksWall';
 import * as userActions from 'store/actions/userActions';
 import iconGrey from 'images/icon_grey-01.png';
 import MProjectCard from 'components/ui/MProjectCard';
+import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import dashboardActions from './dashBoardActions';
 import { DashboardContext } from './DashboardContext';
-import { dataTypes } from './constants';
 
 const comparingFunctions = {
   0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase() ? 1 : -1), // All
@@ -26,30 +26,61 @@ const ProjectsArraySection = (props) => {
     classification1, classification2, actions, isLoading,
   } = props;
   const [projects, setProjects] = useState([]);
+  const scrolling = useRef(false);
+  const [page, setPage] = useState(0);
+  const isLast = useRef(false);
   const [{
     selectedDataTypes, minimumStars, publishState, sorting,
   }] = useContext(DashboardContext);
 
-  const executeFetch = useCallback(() => dashboardActions.getProjects(
-    classification2.toUpperCase(),
-    dashboardActions.buildProjectsRequestBodyV2(
-      classification1,
-      dashboardActions.getDataTypeNames(dataTypes, selectedDataTypes),
-      minimumStars,
-      dashboardActions.getValuesStateOptions(publishState),
-    ),
-    0,
-    25,
-  ).then((res) => setProjects(res.projects))
+  const fetch = () => dashboardActions.getProjects(
+    classification2,
+    classification1,
+    selectedDataTypes,
+    minimumStars,
+    publishState,
+    page,
+    10,
+  ).then((res) => {
+    scrolling.current = false;
+    isLast.current = res.last;
+    setProjects(
+      page === 0
+        ? res.projects
+        : [...projects, ...res.projects],
+    );
+  })
     .catch((err) => {
       toastr.error('Error', err.message);
     })
-    .finally(() => actions.setIsLoading(false)),
-  [classification1, classification2, selectedDataTypes, dataTypes, minimumStars, publishState]);
+    .finally(() => actions.setIsLoading(false));
+
+  const executeFetch = useCallback(() => {
+    scrolling.current = true;
+    setPage(0);
+    fetch();
+  },
+  [
+    classification1,
+    classification2,
+    selectedDataTypes,
+    minimumStars,
+    publishState,
+  ]);
 
   useEffect(() => {
     executeFetch();
   }, [executeFetch]);
+
+  const executeFetchOnMore = useCallback(() => {
+    scrolling.current = true;
+    fetch();
+  },
+  [page]);
+
+  useEffect(() => {
+    executeFetchOnMore();
+  }, [executeFetchOnMore]);
 
   const sortedProjects = useMemo(
     () => projects.sort(comparingFunctions[sorting]),
@@ -67,31 +98,40 @@ const ProjectsArraySection = (props) => {
       </div>
       <div className="dashboard-v2-content-projects-margin-div">
         {sortedProjects.length > 0 && !isLoading ? (
-          <MBricksWall
-            animated
-            bricks={sortedProjects.map((proj) => (
-              <MProjectCard
-                key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
-                slug={proj.slug}
-                title={proj.name}
-                projectId={proj.gitlabId}
-                description={proj.description}
-                starCount={proj.starsCount || 0}
-                forkCount={proj.forksCount || 0}
-                namespace={proj.gitlabNamespace}
-                updatedAt={proj.lastActivityat}
-                projects={sortedProjects}
-                dataProcessor={proj.dataProcessor}
-                inputDataTypes={proj.inputDataTypes}
-                outputDataTypes={proj.inputDataTypes}
-                users={proj.members}
-                visibility={proj.visibilityScope}
-                owner={proj.ownerId === ''}
-                published={proj.published}
-                classification={classification2}
-              />
-            ))}
-          />
+          <MScrollableSection
+            className="w-100"
+            handleOnScrollDown={() => {
+              if (scrolling.current) return;
+              if (isLast.current) return;
+              setPage(page + 1);
+            }}
+          >
+            <MBricksWall
+              animated
+              bricks={sortedProjects.map((proj) => (
+                <MProjectCard
+                  key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
+                  slug={proj.slug}
+                  title={proj.name}
+                  projectId={proj.gitlabId}
+                  description={proj.description}
+                  starCount={proj.starsCount || 0}
+                  forkCount={proj.forksCount || 0}
+                  namespace={proj.gitlabNamespace}
+                  updatedAt={proj.lastActivityat}
+                  projects={sortedProjects}
+                  dataProcessor={proj.dataProcessor}
+                  inputDataTypes={proj.inputDataTypes}
+                  outputDataTypes={proj.inputDataTypes}
+                  users={proj.members}
+                  visibility={proj.visibilityScope}
+                  owner={proj.ownerId === ''}
+                  published={proj.published}
+                  classification={classification2}
+                />
+              ))}
+            />
+          </MScrollableSection>
         ) : (
           <div className="d-flex noelement-found-div">
             <img src={iconGrey} alt="" style={{ maxHeight: '100px' }} />
