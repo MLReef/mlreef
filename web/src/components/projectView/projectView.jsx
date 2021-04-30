@@ -291,15 +291,11 @@ ProjectView.propTypes = {
   user: shape({
     auth: bool,
   }).isRequired,
-  users: arrayOf(shape({
-    name: string.isRequired,
-  })).isRequired,
   branches: arrayOf(
     shape({
     }).isRequired,
   ).isRequired,
   actions: shape({
-    setSelectedProject: func.isRequired,
     getUsersList: func.isRequired,
   }).isRequired,
 };

@@ -29,68 +29,22 @@ export const mergeGitlabResource = (projects) => projects.map((project) => ({
   members: projectApi.getUsers(project.gitlabId).catch(() => []),
 }));
 
-/**
- *
- * @param {*} projects: load list for redux global state
- */
-
-export function setProjectsInfoSuccessfully(projects) {
-  return { type: types.GET_LIST_OF_PROJECTS, projects };
-}
-
-export function setPaginationInfoSuccessfully(pagination) {
-  return { type: types.SET_PAGINATION_INFO, pagination };
-}
-
-/**
- * @param {*} username: logged in user.
- * @param {*} projects: array of projects to set in the store.
- * @param {*} pagination: pagination information to set in the store.
- * @returns: does not return.
- */
-
-const setInformationInTheStorage = (projects, pagination) => (dispatch) => {
-  dispatch(setProjectsInfoSuccessfully(projects));
-  dispatch(setPaginationInfoSuccessfully(pagination));
-};
 
 /**
  * get list of projects, function changes the API call depending on the user authentication
- */
-/**
  * @param {*} page: number of the page to request
  * @param {*} size: number of the elements to fetch
  */
 
-const buildQuery = (auth, page = 0, size = 10) => `${auth ? '' : '/public'}?page=${page}&size=${size}`;
-
 export const getProjectsList = (page, size) => async (dispatch) => {
-  const { user: { auth }, projects: stateProjects } = store.getState();
-  const finalQuery = buildQuery(auth, page, size);
-  const { projects, pagination } = await projectApi.getProjectsList(finalQuery)
-    .then(handlePaginationWithAdditionalInfo)
-    .then((projsPag) => ({ ...projsPag, projects: mergeGitlabResource(projsPag.content) }));
-
-  const completeArrayOfProjects = page > 0 ? [...stateProjects.all, ...projects] : projects;
-  setInformationInTheStorage(completeArrayOfProjects, pagination)(dispatch);
+  const { user: { auth } } = store.getState();
+  projectApi.getProjectsList(`${auth ? '' : '/public'}?page=${page}&size=${size}`)
+    .then((paginatedResponse) => paginatedResponse.content.map(parseToCamelCase))
+    .then(mergeGitlabResource)
+    .then((projects) => dispatch({ type: types.GET_LIST_OF_PROJECTS, projects }));
 };
 
-export function setSelectedProjectSuccesfully(project) {
-  return { type: types.SET_SELECTED_PROJECT, project };
-}
-
 /**
- * Set the project selected by user in project state so it can be accessed anywhere
- */
-
-export function setSelectedProject(projectSelected) {
-  return (dispatch) => {
-    dispatch(setSelectedProjectSuccesfully(projectSelected));
-  };
-}
-
-/**
- *
  * @param {*} projects: load list for redux global state
  */
 
@@ -106,11 +60,6 @@ export function getUsersList(projectId) {
   return (dispatch) => projectApi
     .getUsers(projectId)
     .then((users) => dispatch(setProjUsersSuccessfully(users)));
-}
-
-export function getProjectDetails(id) {
-  return (dispatch) => projectApi.getProjectInfoApi(id)
-    .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
 
 /**
@@ -142,7 +91,7 @@ export function getProjectDetailsBySlug(namespace, slug) {
     .then(mergeWithGitlabProject)
     .then(parseToCamelCase)
     .then(adaptProjectModel)
-    .then((project) => dispatch(setSelectedProjectSuccesfully(project)));
+    .then((project) => dispatch({ type: types.SET_SELECTED_PROJECT, project }));
 }
 
 /**
@@ -154,7 +103,7 @@ export function removeProject(id) {
   return (dispatch) => projectApi.removeProject(id)
     .then(() => {
       // clean selectedProject after stack is executed to avoid proptypes warinings
-      setTimeout(() => dispatch(setSelectedProjectSuccesfully({})), 0);
+      setTimeout(() => dispatch({ type: types.SET_SELECTED_PROJECT, project: {}}), 0);
     });
 }
 

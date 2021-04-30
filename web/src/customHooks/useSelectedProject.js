@@ -1,10 +1,11 @@
 import { useSelector, useDispatch } from 'react-redux';
 import ProjectApi from 'apis/ProjectGeneralInfoApi';
-import { mergeWithGitlabProject, setSelectedProjectSuccesfully } from 'store/actions/projectInfoActions';
+import { mergeWithGitlabProject } from 'store/actions/projectInfoActions';
 import { adaptProjectModel, parseToCamelCase } from 'functions/dataParserHelpers';
 import { useEffect, useState } from 'react';
 import { setGlobalMarkerColor } from 'store/actions/userActions';
 import { calculateColor } from 'components/projectView/projectView';
+import { SET_SELECTED_PROJECT } from 'store/actionTypes';
 
 const projectApi = new ProjectApi();
 
@@ -23,11 +24,11 @@ export const useSelectedProject = (namespace, slug) => {
           .then(mergeWithGitlabProject)
           .then(parseToCamelCase)
           .then(adaptProjectModel)
-          .then((proj) => {
-            dispatch(setSelectedProjectSuccesfully(proj));
-            dispatch(setGlobalMarkerColor(calculateColor(proj)));
+          .then((project) => {
+            dispatch({ type: SET_SELECTED_PROJECT, project });
+            dispatch(setGlobalMarkerColor(calculateColor(project)));
 
-            setFinalSelectedProject(proj);
+            setFinalSelectedProject(project);
             setIsFetching(false);
           });
       }
