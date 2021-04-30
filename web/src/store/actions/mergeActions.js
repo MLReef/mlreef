@@ -33,9 +33,7 @@ export function getMergeRequestsList(projectId) {
 
         return mrs;
       },
-    ).catch((err) => {
-      throw err;
-    });
+    )
 }
 
 export function updateMergeRequest(gid, iid, payload) {
