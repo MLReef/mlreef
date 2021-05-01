@@ -7,7 +7,9 @@ import {
 import './groupCard.scss';
 import iconGrey from 'images/icon_grey-01.png';
 import personAvatar from 'images/personAvatar.png';
-import actions from './GroupActions';
+import GroupsApi from 'apis/GroupApi';
+
+const grApi = new GroupsApi();
 
 const GroupCard = ({
   groupId,
@@ -18,7 +20,7 @@ const GroupCard = ({
 }) => {
   const [members, setMembers] = useState([]);
   useEffect(() => {
-    actions.getGroupUsers(groupId)
+    grApi.getUsers(groupId)
       .then(setMembers)
       .catch(() => toastr.error('Error', `Group ${groupName} members coud not be fetched`));
   }, [groupId, groupName]);

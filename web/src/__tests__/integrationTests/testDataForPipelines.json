@@ -1,0 +1,1592 @@
+{
+  "backendPipes": [
+    {
+      "id": "bf59ce38-2dc3-4cba-a02a-7ca3d436c69a",
+      "pipeline_type": "DATA",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-pipeline-childish-dolphin-23042021225115",
+      "name": "data-pipeline/childish-dolphin-23042021225115",
+      "source_branch": "data-pipeline/gentle-warwhal-18012021223245-1",
+      "target_branch_pattern": "data-pipeline/childish-dolphin-23042021225115-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "commons-color-modifier",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "Data input, path to the images used for transformation"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save images"
+            },
+            {
+              "name": "brightness",
+              "value": "0.5",
+              "type": "FLOAT",
+              "required": false,
+              "description": "Brightness value"
+            },
+            {
+              "name": "contrast",
+              "value": "0.5",
+              "type": "FLOAT",
+              "required": false,
+              "description": "contrast value"
+            },
+            {
+              "name": "saturation",
+              "value": "2.1",
+              "type": "FLOAT",
+              "required": false,
+              "description": "saturation value"
+            }
+          ],
+          "id": "18dcc1a2-86ef-42df-89b3-f55faa3e77c2",
+          "name": "Color modifier"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "4fe39b9e-8dd9-44e2-99b6-f4e5e761ce82",
+          "pipeline_type": "DATA",
+          "pipeline_config_id": "bf59ce38-2dc3-4cba-a02a-7ca3d436c69a",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-pipeline-childish-dolphin-23042021225115-1",
+          "name": "data-pipeline/childish-dolphin-23042021225115",
+          "source_branch": "data-pipeline/gentle-warwhal-18012021223245-1",
+          "target_branch": "data-pipeline/childish-dolphin-23042021225115-1",
+          "data_operations": [
+            {
+              "slug": "commons-color-modifier",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "Data input, path to the images used for transformation"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save images"
+                },
+                {
+                  "name": "brightness",
+                  "value": "0.5",
+                  "type": "FLOAT",
+                  "required": false,
+                  "description": "Brightness value"
+                },
+                {
+                  "name": "contrast",
+                  "value": "0.5",
+                  "type": "FLOAT",
+                  "required": false,
+                  "description": "contrast value"
+                },
+                {
+                  "name": "saturation",
+                  "value": "2.1",
+                  "type": "FLOAT",
+                  "required": false,
+                  "description": "saturation value"
+                }
+              ],
+              "id": "50e7144c-8b4f-4d95-aa22-b5ff37021888",
+              "name": "Color modifier"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "CREATED",
+          "pipeline_job_info": null
+        }
+      ]
+    },
+    {
+      "id": "a3fe17ee-8e45-4231-b442-1d1acb142df4",
+      "pipeline_type": "DATA",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-pipeline-fit-dolphin-18012021215828",
+      "name": "data-pipeline/fit-dolphin-18012021215828",
+      "source_branch": "master",
+      "target_branch_pattern": "data-pipeline/fit-dolphin-18012021215828-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "commons-create-thumbnails",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "Data input, path to the images used for transformation"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save images"
+            },
+            {
+              "name": "size",
+              "value": "128",
+              "type": "INTEGER",
+              "required": false,
+              "description": "size of thumbnail width = height"
+            }
+          ],
+          "id": "1309e9f1-187d-4710-a612-022f72ef99f3",
+          "name": "Create Thumbnaills"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "c34da493-5965-48a6-ba90-cfcbd2825601",
+          "pipeline_type": "DATA",
+          "pipeline_config_id": "a3fe17ee-8e45-4231-b442-1d1acb142df4",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-pipeline-fit-dolphin-18012021215828-1",
+          "name": "data-pipeline/fit-dolphin-18012021215828",
+          "source_branch": "master",
+          "target_branch": "data-pipeline/fit-dolphin-18012021215828-1",
+          "data_operations": [
+            {
+              "slug": "commons-create-thumbnails",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "Data input, path to the images used for transformation"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save images"
+                },
+                {
+                  "name": "size",
+                  "value": "128",
+                  "type": "INTEGER",
+                  "required": false,
+                  "description": "size of thumbnail width = height"
+                }
+              ],
+              "id": "84412e5a-1cd6-488a-b11d-36df104d5def",
+              "name": "Create Thumbnaills"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "SUCCESS",
+          "pipeline_job_info": {
+            "id": 91,
+            "ref": "data-pipeline/fit-dolphin-18012021215828-1",
+            "commit_sha": "5181b255c631bfa4ffbeb58d9a076b06e8dae1ae",
+            "created_at": "2021-01-18T21:58:39.578Z",
+            "updated_at": "2021-01-18T21:58:39.715Z",
+            "finished_at": "2021-01-18T21:59:23.441Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "66df3da0-ea13-41e7-8f75-f75d5b46b515",
+      "pipeline_type": "DATA",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-pipeline-gentle-warwhal-18012021223245",
+      "name": "data-pipeline/gentle-warwhal-18012021223245",
+      "source_branch": "master",
+      "target_branch_pattern": "data-pipeline/gentle-warwhal-18012021223245-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "commons-color-modifier",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "Data input, path to the images used for transformation"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save images"
+            },
+            {
+              "name": "brightness",
+              "value": "0.5",
+              "type": "FLOAT",
+              "required": false,
+              "description": "Brightness value"
+            },
+            {
+              "name": "contrast",
+              "value": "0.5",
+              "type": "FLOAT",
+              "required": false,
+              "description": "contrast value"
+            },
+            {
+              "name": "saturation",
+              "value": "2",
+              "type": "FLOAT",
+              "required": false,
+              "description": "saturation value"
+            }
+          ],
+          "id": "e0505e2b-3749-47f8-afda-283383f514ee",
+          "name": "Color modifier"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "59159554-393d-4c0a-afd7-32c8c575432f",
+          "pipeline_type": "DATA",
+          "pipeline_config_id": "66df3da0-ea13-41e7-8f75-f75d5b46b515",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-pipeline-gentle-warwhal-18012021223245-1",
+          "name": "data-pipeline/gentle-warwhal-18012021223245",
+          "source_branch": "master",
+          "target_branch": "data-pipeline/gentle-warwhal-18012021223245-1",
+          "data_operations": [
+            {
+              "slug": "commons-color-modifier",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "Data input, path to the images used for transformation"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save images"
+                },
+                {
+                  "name": "brightness",
+                  "value": "0.5",
+                  "type": "FLOAT",
+                  "required": false,
+                  "description": "Brightness value"
+                },
+                {
+                  "name": "contrast",
+                  "value": "0.5",
+                  "type": "FLOAT",
+                  "required": false,
+                  "description": "contrast value"
+                },
+                {
+                  "name": "saturation",
+                  "value": "2",
+                  "type": "FLOAT",
+                  "required": false,
+                  "description": "saturation value"
+                }
+              ],
+              "id": "b5e7a25e-e0a2-4e41-a5fd-62c1a990fc31",
+              "name": "Color modifier"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "SUCCESS",
+          "pipeline_job_info": {
+            "id": 94,
+            "ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+            "commit_sha": "1ab182a63edbdbb04c9b190860d29f4215c52afc",
+            "created_at": "2021-01-18T22:32:50.846Z",
+            "updated_at": "2021-01-18T22:32:50.936Z",
+            "finished_at": "2021-01-18T22:33:33.532Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c1363fa8-8809-4d14-9d65-914da9a1bf1e",
+      "pipeline_type": "DATA",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-pipeline-legal-oyster-23042021224209",
+      "name": "data-pipeline/legal-oyster-23042021224209",
+      "source_branch": "data-visualization/related-crab-22042021000331-1",
+      "target_branch_pattern": "data-pipeline/legal-oyster-23042021224209-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "netflix-eda-visualization",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory of csv files"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save the visualizations"
+            }
+          ],
+          "id": "f6303162-ad47-4b38-9bd6-a7d36f1aa2dd",
+          "name": "Netflix EDA visualization"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "6043eb27-64b5-4071-bed9-6b8869e6e7c4",
+          "pipeline_type": "DATA",
+          "pipeline_config_id": "c1363fa8-8809-4d14-9d65-914da9a1bf1e",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-pipeline-legal-oyster-23042021224209-1",
+          "name": "data-pipeline/legal-oyster-23042021224209",
+          "source_branch": "data-visualization/related-crab-22042021000331-1",
+          "target_branch": "data-pipeline/legal-oyster-23042021224209-1",
+          "data_operations": [
+            {
+              "slug": "netflix-eda-visualization",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "path to directory of csv files"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save the visualizations"
+                }
+              ],
+              "id": "dbe0ca2d-9eba-4fbe-9e2b-a063dda41768",
+              "name": "Netflix EDA visualization"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "CREATED",
+          "pipeline_job_info": null
+        }
+      ]
+    },
+    {
+      "id": "6f32f154-ed30-4ff7-9521-ffe70e9f11ab",
+      "pipeline_type": "DATA",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-pipeline-positive-starfish-23042021224848",
+      "name": "data-pipeline/positive-starfish-23042021224848",
+      "source_branch": "data-visualization/related-crab-22042021000331-1",
+      "target_branch_pattern": "data-pipeline/positive-starfish-23042021224848-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "netflix-eda-visualization",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory of csv files"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save the visualizations"
+            }
+          ],
+          "id": "515c3bb7-2368-438a-9f9f-2d2a7f5b9d44",
+          "name": "Netflix EDA visualization"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "ab449971-37e9-4c11-9398-7e2bb1c2ea7b",
+          "pipeline_type": "DATA",
+          "pipeline_config_id": "6f32f154-ed30-4ff7-9521-ffe70e9f11ab",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-pipeline-positive-starfish-23042021224848-1",
+          "name": "data-pipeline/positive-starfish-23042021224848",
+          "source_branch": "data-visualization/related-crab-22042021000331-1",
+          "target_branch": "data-pipeline/positive-starfish-23042021224848-1",
+          "data_operations": [
+            {
+              "slug": "netflix-eda-visualization",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "path to directory of csv files"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save the visualizations"
+                }
+              ],
+              "id": "a386d173-131b-468a-be9d-1f200c748852",
+              "name": "Netflix EDA visualization"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "CREATED",
+          "pipeline_job_info": null
+        }
+      ]
+    },
+    {
+      "id": "00a4e529-9e79-4ec5-874d-3efd8f450a3b",
+      "pipeline_type": "VISUALIZATION",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-visualization-busy-warwhal-21042021235201",
+      "name": "data-visualization/busy-warwhal-21042021235201",
+      "source_branch": "master",
+      "target_branch_pattern": "data-visualization/busy-warwhal-21042021235201-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "netflix-eda-visualization",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory of csv files"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save the visualizations"
+            }
+          ],
+          "id": "8fae6707-12e5-4bb2-b8a1-8ba1a679adc7",
+          "name": "Netflix EDA visualization"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "d2bbe21f-3d78-4e5a-9f36-d7edd40cdd6d",
+          "pipeline_type": "VISUALIZATION",
+          "pipeline_config_id": "00a4e529-9e79-4ec5-874d-3efd8f450a3b",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-visualization-busy-warwhal-21042021235201-1",
+          "name": "data-visualization/busy-warwhal-21042021235201",
+          "source_branch": "master",
+          "target_branch": "data-visualization/busy-warwhal-21042021235201-1",
+          "data_operations": [
+            {
+              "slug": "netflix-eda-visualization",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "path to directory of csv files"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save the visualizations"
+                }
+              ],
+              "id": "0e688d42-ff67-4cc9-b06a-5680507d0498",
+              "name": "Netflix EDA visualization"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "SUCCESS",
+          "pipeline_job_info": {
+            "id": 527,
+            "ref": "data-visualization/busy-warwhal-21042021235201-1",
+            "commit_sha": "9a82010dcb2146aec88ff00207e51547050d0755",
+            "created_at": "2021-04-21T23:52:03.421Z",
+            "updated_at": "2021-04-21T23:52:03.571Z",
+            "finished_at": "2021-04-21T23:57:13.901Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6ae7f852-188a-412c-bbb2-c8bd42ce6538",
+      "pipeline_type": "VISUALIZATION",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-visualization-excited-starfish-21042021234935",
+      "name": "data-visualization/excited-starfish-21042021234935",
+      "source_branch": "master",
+      "target_branch_pattern": "data-visualization/excited-starfish-21042021234935-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "netflix-eda-visualization",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory of csv files"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save the visualizations"
+            }
+          ],
+          "id": "a779d193-2d79-46b1-8147-6028978f4738",
+          "name": "Netflix EDA visualization"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "333953ad-3221-4a4e-afed-6720610ba221",
+          "pipeline_type": "VISUALIZATION",
+          "pipeline_config_id": "6ae7f852-188a-412c-bbb2-c8bd42ce6538",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-visualization-excited-starfish-21042021234935-1",
+          "name": "data-visualization/excited-starfish-21042021234935",
+          "source_branch": "master",
+          "target_branch": "data-visualization/excited-starfish-21042021234935-1",
+          "data_operations": [
+            {
+              "slug": "netflix-eda-visualization",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "path to directory of csv files"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save the visualizations"
+                }
+              ],
+              "id": "53c38692-38c5-46b2-9c7d-cec00af9eb6e",
+              "name": "Netflix EDA visualization"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "CANCELED",
+          "pipeline_job_info": {
+            "id": 525,
+            "ref": "data-visualization/excited-starfish-21042021234935-1",
+            "commit_sha": "c0704846d0acc77ea5ca8400a9da96bf26955ddb",
+            "created_at": "2021-04-21T23:49:37.661Z",
+            "updated_at": "2021-04-21T23:49:37.884Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b3b05d6b-d3ae-4c58-8bf9-ed7a47f34566",
+      "pipeline_type": "VISUALIZATION",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-visualization-fresh-seal-18012021225907",
+      "name": "data-visualization/fresh-seal-18012021225907",
+      "source_branch": "master",
+      "target_branch_pattern": "data-visualization/fresh-seal-18012021225907-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "commons-scatterplot",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "Data input, path to the folder with the csv files"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory to save the scatter plots"
+            },
+            {
+              "name": "column-x",
+              "value": "0",
+              "type": "INTEGER",
+              "required": false,
+              "description": "Selects the csv column data to plot in axis x"
+            },
+            {
+              "name": "column-y",
+              "value": "1",
+              "type": "INTEGER",
+              "required": false,
+              "description": "Selects the csv column data to plot in axis y"
+            },
+            {
+              "name": "label-x",
+              "value": "x",
+              "type": "STRING",
+              "required": false,
+              "description": "Label for axis x"
+            },
+            {
+              "name": "label-y",
+              "value": "y",
+              "type": "STRING",
+              "required": false,
+              "description": "Label for axis x"
+            },
+            {
+              "name": "title",
+              "value": "Scatter plot x.vs y",
+              "type": "STRING",
+              "required": false,
+              "description": "Title of plot"
+            }
+          ],
+          "id": "d95b4edd-1b6c-4762-a87c-c877bd3c3d2f",
+          "name": "Scatter Plot"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": []
+    },
+    {
+      "id": "f50e7829-8502-46fd-b63b-1e8db6bea14e",
+      "pipeline_type": "VISUALIZATION",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-visualization-quick-barracuda-21042021234722",
+      "name": "data-visualization/quick-barracuda-21042021234722",
+      "source_branch": "master",
+      "target_branch_pattern": "data-visualization/quick-barracuda-21042021234722-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "scatterplot-published",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory of images or image file"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save images"
+            },
+            {
+              "name": "column-x",
+              "value": "0",
+              "type": "INTEGER",
+              "required": true,
+              "description": "Select CSV column data to plot in axis x"
+            },
+            {
+              "name": "column-y",
+              "value": "1",
+              "type": "INTEGER",
+              "required": true,
+              "description": "Select CSV column data to plot in axis y"
+            },
+            {
+              "name": "label-x",
+              "value": "x",
+              "type": "STRING",
+              "required": false,
+              "description": "Label for axis x"
+            },
+            {
+              "name": "label-y",
+              "value": "y",
+              "type": "STRING",
+              "required": false,
+              "description": "Label for axis y"
+            },
+            {
+              "name": "title",
+              "value": "x_vs_y",
+              "type": "STRING",
+              "required": false,
+              "description": "Title of plot"
+            }
+          ],
+          "id": "8d5e25bf-6b41-4a27-afc9-b8560bcde69b",
+          "name": "ScatterPlot published"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": []
+    },
+    {
+      "id": "9c0a5238-de20-464b-a5a4-fc0ce5f7ebe1",
+      "pipeline_type": "VISUALIZATION",
+      "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+      "slug": "data-visualization-related-crab-22042021000331",
+      "name": "data-visualization/related-crab-22042021000331",
+      "source_branch": "master",
+      "target_branch_pattern": "data-visualization/related-crab-22042021000331-$NUMBER",
+      "data_operations": [
+        {
+          "slug": "netflix-eda-visualization",
+          "parameters": [
+            {
+              "name": "input-path",
+              "value": "data",
+              "type": "STRING",
+              "required": true,
+              "description": "path to directory of csv files"
+            },
+            {
+              "name": "output-path",
+              "value": ".",
+              "type": "STRING",
+              "required": true,
+              "description": "output directory to save the visualizations"
+            }
+          ],
+          "id": "0a755db8-b5a0-4047-b91b-5577ef06f8aa",
+          "name": "Netflix EDA visualization"
+        }
+      ],
+      "input_files": [
+        {
+          "location": "data",
+          "location_type": "PATH_FOLDER"
+        }
+      ],
+      "instances": [
+        {
+          "id": "85cd45e1-7c2c-4e4e-9968-d0d9bcb04d61",
+          "pipeline_type": "VISUALIZATION",
+          "pipeline_config_id": "9c0a5238-de20-464b-a5a4-fc0ce5f7ebe1",
+          "data_project_id": "5d005488-afb6-4a0c-852a-f471153a04b5",
+          "slug": "data-visualization-related-crab-22042021000331-1",
+          "name": "data-visualization/related-crab-22042021000331",
+          "source_branch": "master",
+          "target_branch": "data-visualization/related-crab-22042021000331-1",
+          "data_operations": [
+            {
+              "slug": "netflix-eda-visualization",
+              "parameters": [
+                {
+                  "name": "input-path",
+                  "value": "data",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "path to directory of csv files"
+                },
+                {
+                  "name": "output-path",
+                  "value": ".",
+                  "type": "STRING",
+                  "required": true,
+                  "description": "output directory to save the visualizations"
+                }
+              ],
+              "id": "674cb6d3-21a7-4598-96c4-a1f0ae08a89e",
+              "name": "Netflix EDA visualization"
+            }
+          ],
+          "input_files": [
+            {
+              "location": "data",
+              "location_type": "PATH_FOLDER"
+            }
+          ],
+          "number": 1,
+          "commit": null,
+          "status": "CANCELED",
+          "pipeline_job_info": {
+            "id": 529,
+            "ref": "data-visualization/related-crab-22042021000331-1",
+            "commit_sha": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+            "created_at": "2021-04-22T00:03:33.786Z",
+            "updated_at": "2021-04-22T00:03:33.999Z",
+            "finished_at": "2021-04-22T00:05:08.783Z"
+          }
+        }
+      ]
+    }
+  ],
+  "gitlabPipes": [
+    {
+      "id": 550,
+      "sha": "9a37890e25af2f26264a2907c25a8146237d94f7",
+      "ref": "data-pipeline/childish-dolphin-23042021225115-1",
+      "status": "skipped",
+      "created_at": "2021-04-23T22:51:16.514Z",
+      "updated_at": "2021-04-23T22:51:16.514Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/550"
+    },
+    {
+      "id": 549,
+      "sha": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+      "ref": "data-pipeline/positive-starfish-23042021224848-1",
+      "status": "skipped",
+      "created_at": "2021-04-23T22:48:49.206Z",
+      "updated_at": "2021-04-23T22:48:49.206Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/549"
+    },
+    {
+      "id": 548,
+      "sha": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+      "ref": "data-pipeline/legal-oyster-23042021224209-1",
+      "status": "skipped",
+      "created_at": "2021-04-23T22:42:10.263Z",
+      "updated_at": "2021-04-23T22:42:10.263Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/548"
+    },
+    {
+      "id": 529,
+      "sha": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+      "ref": "data-visualization/related-crab-22042021000331-1",
+      "status": "canceled",
+      "created_at": "2021-04-22T00:03:33.786Z",
+      "updated_at": "2021-04-22T00:05:54.576Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/529"
+    },
+    {
+      "id": 528,
+      "sha": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+      "ref": "data-visualization/related-crab-22042021000331-1",
+      "status": "skipped",
+      "created_at": "2021-04-22T00:03:33.781Z",
+      "updated_at": "2021-04-22T00:03:33.781Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/528"
+    },
+    {
+      "id": 527,
+      "sha": "9a82010dcb2146aec88ff00207e51547050d0755",
+      "ref": "data-visualization/busy-warwhal-21042021235201-1",
+      "status": "failed",
+      "created_at": "2021-04-21T23:52:03.421Z",
+      "updated_at": "2021-04-21T23:57:14.078Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/527"
+    },
+    {
+      "id": 526,
+      "sha": "9a82010dcb2146aec88ff00207e51547050d0755",
+      "ref": "data-visualization/busy-warwhal-21042021235201-1",
+      "status": "skipped",
+      "created_at": "2021-04-21T23:52:03.116Z",
+      "updated_at": "2021-04-21T23:52:03.116Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/526"
+    },
+    {
+      "id": 525,
+      "sha": "c0704846d0acc77ea5ca8400a9da96bf26955ddb",
+      "ref": "data-visualization/excited-starfish-21042021234935-1",
+      "status": "canceled",
+      "created_at": "2021-04-21T23:49:37.661Z",
+      "updated_at": "2021-04-21T23:49:47.349Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/525"
+    },
+    {
+      "id": 524,
+      "sha": "c0704846d0acc77ea5ca8400a9da96bf26955ddb",
+      "ref": "data-visualization/excited-starfish-21042021234935-1",
+      "status": "skipped",
+      "created_at": "2021-04-21T23:49:37.263Z",
+      "updated_at": "2021-04-21T23:49:37.263Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/524"
+    },
+    {
+      "id": 523,
+      "sha": "9a17c72758576a8a5b7a6bf4bd8433f25ae94d9d",
+      "ref": "data-visualization/quick-barracuda-21042021234722-1",
+      "status": "canceled",
+      "created_at": "2021-04-21T23:47:25.719Z",
+      "updated_at": "2021-04-21T23:48:35.808Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/523"
+    },
+    {
+      "id": 522,
+      "sha": "9a17c72758576a8a5b7a6bf4bd8433f25ae94d9d",
+      "ref": "data-visualization/quick-barracuda-21042021234722-1",
+      "status": "skipped",
+      "created_at": "2021-04-21T23:47:24.981Z",
+      "updated_at": "2021-04-21T23:47:24.981Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/522"
+    },
+    {
+      "id": 518,
+      "sha": "0bef85bfc3291f103b78876d2a7c84b3da747ec0",
+      "ref": "experiment/warm-clownfish_2042021-0",
+      "status": "failed",
+      "created_at": "2021-04-20T22:43:51.365Z",
+      "updated_at": "2021-04-20T22:44:53.056Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/518"
+    },
+    {
+      "id": 517,
+      "sha": "0bef85bfc3291f103b78876d2a7c84b3da747ec0",
+      "ref": "experiment/warm-clownfish_2042021-0",
+      "status": "skipped",
+      "created_at": "2021-04-20T22:43:51.127Z",
+      "updated_at": "2021-04-20T22:43:51.127Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/517"
+    },
+    {
+      "id": 97,
+      "sha": "4b9dc8c8fabf9d68d3cb7ede07bc4a4bb1c83b8e",
+      "ref": "data-visualization/fresh-seal-18012021225907-1",
+      "status": "failed",
+      "created_at": "2021-01-18T22:59:14.163Z",
+      "updated_at": "2021-01-18T22:59:43.947Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/97"
+    },
+    {
+      "id": 96,
+      "sha": "4b9dc8c8fabf9d68d3cb7ede07bc4a4bb1c83b8e",
+      "ref": "data-visualization/fresh-seal-18012021225907-1",
+      "status": "skipped",
+      "created_at": "2021-01-18T22:59:13.432Z",
+      "updated_at": "2021-01-18T22:59:13.432Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/96"
+    },
+    {
+      "id": 95,
+      "sha": "9a37890e25af2f26264a2907c25a8146237d94f7",
+      "ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+      "status": "skipped",
+      "created_at": "2021-01-18T22:33:04.031Z",
+      "updated_at": "2021-01-18T22:33:04.031Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/95"
+    },
+    {
+      "id": 94,
+      "sha": "1ab182a63edbdbb04c9b190860d29f4215c52afc",
+      "ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+      "status": "failed",
+      "created_at": "2021-01-18T22:32:50.846Z",
+      "updated_at": "2021-01-18T22:33:33.751Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/94"
+    },
+    {
+      "id": 93,
+      "sha": "1ab182a63edbdbb04c9b190860d29f4215c52afc",
+      "ref": "data-pipeline/gentle-warwhal-18012021223245-1",
+      "status": "skipped",
+      "created_at": "2021-01-18T22:32:49.579Z",
+      "updated_at": "2021-01-18T22:32:49.579Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/93"
+    },
+    {
+      "id": 92,
+      "sha": "394f5ce3b04aa68d81ff2a776a913b9da2b5e6cf",
+      "ref": "data-pipeline/fit-dolphin-18012021215828-1",
+      "status": "skipped",
+      "created_at": "2021-01-18T21:58:54.255Z",
+      "updated_at": "2021-01-18T21:58:54.255Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/92"
+    },
+    {
+      "id": 91,
+      "sha": "5181b255c631bfa4ffbeb58d9a076b06e8dae1ae",
+      "ref": "data-pipeline/fit-dolphin-18012021215828-1",
+      "status": "failed",
+      "created_at": "2021-01-18T21:58:39.578Z",
+      "updated_at": "2021-01-18T21:59:23.943Z",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/sign-language-classifier/pipelines/91"
+    }
+  ],
+  "gitlabBranches": [
+    {
+      "name": "data-pipeline/childish-dolphin-23042021225115-1",
+      "commit": {
+        "id": "9a37890e25af2f26264a2907c25a8146237d94f7",
+        "short_id": "9a37890e",
+        "created_at": "2021-01-18T22:33:03.000+00:00",
+        "parent_ids": null,
+        "title": "Add pipeline results [skip ci]",
+        "message": "Add pipeline results [skip ci]",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-18T22:33:03.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-18T22:33:03.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-pipeline/fit-dolphin-18012021215828-1",
+      "commit": {
+        "id": "394f5ce3b04aa68d81ff2a776a913b9da2b5e6cf",
+        "short_id": "394f5ce3",
+        "created_at": "2021-01-18T21:58:53.000+00:00",
+        "parent_ids": null,
+        "title": "Add pipeline results [skip ci]",
+        "message": "Add pipeline results [skip ci]",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-18T21:58:53.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-18T21:58:53.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-pipeline/gentle-warwhal-18012021223245-1",
+      "commit": {
+        "id": "9a37890e25af2f26264a2907c25a8146237d94f7",
+        "short_id": "9a37890e",
+        "created_at": "2021-01-18T22:33:03.000+00:00",
+        "parent_ids": null,
+        "title": "Add pipeline results [skip ci]",
+        "message": "Add pipeline results [skip ci]",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-18T22:33:03.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-18T22:33:03.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-pipeline/legal-oyster-23042021224209-1",
+      "commit": {
+        "id": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+        "short_id": "b23a672c",
+        "created_at": "2021-04-22T00:03:32.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-22T00:03:32.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-22T00:03:32.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-pipeline/positive-starfish-23042021224848-1",
+      "commit": {
+        "id": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+        "short_id": "b23a672c",
+        "created_at": "2021-04-22T00:03:32.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-22T00:03:32.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-22T00:03:32.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-visualization/busy-warwhal-21042021235201-1",
+      "commit": {
+        "id": "9a82010dcb2146aec88ff00207e51547050d0755",
+        "short_id": "9a82010d",
+        "created_at": "2021-04-21T23:52:02.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-21T23:52:02.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-21T23:52:02.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-visualization/excited-starfish-21042021234935-1",
+      "commit": {
+        "id": "c0704846d0acc77ea5ca8400a9da96bf26955ddb",
+        "short_id": "c0704846",
+        "created_at": "2021-04-21T23:49:36.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-21T23:49:36.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-21T23:49:36.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-visualization/fresh-seal-18012021225907-1",
+      "commit": {
+        "id": "4b9dc8c8fabf9d68d3cb7ede07bc4a4bb1c83b8e",
+        "short_id": "4b9dc8c8",
+        "created_at": "2021-01-18T22:59:12.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-18T22:59:12.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-18T22:59:12.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-visualization/quick-barracuda-21042021234722-1",
+      "commit": {
+        "id": "9a17c72758576a8a5b7a6bf4bd8433f25ae94d9d",
+        "short_id": "9a17c727",
+        "created_at": "2021-04-21T23:47:24.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-21T23:47:24.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-21T23:47:24.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "data-visualization/related-crab-22042021000331-1",
+      "commit": {
+        "id": "b23a672c5b4cf49c1f8918ae0fa586be2b4ce61f",
+        "short_id": "b23a672c",
+        "created_at": "2021-04-22T00:03:32.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-22T00:03:32.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-22T00:03:32.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "experiment/literate-plancton_812021",
+      "commit": {
+        "id": "e4829f475160ce64bc5e3cba85d0e4659cb4f69a",
+        "short_id": "e4829f47",
+        "created_at": "2021-01-08T20:31:50.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-08T20:31:50.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-08T20:31:50.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "experiment/perfect-barracuda_1312021-0",
+      "commit": {
+        "id": "ab67f32fc4de9e89f552ed68dc20abb511d605da",
+        "short_id": "ab67f32f",
+        "created_at": "2021-01-13T23:26:17.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-13T23:26:17.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-13T23:26:17.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "experiment/perfect-barracuda_1312021-1",
+      "commit": {
+        "id": "f6b106efad7427caabc1915904936ed0964d00c2",
+        "short_id": "f6b106ef",
+        "created_at": "2021-01-13T23:26:20.000+00:00",
+        "parent_ids": null,
+        "title": "[skip ci] create .mlreef.yml",
+        "message": "[skip ci] create .mlreef.yml",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-13T23:26:20.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-13T23:26:20.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "experiment/touched-starfish_1312021",
+      "commit": {
+        "id": "c73b72cf073fc243d6bfcca5c7908baed6c9ee23",
+        "short_id": "c73b72cf",
+        "created_at": "2021-01-13T23:14:55.000+00:00",
+        "parent_ids": null,
+        "title": "Add pipeline results [skip ci]",
+        "message": "Add pipeline results [skip ci]",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-13T23:14:55.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-13T23:14:55.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "jaja",
+      "commit": {
+        "id": "0397b31c2ba4636a7a0c88a8c7f3f48bf901d2fa",
+        "short_id": "0397b31c",
+        "created_at": "2021-02-02T22:56:21.000+00:00",
+        "parent_ids": null,
+        "title": "Add text file",
+        "message": "Add text file",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-02-02T22:56:21.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-02-02T22:56:21.000+00:00"
+      },
+      "merged": true,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "jaja-new-branch",
+      "commit": {
+        "id": "14caed3863c238b6e621cd14a46ea4abf05f6811",
+        "short_id": "14caed38",
+        "created_at": "2021-01-26T17:52:12.000+00:00",
+        "parent_ids": null,
+        "title": "Merge branch 'master-patch-8-1-2021-aedeqfd' into 'master'",
+        "message": "Merge branch 'master-patch-8-1-2021-aedeqfd' into 'master'",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-01-26T17:52:12.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-01-26T17:52:12.000+00:00"
+      },
+      "merged": true,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "jaja1",
+      "commit": {
+        "id": "bf4ef7f992a2019bdc9c54aa72d637f9e28081ab",
+        "short_id": "bf4ef7f9",
+        "created_at": "2021-02-04T21:56:10.000+00:00",
+        "parent_ids": null,
+        "title": "Upload new file",
+        "message": "Upload new file",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-02-04T21:56:10.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-02-04T21:56:10.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "master",
+      "commit": {
+        "id": "2986a94bb3d661bc71f15910223a34e748227c6e",
+        "short_id": "2986a94b",
+        "created_at": "2021-04-14T16:12:53.000+00:00",
+        "parent_ids": null,
+        "title": "Delete MEGA-RECOVERYKEY.txt",
+        "message": "Delete MEGA-RECOVERYKEY.txt",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-04-14T16:12:53.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-04-14T16:12:53.000+00:00"
+      },
+      "merged": false,
+      "protected": true,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": true
+    },
+    {
+      "name": "master-patch-2-2-2021",
+      "commit": {
+        "id": "5758f7761b93a856891e39ff828544bfbf0ce65d",
+        "short_id": "5758f776",
+        "created_at": "2021-02-02T22:41:37.000+00:00",
+        "parent_ids": null,
+        "title": "Add text file",
+        "message": "Add text file",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-02-02T22:41:37.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-02-02T22:41:37.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    },
+    {
+      "name": "master-patch-5-2-2021",
+      "commit": {
+        "id": "00f0da9d445db9af98d6b38007f23c14c4f168b5",
+        "short_id": "00f0da9d",
+        "created_at": "2021-02-05T17:52:33.000+00:00",
+        "parent_ids": null,
+        "title": "Edit text file",
+        "message": "Edit text file",
+        "author_name": "mlreef",
+        "author_email": "mlreef@example.org",
+        "authored_date": "2021-02-05T17:52:33.000+00:00",
+        "committer_name": "mlreef",
+        "committer_email": "mlreef@example.org",
+        "committed_date": "2021-02-05T17:52:33.000+00:00"
+      },
+      "merged": false,
+      "protected": false,
+      "developers_can_push": false,
+      "developers_can_merge": false,
+      "can_push": true,
+      "default": false
+    }
+  ]
+}
