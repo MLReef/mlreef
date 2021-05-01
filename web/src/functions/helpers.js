@@ -1,19 +1,3 @@
-/**
- * Run before create
- */
-const checkVersion = () => {
-  const version = process.env.REACT_APP_VERSION;
-  const prevVersion = localStorage.getItem('app:version');
-  if (version && prevVersion && !(version.toString() === prevVersion.toString())) {
-    localStorage.clear();
-  }
-
-  localStorage.setItem('app:version', version);
-};
-
-export default checkVersion;
-
-
 const decodeError = (errorMss) => {
   const isArray = Array.isArray(errorMss);
 
@@ -68,12 +52,6 @@ export const generateBreadCrumbs = (selectedProject, customCrumbs) => {
   ];
   customCrumbs.map((crumb) => crumbs.push(crumb));
   return crumbs;
-};
-
-export const removeDuplicatedProjects = (items) => {
-  const uniqueIds = Array.from(new Set(items.map((p) => p.id)));
-
-  return uniqueIds.map((id) => items.find((p) => p.id === id));
 };
 
 /**

@@ -4,7 +4,6 @@ import { storeFactory } from 'functions/testUtils';
 import { userProfileMock } from 'testData';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import UserAccount from 'components/views/userSettings/UserAccount';
-import 'babel-polyfill';
 
 const setup = () => {
   const user = { userInfo: { name: 'mlreef' } };

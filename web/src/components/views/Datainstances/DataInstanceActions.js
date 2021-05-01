@@ -1,13 +1,10 @@
-import BranchesApi from 'apis/BranchesApi';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import { SKIPPED } from 'dataTypes';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
-import { classifyPipeLines } from 'functions/pipeLinesHelpers';
 
 const dataPipelineApi = new DataPipelineApi();
 const gitlabPipelines = new GitlabPipelinesApi();
-const brApi = new BranchesApi();
 
 /**
  * 
@@ -38,21 +35,6 @@ const abortDataInstance = (
   gitlabProjectId,
   gitlabPipelineId,
 ).then(() => dataPipelineApi.cancel(backendPipelineId, pipelineInstanceId));
-
-const getDataInstances = (
-  backendProjectId,
-  gilabProjectId,
-) => dataPipelineApi.getProjectPipelines(backendProjectId)
-  .then((backendPipelines) => backendPipelines.filter((pipe) => pipe.pipeline_type === 'DATA'))
-  .then((dataPipelines) => dataPipelines.filter((pipe) => pipe.instances.length > 0))
-  .then((dataPipelines) => dataPipelines.map((dp) => ({
-    ...dp, dataInstanceId: dp.instances[0].id,
-  })))
-  .then((dataPipelineInstances) => brApi
-    .getBranches(gilabProjectId)
-    .then((branches) => branches.filter((branch) => branch.name.startsWith('data-pipeline')))
-    .then((dataPipelineBranches) => gitlabPipelines.getPipesByProjectId(gilabProjectId)
-      .then((res) => classifyPipeLines(res, dataPipelineBranches, dataPipelineInstances))));
 
 /**
  * 
@@ -88,6 +70,5 @@ const getDataInstanceAndAllItsInformation = (
 export default {
   abortDataInstance,
   deleteDataInstance,
-  getDataInstances,
   getDataInstanceAndAllItsInformation,
 };

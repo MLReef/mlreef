@@ -13,10 +13,7 @@ import store from 'store';
 import routes from './routes';
 import ToastMessage from './components/toast/toast';
 import ErrorHandler from './ErrorHandler';
-import checkVersion from './functions/helpers';
 import 'whatwg-fetch';
-
-checkVersion();
 
 const persistor = persistStore(store);
 
