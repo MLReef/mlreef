@@ -77,15 +77,15 @@ const parseExperiments = (exps) => {
       {
         x: 3,
         y: 1 + i,
-        type: 'timestamp',
-        value: exp.pipelineJobInfo?.createdAt,
+        type: 'model',
+        link: exp.processing?.id,
+        value: exp.processing?.name,
       },
       {
         x: 4,
         y: 1 + i,
-        type: 'model',
-        link: exp.processing?.id,
-        value: exp.processing?.name,
+        type: 'timestamp',
+        value: exp.pipelineJobInfo?.createdAt,
       },
     ].concat(metricLabels.map((l, ii) => ({
       x: 5 + ii,
