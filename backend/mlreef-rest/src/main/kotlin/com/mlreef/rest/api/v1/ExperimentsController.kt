@@ -120,6 +120,11 @@ internal class ExperimentsController(
         service.guardStatusChange(experiment, newStatus = ExperimentStatus.PENDING)
 
         val finalTargetBranch = service.getTargetBranchForExperiment(experiment)
+
+        if (finalTargetBranch != experiment.targetBranch) {
+            pipelineService.removePipelineFiles(dataProject, finalTargetBranch)
+        }
+
         val secret = pipelineService.createSecret()
         val fileContent = service.createExperimentFile(
             experiment = experiment,

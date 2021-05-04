@@ -229,12 +229,19 @@ class GitlabRestClient(
     }
 
     // https://docs.gitlab.com/ee/api/repositories.html#list-repository-tree
-    fun adminGetProjectTree(projectId: Long, path: String? = null, pageSize: Int = 100, pageNumber: Int = 1): RepositoryTreePaged {
+    fun adminGetProjectTree(
+        projectId: Long,
+        path: String? = null,
+        pageSize: Int = 100,
+        pageNumber: Int = 1,
+        branch: String? = null
+    ): RepositoryTreePaged {
         return GitlabHttpEntity(null, createAdminHeaders())
             .addErrorDescription(404, ErrorCode.NotFound, "Cannot find project with id $projectId")
             .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot fetch repository for project $projectId")
             .makeRequest {
-                val params = "per_page=$pageSize&page=$pageNumber${path?.let { "&path=$it" } ?: ""}"
+                val params =
+                    "per_page=$pageSize&page=$pageNumber${path?.let { "&path=$it" } ?: ""}${branch?.let { "&ref=$it" } ?: ""}"
 
                 val url = "$gitlabServiceRootUrl/projects/$projectId/repository/tree?${params}"
 
@@ -521,10 +528,40 @@ class GitlabRestClient(
             }
 
 
+    fun adminCommitFiles(
+        projectId: Long,
+        targetBranch: String,
+        commitMessage: String,
+        fileContents: Map<String, String>,
+        action: String,
+        force: Boolean = false,
+    ): Commit =
+        GitlabCreateCommitRequest(
+            branch = targetBranch,
+            actions = fileContents.map {
+                GitlabCreateCommitAction(
+                    filePath = it.key,
+                    content = it.value,
+                    action = action
+                )
+            },
+            commitMessage = commitMessage,
+            force = force
+        ).let {
+            GitlabHttpEntity(it, createAdminHeaders())
+        }.addErrorDescription(
+            error = ErrorCode.GitlabCommitFailed,
+            name = "Cannot commit ${fileContents.keys.joinToString()} in $targetBranch for Gitlab project $projectId"
+        ).makeRequest {
+            val url = "$gitlabServiceRootUrl/projects/$projectId/repository/commits"
+            restTemplate(builder).exchange(url, HttpMethod.POST, it, Commit::class.java)
+        }
+
     fun createPipeline(token: String, projectId: Long, commitRef: String, variables: List<GitlabVariable> = listOf()): GitlabPipeline {
         return GitlabCreatePipelineRequest(
             ref = commitRef,
-            variables = variables)
+            variables = variables
+        )
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
             .addErrorDescription(ErrorCode.GitlabCommitFailed, "Cannot start pipeline for commit  $commitRef")
             .makeRequest {

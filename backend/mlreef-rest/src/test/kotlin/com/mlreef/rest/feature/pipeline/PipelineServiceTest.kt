@@ -33,6 +33,7 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.feature.auth.AuthService
+import com.mlreef.rest.feature.data_processors.RepositoryService
 import com.mlreef.rest.service.AbstractServiceTest
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
@@ -85,6 +86,9 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Autowired
     private lateinit var yamlFileGenerator: YamlFileGenerator
 
+    @Autowired
+    private lateinit var repositoryService: RepositoryService
+
     @MockkBean
     private lateinit var authService: AuthService
 
@@ -112,6 +116,7 @@ class PipelineServiceTest : AbstractServiceTest() {
             gitlabRestClient = restClient,
             authService = authService,
             yamlFileGenerator = yamlFileGenerator,
+            repositoryService = repositoryService,
         )
 
         val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
