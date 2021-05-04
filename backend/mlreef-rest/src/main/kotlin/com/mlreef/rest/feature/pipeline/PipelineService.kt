@@ -16,6 +16,7 @@ import com.mlreef.rest.PipelineStatus
 import com.mlreef.rest.PipelineType
 import com.mlreef.rest.ProcessorParameterRepository
 import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.Project
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.config.censor
 import com.mlreef.rest.exceptions.ErrorCode
@@ -31,7 +32,9 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
+import com.mlreef.rest.feature.MLREEF_NAME
 import com.mlreef.rest.feature.auth.AuthService
+import com.mlreef.rest.feature.data_processors.RepositoryService
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.utils.Slugs
 import kotlinx.coroutines.GlobalScope
@@ -64,8 +67,10 @@ class PipelineService(
     private val gitlabRestClient: GitlabRestClient,
     private val authService: AuthService,
     private val yamlFileGenerator: YamlFileGenerator,
+    private val repositoryService: RepositoryService,
 ) {
     private val DEFAULT_BASE_IMAGE_PATH = "registry.gitlab.com/mlreef/mlreef/experiment:master"
+    private val UNPUBLISH_COMMIT_MESSAGE = "Unpublish: Removing $MLREEF_NAME files from repository"
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
     private val botEmailDomain: String = ""
@@ -181,7 +186,7 @@ class PipelineService(
 
     fun commitYamlFile(userToken: String, projectId: Long, targetBranch: String, fileContent: String, sourceBranch: String = "master"): Commit {
         val commitMessage = "[skip ci] create .mlreef.yml"
-        val fileContents = mapOf(Pair(".mlreef.yml", fileContent))
+        val fileContents = mapOf(Pair(MLREEF_NAME, fileContent))
         try {
             gitlabRestClient.createBranch(
                 token = userToken,
@@ -374,6 +379,44 @@ class PipelineService(
 
     private fun getExperimentImagePath(): String {
         return conf.epf.experimentImagePath!!
+    }
+
+    private fun isPipelineFilePresent(project: Project, branch: String, fileName: String): Boolean {
+        return repositoryService.findFileInRepository(project.gitlabId, fileName, branch = branch) != null
+    }
+
+    fun removePipelineFiles(project: Project, branch: String, token: String? = null): Commit? {
+        val fileContents = mutableMapOf<String, String>()
+
+        if (isPipelineFilePresent(project, branch, MLREEF_NAME)) fileContents.put(MLREEF_NAME, "")
+
+        return if (fileContents.size > 0) {
+            fileContents.map {
+                try {
+                    if (token != null) {
+                        gitlabRestClient.commitFiles(
+                            token = token,
+                            projectId = project.gitlabId,
+                            targetBranch = branch,
+                            commitMessage = this.UNPUBLISH_COMMIT_MESSAGE,
+                            fileContents = mapOf(it.key to it.value),
+                            action = "delete"
+                        )
+                    } else {
+                        gitlabRestClient.adminCommitFiles(
+                            projectId = project.gitlabId,
+                            targetBranch = branch,
+                            commitMessage = this.UNPUBLISH_COMMIT_MESSAGE,
+                            fileContents = mapOf(it.key to it.value),
+                            action = "delete"
+                        )
+                    }
+                } catch (e: RestException) {
+                    log.error("Cannot delete ${it.key} file in branch $branch for project ${project.id}: ${e.errorName}")
+                    null
+                }
+            }.filterNotNull().firstOrNull()
+        } else null
     }
 
 }

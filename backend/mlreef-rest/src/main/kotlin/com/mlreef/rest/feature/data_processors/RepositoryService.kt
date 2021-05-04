@@ -24,9 +24,9 @@ class RepositoryService(
         val lastCommitId: String?,
     )
 
-    fun findFileInRepository(gitlabId: Long, filePath: String?): RepositoryTree? {
+    fun findFileInRepository(gitlabId: Long, filePath: String?, branch: String? = null): RepositoryTree? {
         val splitedFolderAndFile = getPathWithoutFileName(filePath)
-        var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first)
+        var filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first, branch = branch)
 
         while (filesList.page <= filesList.totalPages) {
             val searchingFile = filesList.content?.find { it.name == splitedFolderAndFile?.second && it.type == RepositoryTreeType.BLOB }
@@ -34,7 +34,7 @@ class RepositoryService(
             if (searchingFile != null) return searchingFile
             if (!(filesList.page < filesList.totalPages)) break
 
-            filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first, pageNumber = filesList.page + 1)
+            filesList = gitlabRestClient.adminGetProjectTree(gitlabId, splitedFolderAndFile?.first, pageNumber = filesList.page + 1, branch = branch)
         }
 
         return null
