@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {
+  useState, useEffect, useCallback, useMemo,
+} from 'react';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import {
-  shape, number, string,
+  string,
 } from 'prop-types';
 import moment from 'moment';
 import { suscribeRT } from 'functions/apiCalls';
@@ -13,52 +14,71 @@ import JobsApi from 'apis/JobsApi';
 import DataPipelineApi from 'apis/DataPipelineApi';
 import { determineJobClass } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
+import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import hooks from 'customHooks/useSelectedProject';
+import { toCamelCase } from 'functions/helpers';
 
 const timeout = 60 * 1000;
+
+const statusColor = {
+  running: '#2dbe91',
+  success: '#2dbe91',
+  failed: '#f2261d',
+  canceled: '#f2261d',
+  pending: '#ebba45',
+};
 
 const dataPipeApi = new DataPipelineApi();
 const jobsApi = new JobsApi();
 
 const Jobs = (props) => {
-  const { selectedProject: { gid, id }, namespace, slug } = props;
+  const { namespace, slug } = props;
   const [jobList, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('all');
   const [backendPipes, setBackendPipes] = useState([]);
 
-  const fetchJob = useCallback(
-    () => {
-      if (id) {
-        dataPipeApi.getProjectPipelines(id)
-          .then((backendPipelines) => setBackendPipes(backendPipelines));
+  const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
-        jobsApi.getPerProject(gid).then((res) => {
-          setFilteredJobs(res);
-          setJobs(res);
-        })
-          .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
-      }
-    },
-    [id, gid, setBackendPipes, setFilteredJobs, setJobs],
-  );
+  const { id, gid } = selectedProject;
 
-  useEffect(() => suscribeRT({ timeout })(fetchJob), [fetchJob]);
+  const fetchJobs = useCallback(() => {
+    dataPipeApi.getProjectPipelines(id)
+      .then((backendPipelines) => setBackendPipes(backendPipelines));
 
-  const handleButtonsClick = (e) => {
-    if (e.target.parentNode) {
-      e.target.parentNode.childNodes.forEach((childNode) => {
-        if (childNode.id !== e.target.id) {
-          childNode.classList.remove('active');
-        }
-      });
-      e.target.classList.add('active');
+    let query = '';
+    if (filterStatus !== 'all') {
+      query = `?scope[]=${filterStatus}`;
     }
+    jobsApi.getPerProject(gid, query).then((res) => {
+      setJobs(res);
+    })
+      .catch(() => toastr.error('Error', 'Could not retrieve all the jobs'));
+  }, [id, gid, filterStatus, setBackendPipes, setJobs]);
 
-    let allJobs = jobList;
-    if (e.target.id !== 'all') {
-      allJobs = allJobs.filter((job) => job.status === e.target.id);
-    }
-    setFilteredJobs(allJobs);
-  };
+  useEffect(() => suscribeRT({ timeout })(fetchJobs), [fetchJobs]);
+
+  const filterButtons = useMemo(() => [
+    'all',
+    'running',
+    'success',
+    'failed',
+    'canceled',
+  ].map((status) => (
+    <button
+      id={status}
+      type="button"
+      className={`btn btn-basic-dark  ml-3 ${filterStatus === status ? 'active' : ''}`}
+      onClick={() => setFilterStatus(status)}
+    >
+      {toCamelCase(status)}
+    </button>
+  )), [filterStatus]);
+
+  if (isFetching) {
+    return (
+      <MLoadingSpinnerContainer active />
+    );
+  }
 
   return (
     <>
@@ -67,38 +87,7 @@ const Jobs = (props) => {
           <h1 className="job-container-title">Jobs</h1>
         </div>
         <div className="my-3 mx-0">
-          <button
-            type="button"
-            className="btn btn-basic-dark"
-            id="all"
-            onClick={handleButtonsClick}
-          >
-            All
-          </button>
-          <button
-            type="button"
-            className="btn btn-basic-dark  ml-3"
-            id="running"
-            onClick={handleButtonsClick}
-          >
-            Running
-          </button>
-          <button
-            type="button"
-            className="btn btn-basic-dark  ml-3"
-            id="success"
-            onClick={handleButtonsClick}
-          >
-            Success
-          </button>
-          <button
-            type="button"
-            className="btn btn-basic-dark  ml-3"
-            id="failed"
-            onClick={handleButtonsClick}
-          >
-            Failed
-          </button>
+          {filterButtons}
         </div>
         <table className="job-table">
           <thead className="job-table-head">
@@ -110,75 +99,76 @@ const Jobs = (props) => {
               <th>Timing</th>
             </tr>
           </thead>
-          {filteredJobs.length > 0
-            ? (
-              <tbody className="job-table-body">
-                {filteredJobs.map((job, index) => {
-                  const selectedPipe = backendPipes
-                    ?.filter((pipe) => job?.ref.includes(pipe.name))[0];
-                  const jobClass = selectedPipe?.pipeline_type;
-                  let jobStatus = <span><b>{job.status}</b></span>;
-                  const timeDuration = job.duration !== null && moment({}).startOf('day').seconds(job.duration).format('HH:mm:ss');
-                  if (job.status === 'success' || job.status === 'running') {
-                    jobStatus = <span style={{ color: '#2dbe91' }}><b>{job.status}</b></span>;
-                  } else if (job.status === 'failed' || job.status === 'canceled') {
-                    jobStatus = <span style={{ color: '#f2261d' }}><b>{job.status}</b></span>;
-                  } else if (job.status === 'pending') {
-                    jobStatus = <span style={{ color: '#ebba45' }}><b>pending</b></span>;
-                  }
-                  return (
-                    <tr className="p-3" key={index.toString()}>
-                      <td className="job-status p-3">
-                        <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
-                          {jobStatus}
-                        </Link>
-                      </td>
-                      <td>
-                        <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
-                          {`#${job.id}`}
-                        </Link>
-                      </td>
-                      <td>
-                        <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
-                          {determineJobClass(jobClass)}
-                        </Link>
-                      </td>
-                      <td className="job-pipeline-number p-3">
-                        {`#${job.pipeline.id} by `}
-                        <a href={`/${job.user.name}`}>
-                          <img className="ml-2" width="20" src={job.user.avatar_url} alt="avatar" />
-                        </a>
-                      </td>
-                      <td className="duration">
-                        <p className="p-0 m-0">
-                          {job.duration !== null && (
-                            <>
-                              <img src="https://gitlab.com/mlreef/frontend/uploads/d0bd85ce84f0a8754dbf852871a04a15/clock.png" width="12" alt="" />
-                              {timeDuration}
-                            </>
-                          )}
-                        </p>
-                        <p className="p-0 m-0">
-                          <img src="https://gitlab.com/mlreef/frontend/uploads/24a7b38a430ed0e01c381ba037613d1d/Calender.png" width="12" alt="" />
-                          {`${getTimeCreatedAgo(job.created_at, new Date())} ago`}
-                        </p>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            ) : (
-              <>
-                <tbody />
-              </>
-            )}
+          {jobList.length === 0 ? (
+            <tbody>
+              <tr>
+                <td />
+                <td />
+                <td style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  color: 'var(--lessWhite)',
+                }}
+                >
+                  <img src={greyLogo} alt="empty" width="45" />
+                  <span>No Jobs to show</span>
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <tbody className="job-table-body">
+              {jobList.map((job, index) => {
+                const selectedPipe = backendPipes
+                  ?.filter((pipe) => job?.ref.includes(pipe.name))[0];
+                const jobClass = selectedPipe?.pipeline_type;
+                const timeDuration = job.duration !== null && moment({}).startOf('day').seconds(job.duration).format('HH:mm:ss');
+                return (
+                  <tr className="p-3" key={index.toString()}>
+                    <td className="job-status p-3">
+                      <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
+                        <span style={{ color: statusColor[job.status], fontWeight: 'bold' }}>
+                          {job.status}
+                        </span>
+                      </Link>
+                    </td>
+                    <td>
+                      <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
+                        {`#${job.id}`}
+                      </Link>
+                    </td>
+                    <td>
+                      <Link to={`/${namespace}/${slug}/insights/-/jobs/${job.id}`}>
+                        {determineJobClass(jobClass)}
+                      </Link>
+                    </td>
+                    <td className="job-pipeline-number p-3">
+                      {`#${job.pipeline.id} by `}
+                      <a href={`/${job.user.name}`}>
+                        <img className="ml-2" width="20" src={job.user.avatar_url} alt="avatar" />
+                      </a>
+                    </td>
+                    <td className="duration">
+                      <p className="p-0 m-0">
+                        {job.duration !== null && (
+                        <>
+                          <img src="https://gitlab.com/mlreef/frontend/uploads/d0bd85ce84f0a8754dbf852871a04a15/clock.png" width="12" alt="" />
+                          {timeDuration}
+                        </>
+                        )}
+                      </p>
+                      <p className="p-0 m-0">
+                        <img src="https://gitlab.com/mlreef/frontend/uploads/24a7b38a430ed0e01c381ba037613d1d/Calender.png" width="12" alt="" />
+                        {`${getTimeCreatedAgo(job.created_at, new Date())} ago`}
+                      </p>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          )}
         </table>
-        {jobList.length === 0 && (
-          <div className="job-table-empty">
-            <img src={greyLogo} width="45" alt="empty" />
-            <span>No Jobs to show</span>
-          </div>
-        )}
       </div>
     </>
   );
@@ -187,15 +177,6 @@ const Jobs = (props) => {
 Jobs.propTypes = {
   namespace: string.isRequired,
   slug: string.isRequired,
-  selectedProject: shape({
-    gid: number.isRequired,
-  }).isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    selectedProject: state.projects.selectedProject,
-  };
-}
-
-export default connect(mapStateToProps)(Jobs);
+export default Jobs;
