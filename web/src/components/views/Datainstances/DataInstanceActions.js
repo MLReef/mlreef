@@ -1,10 +1,12 @@
 import DataPipelineApi from 'apis/DataPipelineApi';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
+import JobsApi from 'apis/JobsApi';
 import { SKIPPED } from 'dataTypes';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 
 const dataPipelineApi = new DataPipelineApi();
 const gitlabPipelines = new GitlabPipelinesApi();
+const jobsApi = new JobsApi();
 
 /**
  * 
@@ -67,8 +69,14 @@ const getDataInstanceAndAllItsInformation = (
       updatedAt,
     })));
 
+const fetchDatapipelineLastJob = (
+  gid, gitlabPipelineId,
+) => jobsApi
+  .getJobsByPipelineId(gid, gitlabPipelineId).then((list) => list[list.length - 1]);
+
 export default {
   abortDataInstance,
   deleteDataInstance,
   getDataInstanceAndAllItsInformation,
+  fetchDatapipelineLastJob,
 };

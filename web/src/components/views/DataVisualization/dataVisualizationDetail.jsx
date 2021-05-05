@@ -41,6 +41,7 @@ const DataVisualizationDetails = ({ ...props }) => {
   } = props;
   const [dataInstance, setDataInstance] = useState({});
   const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
+  const [lastJob, setLastJob] = useState({});
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
@@ -88,6 +89,15 @@ const DataVisualizationDetails = ({ ...props }) => {
     }
   }, [visId, gitlabId, path, branchName]);
 
+
+  useEffect(() => {
+    if (gitlabPipelineId) {
+      actions.fetchDatapipelineLastJob(gitlabId, gitlabPipelineId)
+        .then(setLastJob)
+        .catch((err) => toastr.error('Error', err?.message));
+    }
+  }, [gitlabPipelineId]);
+
   const customCrumbs = [
     {
       name: 'Data',
@@ -128,7 +138,9 @@ const DataVisualizationDetails = ({ ...props }) => {
             <div className="content-row">
               <div className="item">
                 <p>Visualization:</p>
-                <p><b>{branchName?.replace(/.*\//, '')}</b></p>
+                <Link to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(branchName)}`}>
+                  <p><b>{branchName?.replace(/.*\//, '')}</b></p>
+                </Link>
               </div>
               <AuthWrapper
                 minRole={30}
@@ -167,12 +179,19 @@ const DataVisualizationDetails = ({ ...props }) => {
               </AuthWrapper>
             </div>
             <div className="content-row">
-              <div className="item">
-                <p>Status:</p>
-                <p style={{ color: `var(--${statusParagraphColor})` }}>
-                  <b>{diStatus}</b>
-                </p>
-              </div>
+              {lastJob.id ? (
+                <Link to={`/${namespace}/${slug}/insights/-/jobs/${lastJob.id}`}>
+                  <div className="item">
+                    <p>Status:</p>
+                    <p style={{ color: `var(--${statusParagraphColor})` }}><b>{diStatus}</b></p>
+                  </div>
+                </Link>
+                ) : (
+                  <div className="item">
+                    ---
+                  </div>
+                )
+              }
               <div className="item">
                 <p>Visualization ID:</p>
                 <span style={{

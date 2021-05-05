@@ -45,6 +45,8 @@ const DataInstanceDetails = (props) => {
 
   const [files, setFiles] = useState([]);
   const [dataInstance, setDataInstance] = useState({});
+  const [lastJob, setLastJob] = useState({});
+
   const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
   const {
     name,
@@ -74,6 +76,7 @@ const DataInstanceDetails = (props) => {
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
   const showFilesInfo = diStatus === undefined || diStatus === RUNNING || diStatus === PENDING;
 
+
   useEffect(() => {
     if(gid) {
       getBranchesList(gid);
@@ -81,7 +84,9 @@ const DataInstanceDetails = (props) => {
         .then(setDataInstance)
         .catch((err) => toastr.error('Error', err?.name));
     }
-    
+  }, [gid, dataId]);
+
+  useEffect(() => {    
     if (branchName) {
       filesApi.getFilesPerProject(
         gid,
@@ -91,8 +96,16 @@ const DataInstanceDetails = (props) => {
       ).then((filesPerProject) => setFiles(filesPerProject))
       .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
     }
-  }, [gid, path, branchName, dataId]);
+  }, [gid, path, branchName]);
 
+  useEffect(() => {
+    if (gitlabPipelineId) {
+      actions.fetchDatapipelineLastJob(gid, gitlabPipelineId)
+        .then(setLastJob)
+        .catch((err) => toastr.error('Error', err?.message));
+    }
+  }, [gitlabPipelineId]);
+  
   const customCrumbs = [
     {
       name: 'Datasets',
@@ -128,7 +141,9 @@ const DataInstanceDetails = (props) => {
             <div className="content-row">
               <div className="item">
                 <p>Dataset:</p>
-                <p><b>{branchName?.replace(/.*\//, '')}</b></p>
+                <Link to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(branchName)}`}>
+                  <p><b>{branchName?.replace(/.*\//, '')}</b></p>
+                </Link>
               </div>
               <AuthWrapper
                 minRole={30}
@@ -167,10 +182,19 @@ const DataInstanceDetails = (props) => {
               </AuthWrapper>
             </div>
             <div className="content-row">
-              <div className="item">
-                <p>Status:</p>
-                <p style={{ color: `var(--${statusParagraphColor})` }}><b>{diStatus}</b></p>
-              </div>
+              {lastJob.id ? (
+                <Link to={`/${namespace}/${slug}/insights/-/jobs/${lastJob.id}`}>
+                  <div className="item">
+                    <p>Status:</p>
+                    <p style={{ color: `var(--${statusParagraphColor})` }}><b>{diStatus}</b></p>
+                  </div>
+                </Link>
+                ) : (
+                  <div className="item">
+                    ---
+                  </div>
+                )
+              }
               <div className="item">
                 <p>DataOps ID:</p>
                 <span style={{
