@@ -16,8 +16,8 @@ const DataCard = ({ title, linesOfContent, styleClasses }) => (
           : line.text;
         return line?.isLink
           ? (
-            <div className="link">
-              <a key={line?.text} target="_blank" rel="noopener noreferrer" href={line.href}>
+            <div key={line?.text} className="link">
+              <a target="_blank" rel="noopener noreferrer" href={line.href}>
                 <b>{lineContent}</b>
               </a>
             </div>
