@@ -26,8 +26,8 @@ const getPipelineJobs = (
 ) => definePipeline(projectId, pipelineId)
   .then((selectedPipeline) => selectedPipeline
     ? jobsApi.getJobsByPipelineId(projectId, selectedPipeline.id)
-      .then(handleResponse)
-    : [])
+    : [],
+  )
   .then((unsortedJobs) => unsortedJobs.length > 0
     ? sortJobs(unsortedJobs)
     : []);
