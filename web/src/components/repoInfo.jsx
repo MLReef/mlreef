@@ -51,7 +51,7 @@ const RepoInfo = ({
           <>
             <AuthWrapper minRole={10}>
               <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
-                <p className="stat-type">
+                <p className="stat-type visualizations-count">
                   {visualizationsArrSize}
                   {' '}
                   Visualizations
@@ -60,7 +60,7 @@ const RepoInfo = ({
             </AuthWrapper>
             <AuthWrapper minRole={10}>
               <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
-                <p className="stat-type">
+                <p className="stat-type datasets-count">
                   {datasetsArrSize}
                   {' '}
                   Datasets
@@ -70,7 +70,7 @@ const RepoInfo = ({
           </>
         ) : (
           <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/publications`}>
-            <p className="stat-no">{publicationsCount}</p>
+            <p className="stat-no publications-count">{publicationsCount}</p>
             <p className="stat-type">Publications</p>
           </Link>
         )}
