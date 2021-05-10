@@ -19,6 +19,7 @@ import com.mlreef.rest.ProcessorVersionRepository
 import com.mlreef.rest.Project
 import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.exceptions.BadRequestException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabIncorrectAnswerException
 import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
@@ -197,6 +198,11 @@ class PipelineService(
         } catch (e: RestException) {
             throw PipelineStartException("Cannot create branch $targetBranch for project $projectId, check the source_branch $sourceBranch: ${e.errorName}")
         }
+        try {
+            this.removePipelineFiles(gitlabProjectId = projectId, branch = targetBranch)
+        } catch (ex: Exception) {
+            log.error("Cannot delete pipeline file from repo")
+        }
         return try {
             val commitFiles = gitlabRestClient.commitFiles(
                 token = userToken,
@@ -230,6 +236,8 @@ class PipelineService(
         sourceBranch: String,
         secret: String
     ): PipelineJobInfo {
+
+
         commitYamlFile(
             userToken = userToken,
             projectId = projectGitlabId,
@@ -381,22 +389,25 @@ class PipelineService(
         return conf.epf.experimentImagePath!!
     }
 
-    private fun isPipelineFilePresent(project: Project, branch: String, fileName: String): Boolean {
-        return repositoryService.findFileInRepository(project.gitlabId, fileName, branch = branch) != null
+    private fun isPipelineFilePresent(projectGitlabId: Long, branch: String, fileName: String): Boolean {
+        return repositoryService.findFileInRepository(projectGitlabId, fileName, branch = branch) != null
     }
 
-    fun removePipelineFiles(project: Project, branch: String, token: String? = null): Commit? {
+    fun removePipelineFiles(project: Project? = null, gitlabProjectId: Long? = null, branch: String, token: String? = null): Commit? {
         val fileContents = mutableMapOf<String, String>()
 
-        if (isPipelineFilePresent(project, branch, MLREEF_NAME)) fileContents.put(MLREEF_NAME, "")
+        val gitlabId = gitlabProjectId ?: project?.gitlabId ?: throw BadRequestException(ErrorCode.BadParametersRequest, "Gitlab project id is not present")
+
+        if (isPipelineFilePresent(gitlabId, branch, MLREEF_NAME)) fileContents.put(MLREEF_NAME, "")
 
         return if (fileContents.size > 0) {
             fileContents.map {
+                log.info("Deleting file ${it.key} in branch $branch for gitlab project $gitlabId")
                 try {
                     if (token != null) {
                         gitlabRestClient.commitFiles(
                             token = token,
-                            projectId = project.gitlabId,
+                            projectId = gitlabId,
                             targetBranch = branch,
                             commitMessage = this.UNPUBLISH_COMMIT_MESSAGE,
                             fileContents = mapOf(it.key to it.value),
@@ -404,7 +415,7 @@ class PipelineService(
                         )
                     } else {
                         gitlabRestClient.adminCommitFiles(
-                            projectId = project.gitlabId,
+                            projectId = gitlabId,
                             targetBranch = branch,
                             commitMessage = this.UNPUBLISH_COMMIT_MESSAGE,
                             fileContents = mapOf(it.key to it.value),
@@ -412,11 +423,14 @@ class PipelineService(
                         )
                     }
                 } catch (e: RestException) {
-                    log.error("Cannot delete ${it.key} file in branch $branch for project ${project.id}: ${e.errorName}")
+                    log.error("Cannot delete ${it.key} file in branch $branch for gitlab project $gitlabId: ${e.errorName}")
                     null
                 }
             }.filterNotNull().firstOrNull()
-        } else null
+        } else {
+            log.warn("Not file $MLREEF_NAME in branch $branch for gitlab project $gitlabId")
+            null
+        }
     }
 
 }
