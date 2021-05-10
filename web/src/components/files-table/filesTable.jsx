@@ -48,7 +48,7 @@ const FilesTable = (props) => {
             </div>
           )}
           {files.map((file) => (
-            <tr key={`${file.id}-${file.name}`} id={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
+            <tr key={`${file.id}-${file.name}`} id={file.id} data-testid={file.id} className="files-row clickable" data-key={file.type} onClick={onClick}>
               {Object.keys(file).filter((key) => key !== 'id' && key !== 'type').map((k, keyIndex) => (
                 <td
                   key={`column-name-${k}`}

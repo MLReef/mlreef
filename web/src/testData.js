@@ -3505,6 +3505,9 @@ export const mockedDataInstanceDetails = {
 	]
 }
 
+export const dataInstanceDetialsGitlab = 
+{"id":603,"sha":"b865c74fbc08735e7567fdad8c993526faa7cecd","ref":"data-pipeline/nice-whale-5052021182232-1","status":"success","created_at":"2021-05-05T18:22:34.537Z","updated_at":"2021-05-05T18:27:11.957Z","web_url":"http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/my-shitty-project/pipelines/603","before_sha":"0000000000000000000000000000000000000000","tag":false,"yaml_errors":null,"user":{"id":57,"name":"andres.ausecha","username":"andres.ausecha","state":"active","avatar_url":"https://www.gravatar.com/avatar/beee80f443638cd25a221ab49adffb70?s=80\u0026d=identicon","web_url":"http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha"},"started_at":"2021-05-05T18:22:35.159Z","finished_at":"2021-05-05T18:27:11.941Z","committed_at":null,"duration":276,"coverage":null,"detailed_status":{"icon":"status_success","text":"passed","label":"passed","group":"success","tooltip":"passed","has_details":true,"details_path":"/andres.ausecha/my-shitty-project/pipelines/603","illustration":null,"favicon":"/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png"}}
+
 export const mockedRawPipelines = [
 	{
 		"id": 97,
