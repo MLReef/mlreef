@@ -388,3 +388,167 @@ const classifiedMockedVisualizations = [
 ];
 
 export default classifiedMockedVisualizations;
+
+export const dataVisualizationDet = {
+  id: '009ab6ad-2364-4eaa-9a68-c6791c3b2534',
+  pipeline_type: 'VISUALIZATION',
+  data_project_id: '4b92db71-b0b3-408a-ae57-9d11c28fc75a',
+  slug: 'data-visualization-special-whale-7052021150849',
+  name: 'data-visualization/special-whale-7052021150849',
+  source_branch: 'master',
+  target_branch_pattern: 'data-visualization/special-whale-7052021150849-$NUMBER',
+  data_operations: [{
+    slug: 'netflix-eda-visualization',
+    parameters: [{
+      name: 'input-path', value: 'data', type: 'STRING', required: true, description: 'path to directory of csv files',
+    }, {
+      name: 'output-path', value: '.', type: 'STRING', required: true, description: 'output directory to save the visualizations',
+    }],
+    id: '17adac4e-65d5-4fdd-8e26-a2ba9a2659ba',
+    name: 'Netflix EDA visualization',
+  }],
+  input_files: [{ location: 'data', location_type: 'PATH_FOLDER' }],
+  instances: [{
+    id: '54d3556b-95d5-469b-be48-d19b5d8ca26f',
+    pipeline_type: 'VISUALIZATION',
+    pipeline_config_id: '009ab6ad-2364-4eaa-9a68-c6791c3b2534',
+    data_project_id: '4b92db71-b0b3-408a-ae57-9d11c28fc75a',
+    slug: 'data-visualization-special-whale-7052021150849-1',
+    name: 'data-visualization/special-whale-7052021150849',
+    source_branch: 'master',
+    target_branch: 'data-visualization/special-whale-7052021150849-1',
+    data_operations: [{
+      slug: 'netflix-eda-visualization',
+      parameters: [{
+        name: 'input-path', value: 'data', type: 'STRING', required: true, description: 'path to directory of csv files',
+      }, {
+        name: 'output-path', value: '.', type: 'STRING', required: true, description: 'output directory to save the visualizations',
+      }],
+      id: 'ad6dc0b5-26fc-4066-b081-f4abc2017d40',
+      name: 'Netflix EDA visualization',
+    }],
+    input_files: [{ location: 'data', location_type: 'PATH_FOLDER' }],
+    number: 1,
+    commit: null,
+    status: 'SUCCESS',
+    pipeline_job_info: {
+      id: 618, ref: 'data-visualization/special-whale-7052021150849-1', commit_sha: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', created_at: '2021-05-07T15:08:51.406Z', updated_at: '2021-05-07T15:08:51.622Z', finished_at: '2021-05-07T15:13:53.19Z',
+    },
+  }],
+};
+
+export const dataVisDetGit = {
+  id: 618,
+  sha: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da',
+  ref: 'data-visualization/special-whale-7052021150849-1',
+  status: 'failed',
+  created_at: '2021-05-07T15:08:51.406Z',
+  updated_at: '2021-05-07T15:13:53.368Z',
+  web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/pipelines/618',
+  before_sha: '0000000000000000000000000000000000000000',
+  tag: false,
+  yaml_errors: null,
+  user: {
+    id: 57, name: 'andres.ausecha', username: 'andres.ausecha', state: 'active', avatar_url: 'https://www.gravatar.com/avatar/beee80f443638cd25a221ab49adffb70?s=80\u0026d=identicon', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha',
+  },
+  started_at: '2021-05-07T15:09:00.900Z',
+  finished_at: '2021-05-07T15:13:53.364Z',
+  committed_at: null,
+  duration: 92,
+  coverage: null,
+  detailed_status: {
+    icon: 'status_failed', text: 'failed', label: 'failed', group: 'failed', tooltip: 'failed', has_details: true, details_path: '/andres.ausecha/sign-language-classifier/pipelines/618', illustration: null, favicon: '/assets/ci_favicons/favicon_status_failed-41304d7f7e3828808b0c26771f0309e55296819a9beea3ea9fbf6689d9857c12.png',
+  },
+};
+
+export const dataInsDetailsJobs = [{
+  id: 526,
+  status: 'failed',
+  stage: 'test',
+  name: 'mlreef-pipeline',
+  ref: 'data-visualization/special-whale-7052021150849-1',
+  tag: false,
+  coverage: null,
+  allow_failure: false,
+  created_at: '2021-05-07T15:08:51.481Z',
+  started_at: '2021-05-07T15:09:00.846Z',
+  finished_at: '2021-05-07T15:10:38.937Z',
+  duration: 98.091207,
+  user: {
+    id: 57, name: 'andres.ausecha', username: 'andres.ausecha', state: 'active', avatar_url: 'https://www.gravatar.com/avatar/beee80f443638cd25a221ab49adffb70?s=80\u0026d=identicon', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha', created_at: '2021-01-19T21:51:28.286Z', bio: null, location: null, public_email: '', skype: '', linkedin: '', twitter: '', website_url: '', organization: null,
+  },
+  commit: {
+    id: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', short_id: 'b3e2e22e', created_at: '2021-05-07T15:08:50.000+00:00', parent_ids: ['2986a94bb3d661bc71f15910223a34e748227c6e'], title: '[skip ci] create .mlreef.yml', message: '[skip ci] create .mlreef.yml', author_name: 'andres.ausecha', author_email: 'daausecham@gmail.com', authored_date: '2021-05-07T15:08:50.000+00:00', committer_name: 'andres.ausecha', committer_email: 'daausecham@gmail.com', committed_date: '2021-05-07T15:08:50.000+00:00',
+  },
+  pipeline: {
+    id: 618, sha: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', ref: 'data-visualization/special-whale-7052021150849-1', status: 'failed', created_at: '2021-05-07T15:08:51.406Z', updated_at: '2021-05-07T15:13:53.368Z', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/pipelines/618',
+  },
+  web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/-/jobs/526',
+  artifacts: [{
+    file_type: 'trace', size: 17348, filename: 'job.log', file_format: null,
+  }],
+  runner: {
+    id: 376, description: 'K8S runner on review-master-8dyme2.35.246.253.255.nip.io', ip_address: '10.14.1.3', active: true, is_shared: true, name: 'gitlab-runner', online: true, status: 'online',
+  },
+  artifacts_expire_at: null,
+}, {
+  id: 527,
+  status: 'failed',
+  stage: 'test',
+  name: 'mlreef-pipeline',
+  ref: 'data-visualization/special-whale-7052021150849-1',
+  tag: false,
+  coverage: null,
+  allow_failure: false,
+  created_at: '2021-05-07T15:10:39.013Z',
+  started_at: '2021-05-07T15:10:40.847Z',
+  finished_at: '2021-05-07T15:12:12.600Z',
+  duration: 91.752495,
+  user: {
+    id: 57, name: 'andres.ausecha', username: 'andres.ausecha', state: 'active', avatar_url: 'https://www.gravatar.com/avatar/beee80f443638cd25a221ab49adffb70?s=80\u0026d=identicon', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha', created_at: '2021-01-19T21:51:28.286Z', bio: null, location: null, public_email: '', skype: '', linkedin: '', twitter: '', website_url: '', organization: null,
+  },
+  commit: {
+    id: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', short_id: 'b3e2e22e', created_at: '2021-05-07T15:08:50.000+00:00', parent_ids: ['2986a94bb3d661bc71f15910223a34e748227c6e'], title: '[skip ci] create .mlreef.yml', message: '[skip ci] create .mlreef.yml', author_name: 'andres.ausecha', author_email: 'daausecham@gmail.com', authored_date: '2021-05-07T15:08:50.000+00:00', committer_name: 'andres.ausecha', committer_email: 'daausecham@gmail.com', committed_date: '2021-05-07T15:08:50.000+00:00',
+  },
+  pipeline: {
+    id: 618, sha: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', ref: 'data-visualization/special-whale-7052021150849-1', status: 'failed', created_at: '2021-05-07T15:08:51.406Z', updated_at: '2021-05-07T15:13:53.368Z', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/pipelines/618',
+  },
+  web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/-/jobs/527',
+  artifacts: [{
+    file_type: 'trace', size: 17211, filename: 'job.log', file_format: null,
+  }],
+  runner: {
+    id: 376, description: 'K8S runner on review-master-8dyme2.35.246.253.255.nip.io', ip_address: '10.14.1.3', active: true, is_shared: true, name: 'gitlab-runner', online: true, status: 'online',
+  },
+  artifacts_expire_at: null,
+}, {
+  id: 528,
+  status: 'failed',
+  stage: 'test',
+  name: 'mlreef-pipeline',
+  ref: 'data-visualization/special-whale-7052021150849-1',
+  tag: false,
+  coverage: null,
+  allow_failure: false,
+  created_at: '2021-05-07T15:12:12.674Z',
+  started_at: '2021-05-07T15:12:20.856Z',
+  finished_at: '2021-05-07T15:13:53.283Z',
+  duration: 92.426875,
+  user: {
+    id: 57, name: 'andres.ausecha', username: 'andres.ausecha', state: 'active', avatar_url: 'https://www.gravatar.com/avatar/beee80f443638cd25a221ab49adffb70?s=80\u0026d=identicon', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha', created_at: '2021-01-19T21:51:28.286Z', bio: null, location: null, public_email: '', skype: '', linkedin: '', twitter: '', website_url: '', organization: null,
+  },
+  commit: {
+    id: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', short_id: 'b3e2e22e', created_at: '2021-05-07T15:08:50.000+00:00', parent_ids: ['2986a94bb3d661bc71f15910223a34e748227c6e'], title: '[skip ci] create .mlreef.yml', message: '[skip ci] create .mlreef.yml', author_name: 'andres.ausecha', author_email: 'daausecham@gmail.com', authored_date: '2021-05-07T15:08:50.000+00:00', committer_name: 'andres.ausecha', committer_email: 'daausecham@gmail.com', committed_date: '2021-05-07T15:08:50.000+00:00',
+  },
+  pipeline: {
+    id: 618, sha: 'b3e2e22ea094a88f86c07b18a1d1f1f4fccea0da', ref: 'data-visualization/special-whale-7052021150849-1', status: 'failed', created_at: '2021-05-07T15:08:51.406Z', updated_at: '2021-05-07T15:13:53.368Z', web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/pipelines/618',
+  },
+  web_url: 'http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/andres.ausecha/sign-language-classifier/-/jobs/528',
+  artifacts: [{
+    file_type: 'trace', size: 17166, filename: 'job.log', file_format: null,
+  }],
+  runner: {
+    id: 376, description: 'K8S runner on review-master-8dyme2.35.246.253.255.nip.io', ip_address: '10.14.1.3', active: true, is_shared: true, name: 'gitlab-runner', online: true, status: 'online',
+  },
+  artifacts_expire_at: null,
+}];

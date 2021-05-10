@@ -1,7 +1,6 @@
 import DataPipelineApi from 'apis/DataPipelineApi';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import JobsApi from 'apis/JobsApi';
-import { SKIPPED } from 'dataTypes';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 
 const dataPipelineApi = new DataPipelineApi();
@@ -9,9 +8,9 @@ const gitlabPipelines = new GitlabPipelinesApi();
 const jobsApi = new JobsApi();
 
 /**
- * 
- * @param {*} pipelineBackendId 
- * @param {*} backendInstanceId 
+ *
+ * @param {*} pipelineBackendId
+ * @param {*} backendInstanceId
  */
 
 const deleteDataInstance = (
@@ -21,11 +20,11 @@ const deleteDataInstance = (
   .delete(pipelineBackendId, backendInstanceId);
 
 /**
- * 
- * @param {*} gitlabProjectId 
- * @param {*} backendPipelineId 
- * @param {*} pipelineInstanceId 
- * @param {*} gitlabPipelineId 
+ *
+ * @param {*} gitlabProjectId
+ * @param {*} backendPipelineId
+ * @param {*} pipelineInstanceId
+ * @param {*} gitlabPipelineId
  */
 
 const abortDataInstance = (
@@ -39,7 +38,7 @@ const abortDataInstance = (
 ).then(() => dataPipelineApi.cancel(backendPipelineId, pipelineInstanceId));
 
 /**
- * 
+ *
  * @param {*} gitlabId: project id
  * @param {*} dataId: backend pipeline id
  */
@@ -49,11 +48,9 @@ const getDataInstanceAndAllItsInformation = (
   dataId,
 ) => dataPipelineApi.getBackendPipelineById(dataId)
   .then(parseToCamelCase)
-  .then((backendPipe) => gitlabPipelines.getPipesByProjectId(gitlabId)
-    .then((pipes) => pipes
-      .filter((pipeline) => pipeline
-        .ref
-        .includes(backendPipe?.name) && pipeline.status !== SKIPPED)[0])
+  .then((backendPipe) => gitlabPipelines
+    .getPipesById(gitlabId, backendPipe?.instances[0]?.pipeline_job_info?.id)
+    .then((res) => {console.log(res); return res})
     .then(({
       created_at: timeCreatedAgo,
       id,

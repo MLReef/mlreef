@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
@@ -13,18 +13,21 @@ import { generateBreadCrumbs } from 'functions/helpers';
 import { getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
-import FilesTable from '../../files-table/filesTable';
 import Navbar from '../../navbar/navbar';
 import ProjectContainer from '../../projectContainer';
 import './dataInstanceDetails.scss';
-import FilesApi from 'apis/FilesApi.ts';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
 import actions from './DataInstanceActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
+import { suscribeRT } from 'functions/apiCalls';
+import JobIdLink from './JobIdLink';
+import DataintanceFiles from './DatainstanceFiles';
+import MTimer from 'components/ui/MTimer/MTimer';
 
-const filesApi = new FilesApi();
+const timeout = 30000;
+const durationChangetimeout = 5000;
 
 const DataInstanceDetails = (props) => {
   const {
@@ -42,11 +45,9 @@ const DataInstanceDetails = (props) => {
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const { gid } = selectedProject;
-
-  const [files, setFiles] = useState([]);
   const [dataInstance, setDataInstance] = useState({});
-  const [lastJob, setLastJob] = useState({});
-
+  const timesPipelineWasFetched = useRef(0);
+  
   const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
   const {
     name,
@@ -58,7 +59,7 @@ const DataInstanceDetails = (props) => {
     gitlabPipelineId,
     diStatus,
     branchName,
-    updatedAt
+    updatedAt,
   } = dataInstance;
 
   let commitSha;
@@ -76,35 +77,27 @@ const DataInstanceDetails = (props) => {
   const duration = (new Date(updatedAt) - new Date(timeCreatedAgo));
   const showFilesInfo = diStatus === undefined || diStatus === RUNNING || diStatus === PENDING;
 
+  const fetchPipelineInfo = useCallback(() => {
+    const complete = !(diStatus === RUNNING || diStatus === PENDING);
+    if(!gid || (complete && timesPipelineWasFetched.current > 0)) {
+      return;
+    }
+  
+    actions.getDataInstanceAndAllItsInformation(gid, dataId)
+    .then((ins) => {
+      setDataInstance(ins);
+      timesPipelineWasFetched.current += 1;
+    })
+    .catch((err) => toastr.error('Error', err?.message));
+  }, [gid, dataId, diStatus, gitlabPipelineId]);
 
+  useEffect(() => suscribeRT({ timeout })(fetchPipelineInfo), [fetchPipelineInfo]);
+  
   useEffect(() => {
     if(gid) {
       getBranchesList(gid);
-      actions.getDataInstanceAndAllItsInformation(gid, dataId)
-        .then(setDataInstance)
-        .catch((err) => toastr.error('Error', err?.name));
-    }
-  }, [gid, dataId]);
-
-  useEffect(() => {    
-    if (branchName) {
-      filesApi.getFilesPerProject(
-        gid,
-        path || '',
-        false,
-        branchName,
-      ).then((filesPerProject) => setFiles(filesPerProject))
-      .catch(() => toastr.error('Error', 'Something went wrong fetching pipelines'));
     }
   }, [gid, path, branchName]);
-
-  useEffect(() => {
-    if (gitlabPipelineId) {
-      actions.fetchDatapipelineLastJob(gid, gitlabPipelineId)
-        .then(setLastJob)
-        .catch((err) => toastr.error('Error', err?.message));
-    }
-  }, [gitlabPipelineId]);
   
   const customCrumbs = [
     {
@@ -139,7 +132,7 @@ const DataInstanceDetails = (props) => {
           <div className="content">
             <br />
             <div className="content-row">
-              <div className="item">
+              <div data-testid="dataset-branch-link" className="item">
                 <p>Dataset:</p>
                 <Link to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(branchName)}`}>
                   <p><b>{branchName?.replace(/.*\//, '')}</b></p>
@@ -182,19 +175,14 @@ const DataInstanceDetails = (props) => {
               </AuthWrapper>
             </div>
             <div className="content-row">
-              {lastJob.id ? (
-                <Link to={`/${namespace}/${slug}/insights/-/jobs/${lastJob.id}`}>
-                  <div className="item">
-                    <p>Status:</p>
-                    <p style={{ color: `var(--${statusParagraphColor})` }}><b>{diStatus}</b></p>
-                  </div>
-                </Link>
-                ) : (
-                  <div className="item">
-                    ---
-                  </div>
-                )
-              }
+              <JobIdLink
+                gid={gid}
+                gitlabPipelineId={gitlabPipelineId}
+                namespace={namespace}
+                slug={slug}
+                statusParagraphColor={statusParagraphColor}
+                diStatus={diStatus}
+              />
               <div className="item">
                 <p>DataOps ID:</p>
                 <span style={{
@@ -208,7 +196,7 @@ const DataInstanceDetails = (props) => {
               </div>
             </div>
             <br />
-            <div className="content-row">
+            <div data-testid="created-time" className="content-row">
               <div className="item">
                 <p>
                   Created:
@@ -220,7 +208,7 @@ const DataInstanceDetails = (props) => {
                 </p>
               </div>
             </div>
-            <div className="content-row">
+            <div data-testid="completed-time" className="content-row">
               <div className="item">
                 <p>
                   Completed:
@@ -231,15 +219,16 @@ const DataInstanceDetails = (props) => {
                   </b>
                 </p>
               </div>
-              <div className="item">
+              <div data-testid="running-time" className="item">
                 <p>
                   Running time:
                 </p>
                 <p>
                   <b>
-                    {duration
+                    {isCompleted
                       ? moment({}).startOf('day').milliseconds(duration).format('HH:mm:ss')
-                      : '---'}
+                      : <MTimer startTime={timeCreatedAgo} />
+                    }
                   </b>
                 </p>
               </div>
@@ -325,31 +314,11 @@ const DataInstanceDetails = (props) => {
             </div>
           </>
         ) : (
-          <FilesTable
-            isReturnOptVisible={!!path}
-            files={files.map((f) => ({ id: f.id, name: f.name, type: f.type }))}
-            headers={[
-              'Name',
-            ]}
-            onClick={(e) => {
-              const target = e.currentTarget;
-              const targetDataKey = target.getAttribute('data-key');
-              const targetId = target.id;
-              const file = files.filter((f) => f.id === targetId)[0];
-              let link = '';
-              let routeType = '';
-              const baseUrl = `/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}`;
-              const encodedBranch = encodeURIComponent(branchName);
-              const encodedPath = encodeURIComponent(file.path);
-              if (targetDataKey === 'tree') {
-                routeType = 'path';
-                link = `${baseUrl}/-/datasets/${encodedBranch}/${id}/path/${encodedPath}`;
-              } else {
-                routeType = 'blob';
-                link = `${baseUrl}/-/${routeType}/branch/${encodedBranch}/path/${encodedPath}`;
-              }
-              history.push(link);
-            }}
+          <DataintanceFiles 
+            selectedProject={selectedProject}
+            dataInsId={id}
+            branchName={branchName}
+            path={path}
           />
         )}
       </div>

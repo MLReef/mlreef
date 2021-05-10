@@ -1,15 +1,16 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import DataInstanceDetails from 'components/views/Datainstances/dataInstanceDetails';
+import DataVisualizationDetail from 'components/views/DataVisualization/dataVisualizationDetail';
 import moment from 'moment';
 import { PIPELINE_VIEWS_FORMAT } from 'dataTypes';
 import { generatePromiseResponse, sleep, storeFactory } from 'functions/testUtils';
 import { act } from 'react-dom/test-utils';
 import { render, screen } from '@testing-library/react';
 import {
-  branchesMock, dataInstanceDetialsGitlab, filesMock, jobMock, mockedDataInstanceDetails,
+  branchesMock, filesMock,
 } from '../../../testData';
+import { dataInsDetailsJobs, dataVisDetGit, dataVisualizationDet } from './testData';
 
 const pushMock = jest.fn();
 
@@ -19,14 +20,14 @@ const match = {
   params: {
     namespace: 'my-namespace',
     slug: 'the-project-name',
-    dataId: '1df0c510-fec4-4fd3-bbc9-d911fbbc496e',
+    visId: '1df0c510-fec4-4fd3-bbc9-d911fbbc496e',
     path: '',
   },
 };
 
 const branches = branchesMock;
 
-branches[0].name = 'data-pipeline/gentle-warwhal-18012021223245-1';
+branches[0].name = 'data-visualization/special-whale-7052021150849';
 
 const store = storeFactory({
   branches,
@@ -36,12 +37,13 @@ describe('Data instance details contains basic UI elements', () => {
   beforeEach(() => {
     jest.spyOn(global, 'fetch').mockImplementation(({ url }) => {
       let resPayload;
+      console.log(url);
       if (url.includes('/api/v1/pipelines/')) {
-        resPayload = mockedDataInstanceDetails;
-      } else if (url.includes('/api/v4/projects/12395599/pipelines/603/jobs')) {
-        resPayload = [jobMock];
+        resPayload = dataVisualizationDet;
+      } else if (url.includes('/api/v4/projects/12395599/pipelines/618/jobs')) {
+        resPayload = dataInsDetailsJobs;
       } else if (url.includes('/api/v4/projects/12395599/pipelines/')) {
-        resPayload = dataInstanceDetialsGitlab;
+        resPayload = dataVisDetGit;
       } else if (url.includes('/branches')) {
         resPayload = branches;
       } else {
@@ -53,7 +55,7 @@ describe('Data instance details contains basic UI elements', () => {
       render(
         <Provider store={store}>
           <MemoryRouter>
-            <DataInstanceDetails match={match} history={history} />
+            <DataVisualizationDetail match={match} history={history} />
           </MemoryRouter>
         </Provider>,
       );
@@ -64,20 +66,20 @@ describe('Data instance details contains basic UI elements', () => {
     await sleep(300);
     const branchLink = screen.getByTestId('dataset-branch-link').getElementsByTagName('a').item(0);
     expect(branchLink).toBeDefined();
-    expect(branchLink.href.includes('/my-namespace/the-project-name/-/tree/data-pipeline%2Fnice-whale-5052021182232-1')).toBeTruthy();
+    expect(branchLink.href.includes('/my-namespace/the-project-name/-/tree/data-visualization%2Fspecial-whale-7052021150849')).toBeTruthy();
 
     const jobLink = screen.getByTestId('job-link').getElementsByTagName('a').item(0);
-    expect(jobLink.href.includes('/my-namespace/the-project-name/insights/-/jobs/386629443')).toBeTruthy();
+    expect(jobLink.href.includes('/my-namespace/the-project-name/insights/-/jobs/528')).toBeTruthy();
 
     const timeCreatedAgo = moment(
-      dataInstanceDetialsGitlab.created_at,
+      dataVisDetGit.created_at,
     ).format(PIPELINE_VIEWS_FORMAT);
     const updatedAt = moment(
-      dataInstanceDetialsGitlab.updated_at,
+      dataVisDetGit.updated_at,
     ).format(PIPELINE_VIEWS_FORMAT);
     expect((await screen.findAllByText(timeCreatedAgo)).pop()).toBeDefined();
     expect((await screen.findAllByText(updatedAt)).pop()).toBeDefined();
-    expect((await screen.findAllByText('00:04:37')).pop()).toBeDefined();
+    expect((await screen.findAllByText('00:05:01')).pop()).toBeDefined();
 
     expect(screen.findByRole('table')).toBeDefined();
     expect((await screen.findAllByText('directory_1')).pop()).toBeDefined();
