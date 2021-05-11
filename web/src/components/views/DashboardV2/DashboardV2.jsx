@@ -16,8 +16,6 @@ import ProjectsDropDown from './ProjectsDropDown';
 const DashboardV2 = (props) => {
   const { actions } = props;
 
-  const history = useHistory();
-
   const { classification1, classification2 } = useParams();
 
   const class1 = classification1 || 'my-repositories';
@@ -36,10 +34,6 @@ const DashboardV2 = (props) => {
     const color = projectClassificationsProps
       .filter(({ searchableType }) => searchableType.toLowerCase() === class2)[0]?.color;
     actions.setGlobalMarkerColor(color);
-
-    if (!classification1 && !classification2) {
-      history.push('/dashboard/public/data_project');
-    }
   }, []);
 
   return (
