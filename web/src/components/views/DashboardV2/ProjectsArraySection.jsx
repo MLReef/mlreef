@@ -8,6 +8,7 @@ import {
   bool, func, shape, string,
 } from 'prop-types';
 import { connect } from 'react-redux';
+import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 import MBricksWall from 'components/ui/MBricksWall';
 import * as userActions from 'store/actions/userActions';
 import iconGrey from 'images/icon_grey-01.png';
@@ -15,6 +16,7 @@ import MProjectCard from 'components/ui/MProjectCard';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import dashboardActions from './dashBoardActions';
 import { DashboardContext } from './DashboardContext';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 const comparingFunctions = {
   0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase() ? 1 : -1), // All
@@ -31,7 +33,13 @@ const ProjectsArraySection = (props) => {
   const isLast = useRef(false);
   const [{
     selectedDataTypes, minimumStars, publishState, sorting,
-  }] = useContext(DashboardContext);
+  }, dispatch] = useContext(DashboardContext);
+
+  useEffect(() => {
+    if (classification2 === 'data_project') {
+      dispatch({ type: 'SET_PUBLISH_STATE', payload: -1 });
+    }
+  }, [classification2]);
 
   const fetch = () => dashboardActions.getProjects(
     classification2,
@@ -78,7 +86,7 @@ const ProjectsArraySection = (props) => {
   },
   [page]);
 
-  useEffect(() => {
+  useEffectNoFirstRender(() => {
     executeFetchOnMore();
   }, [executeFetchOnMore]);
 

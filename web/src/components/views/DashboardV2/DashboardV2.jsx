@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { Link, useParams, useHistory } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Navbar from 'components/navbar/navbar';
 import Instruction from 'components/instruction/instruction';
 import { projectClassificationsProps } from 'dataTypes';
 import * as userActions from 'store/actions/userActions';
+import { func, shape } from 'prop-types';
 import TagSection from './TagSection';
 import FiltersSection from './FiltersSections';
 import './DashboardV2.scss';
@@ -28,12 +29,13 @@ const DashboardV2 = (props) => {
 
   const publicClass = class1 === 'public' ? 'active' : '';
 
-  const setLoadingStatus = () => () => actions.setIsLoading(true);
+  const setLoadingStatus = () => actions.setIsLoading(true);
 
   useEffect(() => {
     const color = projectClassificationsProps
       .filter(({ searchableType }) => searchableType.toLowerCase() === class2)[0]?.color;
     actions.setGlobalMarkerColor(color);
+    actions.setIsLoading(true);
   }, []);
 
   return (
@@ -48,7 +50,7 @@ const DashboardV2 = (props) => {
             <p className="m-0">
               <b>- ML projects:</b>
               {' '}
-              These host your data and all your ML pipelines, 
+              These host your data and all your ML pipelines,
               from data pre-processing to creating and tracking experiments.
             </p>
             <p className="m-0">
@@ -147,5 +149,12 @@ function mapDispatchToProps(dispatch) {
     }, dispatch),
   };
 }
+
+DashboardV2.propTypes = {
+  actions: shape({
+    setGlobalMarkerColor: func.isRequired,
+    setIsLoading: func.isRequired,
+  }).isRequired,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(DashboardV2);
