@@ -1,3 +1,5 @@
+import React from 'react';
+import { Redirect } from 'react-router-dom';
 import LoginView from 'components/login/login';
 import RegisterView from 'components/RegisterView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
@@ -34,27 +36,17 @@ import PublishingView from 'components/views/PublishingView';
 import PublishProcessView from 'components/views/PublishProcessView';
 import DashboardV2 from 'components/views/DashboardV2';
 import NotFoundView from 'components/views/ErrorView/NotFoundView';
-import Redirect from 'components/commons/Redirect';
 
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
 import Publications from 'components/views/Publications/Publications';
 import FileEditor from 'components/views/FileEditor';
-import ImportDataOverview from 'components/views/ImportDataOverview'
+import ImportDataOverview from 'components/views/ImportDataOverview';
 import Fileview from 'components/views/FileviewComp/Fileview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
 
 export default [
-  {
-    name: 'home',
-    path: '/',
-    exact: true,
-    component: DashboardV2,
-    meta: {
-      authRequired: true,
-    },
-  },
   {
     name: 'dashboard-v2',
     path: '/dashboard/:classification1/:classification2',
@@ -535,8 +527,14 @@ export default [
     component: ImportDataOverview,
   },
   {
+    name: 'home',
+    path: '/',
+    exact: true,
+    component: DashboardV2,
+  },
+  {
     name: 'empty',
     path: '',
-    component: NotFoundView,
+    component: DashboardV2,
   },
 ];

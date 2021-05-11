@@ -33,12 +33,14 @@ const isExternal = /^https?/.test(NO_AUTH_REDIRECT);
 const PrivateRoute = (routeProps) => {
   const {
     component: Component,
+    redirect,
     resource,
     owneronly,
     role,
     accountType,
     debug,
     computedMatch: { params: { namespace, slug } },
+    path,
     ...rest
   } = routeProps;
 
@@ -92,11 +94,30 @@ const PrivateRoute = (routeProps) => {
   }
 
   return (
-    // eslint-disable-next-line
-    <Route {...rest} render={(props) => (allowed
-      /* eslint-disable-next-line */
-      ? <Component {...props} />
-      : isExternal ? null : <Redirect to={redirectUrl} />)}
+    <Route
+      {...rest}
+      path={path}
+      render={(props) => {
+        if (path === '' || path === '/') {
+          return (
+            <Redirect to="/dashboard/public/data_project" />
+          );
+        }
+
+        if (allowed) {
+          return (
+            <Component {...props} />
+          );
+        }
+
+        if (isExternal) {
+          return null;
+        }
+
+        return (
+          <Redirect to={redirectUrl} />
+        );
+      }}
     />
   );
 };

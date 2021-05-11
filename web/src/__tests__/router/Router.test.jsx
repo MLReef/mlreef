@@ -187,8 +187,8 @@ describe('Basics: Assert that a route', () => {
         <MemoryRouter routes={routes} initialEntries={['/qwerty/any-slug']} />
       </Provider>,
     );
-
-    expect(wrapper.find('main').text()).toBe('not-found');
+    const redirect = wrapper.find('Redirect');
+    expect(redirect.props().to).toBe('/dashboard/public/data_project');
   });
 
   test('without exact match can match a similar', () => {

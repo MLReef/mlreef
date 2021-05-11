@@ -1,6 +1,6 @@
 import React, { createContext, useMemo } from 'react';
 import * as PropTypes from 'prop-types';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Switch, Redirect, Route } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import { RecordedPropTypes } from './routeModel';
 
@@ -20,6 +20,11 @@ export const SwitchBase = (props) => {
   return (
     <Switch>
       {routes.map((route) => {
+        if (route.path === '/' || route.path?.length === 0) {
+          return (
+            <Redirect to="/dashboard/public/data_project" />
+          );
+        }
         const isPrivate = route?.meta?.authRequired;
 
         return isPrivate ? (
