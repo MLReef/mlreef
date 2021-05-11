@@ -102,13 +102,13 @@ const getProjects = (
   publishState, 
   page, 
   size
-) => mlSearchApi
+) => mlSearchApi  
   .searchPaginated(searchableType.toUpperCase(), 
     buildProjectsRequestBodyV2(
       classification1,
       getDataTypeNames(dataTypes, selectedDataTypes),
       minimumStars,
-      getValuesStateOptions(publishState),
+      getValuesStateOptions(searchableType === 'data_project' ? null : publishState),
     ),
     page, 
     size)
