@@ -93,6 +93,8 @@ mlreef-pipeline:
   script: |
     git checkout -B $TARGET_BRANCH
     echo $CI_JOB_ID >> data_pipeline.info
+    # Login to docker
+    echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin 
     # Run docker command to run experiment with project image.
     # PIPELINE_STRING gets populate by backend/mlreef-rest/src/main/kotlin/com/mlreef/rest/feature/pipeline/YamlFileGenerator.kt
 %PIPELINE_STRING%
