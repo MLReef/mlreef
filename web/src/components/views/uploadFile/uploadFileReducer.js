@@ -17,7 +17,6 @@ export default (state, { type, payload }) => {
   const { fileId } = payload;
   const file = prevFilesArr.filter((f) => f.getId() === fileId)[0];
   const fileIndex = prevFilesArr.indexOf(file);
-
   switch (type) {
     case SET_FILESUPLOAD:
       return { ...state, filesToUpload: [...prevFilesArr, ...payload] };
@@ -38,7 +37,7 @@ export default (state, { type, payload }) => {
     case SET_PROGRESS:
       file.setProg(payload.progress);
       prevFilesArr[fileIndex] = file;
-      return { ...state, progress: payload };
+      return { ...state, filesToUpload: [...prevFilesArr] };
     case SET_LOADING:
       return { ...state, areFilesLoaded: payload };
     case SET_SENDING_FILES:

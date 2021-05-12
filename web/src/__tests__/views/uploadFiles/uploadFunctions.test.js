@@ -6,4 +6,8 @@ describe('test basic functions', () => {
     expect(isFileExtensionForBase64Enc('application/pdf')).toBe(true);
     expect(isFileExtensionForBase64Enc('')).toBe(false);
   });
+
+  test('', () => {
+
+  });  
 });

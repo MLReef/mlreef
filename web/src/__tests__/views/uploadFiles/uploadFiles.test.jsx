@@ -1,26 +1,28 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { mount } from 'enzyme';
 import UploadFile from 'components/views/uploadFile/uploadFile';
-import { projectsArrayMock } from 'testData';
-import { storeFactory } from 'functions/testUtils';
-import hooks from 'customHooks/useSelectedProject';
+import { branchesMock } from 'testData';
+import { sleep, storeFactory } from 'functions/testUtils';
 
+let goBackMock;
 const setup = () => {
+  goBackMock = jest.fn();
   const match = {
     params: { branch: 'master' },
   };
-  const location = { state: { currentFilePath: '' } };
+  const location = { state: { currentFilePath: 'data' } };
   const store = storeFactory({
-    projects: {
-      selectedProject: projectsArrayMock.projects.selectedProject,
-    },
+    branches: branchesMock,
   });
-  hooks.useSelectedProject = jest.fn(() => [projectsArrayMock.projects.selectedProject]);
-  const wrapper = shallow(
-    <UploadFile match={match} location={location} store={store} history={{ push: jest.fn() }} />,
+  return mount(
+    <Provider store={store}>
+      <MemoryRouter>
+        <UploadFile match={match} location={location} history={{ goBack: goBackMock }} />
+      </MemoryRouter>
+    </Provider>,
   );
-  const afterDive = wrapper.dive().dive();
-  return afterDive;
 };
 
 describe('presence of elements and functions', () => {
@@ -44,31 +46,59 @@ describe('presence of elements and functions', () => {
     expect(wrapper.find('MButton')).toHaveLength(1);
   });
 
-  test('assert that new MR checkbox renders when target branch is not the current branch', () => {
-    wrapper.find('input#target-branch').simulate('change', { target: { value: 'master-1' } });
-    expect(wrapper.find('MCheckBox')).toHaveLength(1);
-  });
-
-  test('assert that files array is updated and previous files are not deleted', () => {
+  test('assert that form is valid when all fields were filled out', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => new Promise((resolve) => resolve({ ok: true })));
+    expect(wrapper.find('button[type="submit"]').props().disabled).toBe(true);
     const mockFileName1 = 'a-file-to-test-1';
     const mockFileName2 = 'a-file-to-test-2';
     const mockedFile1 = new File([''], mockFileName1, { type: 'application/jpg' });
     const mockedFile2 = new File([''], mockFileName2, { type: 'application/jpg' });
-    const mockChangeEv1 = {
-      target: {
-        files: [mockedFile1],
-      },
-    };
-    const mockChangeEv2 = {
-      target: {
-        files: [mockedFile2],
-      },
-    };
-    wrapper.find('input.file-browser-input').simulate('change', mockChangeEv1);
-    wrapper.find('input.file-browser-input').simulate('change', mockChangeEv2);
+    wrapper.find('.draggable-container').simulate('drop', {
+      stopPropagation: () => {},
+      preventDefault: () => {},
+      dataTransfer: { files: [mockedFile1, mockedFile2] },
+    });
     const filesInTheDom = wrapper.find('FileToSend');
     expect(filesInTheDom).toHaveLength(2);
     expect(filesInTheDom.first().props().fileName).toBe(mockFileName1);
     expect(filesInTheDom.at(1).props().fileName).toBe(mockFileName2);
+
+    await sleep(50);
+    wrapper.setProps({});
+
+    wrapper.find('button.remove-file-button').at(1).simulate('click');
+    const files = wrapper.find('FileToSend');
+    expect(files).toHaveLength(1);
+    const fileName = files.at(0).find('p');
+    expect(fileName.text()).toBe('Uploaded a-file-to-test-1 ');
+
+    wrapper.find('textarea#commitMss-text-area').simulate('change', { target: { value: 'some message' } });
+    wrapper.find('input#target-branch').simulate('change', { target: { value: 'master-1' } });
+    const startMr = wrapper.find('MCheckBox');
+    expect(startMr).toHaveLength(1);
+    startMr.childAt(0).simulate('click');
+
+    const submitButton = wrapper.find('button[type="submit"]');
+    expect(submitButton.props().disabled).toBe(false);
+
+    submitButton.simulate('click');
+    const request = global.fetch.mock.calls[0][0];
+    expect(request.url).toBe('/api/v4/projects/12395599/repository/commits');
+    const body = JSON.parse(request._bodyInit);
+
+    expect(body.branch).toBe('master-1');
+    expect(body.start_branch).toBe('master');
+    expect(body.commit_message).toBe('some message');
+
+    const [action] = body.actions;
+    expect(action.action).toBe('create');
+    expect(action.file_path).toBe('//a-file-to-test-1');
+
+    global.fetch.mockClear();
+  });
+
+  test('assert that goback is called correctly', () => {
+    wrapper.find('#cancel-button').simulate('click');
+    expect(goBackMock).toHaveBeenCalled();
   });
 });

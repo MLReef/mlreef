@@ -102,9 +102,10 @@ const FilesContainer = ({
             toastr.error('Error', 'Something wrong browsing app');
             return;
           }
+          const encodedPath = encodeURIComponent(file.path);
           const link = targetDataKey === 'tree'
-            ? `${baseLink}/${finalBranch}/${file.path}`
-            : `${baseLink}/branch/${finalBranch}/path/${file.path}`;
+            ? `${baseLink}/${finalBranch}/${encodedPath}`
+            : `${baseLink}/branch/${finalBranch}/path/${encodedPath}`;
           history.push(link);
         }}
       />

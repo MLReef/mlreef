@@ -17,7 +17,6 @@ describe('test basic UI presence', () => {
   });
 
   test('asssert that basic rendering works', () => {
-    console.log(wrapper.debug());
     const codeSectionRenderBtn = wrapper.find('button#open-code-section');
     expect(wrapper.find('MLoadingSpinner').length).toBe(0);
     expect(codeSectionRenderBtn.hasClass('btn-dark')).toBeTruthy();

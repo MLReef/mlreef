@@ -1,7 +1,14 @@
+import CommitsApi from 'apis/CommitsApi';
+import MergeRequestAPI from 'apis/MergeRequestApi';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import { CREATE } from 'dataTypes';
+import { convertToSlug } from 'functions/dataParserHelpers';
 import UUIDV1 from 'uuid/v1';
 import FileToUpload from './FileToUpload.ts';
+
+const commitsapi = new CommitsApi();
+
+const mergeRequestAPI = new MergeRequestAPI();
 
 export const formatsWhichNeedbase64Encode = [
   'image',
@@ -27,7 +34,6 @@ export const initialState = {
   commitMsg: 'Upload new file',
   startMR: false,
   isAValidForm: false,
-  progress: 0,
   areFilesLoaded: false,
   isSendingFiles: false,
 };
@@ -58,6 +64,30 @@ export const processFiles = (rawFiles) => {
     ));
 };
 
+export const processAndSetStatus = (rawFiles, dispatch) => {
+  const processedFiles = processFiles(rawFiles);
+  dispatch({ type: SET_FILESUPLOAD, payload: processedFiles });
+  processedFiles.forEach((pf, pfIndex) => {
+    const fileReader = new FileReader();
+    const f = rawFiles[pfIndex];
+    fileReader.onloadend = () => {
+      dispatch({
+        type: SET_PROGRESS,
+        payload: {
+          fileId: pf.id,
+          progress: 100,
+        },
+      });
+      dispatch({ type: SET_CONTENT, payload: { fileId: pf.id, content: fileReader.result } });
+    };
+    if (isFileExtensionForBase64Enc(pf.type)) {
+      fileReader.readAsArrayBuffer(f);
+    } else {
+      fileReader.readAsText(f);
+    }
+  });
+};
+
 export const generateActionsForCommit = (
   currentFilePath,
   filesToUpload,
@@ -78,3 +108,47 @@ export const generateActionsForCommit = (
     encoding,
   };
 });
+
+export const createNewFiles = (
+  gid,
+  branchForFile,
+  finalCommitMsg,
+  startMR,
+  pathForFile,
+  finalArrayOfFilesToUpload,
+  branches,
+  currentBranch,
+  dispatch,
+) => {
+  const slugVersionBranch = convertToSlug(branchForFile);
+  let body = {
+    branch: slugVersionBranch,
+    commit_message: finalCommitMsg,
+    actions: generateActionsForCommit(pathForFile || '/', finalArrayOfFilesToUpload),
+  };
+
+  if (!branches.includes(slugVersionBranch)) {
+    body = { ...body, start_branch: currentBranch };
+  }
+
+  dispatch({ type: SET_SENDING_FILES, payload: true });
+
+  return commitsapi.performCommitForMultipleActions(
+    gid,
+    JSON.stringify(body),
+  )
+    .then(() => {
+      dispatch({ type: SET_FILESUPLOAD, payload: [] });
+      dispatch({ type: SET_TARGET, payload: slugVersionBranch });
+      if (startMR) {
+        return mergeRequestAPI
+          .submitMergeReq(gid, slugVersionBranch, currentBranch, 'Merge file to main branch')
+          .then((bodyRes) => {
+            const { source_branch: mrSourceBranch } = bodyRes;
+            dispatch({ type: SET_TARGET, payload: mrSourceBranch });
+            dispatch({ type: SET_LOADING, payload: true });
+          });
+      }
+      dispatch({ type: SET_LOADING, payload: true });
+    });
+};

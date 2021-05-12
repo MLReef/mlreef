@@ -3,7 +3,6 @@ import MProjectCardTypes from 'components/ui/MProjectCard/MProjectCardTypes';
 import './DataProviderCard.scss';
 
 const DataProviderCard = ({ name, description, tags, dataTypes, starsCount, avatarUrl, descriptionImage }) => {
-  console.log(avatarUrl);
   return (
   <div className="data-provider-card">
     <div className="data-provider-card-container">

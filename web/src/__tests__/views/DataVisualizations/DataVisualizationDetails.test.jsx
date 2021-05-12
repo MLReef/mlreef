@@ -37,7 +37,6 @@ describe('Data instance details contains basic UI elements', () => {
   beforeEach(() => {
     jest.spyOn(global, 'fetch').mockImplementation(({ url }) => {
       let resPayload;
-      console.log(url);
       if (url.includes('/api/v1/pipelines/')) {
         resPayload = dataVisualizationDet;
       } else if (url.includes('/api/v4/projects/12395599/pipelines/618/jobs')) {
