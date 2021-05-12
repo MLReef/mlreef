@@ -48,7 +48,7 @@ describe('Data instance details contains basic UI elements', () => {
       } else {
         resPayload = filesMock;
       }
-      return generatePromiseResponse(200, true, resPayload, 50);
+      return generatePromiseResponse(200, true, resPayload, 20);
     });
     act(() => {
       render(
@@ -62,12 +62,13 @@ describe('Data instance details contains basic UI elements', () => {
   });
 
   test('assert that comp renders pipeline information correctly', async () => {
-    await sleep(300);
+    await sleep(350);
     const branchLink = screen.getByTestId('dataset-branch-link').getElementsByTagName('a').item(0);
     expect(branchLink).toBeDefined();
     expect(branchLink.href.includes('/my-namespace/the-project-name/-/tree/data-visualization%2Fspecial-whale-7052021150849')).toBeTruthy();
 
     const jobLink = screen.getByTestId('job-link').getElementsByTagName('a').item(0);
+    console.log(jobLink.innerHTML);
     expect(jobLink.href.includes('/my-namespace/the-project-name/insights/-/jobs/528')).toBeTruthy();
 
     const timeCreatedAgo = moment(
