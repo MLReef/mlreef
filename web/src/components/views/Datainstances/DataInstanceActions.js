@@ -50,7 +50,6 @@ const getDataInstanceAndAllItsInformation = (
   .then(parseToCamelCase)
   .then((backendPipe) => gitlabPipelines
     .getPipesById(gitlabId, backendPipe?.instances[0]?.pipeline_job_info?.id)
-    .then((res) => {console.log(res); return res})
     .then(({
       created_at: timeCreatedAgo,
       id,

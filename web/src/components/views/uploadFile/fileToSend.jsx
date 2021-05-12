@@ -1,22 +1,20 @@
 import React from 'react';
 import { string, number, func } from 'prop-types';
-import MProgressBar from 'components/ui/MProgressBar';
 
 const file01 = '/images/svg/file_01.svg';
 
 const FileToSend = ({
-  fileId, fileName, progress, onRemove,
+  fileId, fileName, onRemove, progress,
 }) => (
-  <>
-    {progress < 100 ? <MProgressBar color="info" /> : null}
-    <div className="file-uploaded d-flex">
-      <img className="dropdown-white" src={file01} alt="File" />
-      <p>
-        Uploaded
-        {' '}
-        {fileName}
-        {' '}
-      </p>
+  <div className="file-uploaded d-flex">
+    <img className="dropdown-white" src={file01} alt="File" />
+    <p>
+      Uploaded
+      {' '}
+      {fileName}
+      {' '}
+    </p>
+    {progress === 100 && (
       <button
         className="remove-file-button"
         onClick={() => onRemove(fileId)}
@@ -24,8 +22,8 @@ const FileToSend = ({
       >
         <b>X</b>
       </button>
-    </div>
-  </>
+    )}
+  </div>
 );
 
 FileToSend.propTypes = {

@@ -34,7 +34,6 @@ describe('test html elements', () => {
         .text()
         .toLowerCase()
         .trim());
-    console.log(projectCardValues);
     expect(projectCardValues[0]).toBe('video');
     expect(projectCardValues[1]).toBe('hier');
     expect(

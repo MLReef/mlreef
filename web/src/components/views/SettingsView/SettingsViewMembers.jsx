@@ -12,8 +12,6 @@ import SearchApi from 'apis/MLSearchApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseDate } from 'functions/dataParserHelpers';
 
-// const logAndGo = (payload) => console.log(payload) || payload;
-
 const projectApi = new ProjectGeneralInfoApi();
 const searchApi = new SearchApi();
 const today = parseDate(new Date());
