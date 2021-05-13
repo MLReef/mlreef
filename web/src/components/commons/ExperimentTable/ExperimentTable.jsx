@@ -9,6 +9,7 @@ import cx from 'classnames';
 import { sortAsc, sortDesc } from 'components/ui/MDataTable/functions';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MAccordion from 'components/ui/MAccordion';
+import AuthWrapper from 'components/AuthWrapper';
 import ExperimentTableOverall from './ExperimentTableOverall';
 import ExperimentTableRow from './ExperimentTableRow';
 import ExperimentTableFilters from './ExperimentTableFilters';
@@ -153,22 +154,26 @@ const ExperimentTable = (props) => {
               setFilteredRows={setFilteredRows}
             />
             <div className="experiment-table-btn-group">
-              {selectedRows.length > 0 && (
-                <button
-                  type="button"
-                  label="delete"
-                  className="experiment-table-btn delete fa fa-times border-rounded"
-                  onClick={handleDeleteExperiments}
-                />
-              )}
-              {hasStoppables && (
-                <button
-                  type="button"
-                  label="stop"
-                  className="experiment-table-btn stop fa fa-stop border-rounded"
-                  onClick={handleStopExperiments}
-                />
-              )}
+              <AuthWrapper norender minRole={30}>
+                <>
+                  {selectedRows.length > 0 && (
+                    <button
+                      type="button"
+                      label="delete"
+                      className="experiment-table-btn delete fa fa-times border-rounded"
+                      onClick={handleDeleteExperiments}
+                    />
+                  )}
+                  {hasStoppables && (
+                    <button
+                      type="button"
+                      label="stop"
+                      className="experiment-table-btn stop fa fa-stop border-rounded"
+                      onClick={handleStopExperiments}
+                    />
+                  )}
+                </>
+              </AuthWrapper>
               <button
                 type="button"
                 label="update"
