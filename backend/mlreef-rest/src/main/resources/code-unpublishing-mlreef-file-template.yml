@@ -1,0 +1,45 @@
+#################################################################################
+# This is the MLReef configuration file.                                        #
+# It contains the current configuration of  your data pipeline, model training, #
+# or visualisation as well as the specific configurations.                      #
+# Please refer to the documentation for information on how to edit this file    #
+#################################################################################
+
+variables:
+  # mlreef.com/api/v1/code-projects/:id/publish/finish
+  EPF_PUBLISH_URL: #{#EPF_PUBLISH_URL}
+  EPF_PUBLISH_SECRET: #{#EPF_PUBLISH_SECRET}
+  UNPUBLISH_PROCESSOR_ID: #{#UNPUBLISH_PROCESSOR_ID}
+  UNPUBLISH_IMAGE: #{#UNPUBLISH_IMAGE}
+  #{#DOCKER_HOST}
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
+
+services:
+  - name: docker:19.03.12-dind
+    entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
+
+job:
+  tags:
+    - local-docker
+  # Any package dependency for the job should be added in the following base image
+  image: registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker:latest
+  only:
+    - #{#PUBLISH_BRANCH}
+  when: on_success
+  before_script:
+    # Inform backend about unpublish start
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/unpublish/job-start?id=$UNPUBLISH_PROCESSOR_ID" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"
+  script:
+    - echo "$CI_REGISTRY"
+    # login to MLReef's docker image registry
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
+    # Show all images
+    - docker images
+    # Delete image #{#UNPUBLISH_IMAGE} from registry
+    #- docker rmi $UNPUBLISH_IMAGE
+    - curl -X DELETE $UNPUBLISH_IMAGE
+    - docker logout $CI_REGISTRY
+  after_script:
+    # Update processor information
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/unpublish/finish?id=$UNPUBLISH_PROCESSOR_ID" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"

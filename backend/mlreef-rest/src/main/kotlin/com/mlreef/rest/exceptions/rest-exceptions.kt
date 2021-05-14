@@ -22,6 +22,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
 
     // Requests error
     BadParametersRequest(1601, "Bad request parameters"),
+    MethodNotSupportedError(1602, "Method is not supported"),
 
     // specific user management errors 2xxx
     UserAlreadyExisting(2001, "User already exists"),
@@ -75,6 +76,12 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     PipelineCreationProjectMissing(3203, "DataProject is not provided"),
     PipelineCreationFilesMissing(3204, "Needs at least 1 Path"),
     PipelineCreationInvalid(3205, "Pipeline could not be created"),
+    PipelineStateInvalid(3206, "Pipeline has incorrect state. Missing important data"),
+
+    // Publishing errors 33xx
+    PublicationProcessError(3300, "Publication error"),
+    CannotGetRegistriesListForProject(3320, "Cannot get registries list for project"),
+    CannotDeleteTagFromRegistry(3321, "Cannot delete tag from registry"),
 
     // Random unsorted stuff PLEASE INVENT NICE ERROR CODES, WHICH COULD BE GROUPED
     GitlabBranchCreationFailed(2112, "Cannot create branch in Gitlab"),
@@ -85,26 +92,38 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     GitlabUserModificationFailed(2101, "Cannot modify user in Gitlab"),
 
     //Internal errors
+    InternalError(5000, "Internal application exception"),
     IncorrectConfiguration(5001, "Not correct configuration"),
+
 }
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
-@Deprecated("Use BadRequestException or another specific type")
 open class RestException(
     val errorCode: Int,
     val errorName: String,
     detailMessage: String? = null,
-    cause: Throwable? = null) : RuntimeException(detailMessage, cause) {
+    cause: Throwable? = null
+) : RuntimeException(detailMessage, cause) {
 
     constructor(errorCode: ErrorCode) : this(errorCode.errorCode, errorCode.errorName)
-    constructor(errorCode: ErrorCode, detailMessage: String) : this(errorCode.errorCode, errorCode.errorName, detailMessage)
+    constructor(errorCode: ErrorCode, detailMessage: String) : this(
+        errorCode.errorCode,
+        errorCode.errorName,
+        detailMessage
+    )
 }
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
-class ValidationException(val validationErrors: Array<FieldError?>) : RestException(ErrorCode.ValidationFailed, validationErrors.joinToString("\n") { it.toString() })
+@ResponseStatus(
+    code = HttpStatus.BAD_REQUEST,
+    reason = "Operation cannot be executed due to malformed input or invalid states."
+)
+class ValidationException(val validationErrors: Array<FieldError?>) :
+    RestException(ErrorCode.ValidationFailed, validationErrors.joinToString("\n") { it.toString() })
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Cannot create entity due to a bad request")
-class BadRequestException(errorCode: ErrorCode, detailMessage: String) : RestException(errorCode, detailMessage)
+class BadRequestException(errorCode: ErrorCode, detailMessage: String) : RestException(errorCode, detailMessage) {
+    constructor(message: String) : this(ErrorCode.BadParametersRequest, message)
+}
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized for the request")
 class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
@@ -114,12 +133,18 @@ class AccessDeniedException(message: String? = null) : RestException(ErrorCode.A
 class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
     ?: "Access denied")
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Operation cannot be executed due to malformed input or invalid states.")
+@ResponseStatus(
+    code = HttpStatus.INTERNAL_SERVER_ERROR,
+    reason = "Operation cannot be executed due to malformed input or invalid states."
+)
 class InternalException(message: String? = null) : RestException(ErrorCode.ValidationFailed, message
     ?: "Internal server error")
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Entity not found")
-open class NotFoundException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
+open class NotFoundException(errorCode: ErrorCode, message: String) : RestException(errorCode, message) {
+    constructor(message: String): this(ErrorCode.NotFound, message)
+    constructor(): this(ErrorCode.NotFound, "Not found")
+}
 
 @ResponseStatus(code = HttpStatus.METHOD_NOT_ALLOWED, reason = "Method not allowed or supported")
 class MethodNotAllowedException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
@@ -134,13 +159,31 @@ class GitlabConnectException(message: String) : RestException(ErrorCode.NotFound
 class GitlabBadGatewayException(responseBodyAsString: String) : GitlabCommonException(502, ErrorCode.GitlabBadGateway, responseBodyAsString)
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Cannot create entity due to a duplicate conflict:")
-class ConflictException(errorCode: ErrorCode, message: String) : RestException(errorCode, message)
+class ConflictException(errorCode: ErrorCode, message: String) : RestException(errorCode, message) {
+    constructor(message: String) : this(ErrorCode.Conflict, message)
+    constructor() : this(ErrorCode.Conflict, "Conflict")
+}
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
-class NotConsistentInternalDb(message: String) : RestException(ErrorCode.Conflict, message)
+class NotConsistentInternalDb(message: String) : RestException(ErrorCode.ValidationFailed, message)
+
+@ResponseStatus(code = HttpStatus.FAILED_DEPENDENCY, reason = "The state of objst is inconsistent")
+class InconsistentStateOfObject(message: String) : RestException(ErrorCode.ValidationFailed, message)
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
-class UserAlreadyExistsException(username: String, email: String) : RestException(ErrorCode.UserCreationFailedEmailOrUsernameUsed, "'$username' or '$email' is already in use!")
+class UserAlreadyExistsException(username: String? = null, email: String? = null) : RestException(
+    ErrorCode.UserCreationFailedEmailOrUsernameUsed,
+    "'${username ?: ""}' or '${email ?: ""}' is already in use!"
+)
+
+@ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Bad credentials")
+class IncorrectProjectType(message: String? = null) : RestException(
+    ErrorCode.ValidationFailed, message
+        ?: "Incorrect project type"
+)
+
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Publication common exception")
+class PublicationCommonException(errorCode: ErrorCode = ErrorCode.PublicationProcessError, message: String = "Publish/Unpublish error") : RestException(errorCode, message)
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "User not found")
 open class UnknownUserException(message: String? = null)
@@ -199,7 +242,14 @@ class ProjectPublicationException(errorCode: ErrorCode, message: String) : RestE
     constructor(message: String) : this(ErrorCode.ProjectPublicationError, message)
 }
 
-class PipelineCreateException(errorCode: ErrorCode, message: String? = "") : RestException(errorCode, message ?: "")
+class ProjectAlreadyPublishedException(projectId: UUID, branch: String, version: String) : RestException(ErrorCode.Conflict, "Project $projectId already published for branch $branch and version $version")
+
+class PipelineStateException(errorCode: ErrorCode = ErrorCode.PipelineStateInvalid, message: String? = "Pipeline has invalid state") :
+    RestException(errorCode, message ?: "")
+
+class PipelineCreateException(errorCode: ErrorCode = ErrorCode.PipelineCreationInvalid, message: String? = "") :
+    RestException(errorCode, message ?: "")
+
 class PipelineStartException(message: String) : RestException(ErrorCode.CommitPipelineScriptFailed, message)
 
 class DataProcessorIncorrectStructureException(message: String) : RestException(ErrorCode.ValidationFailed, message)

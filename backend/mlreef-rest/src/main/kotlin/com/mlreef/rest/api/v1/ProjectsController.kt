@@ -1,31 +1,38 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataType
-import com.mlreef.rest.Person
-import com.mlreef.rest.Project
-import com.mlreef.rest.VisibilityScope
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
-import com.mlreef.rest.api.v1.dto.DataProcessorDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
+import com.mlreef.rest.api.v1.dto.ParameterDto
+import com.mlreef.rest.api.v1.dto.ProcessorDto
 import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.ProjectShortDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.api.v1.dto.toShortDto
+import com.mlreef.rest.config.tryToUUID
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProcessorType
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.OldDataType
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.BadRequestException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.feature.data_processors.DataProcessorService
+import com.mlreef.rest.feature.processors.ProcessorsService
+import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
-import com.mlreef.rest.marketplace.SearchableTag
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -38,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -53,10 +61,11 @@ class ProjectsController(
     private val projectService: ProjectService<Project>,
     private val dataProjectService: ProjectService<DataProject>,
     private val codeProjectService: ProjectService<CodeProject>,
-    private val dataProcessorService: DataProcessorService,
+    private val processorsService: ProcessorsService,
+    private val projectResolverService: ProjectResolverService,
 ) {
     companion object {
-        private const val MAX_PAGE_SIZE = 2000
+        private const val MAX_PAGE_SIZE = 20
     }
 
     @GetMapping
@@ -110,7 +119,7 @@ class ProjectsController(
         profile: TokenDetails,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
     ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getOwnProjectsOfUser(profile, pageable)
+        val projectsPage = projectService.getOwnProjectsOfUserPaged(profile, pageable)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toDto() }
@@ -160,14 +169,22 @@ class ProjectsController(
     @GetMapping("/public/all")
     fun getPublicProjectsUnpaged(): List<ProjectDto> {
         throw RestException(ErrorCode.AccessDenied, "Use /public endpoint to request public projects")
-        val allPublicProjects = projectService.getAllPublicProjects()
-        return allPublicProjects.map { it.toDto() }
+//        val allPublicProjects = projectService.getAllPublicProjects()
+//        return allPublicProjects.map { it.toDto() }
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("canViewProject(#id)")
-    fun getProjectById(@PathVariable id: UUID): ProjectDto {
-        val project = projectService.getProjectById(id) ?: throw ProjectNotFoundException(projectId = id)
+    @PostAuthorize("postCanViewProject()")
+    fun getProjectById(@PathVariable id: String): ProjectDto {
+        val uuid = id.tryToUUID()
+        val gitlabId = if (uuid == null) id.toLongOrNull() else null
+
+        val project = when {
+            uuid != null -> projectService.getProjectById(uuid)
+            gitlabId != null -> projectService.getProjectByGitlabId(gitlabId)
+            else -> projectService.getProjectByName(id)
+        } ?: throw ProjectNotFoundException(projectId = uuid, projectName = id, gitlabId = gitlabId)
+
         return project.toDto()
     }
 
@@ -246,7 +263,8 @@ class ProjectsController(
         person: Person,
     ): DataProjectDto {
         if ((request?.requestURL?.contains("data-project") == true)
-            || (request?.requestURL?.contains("code-project")) == true) {
+            || (request?.requestURL?.contains("code-project")) == true
+        ) {
             throw RestException(ErrorCode.NotFound)
         }
 
@@ -259,7 +277,7 @@ class ProjectsController(
             description = dataProjectCreateRequest.description,
             initializeWithReadme = dataProjectCreateRequest.initializeWithReadme,
             visibility = dataProjectCreateRequest.visibility,
-            inputDataTypes = dataProjectCreateRequest.inputDataTypes
+            inputDataTypes = dataProjectCreateRequest.inputDataTypes,
         )
 
         return dataProject.toDto()
@@ -274,7 +292,7 @@ class ProjectsController(
     ): CodeProjectDto {
         if (request.inputDataTypes.isEmpty())
             throw IllegalArgumentException("A code project needs an InputDataType. request.inputDataType=${request.inputDataTypes}")
-        val codeProject = codeProjectService.createCodeProjectAndProcessor(
+        val codeProject = codeProjectService.createProject(
             userToken = token.accessToken,
             ownerId = person.id,
             projectSlug = request.slug,
@@ -284,7 +302,8 @@ class ProjectsController(
             visibility = request.visibility,
             initializeWithReadme = request.initializeWithReadme,
             inputDataTypes = request.inputDataTypes,
-            dataProcessorType = request.dataProcessorType
+            outputDataTypes = request.outputDataTypes,
+            processorType = request.dataProcessorType
         )
 
         return codeProject.toDto()
@@ -324,7 +343,8 @@ class ProjectsController(
         projectService.deleteProject(
             userToken = token.accessToken,
             ownerId = person.id,
-            projectUUID = id)
+            projectUUID = id
+        )
     }
 
 
@@ -384,6 +404,53 @@ class ProjectsController(
         return getUsersInDataProjectById(id)
     }
 
+    //-------------------- Processors
+
+    @RequestMapping(value = ["/{codeProjectId}/data-processor", "/{codeProjectId}/processor", "/{codeProjectId}/processors"], method = [RequestMethod.GET])
+    @GetMapping("")
+    @PreAuthorize("canViewProject(#codeProjectId)")
+    fun getByCodeProjects(
+        @PathVariable codeProjectId: UUID,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        profile: TokenDetails? = null,
+    ): Page<ProcessorDto> {
+        return processorsService.searchProcessor(
+            SearchProcessorRequest(
+                projectIdsOr = listOf(codeProjectId)
+            ),
+            pageable,
+            profile
+        ).map { it.toDto() }
+    }
+
+    @PostMapping("code-projects/{codeProjectId}/processor")
+    @PreAuthorize("isProjectOwner(#codeProjectId)")
+    @Deprecated("To be deleted")
+    fun createDataProcessor(
+        @PathVariable codeProjectId: UUID,
+        @RequestBody request: ProcessorCreateRequest,
+        owner: Person
+    ): ProcessorDto {
+        throw BadRequestException("Use publish for that")
+//        val codeProject = codeProjectService.getProjectById(codeProjectId)
+//            ?: throw NotFoundException(ErrorCode.NotFound, "Code project with id $codeProjectId not found")
+//
+//        val dataProcessor = processorsService.createProcessorForCodeProject(
+//            codeProject = codeProject,
+//            slug = request.slug,
+//            name = request.name,
+//            branch = request.branch,
+//            version = request.version ?: "0.1",
+//            description = request.description,
+//            mainScriptPath = request.mainScriptPath,
+//            author = owner,
+//        )
+//
+//        return dataProcessor.toDto()
+    }
+
+    //-------------------- Other
+
     @Deprecated("Tips for API Design: DECIDE and be consistent ")
     @DeleteMapping("/{id}/users")
     @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
@@ -431,13 +498,21 @@ class ProjectsController(
     fun getDataProcessorByNamespaceAndSlug(
         @PathVariable namespace: String,
         @PathVariable slug: String,
-    ): DataProcessorDto {
-        val projectId = getProjectIdByNamespaceAndSlug(namespace, slug)
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        token: TokenDetails,
+    ): Page<ProcessorDto> {
+        val project = projectResolverService.resolveCodeProject(namespace = namespace, slug = slug)
+            ?: throw NotFoundException("Project was not found for $namespace/$slug")
 
-        val dataProcessor = dataProcessorService.getProcessorByProjectId(projectId)
-            ?: throw NotFoundException(ErrorCode.NotFound, "processor not found: $namespace/$slug")
+        val dataProcessors = processorsService.searchProcessor(
+            SearchProcessorRequest(
+                projectIdsOr = listOf(project.id)
+            ),
+            pageable,
+            token,
+        )
 
-        return dataProcessor.toDto()
+        return dataProcessors.map { it.toDto() }
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -476,32 +551,42 @@ class ProjectsController(
     }
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class ProjectCreateRequest(
+    val id: UUID? = null,
     @NotEmpty val slug: String,
     @NotEmpty val namespace: String,
     @NotEmpty val name: String,
     @NotEmpty val description: String,
     @NotEmpty val initializeWithReadme: Boolean,
-    val inputDataTypes: List<DataType> = listOf(),
+    val inputDataTypes: List<String> = listOf(),
+    val outputDataTypes: List<String>? = null,
     val visibility: VisibilityScope = VisibilityScope.PUBLIC,
-    val dataProcessorType: DataProcessorType = DataProcessorType.ALGORITHM,
+    val dataProcessorType: String? = null,
+    val tags: List<SearchableTag>? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ProjectForkRequest(
     val targetNamespaceGitlabId: Long? = null,
     val targetName: String? = null,
     val targetPath: String? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class ProjectUpdateRequest(
+    val id: UUID? = null,
     @NotEmpty val name: String,
     @NotEmpty val description: String,
     val visibility: VisibilityScope? = null,
-    val inputDataTypes: List<DataType>? = null,
-    val outputDataTypes: List<DataType>? = null,
+    val inputDataTypes: List<String>? = null,
+    val outputDataTypes: List<String>? = null,
     val tags: List<SearchableTag>? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ProjectUserMembershipRequest(
     val userId: UUID? = null,
     val gitlabId: Long? = null,
@@ -509,9 +594,39 @@ class ProjectUserMembershipRequest(
     val expiresAt: Instant? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ProjectGroupMembershipRequest(
     val groupId: UUID? = null,
     val gitlabId: Long? = null,
     val level: String? = null,
     val expiresAt: Instant? = null,
+)
+
+// DEPRECATED
+
+@Deprecated("Don't use. To be deleted. Processor must not be created directly")
+class ProcessorCreateRequest(
+    val slug: String? = null,
+    val name: String,
+    val branch: String,
+    val version: String? = null,
+    val description: String? = null,
+    val mainScriptPath: String? = null,
+)
+
+@Deprecated("Don't use. To be deleted. Processor must not be created directly")
+class DataProcessorCreateRequest(
+    @NotEmpty val slug: String,
+    @NotEmpty val name: String,
+    @NotEmpty val inputDataType: OldDataType,
+    @NotEmpty val outputDataType: OldDataType,
+    @NotEmpty val type: DataProcessorType,
+    @NotEmpty val visibilityScope: VisibilityScope,
+    val description: String = "",
+    @Valid val parameters: List<ParameterDto> = arrayListOf()
+)
+
+@Deprecated("Don't use. To be deleted. Processor must not be updated directly")
+class DataProcessorUpdateRequest(
+    @NotEmpty val name: String
 )

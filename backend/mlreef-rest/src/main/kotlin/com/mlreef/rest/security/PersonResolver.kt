@@ -1,7 +1,7 @@
 package com.mlreef.rest.security
 
-import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.domain.Person
 import com.mlreef.rest.exceptions.AccessDeniedException
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails

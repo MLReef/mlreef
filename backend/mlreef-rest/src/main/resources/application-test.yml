@@ -3,10 +3,13 @@ logging:
     root: INFO
     web: INFO
     com.mlreef.rest: DEBUG
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
     org.springframework.orm: INFO
     org.hibernate: INFO
     com.mlreef.rest.testcommons.TestGitlabContainer: WARN
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{85}.%M [%line]) - %msg%n%throwable'
 spring:
@@ -28,6 +31,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp.use_jdbc_metadata_defaults: false
+        format_sql: true
+        use_sql_comments: false
     hibernate:
       ddl-auto: none
   flyway:
@@ -44,4 +49,8 @@ spring:
 mlreef:
   epf:
     backend-url: https://backend.test.domain.com
+    delay-scheduled-publish-tasks-msec: 5000000
+    delay-scheduled-pipeline-tasks-msec: 5000000
+  init-data:
+    enabled: false
 

@@ -4,5 +4,6 @@ package com.mlreef.rest.annotations
 @Target(AnnotationTarget.FUNCTION)
 annotation class RefreshProject(
     val projectId: String = "",
+    val projectName: String = "",
     val list: String = ""
 )

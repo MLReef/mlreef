@@ -1,9 +1,10 @@
 package com.mlreef.rest.config.security
 
-import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.Project
+import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.PipelineConfigurationRepository
+import com.mlreef.rest.PipelinesRepository
+import com.mlreef.rest.ProcessorsRepository
+import com.mlreef.rest.domain.Project
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.security.MlReefMethodSecurityExpressionHandler
@@ -18,18 +19,20 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class MethodSecurityConfig(
     private val publicProjectsCache: PublicProjectsCacheService,
-    private val dataProcessorRepository: DataProcessorRepository,
-    private val pipelineConfigRepository: PipelineConfigRepository,
+    private val processorRepository: ProcessorsRepository,
+    private val pipelineConfigRepository: PipelineConfigurationRepository,
+    private val pipelineRepository: PipelinesRepository,
     private val projectService: ProjectService<Project>,
-    private val pipelineInstanceRepository: PipelineInstanceRepository
+    private val experimentRepository: ExperimentRepository,
 ) : GlobalMethodSecurityConfiguration() {
     override fun createExpressionHandler(): MethodSecurityExpressionHandler {
         val expressionHandler = MlReefMethodSecurityExpressionHandler(
             publicProjectsCache,
-            dataProcessorRepository,
+            processorRepository,
             pipelineConfigRepository,
+            pipelineRepository,
             projectService,
-            pipelineInstanceRepository
+            experimentRepository,
         )
         expressionHandler.setPermissionEvaluator(MlReefPermissionEvaluator())
         return expressionHandler

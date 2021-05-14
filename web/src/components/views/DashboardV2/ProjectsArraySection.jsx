@@ -8,7 +8,6 @@ import {
   bool, func, shape, string,
 } from 'prop-types';
 import { connect } from 'react-redux';
-import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 import MBricksWall from 'components/ui/MBricksWall';
 import * as userActions from 'store/actions/userActions';
 import iconGrey from 'images/icon_grey-01.png';
@@ -16,7 +15,6 @@ import MProjectCard from 'components/ui/MProjectCard';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import dashboardActions from './dashBoardActions';
 import { DashboardContext } from './DashboardContext';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 const comparingFunctions = {
   0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase() ? 1 : -1), // All
@@ -25,11 +23,11 @@ const comparingFunctions = {
 
 const ProjectsArraySection = (props) => {
   const {
-    classification1, classification2, actions, isLoading,
+    actions, isLoading, classification1, classification2,
   } = props;
   const [projects, setProjects] = useState([]);
   const scrolling = useRef(false);
-  const [page, setPage] = useState(0);
+  const page = useRef(0);
   const isLast = useRef(false);
   const [{
     selectedDataTypes, minimumStars, publishState, sorting,
@@ -41,19 +39,19 @@ const ProjectsArraySection = (props) => {
     }
   }, [classification2]);
 
-  const fetch = () => dashboardActions.getProjects(
+  const fetch = (p) => dashboardActions.getProjects(
     classification2,
     classification1,
     selectedDataTypes,
     minimumStars,
     publishState,
-    page,
+    p,
     10,
   ).then((res) => {
     scrolling.current = false;
     isLast.current = res.last;
     setProjects(
-      page === 0
+      res.first
         ? res.projects
         : [...projects, ...res.projects],
     );
@@ -65,8 +63,8 @@ const ProjectsArraySection = (props) => {
 
   const executeFetch = useCallback(() => {
     scrolling.current = true;
-    setPage(0);
-    fetch();
+    page.current = 0;
+    fetch(page.current);
   },
   [
     classification1,
@@ -80,15 +78,14 @@ const ProjectsArraySection = (props) => {
     executeFetch();
   }, [executeFetch]);
 
-  const executeFetchOnMore = useCallback(() => {
-    scrolling.current = true;
-    fetch();
-  },
-  [page]);
+  const handleOnScrollDown = () => {
+    if (scrolling.current) return;
+    if (isLast.current) return;
+    page.current += 1;
 
-  useEffectNoFirstRender(() => {
-    executeFetchOnMore();
-  }, [executeFetchOnMore]);
+    scrolling.current = true;
+    fetch(page.current);
+  };
 
   const sortedProjects = useMemo(
     () => projects.sort(comparingFunctions[sorting]),
@@ -108,11 +105,7 @@ const ProjectsArraySection = (props) => {
         {sortedProjects.length > 0 && !isLoading ? (
           <MScrollableSection
             className="w-100"
-            handleOnScrollDown={() => {
-              if (scrolling.current) return;
-              if (isLast.current) return;
-              setPage(page + 1);
-            }}
+            handleOnScrollDown={handleOnScrollDown}
           >
             <MBricksWall
               animated

@@ -21,9 +21,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
     @BeforeEach
     @AfterEach
     fun clearRepo() {
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
+
     }
 
     @Transactional
@@ -48,7 +46,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
     @Rollback
     @Test
     fun `Cannot register with existing user`() {
-        val (existingUser, _, _) = testsHelper.createRealUser()
+        val (existingUser, _, _) = createRealUser()
         val registerRequest = RegisterRequest(existingUser.username, existingUser.email, "any other password", "name")
 
         this.performPost("$authUrl/register", body = registerRequest)
@@ -60,7 +58,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Can login with existing user`() {
         val password = RandomUtils.generateRandomPassword(20, true)
-        val (account, _, _) = testsHelper.createRealUser(password = password)
+        val (account, _, _) = createRealUser(password = password)
 
         val loginRequest = LoginRequest(account.username, account.email, password)
 
@@ -78,7 +76,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `Cannot login with Gitlab is rejected credentials`() {
         val notRealPassword = "password"
-        val (existingUser, realPassword, _) = testsHelper.createRealUser()
+        val (existingUser, realPassword, _) = createRealUser()
 
         assertThat(realPassword).isNotEqualTo(notRealPassword)
 
@@ -88,9 +86,11 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
             .expect4xx()
     }
 
+    @Transactional
+    @Rollback
     @Test
     fun `Admin expiration OAuth token test`() {
-        val (account, token, _) = testsHelper.createRealUser()
+        val (account, token, _) = createRealUser()
 
         assertThat(restClient.oAuthAdminToken.get()).isNotNull
 

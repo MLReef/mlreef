@@ -1,7 +1,8 @@
 package com.mlreef.rest.persistence
 
 import com.mlreef.rest.ApplicationProfiles
-import com.mlreef.rest.AuditEntity
+import com.mlreef.rest.BaseTest
+import com.mlreef.rest.domain.AuditEntity
 import com.mlreef.rest.testcommons.TestPostgresContainer
 import com.mlreef.rest.testcommons.TestRedisContainer
 import org.assertj.core.api.Assertions.assertThat
@@ -14,22 +15,18 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
-import javax.persistence.EntityManager
 import javax.sql.DataSource
 
 @TestPropertySource("classpath:application-integration-test.yml")
 @SpringBootTest
 @ActiveProfiles(ApplicationProfiles.INTEGRATION_TEST)
 @ContextConfiguration(initializers = [TestPostgresContainer.Initializer::class, TestRedisContainer.Initializer::class])
-class AbstractRepositoryTest {
+class AbstractRepositoryTest: BaseTest() {
     @Autowired
     val dataSource: DataSource? = null
 
     @Autowired
     val jdbcTemplate: JdbcTemplate? = null
-
-    @Autowired
-    val entityManager: EntityManager? = null
 
     protected fun checkAfterCreated(saved: Any) {
         if (saved is AuditEntity) {
@@ -71,6 +68,10 @@ class AbstractRepositoryTest {
             "project_outputdatatypes",
             "projects_tags",
             "subject",
+            "processor_types",
+            "data_types",
+            "parameter_types",
+            "metric_types",
         ), cascade = true)
     }
 
@@ -80,24 +81,24 @@ class AbstractRepositoryTest {
         val joinToString = tables.joinToString("\", \"", "\"", "\"")
 
         val createNativeQuery = if (cascade) {
-            entityManager!!.createNativeQuery("truncate table $joinToString CASCADE ")
+            entityManager.createNativeQuery("truncate table $joinToString CASCADE ")
 
         } else {
-            entityManager!!.createNativeQuery("truncate table $joinToString ")
+            entityManager.createNativeQuery("truncate table $joinToString ")
         }
-        entityManager!!.joinTransaction()
+        entityManager.joinTransaction()
         createNativeQuery.executeUpdate()
     }
 
     fun commitAndFail(f: () -> Unit) {
         assertThrows<Exception> {
-            withinTransaction {
+            withinTestTransaction {
                 f.invoke()
             }
         }
     }
 
-    fun <T> withinTransaction(commit: Boolean = true, func: () -> T): T {
+    fun <T> withinTestTransaction(commit: Boolean = true, func: () -> T): T {
         if (!TestTransaction.isActive()) TestTransaction.start()
         val result = func.invoke()
         if (commit) {

@@ -12,7 +12,6 @@ const MVerticalSteps = (props) => {
   return (
     <div className={cx('m-vertical-steps', className)}>
       {steps.map((step, index) => (
-        // eslint-disable-next-line
         <div key={`steps-${index}`} className="m-vertical-steps-step">
           <div className="m-vertical-steps-step-marker">
             <div className={cx('label-ordinal', { done: step.done })}>

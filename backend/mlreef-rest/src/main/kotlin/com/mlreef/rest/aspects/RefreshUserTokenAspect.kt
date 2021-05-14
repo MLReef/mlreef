@@ -3,7 +3,7 @@ package com.mlreef.rest.aspects
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.api.CurrentUserService
-import com.mlreef.rest.helpers.DataClassWithId
+import com.mlreef.rest.domain.helpers.DataClassWithId
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.After
 import org.aspectj.lang.annotation.Aspect

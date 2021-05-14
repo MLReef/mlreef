@@ -1,31 +1,40 @@
 package com.mlreef.rest.feature.project
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.DataType
-import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectBaseRepository
 import com.mlreef.rest.ProjectRepository
-import com.mlreef.rest.ProjectType.DATA_PROJECT
 import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
+import com.mlreef.rest.config.tryToUUID
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.Group
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.ProcessorType
+import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.ProjectType
+import com.mlreef.rest.domain.ProjectType.DATA_PROJECT
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.helpers.ProjectOfUser
+import com.mlreef.rest.domain.helpers.UserInProject
+import com.mlreef.rest.domain.marketplace.SearchableTag
+import com.mlreef.rest.domain.repositories.DataTypesRepository
+import com.mlreef.rest.domain.repositories.ParameterTypesRepository
+import com.mlreef.rest.domain.repositories.ProcessorTypeRepository
 import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.BadRequestException
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabCommonException
 import com.mlreef.rest.exceptions.GroupNotFoundException
+import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectCreationException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.RestException
@@ -42,12 +51,8 @@ import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
-import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.system.ReservedNamesService
-import com.mlreef.rest.helpers.ProjectOfUser
-import com.mlreef.rest.helpers.UserInProject
-import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.utils.Slugs
+import com.mlreef.rest.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -71,14 +76,16 @@ interface ProjectService<T : Project> {
     fun getAllPublicProjectsOnly(pageable: Pageable?): Page<T>
     fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable? = null, isDataProjectRequest: Boolean): Page<T>
     fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
-    fun getOwnProjectsOfUser(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getOwnProjectsOfUserPaged(token: TokenDetails, pageable: Pageable? = null): Page<T>
+    fun getOwnProjectsOfUser(token: TokenDetails): List<T>
     fun getAllProjectsUserMemberIn(token: TokenDetails, pageable: Pageable? = null): Page<T>
     fun getProjectsByNamespace(namespaceName: String, pageable: Pageable? = null): Page<T>
     fun getProjectsBySlug(slug: String, pageable: Pageable? = null): Page<T>
     fun getProjectsByNamespaceAndSlug(namespace: String, slug: String): T?
     fun getProjectById(projectId: UUID): T?
+    fun getProjectByName(projectName: String): T?
     fun getProjectByGitlabId(projectId: Long): T?
-    fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T?
+    fun getProjectsByNamespaceAndPath(namespaceName: String, path: String): T?
     fun getUsersInProject(projectUUID: UUID): List<UserInProject>
 
     fun starProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
@@ -93,20 +100,10 @@ interface ProjectService<T : Project> {
         description: String,
         visibility: VisibilityScope = VisibilityScope.PUBLIC,
         initializeWithReadme: Boolean = false,
-        inputDataTypes: List<DataType>?,
-    ): T
-
-    fun createCodeProjectAndProcessor(
-        userToken: String,
-        ownerId: UUID,
-        projectSlug: String,
-        projectName: String,
-        projectNamespace: String,
-        description: String,
-        visibility: VisibilityScope = VisibilityScope.PUBLIC,
-        initializeWithReadme: Boolean = false,
-        inputDataTypes: List<DataType>,
-        dataProcessorType: DataProcessorType,
+        inputDataTypes: List<String>? = null,
+        outputDataTypes: List<String>? = null,
+        processorType: String? = null,
+        id: UUID? = null,
     ): T
 
     fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String? = null, path: String? = null): T
@@ -120,12 +117,12 @@ interface ProjectService<T : Project> {
         projectName: String? = null,
         description: String? = null,
         visibility: VisibilityScope? = null,
-        inputDataTypes: List<DataType>? = null,
-        outputDataTypes: List<DataType>? = null,
+        inputDataTypes: List<String>? = null,
+        outputDataTypes: List<String>? = null,
         tags: List<SearchableTag>? = null,
     ): T
 
-    fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID)
+    fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID? = null, projectName: String? = null)
 
     fun getUserProjectsList(userToken: String, userId: UUID? = null): List<ProjectOfUser>
 
@@ -194,25 +191,28 @@ class ProjectTypesConfiguration(
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository,
-    private val dataProcessorService: DataProcessorService,
+    private val processorTypeRepository: ProcessorTypeRepository,
+    private val dataTypesRepository: DataTypesRepository,
+    private val parameterTypesRepository: ParameterTypesRepository,
 ) {
 
     @Bean
     fun dataProjectService(): ProjectService<DataProject> {
-        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
+        return ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, processorTypeRepository, dataTypesRepository, parameterTypesRepository)
     }
 
     @Bean
     fun codeProjectService(): ProjectService<CodeProject> {
-        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
+        return ProjectServiceImpl(CodeProject::class.java, codeProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, processorTypeRepository, dataTypesRepository, parameterTypesRepository)
     }
 
     @Bean
     fun projectService(): ProjectService<Project> {
-        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
+        return ProjectServiceImpl(Project::class.java, projectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository,  processorTypeRepository, dataTypesRepository, parameterTypesRepository)
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 open class ProjectServiceImpl<T : Project>(
     private val baseClass: Class<T>,
     val repository: ProjectBaseRepository<T>,
@@ -222,12 +222,21 @@ open class ProjectServiceImpl<T : Project>(
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository,
-    private val dataProcessorService: DataProcessorService,
+    private val processorTypeRepository: ProcessorTypeRepository,
+    private val dataTypesRepository: DataTypesRepository,
+    private val parameterTypesRepository: ParameterTypesRepository,
 ) : ProjectService<T> {
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
     private val gitlabMaxPageSizeRequest = 100
+
+    companion object {
+        private val DEFAULT_PROCESSOR_TYPE = "ALGORITHM"
+        private val DEFAULT_CODE_PROJECT_INPUT_TYPE = "NONE"
+        private val DEFAULT_CODE_PROJECT_OUTPUT_TYPE = "NONE"
+        private val DEFAULT_DATA_PROJECT_INPUT_TYPE = "NONE"
+    }
 
     override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?, isDataProjectRequest: Boolean): Page<T> =
         if (token.isVisitor)
@@ -247,11 +256,29 @@ open class ProjectServiceImpl<T : Project>(
         else
             repository.findAccessibleStarredProjectsForUser(token.personId, token.projects.map { it.key }, pageable)
 
-    override fun getOwnProjectsOfUser(token: TokenDetails, pageable: Pageable?): Page<T> {
+    override fun getOwnProjectsOfUserPaged(token: TokenDetails, pageable: Pageable?): Page<T> {
         if (token.isVisitor) {
             return Page.empty(pageable ?: Pageable.unpaged())
         } else {
-            return repository.findAllByOwnerIdAndType(token.personId, type = DATA_PROJECT, pageable)
+            val type = getProjectType()
+            return if (type!=null) {
+                repository.findAllByOwnerIdAndType(token.personId, type = type, pageable)
+            } else {
+                repository.findAllByOwnerId(token.personId, pageable)
+            }
+        }
+    }
+
+    override fun getOwnProjectsOfUser(token: TokenDetails): List<T> {
+        if (token.isVisitor) {
+            return listOf()
+        } else {
+            val type = getProjectType()
+            return if (type!=null) {
+                repository.findAllByOwnerIdAndType(token.personId, type = type)
+            } else {
+                repository.findAllByOwnerId(token.personId)
+            }
         }
     }
 
@@ -276,7 +303,7 @@ open class ProjectServiceImpl<T : Project>(
     }
 
     override fun getProjectsByNamespaceAndSlug(namespace: String, slug: String): T? {
-        return repository.findNamespaceAndSlug(namespace, slug)
+        return repository.findByNamespaceAndSlug(namespace, slug)
     }
 
     override fun getAllPublicProjects(pageable: Pageable?): List<T> {
@@ -290,6 +317,10 @@ open class ProjectServiceImpl<T : Project>(
 
     override fun getProjectById(projectId: UUID): T? {
         return repository.findByIdOrNull(projectId)
+    }
+
+    override fun getProjectByName(projectName: String): T? {
+        return repository.findByNameIgnoreCase(projectName)
     }
 
     override fun getProjectByGitlabId(projectId: Long): T? {
@@ -318,8 +349,8 @@ open class ProjectServiceImpl<T : Project>(
         return repository.save(project.removeStar(person) as T)
     }
 
-    override fun getProjectsByNamespaceAndPath(namespaceName: String, slug: String): T? {
-        return repository.findByNamespaceAndPath(namespaceName, slug)
+    override fun getProjectsByNamespaceAndPath(namespaceName: String, path: String): T? {
+        return repository.findByNamespaceAndPath(namespaceName, path)
     }
 
     override fun checkAvailability(
@@ -370,8 +401,13 @@ open class ProjectServiceImpl<T : Project>(
         description: String,
         visibility: VisibilityScope,
         initializeWithReadme: Boolean,
-        inputDataTypes: List<DataType>?,
+        inputDataTypes: List<String>?,
+        outputDataTypes: List<String>?,
+        processorType: String?,
+        id: UUID?,
     ): T {
+        log.debug("Creating the project $projectName")
+
         reservedNamesService.assertProjectNameIsNotReserved(projectName)
 
         val findNamespace = if (projectNamespace.isNotBlank()) try {
@@ -395,75 +431,63 @@ open class ProjectServiceImpl<T : Project>(
 
         val creatorId = if (findNamespace != null) {
             subjectRepository.findBySlug(findNamespace.path)?.id
-                ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
+                ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} is not connected to persisted Subject")
         } else {
             ownerId
         }
 
+        val inputDataTypesEntities = (inputDataTypes ?: getDefaultInputTypes()).map {
+            val parsedId = it.tryToUUID()
+            (if (parsedId != null) {
+                dataTypesRepository.findByIdOrNull(parsedId)
+            } else {
+                dataTypesRepository.findByNameIgnoreCase(it)
+            }) ?: throw BadRequestException(ErrorCode.NotFound, "Data type $it not found")
+        }.toMutableSet()
+
+        val outputDataTypesEntities = (outputDataTypes ?: getDefaultOutputTypes()).map {
+            val parsedId = it.tryToUUID()
+            (if (parsedId != null) {
+                dataTypesRepository.findByIdOrNull(parsedId)
+            } else {
+                dataTypesRepository.findByNameIgnoreCase(it)
+            }) ?: throw BadRequestException(ErrorCode.NotFound, "Data type $it not found")
+        }.toMutableSet()
+
+        val processorTypeEntity = (processorType ?: DEFAULT_PROCESSOR_TYPE).let {
+            val parsedId = it.tryToUUID()
+            (if (parsedId != null) {
+                processorTypeRepository.findByIdOrNull(parsedId)
+            } else {
+                processorTypeRepository.findByNameIgnoreCase(it)
+            }) ?: throw BadRequestException(ErrorCode.NotFound, "Processor type $it not found")
+        }
+
         val gitLabProject = gitlabRestClient.createProject(
             token = userToken,
-            slug = projectSlug,
+            slug = projectSlug.toLowerCase(),
             name = projectName,
             defaultBranch = "master",
             nameSpaceId = findNamespace?.id,
             description = description,
             visibility = finalVisibility.toGitlabString(),
-            initializeWithReadme = initializeWithReadme)
-        val project = createConcreteProject(creatorId, gitLabProject)
-        try {
-            return if (inputDataTypes != null) {
-                saveProject(project.copy(inputDataTypes = inputDataTypes.toSet()))
-            } else {
-                saveProject(project)
-            }
-        } catch (e: Exception) {
-            throw ConflictException(ErrorCode.GitlabProjectIdAlreadyUsed, e.message
-                ?: "GitlabId of new projects creates a conflict")
-        }
-    }
+            initializeWithReadme = initializeWithReadme
+        )
 
-    @RefreshUserInformation(userId = "#ownerId")
-    @RefreshProject
-    override fun createCodeProjectAndProcessor(
-        userToken: String,
-        ownerId: UUID,
-        projectSlug: String,
-        projectName: String,
-        projectNamespace: String,
-        description: String,
-        visibility: VisibilityScope,
-        initializeWithReadme: Boolean,
-        inputDataTypes: List<DataType>,
-        dataProcessorType: DataProcessorType
-    ): T {
-        val codeProject = this.createProject(
-            userToken,
-            ownerId,
-            projectSlug,
-            projectName,
-            projectNamespace,
-            description,
-            visibility,
-            initializeWithReadme,
-            inputDataTypes,
-        )
-        val dataProcessorId = randomUUID()
-        dataProcessorService.createForCodeProject(
-            //FIXME: Remove data processor creation. Move it to publishing process
-            id = dataProcessorId,
-            name = projectName,
-            slug = projectSlug,
-            parameters = listOf(),
-            author = null,
-            description = "description",
-            visibilityScope = VisibilityScope.PRIVATE,
-            outputDataType = inputDataTypes.getOrNull(0) ?: DataType.NONE,
-            inputDataType = inputDataTypes.getOrNull(0) ?: DataType.NONE,
-            codeProject = codeProject as CodeProject,
-            command = "command $dataProcessorId",
-            type = dataProcessorType,
-        )
-        return codeProject
+        var project = createConcreteProject(creatorId, gitLabProject, processorTypeEntity, id)
+
+        project = if (project is CodeProject) {
+            project.copy(
+                inputDataTypes = inputDataTypesEntities,
+                outputDataTypes = outputDataTypesEntities,
+            ) as T
+        } else {
+            project.copy(
+                inputDataTypes = inputDataTypesEntities,
+            ) as T
+        }
+
+        return saveProject(project)
     }
 
     /**
@@ -471,7 +495,6 @@ open class ProjectServiceImpl<T : Project>(
      * https://gitlab.com/mlreef/mlreef/-/blob/master/docs/content/99-development/1-Projects.md
      *
      */
-    @Suppress("UNCHECKED_CAST")
     @RefreshUserInformation(userId = "#creatorId")
     override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?): T {
         val original = repository.findByIdOrNull(originalId)
@@ -488,10 +511,11 @@ open class ProjectServiceImpl<T : Project>(
             throw ConflictException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $originalId: ${e.message}")
         }
 
-        val fork: T = if (original is DataProject)
-            createDataProjectEntity(ownerId = creatorId, gitlabFork) as T
+        val fork: T = if (original is CodeProject)
+            createCodeProjectEntity(ownerId = creatorId, gitlabFork, original.processorType) as T
         else
-            createCodeProjectEntity(ownerId = creatorId, gitlabFork) as T
+            createDataProjectEntity(ownerId = creatorId, gitlabFork) as T
+
         return this.saveProject(fork.copy(createdAt = now(), updatedAt = now()))
     }
 
@@ -500,38 +524,72 @@ open class ProjectServiceImpl<T : Project>(
     }
 
     @RefreshProject(projectId = "#projectUUID")
-    override fun updateProject(userToken: String, ownerId: UUID, projectUUID: UUID, projectName: String?, description: String?, visibility: VisibilityScope?, inputDataTypes: List<DataType>?, outputDataTypes: List<DataType>?, tags: List<SearchableTag>?): T {
-        val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+    override fun updateProject(
+        userToken: String,
+        ownerId: UUID,
+        projectUUID: UUID,
+        projectName: String?,
+        description: String?,
+        visibility: VisibilityScope?,
+        inputDataTypes: List<String>?,
+        outputDataTypes: List<String>?,
+        tags: List<SearchableTag>?
+    ): T {
+        var project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         reservedNamesService.assertProjectNameIsNotReserved(projectName ?: project.name)
 
-        try {
-            val gitlabProject = gitlabRestClient.userUpdateProject(
-                id = project.gitlabId,
-                token = userToken,
-                name = projectName,
-                description = description,
-                visibility = visibility?.toGitlabString()
+        val inputDataTypesEntities = inputDataTypes?.map {
+            val parsedId = it.tryToUUID()
+            (if (parsedId != null) {
+                dataTypesRepository.findByIdOrNull(parsedId)
+            } else {
+                dataTypesRepository.findByNameIgnoreCase(it)
+            }) ?: throw BadRequestException(ErrorCode.NotFound, "Data type $it not found")
+        }?.toMutableSet()
+
+        val outputDataTypesEntities = outputDataTypes?.map {
+            val parsedId = it.tryToUUID()
+            (if (parsedId != null) {
+                dataTypesRepository.findByIdOrNull(parsedId)
+            } else {
+                dataTypesRepository.findByNameIgnoreCase(it)
+            }) ?: throw BadRequestException(ErrorCode.NotFound, "Data type $it not found")
+        }?.toMutableSet()
+
+        val gitlabProject = gitlabRestClient.userUpdateProject(
+            id = project.gitlabId,
+            token = userToken,
+            name = projectName,
+            description = description,
+            visibility = visibility?.toGitlabString()
+        )
+
+        project = if (project is CodeProject) {
+            project.copy(
+                outputDataTypes = outputDataTypesEntities,
+            ) as T
+        } else project
+
+        return saveProject(
+            project.copy(
+                name = gitlabProject.name,
+                description = gitlabProject.description,
+                gitlabPath = gitlabProject.path,
+                visibilityScope = gitlabProject.visibility.toVisibilityScope(),
+                inputDataTypes = inputDataTypesEntities ?: project.inputDataTypes,
+                tags = tags?.toMutableSet() ?: project.tags
             )
-            return saveProject(
-                project.copy(
-                    name = gitlabProject.name,
-                    description = gitlabProject.description,
-                    gitlabPath = gitlabProject.path,
-                    visibilityScope = gitlabProject.visibility.toVisibilityScope(),
-                    inputDataTypes = inputDataTypes?.toSet() ?: project.inputDataTypes,
-                    outputDataTypes = outputDataTypes?.toSet() ?: project.outputDataTypes,
-                    tags = tags?.toSet() ?: project.tags
-                )
-            )
-        } catch (e: GitlabCommonException) {
-            throw RestException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $projectUUID: ${e.message}")
-        }
+        )
     }
 
-    @RefreshProject(projectId = "#projectUUID")
-    override fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID) {
+    @RefreshProject(projectId = "#projectUUID", projectName = "#projectName")
+    override fun deleteProject(userToken: String, ownerId: UUID, projectUUID: UUID?, projectName: String?) {
         try {
-            val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
+            val projectId = projectUUID
+                ?: this.getProjectByName(
+                    projectName ?: throw BadParametersException("Either id or name must be present to delete projects")
+                )?.id ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectName not found")
+            val project = this.getProjectById(projectId) ?: throw ProjectNotFoundException(projectUUID)
             gitlabRestClient.deleteProject(id = project.gitlabId, token = userToken)
             repository.delete(project)
         } catch (e: GitlabCommonException) {
@@ -539,6 +597,7 @@ open class ProjectServiceImpl<T : Project>(
         }
     }
 
+    @org.springframework.transaction.annotation.Transactional
     override fun getUsersInProject(projectUUID: UUID): List<UserInProject> {
         val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         return gitlabRestClient
@@ -556,6 +615,7 @@ open class ProjectServiceImpl<T : Project>(
             }
     }
 
+    @org.springframework.transaction.annotation.Transactional
     override fun getUserProjectsList(userToken: String, userId: UUID?): List<ProjectOfUser> {
         val user = resolveAccount(userId = userId)
             ?: throw UserNotFoundException(userId = userId)
@@ -761,16 +821,43 @@ open class ProjectServiceImpl<T : Project>(
         }
 
     @Suppress("UNCHECKED_CAST")
-    private fun createConcreteProject(ownerId: UUID, gitlabProject: GitlabProject): T =
+    private fun createConcreteProject(ownerId: UUID, gitlabProject: GitlabProject, processorType: ProcessorType? = null, id: UUID? = null): T =
         when (baseClass) {
-            DataProject::class.java -> createDataProjectEntity(ownerId, gitlabProject) as T
-            CodeProject::class.java -> createCodeProjectEntity(ownerId, gitlabProject) as T
+            DataProject::class.java -> createDataProjectEntity(ownerId, gitlabProject, id) as T
+            CodeProject::class.java -> createCodeProjectEntity(
+                ownerId,
+                gitlabProject,
+                processorType ?: throw BadRequestException("No processor type was provided for new code project"),
+                id
+            ) as T
             else -> throw RuntimeException("You need to use concrete class")
         }
 
-    private fun createDataProjectEntity(ownerId: UUID, gitlabProject: GitlabProject): DataProject =
+    private fun getDefaultInputTypes(): List<String> =
+        when (baseClass) {
+            DataProject::class.java -> listOf(DEFAULT_DATA_PROJECT_INPUT_TYPE)
+            CodeProject::class.java -> listOf(DEFAULT_CODE_PROJECT_INPUT_TYPE)
+            else -> throw RuntimeException("You need to use concrete class")
+        }
+
+    private fun getDefaultOutputTypes(): List<String> =
+        when (baseClass) {
+            DataProject::class.java -> listOf()
+            CodeProject::class.java -> listOf(DEFAULT_CODE_PROJECT_OUTPUT_TYPE)
+            else -> throw RuntimeException("You need to use concrete class")
+        }
+
+    private fun getProjectType(): ProjectType? {
+        return when (baseClass) {
+            DataProject::class.java -> DATA_PROJECT
+            CodeProject::class.java -> ProjectType.CODE_PROJECT
+            else -> null
+        }
+    }
+
+    private fun createDataProjectEntity(ownerId: UUID, gitlabProject: GitlabProject, id: UUID? = null): DataProject =
         DataProject(
-            id = randomUUID(),
+            id = id ?: randomUUID(),
             slug = gitlabProject.path,
             ownerId = ownerId,
             url = gitlabProject.webUrl,
@@ -783,9 +870,9 @@ open class ProjectServiceImpl<T : Project>(
             visibilityScope = gitlabProject.visibility.toVisibilityScope()
         )
 
-    private fun createCodeProjectEntity(ownerId: UUID, gitlabProject: GitlabProject): CodeProject =
+    private fun createCodeProjectEntity(ownerId: UUID, gitlabProject: GitlabProject, processorType: ProcessorType, id: UUID? = null): CodeProject =
         CodeProject(
-            id = randomUUID(),
+            id = id ?: randomUUID(),
             slug = gitlabProject.path,
             ownerId = ownerId,
             url = gitlabProject.webUrl,
@@ -795,7 +882,8 @@ open class ProjectServiceImpl<T : Project>(
             gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
             gitlabNamespace = gitlabProject.pathWithNamespace.split("/")[0],
             gitlabId = gitlabProject.id,
-            visibilityScope = gitlabProject.visibility.toVisibilityScope()
+            visibilityScope = gitlabProject.visibility.toVisibilityScope(),
+            processorType = processorType
         )
 
     @Transactional

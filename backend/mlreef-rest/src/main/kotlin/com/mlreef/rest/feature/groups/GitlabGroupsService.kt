@@ -1,19 +1,20 @@
 package com.mlreef.rest.feature.groups
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.MembershipRepository
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.api.CurrentUserService
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.Group
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.helpers.GroupOfUser
+import com.mlreef.rest.domain.helpers.UserInGroup
 import com.mlreef.rest.exceptions.AccessDeniedException
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.ForbiddenContentException
 import com.mlreef.rest.exceptions.GroupNotFoundException
 import com.mlreef.rest.exceptions.IncorrectCredentialsException
 import com.mlreef.rest.exceptions.UnknownGroupException
@@ -25,9 +26,7 @@ import com.mlreef.rest.external_api.gitlab.toAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.toGitlabVisibility
 import com.mlreef.rest.feature.system.ReservedNamesService
-import com.mlreef.rest.helpers.GroupOfUser
-import com.mlreef.rest.helpers.UserInGroup
-import com.mlreef.utils.Slugs
+import com.mlreef.rest.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -111,6 +110,9 @@ class GitlabGroupsService(
 
         val slug = Slugs.toSlug(groupName)
         reservedNamesService.assertGroupNameIsNotReserved(groupName)
+
+        //FIXME: Where is dtype?
+        if (groupsRepository.findByName(groupName).size > 0) throw ConflictException("Group $groupName already exists")
 
         val gitlabGroup = gitlabRestClient.userCreateGroup(
             token = ownerToken,
@@ -271,8 +273,8 @@ class GitlabGroupsService(
     override fun checkAvailability(userToken: String, creatingPersonId: UUID, groupName: String): String {
         val possibleSlug = Slugs.toSlug(groupName)
         reservedNamesService.assertGroupNameIsNotReserved(groupName)
-        val existingGroups = groupsRepository.findAllBySlug(possibleSlug)
-        if (existingGroups.isNotEmpty()) {
+        val existingGroups = groupsRepository.findBySlug(possibleSlug)
+        if (existingGroups != null) {
             throw ConflictException(ErrorCode.GroupAlreadyExists, "Group exists for owner $possibleSlug $groupName")
         }
         return possibleSlug

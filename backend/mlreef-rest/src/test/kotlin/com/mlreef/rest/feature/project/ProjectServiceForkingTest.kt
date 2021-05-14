@@ -1,25 +1,27 @@
 package com.mlreef.rest.feature.project
 
-import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.Project
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.ProcessorType
+import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.feature.data_processors.DataProcessorService
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import java.time.ZonedDateTime.now
-import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
+import java.time.ZonedDateTime.now
+import java.util.UUID
 
-internal class ProjectServiceForkingTest {
+internal open class ProjectServiceForkingTest {
 
     private val originalCodeProject = CodeProject(
         id = UUID.randomUUID(),
@@ -35,6 +37,7 @@ internal class ProjectServiceForkingTest {
         createdAt = now().minusYears(1),
         updatedAt = now().minusMonths(1),
         visibilityScope = VisibilityScope.PUBLIC,
+        processorType = ProcessorType(UUID.randomUUID(), "Type")
     )
 
     private val repoMock: CodeProjectRepository = mockk {
@@ -66,14 +69,18 @@ internal class ProjectServiceForkingTest {
         accountRepository = mockk(),
         groupRepository = mockk(),
         subjectRepository = mockk(),
-        dataProcessorService = mockk(),
+        parameterTypesRepository = mockk(),
+        dataTypesRepository = mockk(),
+        processorTypeRepository = mockk(),
     )
 
 
     @Test
     fun `Can fork CodeProject`() = `Can fork project`(originalCodeProject)
 
-    private fun `Can fork project`(original: Project) {
+    @Transactional
+    @Rollback
+    open fun `Can fork project`(original: Project) {
         // Capture what is saved to the repository
         val capture = slot<CodeProject>()
         every { repoMock.save(capture(capture)) } answers { this.arg(0) }

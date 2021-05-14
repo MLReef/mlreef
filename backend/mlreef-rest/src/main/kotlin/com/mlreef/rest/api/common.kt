@@ -1,10 +1,10 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.Person
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import org.springframework.data.repository.findByIdOrNull

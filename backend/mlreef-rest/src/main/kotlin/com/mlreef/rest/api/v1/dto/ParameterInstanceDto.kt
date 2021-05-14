@@ -1,6 +1,6 @@
 package com.mlreef.rest.api.v1.dto
 
-import com.mlreef.rest.ParameterInstance
+import com.mlreef.rest.domain.ParameterInstance
 import javax.validation.constraints.NotEmpty
 
 data class ParameterInstanceDto(
@@ -13,9 +13,9 @@ data class ParameterInstanceDto(
 
 internal fun ParameterInstance.toDto(): ParameterInstanceDto =
     ParameterInstanceDto(
-        name = this.processorParameter.name,
+        name = this.parameter.name,
         value = this.value,
-        type = this.processorParameter.type.name,
-        description = this.processorParameter.description ?: "",
-        required = this.processorParameter.required
+        type = this.parameter.parameterType?.name ?: this.parameterType?.name,
+        description = this.parameter.description ?: "",
+        required = this.parameter.required
     )

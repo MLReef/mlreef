@@ -1,11 +1,11 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.UserRole
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
 import com.mlreef.rest.api.v1.UpdateRequest
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
+import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -16,11 +16,9 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.restdocs.payload.FieldDescriptor
@@ -41,20 +39,10 @@ class AuthApiTest : AbstractRestApiTest() {
     @SpykBean
     lateinit var mailSender: JavaMailSender
 
-    @Autowired
-    private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
-
     @BeforeEach
-    @AfterEach
     fun clearRepo() {
-        truncateAllTables()
-
         every { mailSender.send(ofType(SimpleMailMessage::class)) } just Runs
         every { mailSender.send(ofType(MimeMessage::class)) } just Runs
-
-        accountSubjectPreparationTrait.apply()
-
-        account = accountSubjectPreparationTrait.account
     }
 
     @Transactional
@@ -102,8 +90,6 @@ class AuthApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can login with existing user`() {
-        account = accountSubjectPreparationTrait.account
-
         every {
             restClient.userLoginOAuthToGitlab(any(), any())
         } returns OAuthToken("accesstoken12345", "refreshtoken1234567", "bearer", "api", 1585910424)
@@ -253,18 +239,19 @@ class AuthApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can get who-am-i`() {
+        mockUserAuthentication(forAccount = mainAccount)
 
-        mockUserAuthentication()
-
-        val result: UserDto = this.performGet("$authUrl/whoami", token = "new-token-${UUID.randomUUID()}")
+        val result: UserDto = this.performGet("$authUrl/whoami", token = mainToken)
             .expectOk()
-            .document("who-am-i",
-                responseFields(userDtoResponseFields()))
+            .document(
+                "who-am-i",
+                responseFields(userDtoResponseFields())
+            )
             .returns()
 
-        assertThat(account.id).isEqualTo(result.id)
-        assertThat(account.username).isEqualTo(result.username)
-        assertThat(account.email).isEqualTo(result.email)
+        assertThat(mainAccount.username).isEqualTo(result.username)
+        assertThat(mainAccount.email).isEqualTo(result.email)
+        assertThat(mainAccount.id).isEqualTo(result.id)
     }
 
     @Transactional
@@ -272,12 +259,16 @@ class AuthApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can check token`() {
+        val account = mainAccount
+
         mockUserAuthentication()
 
         val result: UserDto = this.performGet("$authUrl/check/token", token = "new-token-${UUID.randomUUID()}")
             .expectOk()
-            .document("check-token",
-                responseFields(userDtoResponseFields()))
+            .document(
+                "check-token",
+                responseFields(userDtoResponseFields())
+            )
             .returns()
 
         assertThat(account.id).isEqualTo(result.id)

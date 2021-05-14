@@ -1,17 +1,20 @@
 package com.mlreef.rest.security
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.Project
-import com.mlreef.rest.api.v1.dto.DataProcessorDto
+import com.mlreef.rest.ExperimentRepository
+import com.mlreef.rest.PipelineConfigurationRepository
+import com.mlreef.rest.PipelinesRepository
+import com.mlreef.rest.ProcessorsRepository
+import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
+import com.mlreef.rest.api.v1.dto.PipelineDto
+import com.mlreef.rest.api.v1.dto.ProcessorDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.helpers.DataClassWithId
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.project.ProjectService
-import com.mlreef.rest.helpers.DataClassWithId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.access.expression.SecurityExpressionRoot
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations
@@ -21,33 +24,43 @@ import java.util.UUID
 class MlReefSecurityExpressionRoot(
     authentication: Authentication,
     private val publicProjectsCache: PublicProjectsCacheService,
-    private val dataProcessorRepository: DataProcessorRepository,
-    private val pipelineConfigRepository: PipelineConfigRepository,
+    private val processorRepository: ProcessorsRepository,
+    private val pipelineConfigRepository: PipelineConfigurationRepository,
+    private val pipelineRepository: PipelinesRepository,
     private val projectService: ProjectService<Project>,
-    private val pipelineInstanceRepository: PipelineInstanceRepository)
-    : SecurityExpressionRoot(authentication), MethodSecurityExpressionOperations {
+    private val experimentsRepository: ExperimentRepository,
+) : SecurityExpressionRoot(authentication), MethodSecurityExpressionOperations {
 
     private var returnObject: Any? = null
     private var filterObject: Any? = null
     private var target: Any? = null
 
+    private val tokenDetails: TokenDetails?
+        get() = (this.principal as? TokenDetails)
+
+    private val projects: Map<UUID, AccessLevel?>
+        get() = tokenDetails?.projects ?: mapOf()
+
+    private val groups: Map<UUID, AccessLevel?>
+        get() = tokenDetails?.groups ?: mapOf()
+
+    private val visitor: Boolean
+        get() = tokenDetails?.isVisitor ?: true
 
     fun hasAccessToGroup(groupId: UUID, minAccessLevel: String): Boolean {
         val level = AccessLevel.valueOf(minAccessLevel.toUpperCase())
-        return ((this.principal as? TokenDetails)?.groups?.get(groupId)?.accessCode ?: 0) >= level.accessCode
+        return (tokenDetails?.groups?.get(groupId)?.accessCode ?: 0) >= level.accessCode
     }
 
-    // Projects' security
+    //-------------------------------- PROJECTS
+
     fun isProjectOwner(projectId: UUID): Boolean {
-        val tokenDetails = this.principal as? TokenDetails
-        val projects = tokenDetails?.projects
-        val accessLevel = projects?.get(projectId)
-        return (accessLevel?.accessCode ?: 0) == AccessLevel.OWNER.accessCode
+        return projects[projectId] == AccessLevel.OWNER
     }
 
     fun canViewProject(projectId: UUID): Boolean {
         if (projectIsPublic(projectId)) return true
-        return ((this.principal as? TokenDetails)?.projects?.get(projectId) != null)
+        return projects[projectId] != null
     }
 
     fun canViewProject(namespace: String, slug: String): Boolean {
@@ -57,13 +70,14 @@ class MlReefSecurityExpressionRoot(
     }
 
     fun postCanViewProject(): Boolean {
-        val id = getIdFromContext()
-        return (id != null && canViewProject(id))
+        return getIdFromContext()?.let {
+            canViewProject(it)
+        } ?: false
     }
 
     fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
         val level = AccessLevel.valueOf(minAccessLevel.toUpperCase())
-        return ((this.principal as? TokenDetails)?.projects?.get(projectId)?.accessCode ?: 0) >= level.accessCode
+        return (projects[projectId]?.accessCode ?: 0) >= level.accessCode
     }
 
     fun hasAccessToProject(namespace: String, slug: String, minAccessLevel: String): Boolean {
@@ -73,45 +87,117 @@ class MlReefSecurityExpressionRoot(
     }
 
     fun postHasAccessToProject(minAccessLevel: String): Boolean {
-        val id = getIdFromContext()
-        return if (id != null) hasAccessToProject(id, minAccessLevel) else false
+        return getIdFromContext()?.let {
+            hasAccessToProject(it, minAccessLevel)
+        } ?: false
     }
 
+    //-------------------------------- PIPELINES CONFIGS
+
+    fun hasAccessToPipelineConfig(pipelineConfigId: UUID, minAccessLevel: String): Boolean {
+        return getPipelineConfigFromContext(pipelineConfigId)?.let {
+            hasAccessToProject(it.dataProjectId, minAccessLevel)
+        } ?: false
+    }
+
+    fun postHasAccessToPipelineConfig(minAccessLevel: String): Boolean {
+        return getIdFromContext()?.let {
+            hasAccessToPipelineConfig(it, minAccessLevel)
+        } ?: false
+    }
+
+    fun canViewPipelineConfig(id: UUID): Boolean {
+        return getPipelineConfigFromContext(id)?.let {
+            canViewProject(it.dataProjectId)
+        } ?: false
+    }
+
+    fun postCanViewPipelineConfig(): Boolean {
+        return getIdFromContext()?.let {
+            canViewPipelineConfig(it)
+        } ?: false
+    }
+
+    //-------------------------------- PIPELINES
+
     fun hasAccessToPipeline(pipelineId: UUID, minAccessLevel: String): Boolean {
-        val config = getPipelineConfigFromContext(pipelineId)
-        return if (config != null) hasAccessToProject(config.dataProjectId, minAccessLevel) else false
+        return getPipelineFromContext(pipelineId)?.let {
+            hasAccessToProject(it.dataProjectId, minAccessLevel)
+        } ?: false
     }
 
     fun postHasAccessToPipeline(minAccessLevel: String): Boolean {
-        val id = getIdFromContext()
-        return if (id != null) hasAccessToPipeline(id, minAccessLevel) else false
+        return getIdFromContext()?.let {
+            hasAccessToPipeline(it, minAccessLevel)
+        } ?: false
     }
 
-    fun canViewPipeline(id: UUID) = hasAccessToPipeline(id, AccessLevel.VISITOR.name)
-    fun postCanViewPipeline() = postHasAccessToPipeline(AccessLevel.VISITOR.name)
+    fun canViewPipeline(id: UUID): Boolean {
+        return getPipelineFromContext(id)?.let {
+            canViewProject(it.dataProjectId)
+        } ?: false
+    }
+
+    fun postCanViewPipeline(): Boolean {
+        return getIdFromContext()?.let {
+            canViewPipeline(it)
+        } ?: false
+    }
+
+    //-------------------------------- EXPERIMENTS
+
+    fun hasAccessToExperiment(experimentId: UUID, minAccessLevel: String): Boolean {
+        return getExperimentFromContext(experimentId)?.let {
+            hasAccessToProject(it.dataProjectId, minAccessLevel)
+        } ?: false
+    }
+
+    fun postHasAccessToExperiment(minAccessLevel: String): Boolean {
+        return getIdFromContext()?.let {
+            hasAccessToExperiment(it, minAccessLevel)
+        } ?: false
+    }
+
+    fun canViewExperiment(id: UUID): Boolean {
+        return getPipelineConfigFromContext(id)?.let {
+            canViewProject(it.dataProjectId)
+        } ?: false
+    }
+
+    fun postCanViewExperiment(): Boolean {
+        return getIdFromContext()?.let {
+            canViewExperiment(it)
+        } ?: false
+    }
+
+    //-------------------------------- PROCESSORS
 
     fun hasAccessToProcessor(processorId: UUID, minAccessLevel: String): Boolean {
-        val config = getDataProcessorFromContext(processorId)
-        return if (config?.codeProjectId != null) hasAccessToProject(config.codeProjectId, minAccessLevel) else false
+        return getProcessorFromContext(processorId)?.codeProjectId?.let {
+            hasAccessToProject(it, minAccessLevel)
+        } ?: false
     }
 
     fun postHasAccessToProcessor(minAccessLevel: String): Boolean {
-        val id = getIdFromContext()
-        return if (id != null) hasAccessToProcessor(id, minAccessLevel) else false
+        return getIdFromContext()?.let {
+            hasAccessToProcessor(it, minAccessLevel)
+        } ?: false
     }
 
     fun canViewProcessor(processorId: UUID): Boolean = hasAccessToProcessor(processorId, AccessLevel.VISITOR.name)
     fun postCanViewProcessor() = postHasAccessToProcessor(AccessLevel.VISITOR.name)
 
+    //-------------------------------- OTHERS
+
     @Deprecated("postCanViewProject")
     fun userInProject(): Boolean {
-        val id = getIdFromContext()
-        return if (id != null) userInProject(id) else false
+        return getIdFromContext()?.let {
+            userInProject(it)
+        } ?: false
     }
 
     @Deprecated("canViewProject", ReplaceWith("canViewProject"))
-    fun userInProject(projectId: UUID): Boolean = ((this.principal as? TokenDetails)?.projects?.containsKey(projectId)
-        ?: false)
+    fun userInProject(projectId: UUID): Boolean = projects.containsKey(projectId)
 
     fun userInProject(namespace: String, slug: String): Boolean {
         val projectId = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
@@ -119,58 +205,39 @@ class MlReefSecurityExpressionRoot(
         return userInProject(projectId)
     }
 
-    private fun projectIsPublic(projectId: UUID): Boolean {
-        val project = projectService.getProjectById(projectId)
+    fun projectIsPublic(projectId: UUID) = projectService.getProjectById(projectId)?.isPublic() ?: false
 
-        return project?.isPublic() ?: false
-    }
+    fun projectIsPublic(namespace: String, slug: String) = projectService.getProjectsByNamespaceAndPath(namespace, slug)?.isPublic() ?: false
 
-    fun projectIsPublic(namespace: String, slug: String): Boolean {
-        val project = projectService.getProjectsByNamespaceAndPath(namespace, slug)
-
-        return project?.isPublic() ?: false
-    }
-
-    @Deprecated("why not accesslevel maintainer?")
     fun canCreateProject(): Boolean {
-        val tokenDetails = (this.principal as? TokenDetails) ?: return false
-        return !tokenDetails.isVisitor && (tokenDetails.gitlabUser?.canCreateProject ?: false)
+        return !visitor && (tokenDetails?.gitlabUser?.canCreateProject ?: false)
     }
 
     // Common security check
-    fun isGitlabAdmin(): Boolean = (this.principal as? TokenDetails)?.gitlabUser?.isAdmin ?: false
+    fun isGitlabAdmin(): Boolean = tokenDetails?.gitlabUser?.isAdmin ?: false
 
-    fun isVisitor(): Boolean = (this.principal as? TokenDetails)?.isVisitor ?: false
+    fun isUserItself(userId: UUID?): Boolean = userId?.let { tokenDetails?.accountId == it } ?: false
 
-    fun isUserItself(userId: UUID?): Boolean = if (userId != null) ((this.principal as? TokenDetails)?.accountId == userId) else false
+    fun isUserItself(userGitlabId: Long?): Boolean = userGitlabId?.let { tokenDetails?.gitlabUser?.id == it } ?: false
 
-    fun isUserItself(userGitlabId: Long?): Boolean = if (userGitlabId != null) (this.principal as? TokenDetails)?.gitlabUser?.id == userGitlabId else false
+    fun isUserItself(userName: String?): Boolean = userName?.let { tokenDetails?.username == it } ?: false
 
-    fun isUserItself(userName: String?): Boolean = if (userName != null) (this.principal as? TokenDetails)?.username == userName else false
-
-    fun isUserItselfByToken(token: String?): Boolean {
-        return if (token != null) {
-            (this.principal as? TokenDetails)?.accessToken == token
-        } else false
-    }
+    fun isUserItselfByToken(token: String?) = token?.let { tokenDetails?.accessToken == it } ?: false
 
     // Groups' security
     fun isGroupOwner(groupId: UUID): Boolean {
-        return ((this.principal as? TokenDetails)?.groups?.get(groupId)?.accessCode
-            ?: 0) == AccessLevel.OWNER.accessCode
+        return groups[groupId] == AccessLevel.OWNER
     }
 
     fun userInGroup(): Boolean {
-        val id = getIdFromContext()
-        return if (id != null) userInGroup(id) else false
+        return getIdFromContext()?.let {
+            userInGroup(it)
+        } ?: false
     }
 
-    fun userInGroup(groupId: UUID): Boolean = ((this.principal as? TokenDetails)?.groups?.containsKey(groupId) ?: false)
+    fun userInGroup(groupId: UUID): Boolean = groups.containsKey(groupId)
 
-    fun canCreateGroup(): Boolean {
-        val tokenDetails = this.principal as? TokenDetails
-        return tokenDetails?.gitlabUser?.canCreateGroup ?: false
-    }
+    fun canCreateGroup() = tokenDetails?.gitlabUser?.canCreateGroup ?: false
 
     override fun getReturnObject() = returnObject
 
@@ -199,20 +266,38 @@ class MlReefSecurityExpressionRoot(
         }
     }
 
-    private fun getDataProcessorFromContext(dataProcessorId: UUID? = null): DataProcessorDto? {
+    private fun getProcessorFromContext(dataProcessorId: UUID? = null): ProcessorDto? {
         return when {
-            dataProcessorId != null -> dataProcessorRepository.findByIdOrNull(dataProcessorId)?.toDto()
-            filterObject != null -> (filterObject as? DataProcessorDto)
-            returnObject != null -> (returnObject as? DataProcessorDto)
+            dataProcessorId != null -> processorRepository.findByIdOrNull(dataProcessorId)?.toDto()
+            filterObject != null -> (filterObject as? ProcessorDto)
+            returnObject != null -> (returnObject as? ProcessorDto)
             else -> null
         }
     }
 
-    private fun getPipelineConfigFromContext(pipelineId: UUID? = null): PipelineConfigDto? {
+    private fun getPipelineConfigFromContext(pipelineConfigId: UUID? = null): PipelineConfigDto? {
         return when {
-            pipelineId != null -> pipelineConfigRepository.findByIdOrNull(pipelineId)?.toDto()
+            pipelineConfigId != null -> pipelineConfigRepository.findByIdOrNull(pipelineConfigId)?.toDto()
             filterObject != null -> (filterObject as? PipelineConfigDto)
             returnObject != null -> (returnObject as? PipelineConfigDto)
+            else -> null
+        }
+    }
+
+    private fun getPipelineFromContext(pipelineId: UUID? = null): PipelineDto? {
+        return when {
+            pipelineId != null -> pipelineRepository.findByIdOrNull(pipelineId)?.toDto()
+            filterObject != null -> (filterObject as? PipelineDto)
+            returnObject != null -> (returnObject as? PipelineDto)
+            else -> null
+        }
+    }
+
+    private fun getExperimentFromContext(experimentId: UUID? = null): ExperimentDto? {
+        return when {
+            experimentId != null -> experimentsRepository.findByIdOrNull(experimentId)?.toDto()
+            filterObject != null -> (filterObject as? ExperimentDto)
+            returnObject != null -> (returnObject as? ExperimentDto)
             else -> null
         }
     }

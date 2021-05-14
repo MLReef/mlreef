@@ -343,39 +343,56 @@ Get environments list for publishing code project
 
 operation::publish-environments-list[snippets='curl-request,response-body']
 
-=== POST /code-projects/environments
-
-Create new environment for publishing code project
-
-operation::create-publish-environment[snippets='curl-request,request-fields,response-body,response-fields']
-
-=== DELETE /code-projects/environments/:id
-
-Delete exiting environment
-
-operation::delete-publish-environment[snippets='curl-request,response-body']
-
 === GET /code-projects/:id/publish
 
 Get publish information for requested code project
 
 operation::code-projects-publish-info[snippets='curl-request,response-body,response-fields']
 
+=== GET /code-projects/:id/publish
+
+Get publish information for requested code project.
+Returns pageable result with all published processors
+
+operation::code-projects-publish-info[snippets='curl-request,request-parameters,response-body,response-fields']
+
+=== GET /code-projects/:id/publish/:processor_id
+
+Get publish information for requested processor id.
+Returns processor json
+
+operation::code-projects-publish-info-by-id[snippets='curl-request,response-body,response-fields']
+
+=== GET /code-projects/:id/publish/:branch_id/:version_id
+
+Get publish information for requested branch and version.
+Returns processor json
+
+operation::code-projects-publish-info-by-id[snippets='curl-request,response-body,response-fields']
+
+=== GET /code-projects/:id/publish/latest
+
+Get the last published processor for code project.
+Returns processor json
+
+operation::code-projects-publish-info-latest[snippets='curl-request,request-parameters,response-body,response-fields']
+
 === POST /code-projects/:id/publish
 
-Publish current project: pack it to docker and put it to repository
+Publish current project: pack it to docker and put it to repository The processor gets status PUBLISHED or PUBLISH_FAILED
 
 operation::code-projects-publish-success[snippets='curl-request,request-fields,response-body,response-fields']
 
 === POST /code-projects/:id/unpublish
 
-Publish current project: pack it to docker and put it to repository
+Unpublish current project, it removes image from registry and mark processor with status UNPUBLISHEd or UNPUBLISH_FAILED
 
 operation::code-projects-unpublish-success[snippets='curl-request,response-body,response-fields']
 
 === POST /code-projects/:id/republish
 
-Publish current project: pack it to docker and put it to repository
+Republish current project.
+It unpublish current publsihed processor and publish it again
 
 operation::code-projects-republish-success[snippets='curl-request,request-fields,response-body,response-fields']
 

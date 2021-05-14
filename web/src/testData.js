@@ -254,7 +254,6 @@ export const projectsArrayMock = {
       starsCount: 2,
       forksCount: 1,
       lastActivityAt: '2019-11-11T10:36:06.189Z',
-      dataProcessor: { type: ALGORITHM },
       projectStarrers: [
         {
           starred_since: '2020-09-16T14:41:07.871Z',

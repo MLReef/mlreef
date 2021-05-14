@@ -2,8 +2,8 @@ package com.mlreef.rest.api.v1.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.PipelineJobInfo
-import java.time.ZonedDateTime
+import com.mlreef.rest.domain.PipelineJobInfo
+import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -11,11 +11,11 @@ data class PipelineJobInfoDto(
     val id: Long?,
     val ref: String?,
     val commitSha: String,
-    val createdAt: ZonedDateTime? = null,
-    val committedAt: ZonedDateTime? = null,
-    val startedAt: ZonedDateTime? = null,
-    val updatedAt: ZonedDateTime? = null,
-    val finishedAt: ZonedDateTime? = null
+    val createdAt: Instant? = null,
+    val committedAt: Instant? = null,
+    val startedAt: Instant? = null,
+    val updatedAt: Instant? = null,
+    val finishedAt: Instant? = null
 )
 
 internal fun PipelineJobInfo.toDto(): PipelineJobInfoDto =

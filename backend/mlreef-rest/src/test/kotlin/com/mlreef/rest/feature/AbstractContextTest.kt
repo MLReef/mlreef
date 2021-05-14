@@ -2,8 +2,8 @@ package com.mlreef.rest.feature
 
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.ApplicationProfiles
+import com.mlreef.rest.BaseTest
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.caches.RedisPublicProjectsCacheService
 import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
@@ -16,6 +16,7 @@ import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -24,23 +25,34 @@ import redis.embedded.RedisServerBuilder
 
 @SpringBootTest
 @ActiveProfiles(ApplicationProfiles.SPRING_CONTEXT_TEST)
-@ExtendWith(value=[MockKExtension::class])
-abstract class AbstractContextTest {
+@ExtendWith(value = [MockKExtension::class])
+abstract class AbstractContextTest: BaseTest() {
     companion object {
-        protected lateinit var redisServer: RedisServer
+        val log = LoggerFactory.getLogger(this::class.java)
+
+        protected var redisServer: RedisServer? = null
         protected val propertyReader = PropertiesReader("application-spring-context-test.yml")
 
         @BeforeAll
         @JvmStatic
         fun setupGlobal() {
-            redisServer = RedisServerBuilder().port(propertyReader.getProperty("spring.redis.port")?.toInt()).setting("maxmemory 256M").build()
-            redisServer.start()
+            try {
+                redisServer = RedisServerBuilder().port(propertyReader.getProperty("spring.redis.port")?.toInt()).setting("maxmemory 256M").build()
+                redisServer?.start()
+            } catch (ex: Exception) {
+                log.error("Cannot start embedded redis: $ex")
+            }
         }
 
         @AfterAll
         @JvmStatic
         fun tearDownGlobal() {
-            redisServer.stop()
+            try {
+                if (redisServer?.isActive==true)
+                redisServer?.stop()
+            } catch (ex: Exception) {
+                log.error("Cannot stop embedded redis: $ex")
+            }
         }
     }
 
@@ -51,13 +63,14 @@ abstract class AbstractContextTest {
     protected lateinit var publicProjectsCacheService: RedisPublicProjectsCacheService
 
     @SpykBean
-    protected lateinit var sessionRegistry: MlReefSessionRegistry
+    override lateinit var sessionRegistry: MlReefSessionRegistry
+
+//    @SpykBean
+//    @Autowired
+//    override lateinit var dataProjectRepository: DataProjectRepository
 
     @SpykBean
-    protected lateinit var dataProjectRepository: DataProjectRepository
-
-    @SpykBean
-    protected lateinit var accountRepository: AccountRepository
+    override lateinit var accountRepository: AccountRepository
 
     @SpykBean
     protected lateinit var publicProjectRepository: PublicProjectsRepository
@@ -66,7 +79,7 @@ abstract class AbstractContextTest {
     protected lateinit var gitlabRestClient: GitlabRestClient
 
     @SpykBean
-    protected lateinit var codeProjectRepository: CodeProjectRepository
+    override lateinit var codeProjectRepository: CodeProjectRepository
 
 }
 

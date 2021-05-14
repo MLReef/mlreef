@@ -17,18 +17,22 @@ import javax.persistence.criteria.Path
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 import javax.persistence.criteria.Selection
+import javax.persistence.criteria.Subquery
 
-class QueryBuilder<T>(
-    private val em: EntityManager,
-    classOf: Class<T>,
+class QueryBuilder<T> private constructor(
+    val classOf: Class<T>,
     val strictMode: Boolean = false,
-    private val grouping: Boolean = false
+    val grouping: Boolean = false
 ) {
-    private val builder: CriteriaBuilder
-    private val query: CriteriaQuery<T>
-    private val queryCount: CriteriaQuery<Long>
-    private val groupingQuery: CriteriaQuery<Array<Any>>
-    private val from: Root<T>
+    private lateinit var em: EntityManager
+
+    private lateinit var builder: CriteriaBuilder
+    private lateinit var query: CriteriaQuery<T>
+    private lateinit var queryCount: CriteriaQuery<Long>
+    private lateinit var subquery: Subquery<Any>
+    private lateinit var groupingQuery: CriteriaQuery<Array<Any>>
+    private lateinit var from: Root<T>
+
     private var wherePredicate: Predicate? = null
     private var havingPredicate: Predicate? = null
 
@@ -42,7 +46,44 @@ class QueryBuilder<T>(
 
     private val joins: MutableMap<String, Join<*, *>> = mutableMapOf()
 
+    private val subselects: MutableMap<String, QueryBuilder<*>> = mutableMapOf()
+
     private var isWherePredicates: Boolean = true
+
+    private var isDistinct: Boolean? = null
+    private var isSubSelect: Boolean = false
+
+    //For subqueries as they should return a single field. If it's null then the first value from grouping expressions will be taken
+    private var singleFieldSelect: String? = null
+
+    constructor(
+        em: EntityManager,
+        classOf: Class<T>,
+        strictMode: Boolean = false,
+        grouping: Boolean = false
+    ) : this(classOf, strictMode, grouping) {
+        this.em = em
+        builder = em.criteriaBuilder
+        query = builder.createQuery(classOf)
+        queryCount = builder.createQuery(Long::class.java)
+        groupingQuery = builder.createQuery(Array<Any>::class.java)
+        from = if (grouping) groupingQuery.from(classOf) else query.from(classOf)
+    }
+
+    private constructor(
+        subquery: Subquery<Any>,
+        builder: CriteriaBuilder,
+        classOf: Class<T>,
+        singleFieldSelect: String?,
+        strictMode: Boolean = false,
+        grouping: Boolean = false,
+    ) : this(classOf, strictMode, grouping) {
+        this.builder = builder
+        this.subquery = subquery
+        from = this.subquery.from(classOf)
+        isSubSelect = true
+        this.singleFieldSelect = singleFieldSelect
+    }
 
     private val currentPredicatesList: MutableList<PredicateRecord>
         get() = if (currentPredicateRecord != null) {
@@ -53,7 +94,14 @@ class QueryBuilder<T>(
             havingPredicatesList
         }
 
-    private val currentGroupingSelections = mutableListOf<Selection<*>>()
+    private val currentFrom: Root<*>
+        get() = if (isSubSelect) {
+            from
+        } else {
+            from
+        }
+
+    private val currentGroupingSelections = mutableMapOf<String, Selection<*>>()
     private val currentGroupingList = mutableListOf<Expression<*>>()
 
     private var limit: Int? = null
@@ -62,17 +110,7 @@ class QueryBuilder<T>(
     fun select(distinct: Boolean? = null): List<T> {
         if (grouping) throw RuntimeException("Grouping query builder. Use 'grouping=false' in constructor or selectGrouped() method instead")
 
-        query.select(from)
-
-        distinct?.let { query.distinct(it) }
-
-        buildWherePredicates()
-
-        wherePredicate?.let { query.where(it) }
-
-        if (orderBy.isNotEmpty()) {
-            query.orderBy(orderBy)
-        }
+        prepareSelect(distinct ?: isDistinct)
 
         val resultQuery = em.createQuery(query)
 
@@ -103,23 +141,7 @@ class QueryBuilder<T>(
     fun selectGrouped(distinct: Boolean? = null): List<Array<Any>> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor or select() method instead")
 
-        groupingQuery.multiselect(currentGroupingSelections)
-        distinct?.let { groupingQuery.distinct(it) }
-
-        buildWherePredicates()
-        buildHavingPredicates()
-
-        wherePredicate?.let { groupingQuery.where(it) }
-
-        if (orderBy.isNotEmpty()) {
-            groupingQuery.orderBy(orderBy)
-        }
-
-        if (currentGroupingList.isNotEmpty()) {
-            groupingQuery.groupBy(currentGroupingList)
-        }
-
-        havingPredicate?.let { groupingQuery.having(it) }
+        prepareGroupedSelect(distinct ?: isDistinct)
 
         val resultQuery = em.createQuery(groupingQuery)
 
@@ -129,8 +151,56 @@ class QueryBuilder<T>(
         return resultQuery.resultList
     }
 
+    private fun prepare(distinct: Boolean?) {
+        if (grouping) prepareGroupedSelect(distinct) else prepareSelect(distinct)
+    }
+
+    private fun prepareSelect(distinct: Boolean?) {
+        subselects.forEach {
+            it.value.prepareSubSelect()
+        }
+
+        query.select(from)
+
+        distinct?.let { query.distinct(it) }
+
+        buildWherePredicates()
+        buildOrderBy()
+    }
+
+    private fun prepareGroupedSelect(distinct: Boolean?) {
+        subselects.forEach {
+            it.value.prepareSubSelect()
+        }
+
+        groupingQuery.multiselect(currentGroupingSelections.values.toList())
+        distinct?.let { groupingQuery.distinct(it) }
+
+        buildWherePredicates()
+        buildHavingPredicates()
+        buildOrderBy()
+
+        if (currentGroupingList.isNotEmpty()) {
+            groupingQuery.groupBy(currentGroupingList)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun prepareSubSelect() {
+        subquery.select(
+            singleFieldSelect?.let { getExpressionByPath<Any>(it, null) }
+                ?: currentGroupingSelections.map { it.value as Expression<Any> }.first()
+        )
+        isDistinct?.let { subquery.distinct(it) }
+        buildWherePredicates()
+        buildHavingPredicates()
+        if (currentGroupingList.isNotEmpty()) {
+            subquery.groupBy(currentGroupingList)
+        }
+    }
+
     fun count(distinct: Boolean? = null): Long {
-        queryCount.select(if (distinct ?: false) builder.countDistinct(from) else builder.count(from))
+        queryCount.select(if (distinct ?: isDistinct ?: false) builder.countDistinct(from) else builder.count(from))
 
         buildWherePredicates()
 
@@ -159,7 +229,18 @@ class QueryBuilder<T>(
         return this
     }
 
-    @Deprecated("Doesn't suppert by Hibernate")
+    fun <J> joinList(field: String, joinedAlias: String? = null, alias: String? = null): QueryBuilder<T> {
+        joins[alias ?: field] = if (joinedAlias != null) {
+            joins[joinedAlias]?.joinList<J, T>(field)
+                ?: throw RuntimeException("Join with name $joinedAlias was not found")
+        } else {
+            from.joinList<T, J>(field)
+        }
+
+        return this
+    }
+
+    @Deprecated("Is not supported by Hibernate")
     fun <J> joinRight(field: String, joinedAlias: String? = null, alias: String? = null): QueryBuilder<T> {
         joins[alias ?: field] = if (joinedAlias != null)
             joins[joinedAlias]?.join<J, T>(field, JoinType.RIGHT)
@@ -167,6 +248,22 @@ class QueryBuilder<T>(
         else from.join<J, T>(field, JoinType.RIGHT)
 
         return this
+    }
+
+    fun <R : Any, S> subSelect(
+        singleFieldSelect: String? = null,
+        resultClassOf: Class<R>,
+        subSelectEntity: Class<S>,
+        alias: String,
+        grouping: Boolean = false,
+    ): QueryBuilder<S> {
+        val subquery = query.subquery(Any::class.java)
+
+        val subSelect = QueryBuilder(subquery, builder, subSelectEntity, singleFieldSelect, strictMode, grouping)
+
+        subselects[alias] = subSelect
+
+        return subSelect
     }
 
     fun withLimit(limit: Int): QueryBuilder<T> {
@@ -210,6 +307,11 @@ class QueryBuilder<T>(
 
     fun descOrderBy(field: String): QueryBuilder<T> {
         orderBy.add(builder.desc(from.get<Any>(field)))
+        return this
+    }
+
+    fun distinct(distinct: Boolean = true): QueryBuilder<T> {
+        isDistinct = distinct
         return this
     }
 
@@ -338,6 +440,7 @@ class QueryBuilder<T>(
         return this
     }
 
+    // For one-to-many (single value field in some collection)
     fun <V> `in`(field: String, values: Collection<V>, joinedAlias: String? = null, caseSensitive: Boolean = true): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
@@ -352,6 +455,52 @@ class QueryBuilder<T>(
         return this
     }
 
+    // Add sub query with a single field in result
+    fun <V> `in`(field: String, subqueryAlias: String, joinedAlias: String? = null, caseSensitive: Boolean = true): QueryBuilder<T> {
+        checkPredicateIsAllowed()
+
+        currentPredicatesList.add(
+            PredicateRecord(
+                currentLogicOperator,
+                buildInSubqueryPredicate<V>(field, joinedAlias, subqueryAlias, caseSensitive)
+            )
+        )
+
+        currentLogicOperator = null
+        return this
+    }
+
+    // For one-to-many (single value field in some collection)
+    fun <V> notIn(field: String, values: Collection<V>, joinedAlias: String? = null, caseSensitive: Boolean = true): QueryBuilder<T> {
+        checkPredicateIsAllowed()
+
+        currentPredicatesList.add(
+            PredicateRecord(
+                currentLogicOperator,
+                buildInSubPredicate(field, values, joinedAlias, caseSensitive, not = true)
+            )
+        )
+
+        currentLogicOperator = null
+        return this
+    }
+
+    // Add sub query with a single field in result
+    fun <V> notIn(field: String, subqueryAlias: String, joinedAlias: String? = null, caseSensitive: Boolean = true): QueryBuilder<T> {
+        checkPredicateIsAllowed()
+
+        currentPredicatesList.add(
+            PredicateRecord(
+                currentLogicOperator,
+                buildInSubqueryPredicate<V>(field, joinedAlias, subqueryAlias, caseSensitive, not = true)
+            )
+        )
+
+        currentLogicOperator = null
+        return this
+    }
+
+    // For many-to-one (multiple values field (child table) has some single value)
     fun <V> contains(field: String, value: V, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
@@ -368,6 +517,7 @@ class QueryBuilder<T>(
         return this
     }
 
+    // For many-to-many (multiple values field (child table) has all multiple values)
     fun <V> containsAll(field: String, values: Collection<V>, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
@@ -381,12 +531,27 @@ class QueryBuilder<T>(
         return this
     }
 
+    // For many-to-many (multiple values field (child table) has any of multiple values)
     fun <V> containsAny(field: String, values: Collection<V>, joinedAlias: String? = null): QueryBuilder<T> {
         checkPredicateIsAllowed()
 
         if (values.isNotEmpty()) {
             this.openBracket()
             values.forEach { this.contains(field, it, joinedAlias).or() }
+            this.closeBracket()
+        }
+
+        currentLogicOperator = null
+        return this
+    }
+
+    // For many-to-many (multiple values field (child table) has any of multiple values)
+    fun <V> notContainsAny(field: String, values: Collection<V>, joinedAlias: String? = null): QueryBuilder<T> {
+        checkPredicateIsAllowed()
+
+        if (values.isNotEmpty()) {
+            this.openBracket()
+            values.forEach { this.notContains(field, it, joinedAlias).and() }
             this.closeBracket()
         }
 
@@ -503,63 +668,63 @@ class QueryBuilder<T>(
     //                                             Grouping functions                                                 //
     //################################################################################################################//
 
-    fun groupBy(field: String, joinedAlias: String? = null): QueryBuilder<T> {
+    fun groupBy(field: String, alias: String? = null, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
         val ex = getExpressionByPath<Any>(field, joinedAlias)
 
         currentGroupingList.add(ex)
-        currentGroupingSelections.add(ex)
+        currentGroupingSelections.put(alias ?: field, ex)
 
         return this
     }
 
-    fun <N : Number> max(field: String, joinedAlias: String? = null): QueryBuilder<T> {
+    fun <N : Number> max(field: String, alias: String? = null, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
         val ex = getExpressionByPath<N>(field, joinedAlias)
 
-        currentGroupingSelections.add(builder.max(ex))
+        currentGroupingSelections.put(alias ?: "max_$field", builder.max(ex))
 
         return this
     }
 
-    fun <N : Number> min(field: String, joinedAlias: String? = null): QueryBuilder<T> {
+    fun <N : Number> min(field: String, alias: String? = null, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
         val ex = getExpressionByPath<N>(field, joinedAlias)
 
-        currentGroupingSelections.add(builder.min(ex))
+        currentGroupingSelections.put(alias ?: "min_$field", builder.min(ex))
 
         return this
     }
 
-    fun <N : Number> avg(field: String, joinedAlias: String? = null): QueryBuilder<T> {
+    fun <N : Number> avg(field: String, alias: String? = null, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
         val ex = getExpressionByPath<N>(field, joinedAlias)
 
-        currentGroupingSelections.add(builder.avg(ex))
+        currentGroupingSelections.put(alias ?: "avg_$field", builder.avg(ex))
 
         return this
     }
 
-    fun <N : Number> sum(field: String, joinedAlias: String? = null): QueryBuilder<T> {
+    fun <N : Number> sum(field: String, alias: String? = null, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
         val ex = getExpressionByPath<N>(field, joinedAlias)
 
-        currentGroupingSelections.add(builder.sum(ex))
+        currentGroupingSelections.put(alias ?: "sum_$field", builder.sum(ex))
 
         return this
     }
 
-    fun count(field: String, joinedAlias: String? = null): QueryBuilder<T> {
+    fun count(field: String, alias: String? = null, joinedAlias: String? = null): QueryBuilder<T> {
         if (!grouping) throw RuntimeException("Not grouping query builder. Use 'grouping=true' in constructor")
 
         val ex = getExpressionByPath<Any>(field, joinedAlias)
 
-        currentGroupingSelections.add(builder.count(ex))
+        currentGroupingSelections.put(alias ?: "count_$field", builder.count(ex))
 
         return this
     }
@@ -571,22 +736,44 @@ class QueryBuilder<T>(
             throw RuntimeException("No logic operator")
     }
 
+    private fun buildOrderBy() {
+        if (orderBy.isNotEmpty()) {
+            if (grouping) {
+                groupingQuery.orderBy(orderBy)
+            } else {
+                query.orderBy(orderBy)
+            }
+        }
+    }
+
     private fun buildWherePredicates() {
         if (wherePredicate != null) return
 
-//        if (currentPredicateRecord != null) throw RuntimeException("Bracket(s) were not closed")
-//        if (currentLogicOperator != null) throw  RuntimeException("Logic operator (and/or) is not closed by argument")
-
         wherePredicate = buildPredicateFromList(wherePredicatesList)
+
+        wherePredicate?.let {
+            if (isSubSelect) {
+                subquery.where(it)
+            } else if (grouping) {
+                groupingQuery.where(it)
+            } else {
+                query.where(it)
+            }
+        }
     }
 
     private fun buildHavingPredicates() {
         if (havingPredicate != null) return
 
-//        if (currentPredicateRecord != null) throw RuntimeException("Bracket(s) were not closed")
-//        if (currentLogicOperator != null) throw  RuntimeException("Logic operator (and/or) is not closed by argument")
-
         havingPredicate = buildPredicateFromList(havingPredicatesList)
+
+        havingPredicate?.let {
+            if (isSubSelect) {
+                subquery.having(it)
+            } else {
+                groupingQuery.having(it)
+            }
+        }
     }
 
     private fun buildPredicateFromList(predicatesList: List<PredicateRecord>): Predicate? {
@@ -632,28 +819,47 @@ class QueryBuilder<T>(
         }
     }
 
-    private fun <V> buildInSubPredicate(key: String, values: Collection<V>, joinedAlias: String?, caseSensitive: Boolean): Predicate {
-        return if (caseSensitive) {
+    private fun <V> buildInSubPredicate(key: String, values: Collection<V>, joinedAlias: String?, caseSensitive: Boolean, not: Boolean = false): Predicate {
+        val inPredicate = if (caseSensitive) {
             val expression = getExpressionByPath<V>(key, joinedAlias)
 
-            val inPredicate = builder.`in`(expression)
+            val predicate = builder.`in`(expression)
 
             values.forEach {
-                inPredicate.value(it)
+                predicate.value(it)
             }
 
-            inPredicate
+            predicate
         } else {
             val expression = getExpressionByPath<String>(key, joinedAlias)
 
-            val inPredicate = builder.`in`(builder.lower(expression))
+            val predicate = builder.`in`(builder.lower(expression))
 
             values.forEach {
-                inPredicate.value((it as String).toLowerCase())
+                predicate.value((it as String).toLowerCase())
             }
 
-            inPredicate
+            predicate
         }
+
+        return if (not) inPredicate.not() else inPredicate
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <V> buildInSubqueryPredicate(fieldName: String, joinedAlias: String?, subqueryAlias: String, caseSensitive: Boolean, not: Boolean = false): Predicate {
+        val inPredicate = if (caseSensitive) {
+            val fieldExpression = getExpressionByPath<V>(fieldName, joinedAlias)
+            val subquery = subselects[subqueryAlias]?.subquery as Subquery<V>? ?: throw RuntimeException("Subselect $subqueryAlias not found")
+
+            builder.`in`(fieldExpression).value(subquery)
+        } else {
+            val fieldExpression = getExpressionByPath<String>(fieldName, joinedAlias)
+            val subquery = subselects[subqueryAlias]?.subquery as Subquery<String>? ?: throw RuntimeException("Subselect $subqueryAlias not found")
+
+            builder.`in`(builder.lower(fieldExpression)).value(subquery)
+        }
+
+        return if (not) inPredicate.not() else inPredicate
     }
 
     private fun <Y> getExpressionByPath(path: String, joinedAlias: String?): Expression<Y> {
@@ -672,21 +878,26 @@ class QueryBuilder<T>(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <Y> getExpression(key: String, joinedAlias: String?, path: Path<Y>? = null): Expression<Y> {
         return path?.get(key)
             ?: if (joinedAlias != null) {
-                joins[joinedAlias]?.get(key) ?: throw RuntimeException("Join with name $joinedAlias was not found")
+                joins[joinedAlias]?.get(key)
+//                    ?: subqueries[joinedAlias]?.first?.get(key)
+                    ?: throw RuntimeException("Join with name $joinedAlias was not found")
             } else {
-                from.get(key)
+                currentGroupingSelections[key] as? Expression<Y>? ?: currentFrom.get(key)
             }
     }
 
     private fun <Y> getPath(key: String, joinedAlias: String?, path: Path<Y>? = null): Path<Y> {
         return path?.get(key)
             ?: if (joinedAlias != null) {
-                joins[joinedAlias]?.get(key) ?: throw RuntimeException("Join with name $joinedAlias was not found")
+                joins[joinedAlias]?.get(key)
+//                    ?: subqueries[joinedAlias]?.first?.get(key)
+                    ?: throw RuntimeException("Join with name $joinedAlias was not found")
             } else {
-                from.get(key)
+                currentFrom.get(key)
             }
     }
 
@@ -701,12 +912,4 @@ class QueryBuilder<T>(
         val predicatesList: MutableList<PredicateRecord>? = null,
         val parent: PredicateRecord? = null
     )
-
-    init {
-        builder = em.criteriaBuilder
-        query = builder.createQuery(classOf)
-        queryCount = builder.createQuery(Long::class.java)
-        groupingQuery = builder.createQuery(Array<Any>::class.java)
-        from = if (grouping) groupingQuery.from(classOf) else query.from(classOf)
-    }
 }

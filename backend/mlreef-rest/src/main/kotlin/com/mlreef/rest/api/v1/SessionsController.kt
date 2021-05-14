@@ -3,10 +3,9 @@ package com.mlreef.rest.api.v1
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.api.v1.dto.toUserDto
-import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.dto.toUserDto
 import com.mlreef.rest.feature.auth.AuthService
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.system.SessionDto
 import com.mlreef.rest.feature.system.SessionsService
 import org.slf4j.LoggerFactory
@@ -24,7 +23,8 @@ class SessionsController(
     val gitlabRestClient: GitlabRestClient,
     val sessionsService: SessionsService,
     val currentUserService: CurrentUserService,
-    val authService: AuthService
+    val authService: AuthService,
+    val userResolverService: UserResolverService,
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(SessionsController::class.java)
@@ -69,20 +69,15 @@ class SessionsController(
     // FIXME: Coverage says: missing tests
     @GetMapping("/find/user")
     @PreAuthorize("isGitlabAdmin() || isUserItself(#userId) || isUserItself(#gitlabId) || isUserItself(#userName)")
-    fun findUser(@RequestParam(value = "user_name", required = false) userName: String?,
-                 @RequestParam(value = "user_id", required = false) userId: UUID?,
-                 @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?): UserDto? {
+    fun findUser(
+        @RequestParam(value = "user_name", required = false) userName: String?,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?
+    ): UserDto? {
         log.debug("Find user by username=$userName and userId=$userId and gitlabId=$gitlabId")
-        when {
-            userName != null -> return authService.findAccountByUsername(userName)?.toUserDto()
-            userId != null -> return authService.findAccountById(userId)?.toUserDto()
-            gitlabId != null -> {
-                val account = authService.findAccountByGitlabId(gitlabId)
-                    ?: throw UserNotFoundException(gitlabId = gitlabId)
-                val gitlabUser = authService.findGitlabUserViaGitlabId(gitlabId)
-                return gitlabUser.toUserDto(account.id)
-            }
-            else -> return null
-        }
+        val user = userResolverService.resolveAccount(userName, userId, gitlabId)
+        val gitlabUser =
+            if (user != null && user.person.gitlabId != null) userResolverService.findGitlabUserViaGitlabId(user.person.gitlabId!!) else null
+        return user?.toUserDto()
     }
 }

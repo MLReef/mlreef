@@ -31,10 +31,8 @@ export GRADLE_USER_HOME=$(pwd)/.gradle
 # ensure that there exists a gradle configuration
 if [ ! -e build.gradle ]; then exit 1; fi
 
-./gradlew :mlreef-rest:build :mlreef-rest:test :mlreef-domain:test :mlreef-rest:bootJar :mlreef-rest:prepareDocker :mlreef-rest:asciidoctor
+./gradlew :mlreef-rest:build :mlreef-rest:test :mlreef-rest:bootJar :mlreef-rest:prepareDocker :mlreef-rest:asciidoctor
 
-mkdir mlreef-rest/build/test-results/test/mlreef-domain
-cp mlreef-domain/build/test-results/test/TEST-*.xml mlreef-rest/build/test-results/test/mlreef-domain/
 ./gradlew jacocoTestReport coverageReport
 
 ls -lisa mlreef-rest/build/

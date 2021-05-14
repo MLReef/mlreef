@@ -1,7 +1,7 @@
 package com.mlreef.rest.feature.auth
 
-import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
+import com.mlreef.rest.domain.Account
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.UnknownUserException
 import com.mlreef.rest.exceptions.UserNotFoundException

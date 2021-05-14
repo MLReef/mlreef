@@ -1,169 +1,213 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineInstance
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.PipelineType
-import com.mlreef.rest.UserRole
+import com.mlreef.rest.PipelinesRepository
+import com.mlreef.rest.domain.Pipeline
+import com.mlreef.rest.domain.PipelineConfiguration
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.time.ZonedDateTime
-import java.util.UUID
+import org.springframework.test.annotation.Rollback
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class PipelineInstanceTest : AbstractRepositoryTest() {
 
-    private lateinit var pipelineConfig: PipelineConfig
+    private lateinit var pipelineConfig: PipelineConfiguration
 
     @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
-
-    @Autowired
-    private lateinit var repository: PipelineInstanceRepository
-
-    @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var personRepository: PersonRepository
+    private lateinit var repository: PipelinesRepository
 
     companion object {
         private var gitlabIdCount: Long = 0
     }
 
     private fun createEntity(
-        dataProjectId: UUID = randomUUID(),
-        configId: UUID = randomUUID(),
+        config: PipelineConfiguration,
         slug: String = "pipeline-1",
         number: Int = 1
-    ): Pair<UUID, PipelineInstance> {
-        val entity = PipelineInstance(
+    ): Pipeline {
+        return Pipeline(
             id = randomUUID(), slug = slug, name = "Pipeline 1",
-            pipelineType = PipelineType.DATA,
-            pipelineConfigId = configId,
-            dataProjectId = dataProjectId,
-            sourceBranch = "sourcebranch", targetBranch = "", number = number)
-        return Pair(entity.id, entity)
+            pipelineType = dataPipelineType,
+            pipelineConfiguration = config,
+            sourceBranch = "sourcebranch",
+            targetBranch = "",
+            number = number
+        )
     }
 
     @Transactional
+    @Rollback
     @BeforeEach
     fun prepare() {
 //        truncateDbTables(listOf("account", "account_token", "mlreef_project"), cascade = true)
-        val owner = Person(randomUUID(), "person$gitlabIdCount", "name$gitlabIdCount", ++gitlabIdCount, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project$gitlabIdCount", ++gitlabIdCount)
-        val config = PipelineConfig(
-            id = randomUUID(), slug = "pipeline-1", name = "Pipeline 1",
-            pipelineType = PipelineType.DATA,
-            dataProjectId = dataProject.id,
-            sourceBranch = "sourcebranch", targetBranchPattern = "")
-        personRepository.save(owner)
-        dataProjectRepository.save(dataProject)
-        pipelineConfig = pipelineConfigRepository.save(config)
+        val dataProject = createDataProject(
+            slug = "slug",
+            name = "CodeProject Augment",
+            ownerId = mainPerson.id,
+            namespace = "group",
+            path = "project$gitlabIdCount",
+            gitlabId = ++gitlabIdCount
+        )
+
+        pipelineConfig = createPipelineConfiguration(
+            slug = "pipeline-1",
+            name = "Pipeline 1",
+            type = dataPipelineType,
+            dataProject = dataProject,
+            sourceBranch = "sourcebranch", targetBranchPattern = ""
+        )
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `find works`() {
-        val (id, entity) = createEntity(dataProjectId = pipelineConfig.dataProjectId, configId = pipelineConfig.id)
+        val entity = createEntity(config = pipelineConfig)
 
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
+        Assertions.assertThat(repository.findByIdOrNull(entity.id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
+        Assertions.assertThat(repository.findByIdOrNull(entity.id)).isNotNull
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `save works`() {
-        val (id, entity) = createEntity(dataProjectId = pipelineConfig.dataProjectId, configId = pipelineConfig.id)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
+        val entity = createEntity(config = pipelineConfig)
+        assertThat(repository.findByIdOrNull(entity.id)).isNull()
         val saved = repository.save(entity)
-        Assertions.assertThat(saved).isNotNull
+        assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
+        assertThat(repository.findByIdOrNull(entity.id)).isNotNull
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `update works`() {
-        val (_, entity) = createEntity(dataProjectId = pipelineConfig.dataProjectId, configId = pipelineConfig.id)
+        val entity = createEntity(config = pipelineConfig)
         val saved = repository.save(entity)
         val newValue = "newname"
         val copy = saved.copy(slug = newValue)
         val updated = repository.save(copy)
-        Assertions.assertThat(updated).isNotNull
+        assertThat(updated).isNotNull
 //        checkAfterUpdated(updated)
-        Assertions.assertThat(updated.slug).isEqualTo(newValue)
+        assertThat(updated.slug).isEqualTo(newValue)
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `delete works`() {
-        val (_, entity) = createEntity(dataProjectId = pipelineConfig.dataProjectId, configId = pipelineConfig.id)
+        val entity = createEntity(config = pipelineConfig)
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull
+        assertThat(saved).isNotNull
 //        checkAfterUpdated(saved)
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate slug per PipelineConfig`() {
         commitAndFail {
-            repository.save(createEntity(configId = pipelineConfig.id, dataProjectId = pipelineConfig.dataProjectId, slug = "slug1", number = 1).second)
-            repository.save(createEntity(configId = pipelineConfig.id, dataProjectId = pipelineConfig.dataProjectId, slug = "slug1", number = 2).second)
+            repository.save(
+                createEntity(
+                    config = pipelineConfig,
+                    slug = "slug1",
+                    number = 1
+                )
+            )
+            repository.save(
+                createEntity(
+                    config = pipelineConfig,
+                    slug = "slug1",
+                    number = 2
+                )
+            )
         }
     }
 
     @Transactional
+    @Rollback
     @Test
+    //FIXME: Looks like incorrect behavior
     fun `can save duplicate slug for different PipelineConfig`() {
+        val dataProject1 =
+            createDataProject(
+                slug = "slug1",
+                name = "CodeProject Augment",
+                ownerId = mainPerson.id,
+                namespace = "group1",
+                path = "project1",
+                gitlabId = 201
+            )
 
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
-        val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
+        val dataProject2 =
+            createDataProject(
+                slug = "slug2",
+                name = "CodeProject Augment",
+                ownerId = mainPerson.id,
+                namespace = "group2",
+                path = "project2",
+                gitlabId = 202
+            )
 
-        personRepository.save(owner)
-        dataProjectRepository.save(dataProject1)
-        dataProjectRepository.save(dataProject2)
-
-        repository.save(createEntity(dataProjectId = dataProject1.id, slug = "slug1", number = 1).second)
-        repository.save(createEntity(dataProjectId = dataProject2.id, slug = "slug1", number = 2).second)
+        repository.save(createEntity(slug = "slug1", number = 1, config = pipelineConfig))
+        repository.save(createEntity(slug = "slug1", number = 2, config = pipelineConfig))
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate number per PipelineConfig`() {
         commitAndFail {
-            repository.save(createEntity(configId = pipelineConfig.id, dataProjectId = pipelineConfig.dataProjectId, slug = "slug1", number = 1).second)
-            repository.save(createEntity(configId = pipelineConfig.id, dataProjectId = pipelineConfig.dataProjectId, slug = "slug2", number = 1).second)
+            repository.save(
+                createEntity(
+                    config = pipelineConfig,
+                    slug = "slug1",
+                    number = 1
+                )
+            )
+            repository.save(
+                createEntity(
+                    config = pipelineConfig,
+                    slug = "slug2",
+                    number = 1
+                )
+            )
         }
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `can save duplicate number for different PipelineConfig`() {
+        val dataProject1 =
+            createDataProject(
+                slug = "slug1",
+                name = "CodeProject Augment",
+                ownerId = mainPerson.id,
+                namespace = "group1",
+                path = "project1",
+                gitlabId = 201
+            )
 
-        val owner = Person(randomUUID(), "slug", "name", 100, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
-        val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
+        val dataProject2 =
+            createDataProject(
+                slug = "slug2",
+                name = "CodeProject Augment",
+                ownerId = mainPerson.id,
+                namespace = "group2",
+                path = "project2",
+                gitlabId = 202
+            )
 
-        personRepository.save(owner)
-        dataProjectRepository.save(dataProject1)
-        dataProjectRepository.save(dataProject2)
-
-        repository.save(createEntity(dataProjectId = dataProject1.id, slug = "slug1", number = 1).second)
-        repository.save(createEntity(dataProjectId = dataProject2.id, slug = "slug2", number = 2).second)
+        repository.save(createEntity(slug = "slug1", number = 1, config = pipelineConfig))
+        repository.save(createEntity(slug = "slug2", number = 2, config = pipelineConfig))
     }
 }

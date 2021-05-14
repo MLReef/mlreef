@@ -1,8 +1,7 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.Account
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProcessorType
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.ProcessorInstance
 import com.mlreef.rest.exceptions.DataProcessorIncorrectStructureException
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ClassPathResource
@@ -36,6 +35,7 @@ const val OUTPUT_MOUNT_POINTS = "%OUTPUT_MOUNT_POINTS%"
 const val FINAL_OUTPUT_PATH = "%FINAL_OUTPUT_PATH%"
 const val IS_ALGORITHM = "%IS_ALGORITHM%"
 const val BASE_IMAGE_PATH = "%BASE_IMAGE_PATH%"
+const val MAX_RETRIES = "%MAX_RETRIES%"
 
 val NEWLINE = System.lineSeparator()
 
@@ -47,6 +47,8 @@ class YamlFileGenerator {
             it.lines().collect(Collectors.joining(NEWLINE))
         }
 
+    private val algorithmName = "ALGORITHM" //TODO: Change to entity instance
+
     fun renderYaml(
         author: Account,
         epfPipelineSecret: String,
@@ -56,15 +58,16 @@ class YamlFileGenerator {
         epfImageTag: String,
         sourceBranch: String,
         targetBranch: String,
-        dataProcessors: List<DataProcessorInstance>,
+        processorsInstances: List<ProcessorInstance>,
+        retries: Int = 0
     ): String {
-        val inputFolders = dataProcessors.mapIndexed { index, it ->
+        val inputFolders = processorsInstances.mapIndexed { index, it ->
             fixFolder(
                 it.parameterInstances.firstOrNull { it.name.equals(INPUT_PATH_PARAM_NAME, true) }?.value
             ) ?: "input$index"
         }
 
-        val outputFolders = dataProcessors.mapIndexed { index, it ->
+        val outputFolders = processorsInstances.mapIndexed { index, it ->
             fixFolder(
                 it.parameterInstances.firstOrNull { it.name.equals(OUTPUT_PATH_PARAM_NAME, true) }?.value
             ) ?: "output$index"
@@ -92,14 +95,17 @@ class YamlFileGenerator {
             )
             .replace(
                 PIPELINE_STRING,
-                getExecutableCommand(dataProcessors, inputFolders, outputFolders)
+                getExecutableCommand(processorsInstances, inputFolders, outputFolders)
             )
             .replace(ARTIFACTS_PATHS, newValue = getArtifactPathsVariableLine(outputFolders))
             .replace(INPUT_MOUNT_POINTS, newValue = getInputMountPointsVariableLine(inputFolders))
             .replace(OUTPUT_MOUNT_POINTS, newValue = getOutputMountPointsVariableLine(outputFolders))
             .replace(FINAL_OUTPUT_PATH, newValue = outputFolders.lastOrNull() ?: "")
-            .replace(IS_ALGORITHM, newValue = dataProcessors.lastOrNull()?.type?.equals(DataProcessorType.ALGORITHM)?.toString()
-                ?: "false")
+            .replace(
+                IS_ALGORITHM, newValue = (processorsInstances
+                    .filter { it.processor.type?.name?.equals(algorithmName, true) == true }.isNotEmpty()).toString()
+            )
+            .replace(MAX_RETRIES, newValue = retries.toString())
     }
 
 
@@ -129,31 +135,22 @@ class YamlFileGenerator {
         }.joinToString(NEWLINE)
     }
 
-    private fun getExecutableCommand(dataProcessors: List<DataProcessorInstance>, inputPaths: List<String>?, outputPaths: List<String>?): String {
-        return dataProcessors.mapIndexed { index, dpInstance ->
-            if (!dpInstance.processorVersion.path.isNullOrBlank() && dpInstance.processorVersion.command.isNotBlank()) {
-                getCommandLineFromPath(dpInstance, inputPaths?.getOrNull(index), outputPaths?.getOrNull(index), index)
-            } else if (dpInstance.processorVersion.command.isNotBlank()) {
-                getCommandLineFromCommand(dpInstance)
+    private fun getExecutableCommand(dataProcessors: List<ProcessorInstance>, inputPaths: List<String>?, outputPaths: List<String>?): String {
+        return dataProcessors.mapIndexed { index, instance ->
+            if (!instance.processor.mainScriptPath.isNullOrBlank() && !instance.processor.imageName.isNullOrBlank()) {
+                getCommandLineFromPath(
+                    instance,
+                    inputPaths?.getOrNull(index),
+                    outputPaths?.getOrNull(index),
+                    index
+                )
             } else {
-                throw DataProcessorIncorrectStructureException("Data Processor has neither command nor scrypt file path. Possible it was not published correctly")
+                throw DataProcessorIncorrectStructureException("Processor has no either image or script file path. Possible it was not published correctly")
             }
         }.joinToString(NEWLINE)
     }
 
-    private fun getCommandLineFromCommand(dpInstance: DataProcessorInstance): String {
-        val path = when (dpInstance.dataProcessor.type) {
-            DataProcessorType.ALGORITHM -> "/epf/model/"
-            DataProcessorType.OPERATION -> "/epf/pipelines/"
-            DataProcessorType.VISUALIZATION -> "/epf/visualisation/"
-        }
-        // the 4 space indentation is necessary for the yaml syntax
-        return "    python $path${dpInstance.processorVersion.command}.py " +
-            dpInstance.parameterInstances
-                .joinToString(" ") { "--${it.name} ${it.value}" }
-    }
-
-    private fun getCommandLineFromPath(dpInstance: DataProcessorInstance, inputPath: String?, outputPath: String?, index: Int): String {
+    private fun getCommandLineFromPath(instance: ProcessorInstance, inputPath: String?, outputPath: String?, index: Int): String {
         // the 4 space indentation is necessary for the yaml syntax
         return "    "
             .let {
@@ -166,14 +163,14 @@ class YamlFileGenerator {
                 if (!outputPath.isNullOrBlank()) "$it -v \"\$$OUTPUT_MOUNT_POINT_VAR_NAME$index:/$outputPath\"" else it
             }
             .let {
-                "$it ${dpInstance.processorVersion.command}"
+                "$it ${instance.processor.imageName}"
             }
             .let {
-                "$it python ${dpInstance.processorVersion.path}"
+                "$it python ${instance.processor.mainScriptPath}"
             }
             .let {
                 "$it ${
-                    dpInstance.parameterInstances.joinToString(" ") {
+                    instance.parameterInstances.joinToString(" ") {
                         if (it.name.equals(INPUT_PATH_PARAM_NAME, true)) {
                             if (!inputPath.isNullOrBlank()) "--${it.name} /$inputPath" else ""
                         } else if (it.name.equals(OUTPUT_PATH_PARAM_NAME, true)) {

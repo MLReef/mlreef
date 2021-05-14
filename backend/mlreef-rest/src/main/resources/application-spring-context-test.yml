@@ -3,6 +3,8 @@ mlreef:
     image-tag: ${EPF_IMAGE_TAG:latest}
     backend-url: ${EPF_BACKEND_URL:http://localhost:8080}
     gitlab-url: ${GITLAB_ROOT_URL:http://localhost:10080}
+    delay-scheduled-publish-tasks-msec: 5000000
+    delay-scheduled-pipeline-tasks-msec: 5000000
 
 logging:
   level:

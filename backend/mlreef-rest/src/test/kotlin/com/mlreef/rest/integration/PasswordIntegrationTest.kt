@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import javax.mail.internet.MimeMessage
 
 class PasswordIntegrationTest : AbstractIntegrationTest() {
@@ -37,10 +39,12 @@ class PasswordIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Can request reset password`() {
         //GIVEN
         val password = RandomUtils.generateRandomPassword(15, true)
-        val (account, token, _) = testsHelper.createRealUser(password = password)
+        val (account, token, _) = createRealUser(password = password)
 
         // FIRST LOGIN WITH OLD PASSWORD
         var loginRequest = LoginRequest(account.username, account.email, password)
@@ -92,6 +96,8 @@ class PasswordIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Cannot request reset password for unknown user email`() {
         // PASSWORD REST REQUEST
         val passwordResetUrl = "$passwordsUrl/reset?email=whattheemailitis@example.com"

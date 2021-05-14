@@ -36,7 +36,7 @@ export const UnconnectedPublishingView = (props) => {
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const {
-    gid, id, published, dataProcessor: { type },
+    gid, id, published, processorType,
   } = selectedProject;
 
   const [{
@@ -57,18 +57,17 @@ export const UnconnectedPublishingView = (props) => {
 
   const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
 
-  const isProjectAnAlgorithm = type === ALGORITHM;
+  const isProjectAnAlgorithm = processorType === ALGORITHM;
 
   let operationToPublishType;
 
-  switch (type) {
+  switch (processorType) {
     case ALGORITHM:
       operationToPublishType = 'model';
       break;
     case OPERATION:
       operationToPublishType = 'operation';
       break;
-
     default:
       operationToPublishType = 'visualization';
       break;
@@ -206,6 +205,8 @@ export const UnconnectedPublishingView = (props) => {
                                 dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
                                 publishingActions.publish(
                                   id, {
+                                    branch: selectedBranch,
+                                    version: 1,
                                     path: entryPointFile.path,
                                     environment: selectedEnv.id,
                                     model_type: model?.label,
@@ -238,7 +239,7 @@ export const UnconnectedPublishingView = (props) => {
                         <div className="col-2" />
                         <div className="col-10">
                           <PublishingViewPublishModel
-                            dataProcessorType={selectedProject?.dataProcessor?.type}
+                            dataProcessorType={processorType}
                             selectedBranch={selectedBranch}
                             entryPointFile={entryPointFile}
                             selectedEnvironment={selectedEnv?.name}

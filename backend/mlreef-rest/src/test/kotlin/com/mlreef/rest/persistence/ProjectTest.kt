@@ -1,103 +1,72 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataType
-import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.ProjectRepository
-import com.mlreef.rest.SearchableTagRepository
-import com.mlreef.rest.Subject
-import com.mlreef.rest.UserRole
-import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.rest.marketplace.Star
-import com.mlreef.rest.testcommons.EntityMocks
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.DataType
+import com.mlreef.rest.domain.ProcessorType
+import com.mlreef.rest.domain.Subject
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.marketplace.SearchableTag
+import com.mlreef.rest.domain.marketplace.Star
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.test.annotation.Commit
-import org.springframework.test.context.transaction.TestTransaction
-import java.time.ZonedDateTime
+import org.springframework.test.annotation.Rollback
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
-@Transactional
-@Commit
 class ProjectTest : AbstractRepositoryTest() {
-
-    @Autowired
-    private lateinit var repository: ProjectRepository
-
-    @Autowired
-    private lateinit var tagRepository: SearchableTagRepository
-
-    @Autowired
-    private lateinit var personRepository: PersonRepository
-
-    private lateinit var author: Person
-
-    companion object {
-        var lastGitlabId: Long = 1
-    }
-
-    @BeforeEach
-    @Transactional
-    fun prepare() {
-        truncateDbTables(listOf("subject", "mlreef_project"), cascade = true)
-        author = personRepository.save(Person(randomUUID(), "slug", "name", lastGitlabId++, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now()))
-    }
-
     @Transactional
     @Test
+    @Rollback
     fun `saving persists Entry and inputDataTypes collection`() {
         val id = randomUUID()
 
-        val entity = dataProject(id = id, owner = author, inputDataTypes = setOf(DataType.IMAGE, DataType.VIDEO))
+        val entity =
+            dataProject(id = id, owner = mainPerson, inputDataTypes = mutableSetOf(imageDataType, modelDataType))
 
-        repository.save(entity)
-        val fromRepo = repository.findByIdOrNull(id)
+        projectRepository.save(entity)
+        val fromRepo = projectRepository.findByIdOrNull(id)!!
 
         assertThat(fromRepo).isNotNull
-        assertThat(fromRepo!!.inputDataTypes).hasSize(2)
+        assertThat(fromRepo.inputDataTypes).hasSize(2)
         assertThat(fromRepo.inputDataTypes).hasSize(2)
 
-        assertThat(fromRepo.inputDataTypes).contains(DataType.IMAGE)
-        assertThat(fromRepo.inputDataTypes).contains(DataType.VIDEO)
+        assertThat(fromRepo.inputDataTypes).contains(imageDataType)
+        assertThat(fromRepo.inputDataTypes).contains(modelDataType)
         //
     }
 
     @Transactional
     @Test
+    @Rollback
     fun `saving persists Entry and outputDataTypes collection`() {
         val id = randomUUID()
 
-        val entity = dataProject(id)
+        val entity = codeProject(
+            id,
+            inputDataTypes = mutableSetOf(imageDataType, modelDataType),
+            outputDataTypes = mutableSetOf(tabularDataType, anyDataType)
+        )
 
-        repository.save(entity)
-        val fromRepo = repository.findByIdOrNull(id)
+        projectRepository.save(entity)
+        val fromRepo = projectRepository.findByIdOrNull(id) as CodeProject
 
         assertThat(fromRepo).isNotNull
-        assertThat(fromRepo!!.outputDataTypes).hasSize(2)
+        assertThat(fromRepo.outputDataTypes).hasSize(2)
 
-        assertThat(fromRepo.outputDataTypes).contains(DataType.TABULAR)
-        assertThat(fromRepo.outputDataTypes).contains(DataType.ANY)
+        assertThat(fromRepo.outputDataTypes).contains(tabularDataType)
+        assertThat(fromRepo.outputDataTypes).contains(anyDataType)
     }
 
     private fun dataProject(
         id: UUID,
         tags: Set<SearchableTag> = emptySet(),
         globalSlug: String = "slug",
-        owner: Subject = author,
-        inputDataTypes: Set<DataType> = setOf(DataType.TABULAR, DataType.ANY),
-        outputDataTypes: Set<DataType> = setOf(DataType.TABULAR, DataType.ANY),
+        owner: Subject = mainPerson,
+        inputDataTypes: Set<DataType> = setOf(),
         gitlabId: Long = 2,
         gitlabNamespace: String = "",
         slug: String = globalSlug,
@@ -107,10 +76,9 @@ class ProjectTest : AbstractRepositoryTest() {
         globalSlug = globalSlug,
         visibilityScope = VisibilityScope.PUBLIC,
         name = "title",
-        inputDataTypes = inputDataTypes,
-        outputDataTypes = outputDataTypes,
+        inputDataTypes = inputDataTypes.toMutableSet(),
         description = "description",
-        tags = tags,
+        tags = tags.toMutableSet(),
         gitlabId = gitlabId,
         gitlabNamespace = gitlabNamespace,
         ownerId = owner.id,
@@ -119,8 +87,39 @@ class ProjectTest : AbstractRepositoryTest() {
         url = "url.com"
     )
 
+    private fun codeProject(
+        id: UUID,
+        tags: Set<SearchableTag> = emptySet(),
+        globalSlug: String = "slug",
+        owner: Subject = mainPerson,
+        inputDataTypes: Collection<DataType> = setOf(),
+        outputDataTypes: Collection<DataType> = setOf(),
+        gitlabId: Long = 2,
+        gitlabNamespace: String = "",
+        slug: String = globalSlug,
+        gitlabPath: String = slug,
+        processorType: ProcessorType = operationProcessorType,
+    ) = CodeProject(
+        id = id,
+        globalSlug = globalSlug,
+        visibilityScope = VisibilityScope.PUBLIC,
+        name = "title",
+        inputDataTypes = inputDataTypes.toMutableSet(),
+        outputDataTypes = outputDataTypes.toMutableSet(),
+        description = "description",
+        tags = tags.toMutableSet(),
+        gitlabId = gitlabId,
+        gitlabNamespace = gitlabNamespace,
+        ownerId = owner.id,
+        slug = slug,
+        gitlabPath = gitlabPath,
+        url = "url.com",
+        processorType = processorType,
+    )
+
     @Transactional
     @Test
+    @Rollback
     fun `saving persists Entry and tags collection`() {
         // prepare
         val tag1 = SearchableTag(randomUUID(), "tag1")
@@ -129,11 +128,11 @@ class ProjectTest : AbstractRepositoryTest() {
 
         // test
         val id = randomUUID()
-        val entity = dataProject(id, tags = saveAll.toSet(), globalSlug = "slug", owner = author)
+        val entity = dataProject(id, tags = saveAll.toSet(), globalSlug = "slug", owner = mainPerson)
 
-        repository.save(entity)
+        projectRepository.save(entity)
 
-        val fromRepo = repository.findByIdOrNull(id)
+        val fromRepo = projectRepository.findByIdOrNull(id)
 
         assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.tags).hasSize(2)
@@ -144,168 +143,177 @@ class ProjectTest : AbstractRepositoryTest() {
 
     @Transactional
     @Test
+    @Rollback
     fun `saving persists Entry and stars`() {
         val id = randomUUID()
 
-        val person1 = EntityMocks.person(slug = "slug23")
-        val person2 = EntityMocks.person(slug = "slug234")
-        personRepository.saveAll(listOf(person1, person2))
-
-        val entity = dataProject(id = id, owner = person1)
+        val entity = dataProject(id = id, owner = mainPerson)
 
         val adapted = entity
-            .addStar(person1)
-            .addStar(person2)
-        val save = repository.save(adapted)
+            .addStar(mainPerson)
+            .addStar(mainPerson2)
+        val save = projectRepository.save(adapted)
         assertThat(save).isNotNull
 
-        val fromRepo = repository.findByIdOrNull(id)
+        val fromRepo = projectRepository.findByIdOrNull(id)
 
         assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.stars).hasSize(2)
         assertThat(fromRepo.starsCount).isEqualTo(2)
-        assertThat(fromRepo.stars).contains(Star(entity.id, person1.id))
-        assertThat(fromRepo.stars).contains(Star(entity.id, person2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson2.id))
     }
 
     @Transactional
     @Test
+    @Rollback
     @Disabled
     fun `saving persists Entry and stars after remove`() {
         val id = randomUUID()
 
-        val entity = dataProject(id = id, owner = author)
+        val entity = dataProject(id = id, owner = mainPerson)
 
-        val person1 = EntityMocks.person(slug = "slug23")
-        val person2 = EntityMocks.person(slug = "slug234")
-        personRepository.saveAll(listOf(person1, person2))
+//        val person1 = EntityMocks.person(slug = "slug23")
+//        val person2 = EntityMocks.person(slug = "slug234")
+//        personRepository.saveAll(listOf(person1, person2))
 
         val adapted = entity
-            .addStar(person1)
-            .addStar(person2)
-            .addStar(person2)
+            .addStar(mainPerson)
+            .addStar(mainPerson2)
+            .addStar(mainPerson3)
 
-        withinTransaction {
-            repository.save(adapted)
+        withinTestTransaction {
+            projectRepository.save(adapted)
         }
 
-        val fromRepo = repository.findByIdOrNull(id)
+        val fromRepo = projectRepository.findByIdOrNull(id)
         assertThat(fromRepo!!.stars).hasSize(2)
         assertThat(fromRepo.starsCount).isEqualTo(2)
-        assertThat(fromRepo.stars).contains(Star(entity.id, person1.id))
-        assertThat(fromRepo.stars).contains(Star(entity.id, person2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson3.id))
 
-        val afterRemove = withinTransaction {
+        val afterRemove = withinTestTransaction {
             val beforeRemove = fromRepo
-                .removeStar(person1)
-                .removeStar(person1)
-            repository.save(beforeRemove)
+                .removeStar(mainPerson)
+                .removeStar(mainPerson)
+            projectRepository.save(beforeRemove)
         }
         assertThat(afterRemove.stars).hasSize(1)
         assertThat(afterRemove.starsCount).isEqualTo(1)
-        assertThat(fromRepo.stars).contains(Star(entity.id, person2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson2.id))
     }
 
     @Transactional
     @Test
-    @Commit
-    fun `saving fails with Stars with non-persisted Subjects`() {
-        val id = randomUUID()
-        TestTransaction.flagForCommit()
-
-        val entity = dataProject(id = id, owner = author)
-
-        val starId1 = EntityMocks.person()
-        val starId2 = EntityMocks.person()
-        val adapted = entity
-            .addStar(starId1)
-            .addStar(starId2)
-
-        assertThrows<DataIntegrityViolationException> {
-            withinTransaction {
-                repository.save(adapted)
-            }
-        }
-    }
-
-    @Transactional
-    @Test
+    @Rollback
     fun `find works`() {
         val id = randomUUID()
 
-        val entity = dataProject(id = id, owner = author)
+        val entity = dataProject(id = id, owner = mainPerson)
 
-        assertThat(repository.findByIdOrNull(id)).isNull()
-        repository.save(entity)
-        assertThat(repository.findByIdOrNull(id)).isNotNull
+        assertThat(projectRepository.findByIdOrNull(id)).isNull()
+        projectRepository.save(entity)
+        assertThat(projectRepository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
     @Test
+    @Rollback
     fun `save works`() {
         val id = randomUUID()
-        val entity = dataProject(id = id, owner = author)
+        val entity = dataProject(id = id, owner = mainPerson)
 
-        assertThat(repository.findByIdOrNull(id)).isNull()
-        val saved = repository.save(entity)
+        assertThat(projectRepository.findByIdOrNull(id)).isNull()
+        val saved = projectRepository.save(entity)
         assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        assertThat(repository.findByIdOrNull(id)).isNotNull
+        assertThat(projectRepository.findByIdOrNull(id)).isNotNull
     }
 
     @Transactional
     @Test
+    @Rollback
     fun `delete works`() {
         val id = randomUUID()
-        val entity = dataProject(id = id, owner = author)
+        val entity = dataProject(id = id, owner = mainPerson)
 
-        val saved = repository.save(entity)
-        repository.delete(saved)
+        val saved = projectRepository.save(entity)
+        projectRepository.delete(saved)
         assertThat(saved).isNotNull
         checkAfterCreated(saved)
     }
 
     @Transactional
     @Test
+    @Rollback
     fun `must not save duplicate globalSlug`() {
         val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 101, gitlabNamespace = "space1")
         val entity2 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 102, gitlabNamespace = "space2")
-        repository.save(entity1)
+        projectRepository.save(entity1)
         commitAndFail {
-            repository.save(entity2)
+            projectRepository.save(entity2)
         }
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate gitlabId`() {
         val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 100, gitlabNamespace = "space1")
         val entity2 = dataProject(id = randomUUID(), globalSlug = "slug2", gitlabId = 100, gitlabNamespace = "space2")
-        repository.save(entity1)
+        projectRepository.save(entity1)
         commitAndFail {
-            repository.save(entity2)
+            projectRepository.save(entity2)
         }
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate namespacePath`() {
-        val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 100, gitlabNamespace = "space1", slug = "slug1", gitlabPath = "path")
-        val entity2 = dataProject(id = randomUUID(), globalSlug = "slug2", gitlabId = 101, gitlabNamespace = "space1", slug = "slug2", gitlabPath = "path")
-        repository.save(entity1)
+        val entity1 = dataProject(
+            id = randomUUID(),
+            globalSlug = "slug1",
+            gitlabId = 100,
+            gitlabNamespace = "space1",
+            slug = "slug1",
+            gitlabPath = "path"
+        )
+        val entity2 = dataProject(
+            id = randomUUID(),
+            globalSlug = "slug2",
+            gitlabId = 101,
+            gitlabNamespace = "space1",
+            slug = "slug2",
+            gitlabPath = "path"
+        )
+        projectRepository.save(entity1)
         commitAndFail {
-            repository.save(entity2)
+            projectRepository.save(entity2)
         }
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate slug for same owner`() {
-        val entity1 = dataProject(id = randomUUID(), globalSlug = "slug1", gitlabId = 100, gitlabNamespace = "space1", slug = "slug")
-        val entity2 = dataProject(id = randomUUID(), globalSlug = "slug2", gitlabId = 101, gitlabNamespace = "space2", slug = "slug")
-        repository.save(entity1)
+        val entity1 = dataProject(
+            id = randomUUID(),
+            globalSlug = "slug1",
+            gitlabId = 100,
+            gitlabNamespace = "space1",
+            slug = "slug"
+        )
+        val entity2 = dataProject(
+            id = randomUUID(),
+            globalSlug = "slug2",
+            gitlabId = 101,
+            gitlabNamespace = "space2",
+            slug = "slug"
+        )
+        projectRepository.save(entity1)
         commitAndFail {
-            repository.save(entity2)
+            projectRepository.save(entity2)
         }
     }
 }

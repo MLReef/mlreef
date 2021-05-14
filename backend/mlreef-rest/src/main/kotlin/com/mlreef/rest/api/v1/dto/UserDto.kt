@@ -2,13 +2,13 @@ package com.mlreef.rest.api.v1.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
-import com.mlreef.rest.UserRole
 import com.mlreef.rest.config.censor
-import com.mlreef.rest.helpers.DataClassWithId
-import com.mlreef.rest.helpers.UserInGroup
-import com.mlreef.rest.helpers.UserInProject
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.UserRole
+import com.mlreef.rest.domain.helpers.DataClassWithId
+import com.mlreef.rest.domain.helpers.UserInGroup
+import com.mlreef.rest.domain.helpers.UserInProject
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.UUID

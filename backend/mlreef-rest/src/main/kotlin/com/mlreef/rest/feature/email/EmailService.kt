@@ -1,7 +1,7 @@
 package com.mlreef.rest.feature.email
 
-import com.mlreef.rest.Email
 import com.mlreef.rest.EmailRepository
+import com.mlreef.rest.domain.Email
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage

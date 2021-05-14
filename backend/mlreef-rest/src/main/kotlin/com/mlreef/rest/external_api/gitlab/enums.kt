@@ -2,8 +2,8 @@ package com.mlreef.rest.external_api.gitlab
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.VisibilityScope
 
 
 enum class GitlabAccessLevel(val accessCode: Int) {

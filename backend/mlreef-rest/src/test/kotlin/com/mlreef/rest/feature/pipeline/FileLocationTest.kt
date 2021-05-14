@@ -1,7 +1,7 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.FileLocationType
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.FileLocationType
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

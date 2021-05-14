@@ -6,6 +6,7 @@ plugins {
     id 'kotlin-allopen'
     id 'org.asciidoctor.convert' version "1.5.9.2"
     id 'jacoco'
+    id 'antlr'
 }
 
 group = 'com.mlreef'
@@ -39,6 +40,10 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'redis.clients:jedis:3.3.0'
     runtimeOnly 'com.h2database:h2'
+
+    // parsing python files with ANTLR
+    antlr 'org.antlr:antlr4:4.7.2'
+    implementation 'org.antlr:antlr4-runtime:4.7.2'
 
     //Email
     implementation 'org.springframework.boot:spring-boot-starter-mail'
@@ -87,26 +92,40 @@ noArg {
 
 ext {
     snippetsDir = file('build/generated-snippets')
+    jacocoMerged = "$buildDir/jacoco/jacocoTest.exec"
 }
 
-test {
-    outputs.dir snippetsDir
-    finalizedBy jacocoTestReport
-
-    useJUnitPlatform {
-        excludeTags 'slow', 'system'
+sourceSets {
+    sourceSets.main.java.srcDir new File("build/generated-src/")
+    test {
+        kotlin {
+            srcDir "$projectDir/test/kotlin"
+            exclude "$projectDir/test/kotlin/com/mlreef/rest/integration/**"
+        }
+    }
+    integrationTest {
+        kotlin.srcDir "$projectDir/test/kotlin/com/mlreef/rest/integration"
+        resources.srcDir "$projectDir/test/resources"
     }
 }
+
+
 
 task allTests(type: Test) {
     useJUnitPlatform {
         includeTags 'any() | all()'
     }
+    finalizedBy jacocoTestReport
 }
 
 task integrationTest(type: Test) {
     useJUnitPlatform {
         includeTags 'integration'
+    }
+    finalizedBy jacocoTestReport
+    jacoco {
+//        append = true
+        destinationFile = file("$jacocoMerged")
     }
 }
 
@@ -120,6 +139,27 @@ tasks.withType(Test) {
         println "$descriptor.classDisplayName > $descriptor.displayName: $result.resultType"
     }
 }
+
+test {
+    outputs.dir snippetsDir
+    finalizedBy jacocoTestReport
+
+    useJUnitPlatform {
+        excludeTags 'slow', 'system'
+    }
+
+    jacoco {
+//        append = true
+        destinationFile = file("$jacocoMerged")
+    }
+}
+
+//integrationTest {
+//    jacoco {
+//        append = true
+//        destinationFile = file("$jacocoMerged")
+//    }
+//}
 
 asciidoctor {
     inputs.dir snippetsDir
@@ -156,6 +196,7 @@ jacocoTestReport {
     reports {
         xml.enabled true
         csv.enabled true
+        html.enabled = true
     }
 }
 
@@ -199,5 +240,19 @@ task coverageReport() {
         printf "Total %.0f%%%n", percentage
         printf "Coverage: Total %.0f%%%n", percentage
     }
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ["-visitor"]
+    outputDirectory = file("build/generated-src/com/mlreef/antlr")
+}
+
+compileKotlin.dependsOn generateGrammarSource
+
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.MappedSuperclass")
+    annotation("javax.persistence.Embeddable")
 }
 

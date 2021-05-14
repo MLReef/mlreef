@@ -1,135 +1,132 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.ExperimentStatus
-import com.mlreef.rest.Person
-import com.mlreef.rest.ProjectRepository
-import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.UserRole
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.Experiment
+import com.mlreef.rest.domain.ExperimentStatus
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import java.time.ZonedDateTime
-import java.util.UUID
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID.randomUUID
-import javax.transaction.Transactional
 
 class ExperimentTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var repository: ExperimentRepository
 
-    @Autowired
-    private lateinit var subjectRepository: SubjectRepository
-
-    @Autowired
-    private lateinit var projectRepository: ProjectRepository
+    private lateinit var dataProject1: DataProject
+    private lateinit var dataProject2: DataProject
 
     private fun createEntity(
-        dataProjectId: UUID = randomUUID(),
+        dataProject: DataProject? = null,
         slug: String = "slug"
-    ): Pair<UUID, Experiment> {
-        val id = randomUUID()
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        DataProject(dataProjectId, "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
-        val entity = Experiment(id, dataProjectId, null, slug, "name", 1, "source", "target")
+    ): Experiment {
+        val entity = Experiment(
+            randomUUID(),
+            dataProject ?: dataProject1,
+            null,
+            slug,
+            "name",
+            1,
+            "source",
+            "target"
+        )
 
-        return Pair(id, entity)
+        return entity
     }
 
     @Transactional
+    @Rollback
     @BeforeEach
     fun prepare() {
-        truncateDbTables(listOf("account", "account_token"), cascade = true)
+//        truncateDbTables(listOf("account", "account_token"), cascade = true)
+
+        dataProject1 = createDataProject(
+            slug = "slug1",
+            name = "Experiment test project 1",
+            ownerId = mainPerson.id,
+            namespace = "group1",
+            path = "project",
+            gitlabId = 1L
+        )
+
+        dataProject2 = createDataProject(
+            slug = "slug2",
+            name = "Experiment test project 2",
+            ownerId = mainPerson.id,
+            namespace = "group2",
+            path = "project",
+            gitlabId = 2L
+        )
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `find works`() {
-        val (id, entity) = createEntity()
+        val entity = createEntity()
 
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
+        Assertions.assertThat(repository.findByIdOrNull(entity.id)).isNull()
         repository.save(entity)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
+        Assertions.assertThat(repository.findByIdOrNull(entity.id)).isNotNull
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `save works`() {
-        val (id, entity) = createEntity()
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
+        val entity = createEntity()
+        Assertions.assertThat(repository.findByIdOrNull(entity.id)).isNull()
         val saved = repository.save(entity)
         Assertions.assertThat(saved).isNotNull
         checkAfterCreated(saved)
-        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
+        Assertions.assertThat(repository.findByIdOrNull(entity.id)).isNotNull
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `update works`() {
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
-        val id = randomUUID()
-        val item = Experiment(id, dataProject.id, null, "slug", "name", 1, "source", "target")
+        val entity = createEntity()
 
-        val saved = repository.save(item)
-        saved.copy(status = ExperimentStatus.SUCCESS)
-        val updated = repository.save(saved)
-        Assertions.assertThat(updated).isNotNull
+        val saved = repository.save(entity)
+        val updated = repository.save(saved.copy(status = ExperimentStatus.SUCCESS))
+        assertThat(updated).isNotNull
         checkAfterUpdated(updated)
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `delete works`() {
-        val (_, entity) = createEntity()
+        val entity = createEntity()
         val saved = repository.save(entity)
         repository.delete(saved)
-        Assertions.assertThat(saved).isNotNull
+        assertThat(saved).isNotNull
         checkAfterCreated(saved)
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate slug per DataProject`() {
-
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
-
-        subjectRepository.save(owner)
-        projectRepository.save(dataProject)
-
         commitAndFail {
-            repository.save(createEntity(dataProjectId = dataProject.id, slug = "slug1").second)
-            repository.save(createEntity(dataProjectId = dataProject.id, slug = "slug1").second)
+            repository.save(createEntity(slug = "slug1"))
+            repository.save(createEntity(slug = "slug1"))
         }
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `can save duplicate slug for different DataProject`() {
-
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
-        val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
-
-        subjectRepository.save(owner)
-        projectRepository.save(dataProject1)
-        projectRepository.save(dataProject2)
-
-        repository.save(createEntity(dataProjectId = dataProject1.id, slug = "slug1").second)
-        repository.save(createEntity(dataProjectId = dataProject2.id, slug = "slug1").second)
+        repository.save(createEntity(dataProject = dataProject1, slug = "slug1"))
+        repository.save(createEntity(dataProject = dataProject2, slug = "slug1"))
+        repository.findAll() //To initiate flush by stupid hibernate
     }
 }
 

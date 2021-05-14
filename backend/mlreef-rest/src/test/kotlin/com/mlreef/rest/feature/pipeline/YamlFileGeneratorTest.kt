@@ -1,21 +1,20 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.BaseEnvironments
-import com.mlreef.rest.DataOperation
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataType
-import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
-import com.mlreef.rest.ProcessorParameter
-import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.PublishingInfo
-import com.mlreef.rest.UserRole
+import com.mlreef.rest.domain.BaseEnvironments
+import com.mlreef.rest.domain.Parameter
+import com.mlreef.rest.domain.ParameterType
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.Processor
+import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.ProcessorType
+import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.utils.RandomUtils
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 
@@ -49,7 +48,7 @@ class YamlFileGeneratorTest {
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
-            dataProcessors = listOf(),
+            processorsInstances = listOf(),
         )
 
         assertThat(output).doesNotContain(EPF_IMAGE_TAG)
@@ -74,7 +73,7 @@ class YamlFileGeneratorTest {
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
-            dataProcessors = listOf(),
+            processorsInstances = listOf(),
         )
         assertThat(output).doesNotContain(PIPELINE_STRING)
     }
@@ -93,9 +92,10 @@ class YamlFileGeneratorTest {
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
-            dataProcessors = listOf(
-                mockDataProcessorInstance("commons-data-operation1"),
-                mockDataProcessorInstance("commons-data-operation2")
+
+            processorsInstances = listOf(
+                mockProcessorInstance("commons-data-operation1"),
+                mockProcessorInstance("commons-data-operation2")
             ),
         )
 
@@ -116,9 +116,9 @@ class YamlFileGeneratorTest {
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
             targetBranch = "test-target-branch",
-            dataProcessors = listOf(
-                mockDataProcessorInstance("commons-data-operation1"),
-                mockDataProcessorInstance("commons-data-operation2")
+            processorsInstances = listOf(
+                mockProcessorInstance("commons-data-operation1"),
+                mockProcessorInstance("commons-data-operation2")
             ),
         )
 
@@ -133,26 +133,44 @@ class YamlFileGeneratorTest {
         println(output.lines())
     }
 
-    private fun mockDataProcessorInstance(slug: String): DataProcessorInstance {
-        val dataOperation = DataOperation(randomUUID(), slug, "name", DataType.ANY, DataType.ANY)
+    private fun mockProcessorInstance(slug: String): ProcessorInstance {
+        val baseEnv =
+            BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7")
 
-        val baseEnv = BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7")
+        val operationProcessorType = ProcessorType(UUID.randomUUID(), "OPERATION")
 
-        val publisher = Person(randomUUID(), "subject", "name", 1, hasNewsletters = true,
+        val stringParameter = ParameterType(randomUUID(), "STRING")
+        val floatParameter = ParameterType(randomUUID(), "STRING")
+
+        val publisher = Person(
+            randomUUID(), "subject", "name", 1, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = ZonedDateTime.now()
+        )
 
-        val processorVersion = ProcessorVersion(
-            id = dataOperation.id, dataProcessor = dataOperation, publishingInfo = PublishingInfo(publisher = publisher),
-            command = "augment", number = 1, baseEnvironment = baseEnv)
+        val processor = Processor(
+            randomUUID(),
+            publisher = publisher,
+            baseEnvironment = baseEnv,
+            mainScriptPath = "main.py",
+            branch = "master",
+            version = "1",
+            imageName = "alpine:latest"
+        )
 
-        val processorParameter1 = ProcessorParameter(randomUUID(), processorVersion.id, "stringParam", ParameterType.STRING, 0, "")
-        val processorParameter2 = ProcessorParameter(randomUUID(), processorVersion.id, "floatParam", ParameterType.FLOAT, 1, "0.1")
-        val processorParameter3 = ProcessorParameter(randomUUID(), processorVersion.id, "output-path", ParameterType.FLOAT, 1, "output")
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), processorVersion)
-        dataProcessorInstance.addParameterInstances(processorParameter1, "string")
-        dataProcessorInstance.addParameterInstances(processorParameter2, "0.1")
-        dataProcessorInstance.addParameterInstances(processorParameter3, "testoutput")
+        val processorParameter1 =
+            Parameter(randomUUID(), "stringParam", 0, "", parameterType = stringParameter, processor = processor)
+        val processorParameter2 =
+            Parameter(randomUUID(), "floatParam", 1, "0.1", parameterType = floatParameter, processor = processor)
+        val processorParameter3 =
+            Parameter(randomUUID(), "output-path", 1, "output", parameterType = floatParameter, processor = processor)
+
+        val dataProcessorInstance = ProcessorInstance(randomUUID(), processor, slug = slug)
+
+        dataProcessorInstance.createParameterInstances(processorParameter1, "string")
+        dataProcessorInstance.createParameterInstances(processorParameter2, "0.1")
+        dataProcessorInstance.createParameterInstances(processorParameter3, "testoutput")
+
         return dataProcessorInstance
     }
 }

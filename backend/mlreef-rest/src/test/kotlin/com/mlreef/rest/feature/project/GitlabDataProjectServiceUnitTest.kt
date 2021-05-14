@@ -1,16 +1,18 @@
 package com.mlreef.rest.feature.project
 
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.repositories.DataTypesRepository
+import com.mlreef.rest.domain.repositories.ParameterTypesRepository
+import com.mlreef.rest.domain.repositories.ProcessorTypeRepository
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
-import com.mlreef.rest.feature.data_processors.DataProcessorService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -47,13 +49,32 @@ internal class GitlabDataProjectServiceUnitTest {
     private lateinit var subjectRepository: SubjectRepository
 
     @MockK
-    private lateinit var dataProcessorService: DataProcessorService
+    private lateinit var processorTypeRepository: ProcessorTypeRepository
+
+    @MockK
+    private lateinit var dataTypesRepository: DataTypesRepository
+
+    @MockK
+    private lateinit var parameterTypesRepository: ParameterTypesRepository
+
 
     private lateinit var service: ProjectService<DataProject>
 
     @BeforeEach
     fun setUp() {
-        service = ProjectServiceImpl(DataProject::class.java, dataProjectRepository, publicProjectsCacheService, gitlabRestClient, reservedNamesService, accountRepository, groupRepository, subjectRepository, dataProcessorService)
+        service = ProjectServiceImpl(
+            DataProject::class.java,
+            dataProjectRepository,
+            publicProjectsCacheService,
+            gitlabRestClient,
+            reservedNamesService,
+            accountRepository,
+            groupRepository,
+            subjectRepository,
+            processorTypeRepository,
+            dataTypesRepository,
+            parameterTypesRepository
+        )
     }
 
     @Test

@@ -1,8 +1,8 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.ProcessorVersion
+import com.mlreef.rest.domain.Processor
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.feature.data_processors.PythonParserService
+import com.mlreef.rest.feature.processors.PythonParserService
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,8 +19,8 @@ class ParserController(
     fun parseCode(
         @RequestBody request: String,
         tokenDetails: TokenDetails,
-    ): ProcessorVersion? {
-        return pythonParserService.parsePythonFile(request)?.processorVersion
+    ): Processor? {
+        return pythonParserService.parsePythonFile(request)
     }
 
     @RequestMapping(value = ["/parse/project/{projectId}"], method = [RequestMethod.POST])
@@ -28,8 +28,8 @@ class ParserController(
         @PathVariable projectId: UUID,
         @RequestBody(required = false) request: PublishingRequest?,
         tokenDetails: TokenDetails,
-    ): ProcessorVersion? {
-        return pythonParserService.findAndParseDataProcessorInProject(projectId, request?.path).processorVersion
+    ): Processor? {
+        return pythonParserService.findAndParseDataProcessorInProject(request?.path, projectId = projectId)
     }
 }
 

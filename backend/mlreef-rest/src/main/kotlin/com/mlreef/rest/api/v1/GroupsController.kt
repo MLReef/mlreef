@@ -1,17 +1,16 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Person
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.dto.GroupDto
 import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
-import com.mlreef.rest.api.v1.dto.toDomain
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.helpers.GroupOfUser
+import com.mlreef.rest.domain.helpers.UserInGroup
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.groups.GroupsService
-import com.mlreef.rest.helpers.GroupOfUser
-import com.mlreef.rest.helpers.UserInGroup
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -99,14 +98,6 @@ class GroupsController(
     }
 
     // FIXME: Coverage says: missing tests
-    @PostMapping("/{groupId}/users")
-    @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
-    fun addUsersToGroupById(@PathVariable groupId: UUID, @RequestBody request: UsersGroupRequest): List<UserInGroupDto> {
-        groupsService.addUsersToGroup(groupId, request.users.map(UserInGroupDto::toDomain))
-        return getUsersInGroupById(groupId)
-    }
-
-    // FIXME: Coverage says: missing tests
     @PostMapping("/{groupId}/users/{userId}")
     @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
     fun addUserToGroupById(@PathVariable groupId: UUID, @PathVariable userId: UUID, @RequestParam(value = "access_level", required = false) accessLevel: String?): List<UserInGroupDto> {
@@ -121,14 +112,6 @@ class GroupsController(
     fun editUserInGroupById(@PathVariable groupId: UUID, @PathVariable userId: UUID, @RequestParam(value = "access_level", required = true) accessLevel: String): List<UserInGroupDto> {
         val level = AccessLevel.valueOf(accessLevel.toUpperCase())
         groupsService.editUserInGroup(groupId, userId, level)
-        return getUsersInGroupById(groupId)
-    }
-
-    // FIXME: Coverage says: missing tests
-    @DeleteMapping("/{groupId}/users")
-    @PreAuthorize("hasAccessToGroup(#groupId, 'MAINTAINER')")
-    fun deleteUsersFromGroupById(@PathVariable groupId: UUID, @RequestBody request: UsersGroupRequest): List<UserInGroupDto> {
-        groupsService.deleteUsersFromGroup(groupId, request.users.map(UserInGroupDto::toDomain))
         return getUsersInGroupById(groupId)
     }
 
@@ -153,8 +136,4 @@ class GroupCreateRequest(
 class GroupUpdateRequest(
     val name: String?,
     val path: String?
-)
-
-class UsersGroupRequest(
-    @NotEmpty val users: List<UserInGroupDto>
 )

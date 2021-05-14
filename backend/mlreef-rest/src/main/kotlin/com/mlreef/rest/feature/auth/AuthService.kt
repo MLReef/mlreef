@@ -1,15 +1,15 @@
 package com.mlreef.rest.feature.auth
 
-import com.mlreef.rest.Account
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.I18N
-import com.mlreef.rest.Person
 import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.UserRole
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.I18N
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
@@ -90,17 +90,21 @@ class AuthService(
     }
 
     fun loginUser(plainPassword: String, username: String?, email: String?): Pair<Account, OAuthToken> {
-        val byUsername: Account? = if (username != null) accountRepository.findOneByUsername(username) else null
-        val byEmail: Account? = if (email != null) accountRepository.findOneByEmail(email) else null
+        val finalUserName = username?.trim()?.toLowerCase()
+        val finalEmail = email?.trim()?.toLowerCase()
 
-        val found: List<Account> = listOfNotNull(byUsername, byEmail).filter { account ->
-            passwordEncoder.matches(plainPassword, account.passwordEncrypted)
-        }
+        val user = finalUserName?.let { accountRepository.findByUsernameIgnoreCase(it) }
+            ?: finalEmail?.let { accountRepository.findByEmailIgnoreCase(it) }
+            ?: throw BadCredentialsException("User not found")
 
-        val account = found.getOrNull(0) ?: throw IncorrectCredentialsException("username or password is incorrect")
+        if (!passwordEncoder.matches(
+                plainPassword,
+                user.passwordEncrypted
+            )
+        ) throw IncorrectCredentialsException("Bad credentials")
 
-        val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(account.username, plainPassword)
-        val accountUpdate = account.copy(lastLogin = I18N.dateTime())
+        val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(user.username, plainPassword)
+        val accountUpdate = user.copy(lastLogin = I18N.dateTime())
         val loggedAccount = accountRepository.save(accountUpdate)
 
         return Pair(loggedAccount, oauthToken)
@@ -110,29 +114,40 @@ class AuthService(
     fun registerUser(
         plainPassword: String, username: String, email: String
     ): Pair<Account, OAuthToken?> {
-        val encryptedPassword = passwordEncoder.encode(plainPassword)
-        val byUsername: Account? = accountRepository.findOneByUsername(username)
-        val byEmail: Account? = accountRepository.findOneByEmail(email)
+        val finalUserName = username.trim().toLowerCase()
+        val finalEmail = email.trim()
 
-        if (listOfNotNull(byUsername, byEmail).isNotEmpty()) {
-            throw UserAlreadyExistsException(username, email)
-        }
+        val byUsername: Account? = accountRepository.findByUsernameIgnoreCase(finalUserName)
+        val byEmail: Account? = accountRepository.findByEmailIgnoreCase(finalEmail)
 
-        val newGitlabUser = createGitlabUser(username = username, email = email, password = plainPassword)
+        byUsername?.let { throw UserAlreadyExistsException(username = username) }
+        byEmail?.let { throw UserAlreadyExistsException(email = email) }
+
+        val newGitlabUser = createGitlabUser(username = finalUserName, email = finalEmail, password = plainPassword)
         createGitlabToken(newGitlabUser)
 
-        val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(username, plainPassword)
+        val oauthToken = gitlabRestClient.userLoginOAuthToGitlab(finalUserName, plainPassword)
 
         val accountUuid = randomUUID()
 
-        val person = personRepository.save(Person(
-            id = randomUUID(),
-            slug = username,
-            name = username,
-            gitlabId = newGitlabUser.id))
+        val person = personRepository.save(
+            Person(
+                id = randomUUID(),
+                slug = finalUserName,
+                name = finalUserName,
+                gitlabId = newGitlabUser.id
+            )
+        )
+
+        val encryptedPassword = passwordEncoder.encode(plainPassword)
 
         val newUser = Account(
-            id = accountUuid, username = username, email = email, passwordEncrypted = encryptedPassword, person = person)
+            id = accountUuid,
+            username = finalUserName,
+            email = finalEmail,
+            passwordEncrypted = encryptedPassword,
+            person = person
+        )
 
         accountRepository.save(newUser)
 
@@ -154,23 +169,26 @@ class AuthService(
             ?: accountRepository.findAccountByPersonId(accountId)
             ?: throw UserNotFoundException(accountId)
 
+        val finalUserName = username?.trim()?.toLowerCase()
+        val finalEmail = email?.trim()
+
         val oldUserName = user.username
 
-        if (user != (username?.let { accountRepository.findOneByUsername(it) } ?: user))
+        if (user != (finalUserName?.let { accountRepository.findByUsernameIgnoreCase(it) } ?: user))
             throw ConflictException(ErrorCode.Conflict, "User with username $username is already registered")
 
-        if (user != (email?.let { accountRepository.findOneByEmail(it) } ?: user))
+        if (user != (finalEmail?.let { accountRepository.findByEmailIgnoreCase(it) } ?: user))
             throw ConflictException(ErrorCode.Conflict, "User with email $email is already registered")
 
         updateGitlabUser(
             user.person.gitlabId ?: throw BadParametersException("User ${user.username} is not connected to Gitlab"),
-            username,
-            email
+            finalUserName,
+            finalEmail
         )
 
         var updatedUserInDb = user.copy(
-            username = username ?: user.username,
-            email = email ?: user.email
+            username = finalUserName ?: user.username,
+            email = finalEmail ?: user.email
         )
 
         personRepository.save(user.person.copy(
@@ -245,7 +263,7 @@ class AuthService(
         }
     }
 
-    fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
+    private fun createGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             log.info("Create user $username")
             gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
@@ -255,19 +273,27 @@ class AuthService(
         }
     }
 
-    fun createOrFindGitlabUser(username: String, email: String, password: String): GitlabUser {
+    private fun createOrFindGitlabUser(username: String, email: String, password: String): GitlabUser {
         return try {
             log.info("Create user $username")
             gitlabRestClient.adminGetUsers(username = username).firstOrNull()
                 ?: gitlabRestClient.adminGetUsers(searchNameEmail = email).find { it.username == username }
-                ?: gitlabRestClient.adminCreateUser(email = email, name = username, username = username, password = password)
+                ?: gitlabRestClient.adminCreateUser(
+                    email = email,
+                    name = username,
+                    username = username,
+                    password = password
+                )
         } catch (clientErrorException: RestException) {
             log.info("Cannot create the user $username with email $email: ${clientErrorException.message}")
-            throw RestException(ErrorCode.GitlabUserCreationFailedEmailUsed, "User could not be created in Gitlab: ${clientErrorException.message}")
+            throw RestException(
+                ErrorCode.GitlabUserCreationFailedEmailUsed,
+                "User could not be created in Gitlab: ${clientErrorException.message}"
+            )
         }
     }
 
-    fun updateGitlabUser(id: Long, username: String?, email: String?): GitlabUser {
+    private fun updateGitlabUser(id: Long, username: String?, email: String?): GitlabUser {
         return try {
             log.info("Update user $id with username ${username ?: ""} and email ${email ?: ""}")
             gitlabRestClient.adminUpdateUser(id, email = email, name = username, username = username)
@@ -283,7 +309,7 @@ class AuthService(
         return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = GITLAB_TOKEN_BOT)
     }
 
-    fun ensureGitlabToken(account: Account, gitlabUser: GitlabUser): GitlabUserToken? {
+    private fun ensureGitlabToken(account: Account, gitlabUser: GitlabUser): GitlabUserToken? {
         val gitlabUserId = gitlabUser.id
         val username = gitlabUser.username
         val gitlabTokens = gitlabRestClient.adminGetUserTokens(gitlabUserId = gitlabUserId).filterNot { it.revoked }
@@ -397,8 +423,7 @@ class AuthService(
         return account
     }
 
-    @Transactional
-    fun ensureBotExistsOrCreateAccount(gitlabUser: GitlabUser, botPassword: String): Account {
+    private fun ensureBotExistsOrCreateAccount(gitlabUser: GitlabUser, botPassword: String): Account {
         var account = accountRepository.findOneByUsername(gitlabUser.username)
             ?: accountRepository.findOneByEmail(gitlabUser.email)
             ?: accountRepository.findAccountByGitlabId(gitlabUser.id)
@@ -431,6 +456,7 @@ class AuthService(
         return accountRepository.save(account)
     }
 
+    @Transactional
     fun ensureBotExistsWithToken(botName: String, botEmail: String, botPassword: String): Pair<GitlabUser, GitlabUserToken?> {
         val gitlabUser = createOrFindGitlabUser(botName, botEmail, botPassword)
         // save or find bot in local DB

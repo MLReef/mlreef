@@ -2,21 +2,77 @@
 
 package com.mlreef.rest
 
-import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.rest.marketplace.SearchableType
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.AccountToken
+import com.mlreef.rest.domain.BaseEnvironments
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.Email
+import com.mlreef.rest.domain.Experiment
+import com.mlreef.rest.domain.Group
+import com.mlreef.rest.domain.KtCrudRepository
+import com.mlreef.rest.domain.Membership
+import com.mlreef.rest.domain.Parameter
+import com.mlreef.rest.domain.ParameterInstance
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.Pipeline
+import com.mlreef.rest.domain.PipelineConfiguration
+import com.mlreef.rest.domain.PipelineStatus
+import com.mlreef.rest.domain.Processor
+import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.ProjectType
+import com.mlreef.rest.domain.PublishStatus
+import com.mlreef.rest.domain.ReadOnlyRepository
+import com.mlreef.rest.domain.Subject
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.marketplace.SearchableTag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import java.util.UUID
+import javax.persistence.EntityManager
+import javax.persistence.EntityManagerFactory
+import javax.persistence.LockModeType
+import javax.persistence.PersistenceUnit
 
+@Component
+class JpaHelper(
+    @PersistenceUnit
+    private val entityManagerFactory: EntityManagerFactory
+) {
+    fun <T> withinTransaction(commit: Boolean = true, func: (em: EntityManager) -> T?): T? {
+        val em = entityManagerFactory.createEntityManager()
+        em.transaction.begin()
+        val result = try {
+            val res = func.invoke(em)
+            if (commit) {
+                em.transaction.commit()
+            } else {
+                em.transaction.rollback()
+            }
+            res
+        } catch (ex: Exception) {
+            em.transaction.rollback()
+            throw ex
+        } finally {
+            em.close()
+        }
+        return result
+    }
+}
 
 @Repository
 interface AccountRepository : KtCrudRepository<Account, UUID> {
     fun findOneByUsername(username: String): Account?
     fun findOneByEmail(email: String): Account?
     fun findByChangeAccountToken(token: String): Account?
+    fun findByUsernameIgnoreCase(username: String): Account?
+    fun findByEmailIgnoreCase(email: String): Account?
 
     @Query("SELECT a FROM Account a WHERE a.person.gitlabId = :gitlabId")
     fun findAccountByGitlabId(gitlabId: Long): Account?
@@ -48,7 +104,8 @@ interface PersonRepository : KtCrudRepository<Person, UUID> {
 @Repository
 interface GroupRepository : KtCrudRepository<Group, UUID> {
     fun findByGitlabId(gitlabId: Long): Group?
-    fun findAllBySlug(slug: String): List<Group>
+    fun findBySlug(slug: String): Group?
+    fun findByName(name: String): List<Group>
 }
 
 @Repository
@@ -60,124 +117,108 @@ interface MembershipRepository : KtCrudRepository<Membership, UUID> {
 
 @Repository
 interface ExperimentRepository : KtCrudRepository<Experiment, UUID> {
-    fun findAllByDataProjectId(dataProjectId: UUID): List<Experiment>
-    fun findOneByDataProjectIdAndSlug(dataProjectId: UUID, slug: String): Experiment?
-    fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): Experiment?
-    fun findOneByDataProjectIdAndNumber(dataProjectId: UUID, number: Int): Experiment?
-    fun countByDataProjectId(dataProjectId: UUID): Int
+    fun findAllByDataProject(dataProject: DataProject): List<Experiment>
+    fun findOneByDataProjectAndSlug(dataProject: DataProject, slug: String): Experiment?
+    fun findOneByDataProjectAndId(dataProject: DataProject, id: UUID): Experiment?
+    fun findOneByDataProjectAndNumber(dataProject: DataProject, number: Int): Experiment?
+    fun countByDataProject(dataProject: DataProject): Int
+    fun findByPipeline(pipeline: Pipeline): List<Experiment>
+    fun findByPipelineAndSlug(pipeline: Pipeline, slug: String): Experiment?
 
-    @Query("SELECT max(e.number) FROM Experiment e WHERE e.dataProjectId = :dataProjectId")
-    fun maxNumberByDataProjectId(dataProjectId: UUID): Int?
+    @Query("SELECT max(e.number) FROM Experiment e WHERE e.dataProject = :dataProject")
+    fun maxNumberByDataProjectId(dataProject: DataProject): Int?
 }
 
 @Repository
-interface PipelineConfigRepository : KtCrudRepository<PipelineConfig, UUID> {
-    fun findAllByDataProjectId(dataProjectId: UUID): List<PipelineConfig>
-    fun findOneByDataProjectIdAndId(dataProjectId: UUID, id: UUID): PipelineConfig?
-    fun findOneByDataProjectIdAndSlug(dataProjectId: UUID, slug: String): PipelineConfig?
+interface PipelineConfigurationRepository : KtCrudRepository<PipelineConfiguration, UUID> {
+    fun findAllByDataProject(dataProject: DataProject): List<PipelineConfiguration>
+    fun findOneByDataProjectAndId(dataProject: DataProject, id: UUID): PipelineConfiguration?
+    fun findOneByDataProjectAndSlug(dataProject: DataProject, slug: String): PipelineConfiguration?
 }
 
 @Repository
-interface PipelineInstanceRepository : KtCrudRepository<PipelineInstance, UUID> {
-    fun findAllByPipelineConfigId(dataProjectId: UUID): List<PipelineInstance>
-    fun findOneByPipelineConfigIdAndId(dataProjectId: UUID, id: UUID): PipelineInstance?
-    fun findOneByPipelineConfigIdAndSlug(dataProjectId: UUID, slug: String): PipelineInstance?
+interface PipelinesRepository : KtCrudRepository<Pipeline, UUID> {
+    fun findAllByPipelineConfiguration(pipelineConfiguration: PipelineConfiguration): List<Pipeline>
+    fun findOneByPipelineConfigurationAndId(pipelineConfiguration: PipelineConfiguration, id: UUID): Pipeline?
+    fun findOneByPipelineConfigurationAndSlug(pipelineConfiguration: PipelineConfiguration, slug: String): Pipeline?
+    fun findByStatusIn(statuses: Collection<PipelineStatus>): List<Pipeline>
+
+    @Query("SELECT max(p.number) FROM Pipeline p WHERE p.pipelineConfiguration = :pipelineConfig")
+    fun maxNumberByPipelineConfig(pipelineConfig: PipelineConfiguration): Int?
 }
-
-@Repository
-interface DataProcessorRepository : KtCrudRepository<DataProcessor, UUID> {
-    fun findBySlug(processorSlug: String): DataProcessor?
-    fun findOneByAuthorIdAndId(ownerId: UUID, id: UUID): DataProcessor?
-    fun findAllByTypeAndInputDataTypeAndOutputDataType(
-        type: DataProcessorType?,
-        inputDataType: DataType?,
-        outputDataType: DataType?): List<DataProcessor>
-
-    fun findAllByType(type: DataProcessorType): List<DataProcessor>
-    fun findAllByCodeProjectId(codeProjectId: UUID): List<DataProcessor>
-}
-
-@Repository
-interface ProcessorVersionRepository : KtCrudRepository<ProcessorVersion, UUID> {
-    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% ORDER BY v.number DESC ")
-    fun findAllBySlug(processorSlug: String): List<ProcessorVersion>
-
-    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.id = :id ORDER BY v.number DESC ")
-    fun findAllByDataProcessorId(id: UUID): List<ProcessorVersion>
-
-    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% ORDER BY v.number DESC ")
-    fun findAllBySlug(processorSlug: String, pageable: Pageable): List<ProcessorVersion>
-
-    @Query("SELECT v FROM ProcessorVersion v WHERE v.dataProcessor.slug LIKE %:processorSlug% AND v.branch LIKE %:branch% ORDER BY v.number DESC nulls first ")
-    fun findBySlugAndBranch(processorSlug: String, branch: String, pageable: Pageable): List<ProcessorVersion>
-}
-
-@Repository
-interface DataOperationRepository : KtCrudRepository<DataOperation, UUID>
-
-@Repository
-interface DataVisualizationRepository : KtCrudRepository<DataVisualization, UUID>
-
-@Repository
-interface DataAlgorithmRepository : KtCrudRepository<DataAlgorithm, UUID>
-
-@Repository
-interface ProcessorParameterRepository : ReadOnlyRepository<ProcessorParameter, UUID> {
-    fun findByProcessorVersionIdAndName(id: UUID, name: String): ProcessorParameter?
-}
-
-@Repository
-interface ParameterInstanceRepository : ReadOnlyRepository<ParameterInstance, UUID>
-
-@Repository
-interface DataProcessorInstanceRepository : KtCrudRepository<DataProcessorInstance, UUID>
 
 interface ProjectRepositoryCustom {
-    fun <T : Project> findAccessible(
-        clazz: Class<T>,
-        pageable: Pageable,
-        ids: List<UUID>?,
-        slugs: List<String>? = null,
-        searchableType: SearchableType,
-        inputDataTypes: List<DataType>? = null,
-        outputDataTypes: List<DataType>? = null,
-        tags: List<SearchableTag>? = null,
-        minStars: Int? = null,
-        maxStars: Int? = null
-    ): List<Project>
+//    fun <T : Project> findAccessible(
+//        clazz: Class<T>,
+//        pageable: Pageable,
+//        ids: List<UUID>?,
+//        slugs: List<String>? = null,
+//        searchableType: SearchableType,
+//        inputDataTypes: List<OldDataType>? = null,
+//        outputDataTypes: List<OldDataType>? = null,
+//        tags: List<SearchableTag>? = null,
+//        minStars: Int? = null,
+//        maxStars: Int? = null
+//    ): List<Project>
 }
 
 @Repository
 interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     fun findByGlobalSlugAndVisibilityScope(slug: String, visibilityScope: VisibilityScope): T?
-//    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
+
+    //    fun findAllByVisibilityScope(visibilityScope: VisibilityScope, pageable: Pageable): List<T>
     fun findAllByOwnerId(ownerId: UUID, pageable: Pageable?): Page<T>
+    fun findAllByOwnerId(ownerId: UUID): List<T>
     fun findOneByOwnerIdAndSlug(ownerId: UUID, slug: String): T?
     fun findAllByOwnerIdAndType(ownerId: UUID, type: ProjectType, pageable: Pageable?): Page<T>
+    fun findAllByOwnerIdAndType(ownerId: UUID, type: ProjectType): List<T>
 
     @Query("select p from Project p WHERE p.ownerId=:ownerId OR p.visibilityScope=:scope OR p.id in :projectIds")
-    fun findAccessibleProjectsForOwner(ownerId: UUID, projectIds:List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+    fun findAccessibleProjectsForOwner(
+        ownerId: UUID,
+        projectIds: List<UUID>,
+        pageable: Pageable?,
+        scope: VisibilityScope = VisibilityScope.PUBLIC
+    ): Page<T>
 
     @Query("select p from Project p WHERE p.type='DATA_PROJECT' AND (p.ownerId=:ownerId OR p.visibilityScope=:scope OR p.id in :projectIds)")
-    fun findAccessibleDataProjectsForOwner(ownerId: UUID, projectIds:List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+    fun findAccessibleDataProjectsForOwner(
+        ownerId: UUID,
+        projectIds: List<UUID>,
+        pageable: Pageable?,
+        scope: VisibilityScope = VisibilityScope.PUBLIC
+    ): Page<T>
 
     @Query("select p from Project p WHERE p.visibilityScope=:scope")
     fun findAccessibleProjectsForVisitor(pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
 
     @Query("select p from Project p WHERE p.type='DATA_PROJECT' AND p.visibilityScope=:scope")
-    fun findAccessibleDataProjectsForVisitor(pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+    fun findAccessibleDataProjectsForVisitor(
+        pageable: Pageable?,
+        scope: VisibilityScope = VisibilityScope.PUBLIC
+    ): Page<T>
 
     @Query("select p from Project p JOIN Star s on s.projectId = p.id where (p.ownerId=:ownerId or p.visibilityScope=:scope OR p.id IN :ids) AND s.subjectId = :ownerId")
-    fun findAccessibleStarredProjectsForUser(ownerId: UUID, ids: List<UUID>, pageable: Pageable?, scope: VisibilityScope = VisibilityScope.PUBLIC): Page<T>
+    fun findAccessibleStarredProjectsForUser(
+        ownerId: UUID,
+        ids: List<UUID>,
+        pageable: Pageable?,
+        scope: VisibilityScope = VisibilityScope.PUBLIC
+    ): Page<T>
 
     fun findAllByIdIn(ids: Iterable<UUID>, pageable: Pageable?): Page<T>
 
-    fun findAllByVisibilityScope(visibilityScope: VisibilityScope = VisibilityScope.PUBLIC, pageable: Pageable? = null): Page<T>
+    fun findAllByVisibilityScope(
+        visibilityScope: VisibilityScope = VisibilityScope.PUBLIC,
+        pageable: Pageable? = null
+    ): Page<T>
 
     @Query("select e from Project e JOIN Star s on s.projectId = e.id where e.id IN :ids AND s.subjectId = :ownerId")
     fun findAccessibleStarredProjects(ownerId: UUID, ids: List<UUID>, pageable: Pageable): List<T>
 
     fun findByGitlabId(gitlabId: Long): T?
+
+    fun findByNameIgnoreCase(name: String): T?
 
     @Query("SELECT p FROM Project p WHERE p.gitlabPathWithNamespace LIKE %:namespace%")
     fun findByNamespace(namespace: String): List<T>
@@ -191,7 +232,7 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
     fun findBySlug(slug: String, pageable: Pageable?): Page<T>
 
     @Query("SELECT p FROM Project p WHERE p.gitlabNamespace=:namespace AND p.slug=:slug")
-    fun findNamespaceAndSlug(namespace: String, slug: String): T?
+    fun findByNamespaceAndSlug(namespace: String, slug: String): T?
 }
 
 @Repository
@@ -209,12 +250,16 @@ interface ProjectRepository : ProjectBaseRepository<Project>, ProjectRepositoryC
     @Query("SELECT p FROM Project p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
     override fun findByNamespaceAndPath(namespace: String, path: String): Project?
 
+
     /**
      * Requires the "update_fts_document" PSQL TRIGGER and "project_fts_index" gin index
      *
      * Currently Fulltext search is implemented via psql and _relies_ on that, be aware of that when you change DB!
      */
-    @Query(value = "SELECT CAST(id as TEXT) as id, CAST(coalesce(ts_rank(document, to_tsquery('english', :query)),0.0) as FLOAT) as rank FROM mlreef_project WHERE id in :ids ORDER BY rank DESC", nativeQuery = true)
+    @Query(
+        value = "SELECT CAST(id as TEXT) as id, CAST(coalesce(ts_rank(document, to_tsquery('english', :query)),0.0) as FLOAT) as rank FROM mlreef_project WHERE id in :ids ORDER BY rank DESC",
+        nativeQuery = true
+    )
     fun fulltextSearch(query: String, ids: Set<UUID>): List<IdRankInterface>
 
     interface IdRankInterface {
@@ -248,6 +293,65 @@ interface CodeProjectRepository : ProjectBaseRepository<CodeProject> {
 }
 
 @Repository
+interface ProcessorsRepository : KtCrudRepository<Processor, UUID> {
+    @Query("SELECT p FROM Processor p WHERE p.slug=:processorSlug ORDER BY p.publishedAt DESC ")
+    fun findExactBySlug(processorSlug: String): Processor?
+
+    @Query("SELECT p FROM Processor p WHERE p.slug LIKE %:processorSlug% ORDER BY p.publishedAt DESC ")
+    fun findAllBySlug(processorSlug: String): List<Processor>
+
+    fun getByCodeProject(codeProject: CodeProject, pageable: Pageable): Page<Processor>
+    fun getByCodeProject(codeProject: CodeProject): List<Processor>
+    fun getByCodeProjectAndSlug(codeProject: CodeProject, slug: String): Processor?
+
+    fun getByCodeProjectAndBranch(codeProject: CodeProject, branch: String, pageable: Pageable): Page<Processor>
+    fun getByCodeProjectAndBranch(codeProject: CodeProject, branch: String): List<Processor>
+
+    fun getByCodeProjectAndVersion(codeProject: CodeProject, version: String, pageable: Pageable): Page<Processor>
+    fun getByCodeProjectAndVersion(codeProject: CodeProject, version: String): List<Processor>
+
+    fun getByCodeProjectAndStatusIn(codeProject: CodeProject, statuses: List<PublishStatus>): List<Processor>
+    fun getByCodeProjectAndBranchAndStatusIn(codeProject: CodeProject, branch: String, statuses: List<PublishStatus>): List<Processor>
+
+    fun getByStatusIn(statuses: Collection<PublishStatus>): List<Processor>
+    fun getByStatusInAndUpdatedTimesLessThan(statuses: Collection<PublishStatus>, updatedTimes: Int): List<Processor>
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Processor p WHERE p.status IN :statuses")
+    fun getByStatusInLock(statuses: Collection<PublishStatus>): List<Processor>
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Processor p WHERE p.status IN :statuses AND p.updatedTimes<:lessUpdatedTimes")
+    fun getByStatusInAndUpdatedTimesLessThanLock(statuses: Collection<PublishStatus>, lessUpdatedTimes: Int): List<Processor>
+
+
+    fun getByCodeProjectAndBranchAndVersionIgnoreCase(
+        codeProject: CodeProject,
+        branch: String,
+        version: String
+    ): Processor?
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Processor p WHERE p.codeProject=:codeProject AND p.branch=:branch AND p.version=:version")
+    fun getByCodeProjectAndBranchAndVersionIgnoreCaseLock(
+        codeProject: CodeProject,
+        branch: String,
+        version: String
+    ): Processor?
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Processor p WHERE p.id=:id")
+    fun getByIdLock(id: UUID): Processor?
+
+    @Query("SELECT p.codeProject.id, p.branch, COUNT(p) FROM Processor p GROUP BY p.codeProject.id, p.branch HAVING COUNT(p)>:maxProcessors")
+    fun getProjectIdWithProcessorsExceedNumber(maxProcessors: Long): List<Array<Any>>
+
+    @Query("SELECT p.codeProject.id, p.branch, COUNT(p) FROM Processor p WHERE p.status in :statuses GROUP BY p.codeProject.id, p.branch HAVING COUNT(p)>:maxProcessors")
+    fun getProjectIdWithProcessorsExceedNumberAndStatuses(maxProcessors: Long, statuses: Collection<PublishStatus>): List<Array<Any>>
+
+}
+
+@Repository
 interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
     fun findAllByPublicTrueOrOwnerIdIn(ids: List<UUID>): List<SearchableTag>
 
@@ -259,8 +363,33 @@ interface SearchableTagRepository : KtCrudRepository<SearchableTag, UUID> {
     fun findByNameIgnoreCase(name: String): SearchableTag
 }
 
+interface ParametersRepository : KtCrudRepository<Parameter, UUID> {
+    fun findByProcessorAndName(processor: Processor, name: String): Parameter?
+}
+
+interface ParameterInstancesRepository : KtCrudRepository<ParameterInstance, UUID> {
+    fun findByParameterAndProcessorInstance(parameter: Parameter, processorInstance: ProcessorInstance): ParameterInstance?
+    fun findByProcessorInstance(processorInstance: ProcessorInstance): List<ParameterInstance>
+}
+
+interface ProcessorInstancesRepository : KtCrudRepository<ProcessorInstance, UUID> {
+    fun findByProcessor(processor: Processor): List<ProcessorInstance>
+    fun findByPipelineConfiguration(pipelineConfiguration: PipelineConfiguration): List<ProcessorInstance>
+    fun findByPipelineConfigurationAndProcessor(
+        pipelineConfiguration: PipelineConfiguration,
+        processor: Processor
+    ): ProcessorInstance?
+
+    fun findByName(name: String): List<ProcessorInstance>
+    fun findBySlug(slug: String): List<ProcessorInstance>
+    fun findByNameAndSlug(name: String, slug: String): List<ProcessorInstance>
+}
+
 @Repository
 interface EmailRepository : KtCrudRepository<Email, UUID>
 
 @Repository
-interface BaseEnvironmentsRepository : KtCrudRepository<BaseEnvironments, UUID>
+interface BaseEnvironmentsRepository : KtCrudRepository<BaseEnvironments, UUID> {
+    fun findByTitle(title: String): BaseEnvironments?
+    fun findByDockerImage(imageName: String): List<BaseEnvironments>
+}

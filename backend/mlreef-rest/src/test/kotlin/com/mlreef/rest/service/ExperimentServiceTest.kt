@@ -1,38 +1,21 @@
 package com.mlreef.rest.service
 
-import com.mlreef.rest.BaseEnvironments
-import com.mlreef.rest.BaseEnvironmentsRepository
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataProcessor
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.DataType
-import com.mlreef.rest.Experiment
-import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.Person
-import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineInstance
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.PipelineType
-import com.mlreef.rest.ProcessorParameterRepository
-import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.ProcessorVersionRepository
-import com.mlreef.rest.PublishingInfo
-import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.UserRole
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.Experiment
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.Pipeline
+import com.mlreef.rest.domain.PipelineConfiguration
+import com.mlreef.rest.domain.Processor
+import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.exceptions.ExperimentCreateException
+import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.experiment.ExperimentService
+import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.pipeline.YamlFileGenerator
-import com.mlreef.rest.utils.RandomUtils
+import com.mlreef.rest.feature.project.ProjectResolverService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -43,112 +26,112 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
-import java.time.ZonedDateTime
-import java.util.UUID
+import org.springframework.test.annotation.Rollback
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 class ExperimentServiceTest : AbstractServiceTest() {
-
-    private lateinit var dataProcessorVersion: ProcessorVersion
-    private lateinit var dataProcessor: DataProcessor
-    private lateinit var dataProcessorInstance: DataProcessorInstance
-    private lateinit var pipelineInstance: PipelineInstance
+    private lateinit var processor: Processor
+    private lateinit var processorInstance: ProcessorInstance
+    private lateinit var pipelineInstance: Pipeline
     private lateinit var experimentService: ExperimentService
 
     @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var subjectRepository: SubjectRepository
-
-    @Autowired
-    private lateinit var experimentRepository: ExperimentRepository
-
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
-
-    @Autowired
-    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-
-    @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
-
-    @Autowired
-    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-
-    @Autowired
-    private lateinit var processorVersionRepository: ProcessorVersionRepository
-
-    @Autowired
-    private lateinit var processorParameterRepository: ProcessorParameterRepository
-
-    @Autowired
-    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+    private lateinit var projectResolverService: ProjectResolverService
 
     @Autowired
     private lateinit var yamlFileGenerator: YamlFileGenerator
 
+    @Autowired
+    private lateinit var pipelineService: PipelineService
+
     @Mock
     private lateinit var gitlabRestClient: GitlabRestClient
 
-    private var ownerId: UUID = randomUUID()
-    private var dataAlgorithmId: UUID = randomUUID()
-    private var codeProjectId: UUID = randomUUID()
-    private var dataProjectId: UUID = randomUUID()
-    private var dataPipelineConfigId: UUID = randomUUID()
-
-    lateinit var baseEnv: BaseEnvironments
+    private lateinit var codeProject: CodeProject
+    private lateinit var dataProject: DataProject
+    private lateinit var pipelineConfig: PipelineConfiguration
 
     @BeforeEach
     fun prepare() {
-        truncateAllTables()
-
-        baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(UUID.randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
-
         experimentService = ExperimentService(
             conf = config,
-            experimentRepository = experimentRepository,
+            experimentRepository = experimentsRepository,
             subjectRepository = subjectRepository,
-            dataProjectRepository = dataProjectRepository,
-            pipelineInstanceRepository = pipelineInstanceRepository,
-            processorVersionRepository = processorVersionRepository,
-            processorParameterRepository = processorParameterRepository,
+            projectResolverService = projectResolverService,
+            pipelineInstanceRepository = pipelineRepository,
+            processorsRepository = processorsRepository,
+            parametersRepository = parametersRepository,
             yamlFileGenerator = yamlFileGenerator,
+            processorsService = processorsService,
             gitlabRestClient = gitlabRestClient,
+            pipelineService = pipelineService,
+            personRepository = personRepository,
         )
-        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now()))
-        dataProjectRepository.save(DataProject(dataProjectId, "new-repo-test", "url", "Test DataProject", "", subject.id, "exp-test", "new-repo-test", 20, VisibilityScope.PUBLIC, arrayListOf()))
-        codeProjectRepository.save(CodeProject(codeProjectId, "code-project-test", "url", "Test CodeProject", "", subject.id, "exp-test", "code-project-test", 21, VisibilityScope.PUBLIC))
-        dataProcessor = dataProcessorRepository.save(DataAlgorithm(
-            id = dataAlgorithmId, slug = "commons-augment", name = "Augment",
-            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
-            visibilityScope = VisibilityScope.PUBLIC, author = subject,
-            description = "description",
-            codeProjectId = codeProjectId))
 
-        dataProcessorVersion = processorVersionRepository.save(ProcessorVersion(
-            id = dataProcessor.id, dataProcessor = dataProcessor, publishingInfo = PublishingInfo(publisher = subject),
-            command = "augment", number = 1, baseEnvironment = baseEnv))
+        dataProject = createDataProject(
+            slug = "new-repo-test",
+            name = "Test DataProject",
+            ownerId = mainPerson.id,
+            path = "new-repo-test",
+            namespace = "exp-test",
+            gitlabId = 20,
+            visibility = VisibilityScope.PUBLIC,
+            inputTypes = mutableSetOf(),
+            url = "url",
+        )
 
-        val dataPipeline = pipelineConfigRepository.save(PipelineConfig(dataPipelineConfigId, dataProjectId, PipelineType.DATA, "slug", "name", "source_branch", "target_branch/\$SLUG"))
-        dataProcessorInstance = dataProcessorInstanceRepository.save(DataProcessorInstance(randomUUID(), dataProcessorVersion, parameterInstances = arrayListOf()))
-        pipelineInstance = pipelineInstanceRepository.save(dataPipeline.createInstance(0))
+        codeProject = createCodeProject(
+            slug = "code-project-test",
+            name = "Test CodeProject",
+            ownerId = mainPerson.id,
+            namespace = "exp-test",
+            path = "code-project-test",
+            gitlabId = 21,
+            visibility = VisibilityScope.PUBLIC,
+            processorType = operationProcessorType,
+            inputTypes = mutableSetOf(imageDataType, videoDataType),
+            outputTypes = mutableSetOf(modelDataType),
+        )
+
+        processor = createProcessor(
+            codeProject,
+            slug = "commons-augment",
+            name = "Augment",
+            author = mainPerson,
+        )
+
+        pipelineConfig = createPipelineConfiguration(
+            dataProject,
+            "slug",
+            "name",
+            "source_branch",
+            "target_branch/\$SLUG",
+            dataPipelineType,
+        )
+
+        processorInstance = createProcessorInstance(
+            processor,
+            pipelineConfig,
+            "Test processor instance",
+            "test-processor-instance-slug"
+        )
+
+        pipelineInstance = createPipeline(
+            pipelineConfig,
+            "test-pipeline-slug",
+            1,
+        )
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create for missing Owner`() {
-        assertThrows<ExperimentCreateException> {
+        assertThrows<PipelineCreateException> {
             experimentService.createExperiment(
                 randomUUID(),
-                dataProjectId,
+                dataProject.id,
                 pipelineInstance.id,
                 "slug",
                 "name",
@@ -156,16 +139,18 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "target",
                 listOf(),
                 inputFiles = listOf(),
-                processorInstance = dataProcessorInstance)
+                processorInstance = processorInstance
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create for missing DataProject`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                ownerId,
+                mainPerson.id,
                 randomUUID(),
                 pipelineInstance.id,
                 "slug",
@@ -174,17 +159,19 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "target",
                 listOf(),
                 inputFiles = listOf(),
-                processorInstance = dataProcessorInstance)
+                processorInstance = processorInstance
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create for missing name`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                ownerId,
-                dataProjectId,
+                mainPerson.id,
+                dataProject.id,
                 pipelineInstance.id,
                 "slug",
                 "",
@@ -192,17 +179,19 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "target",
                 listOf(),
                 inputFiles = listOf(),
-                processorInstance = dataProcessorInstance)
+                processorInstance = processorInstance
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create for missing source branch name`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                ownerId,
-                dataProjectId,
+                mainPerson.id,
+                dataProject.id,
                 pipelineInstance.id,
                 "slug",
                 "name",
@@ -210,24 +199,34 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "target",
                 listOf(),
                 inputFiles = listOf(),
-                processorInstance = dataProcessorInstance)
+                processorInstance = processorInstance
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create if Owner and DataProject exist`() {
-        val _dataProcessor = dataProcessorRepository.findByIdOrNull(dataAlgorithmId)!!
+        val dataProcessor = createProcessor(
+            project = codeProject,
+            mainScript = "augment.py",
+            version = "1",
+            branch = "master",
+            name = "Test processor",
+            slug = "test-processor",
+            author = mainPerson,
+        )
 
-        val dataProcessor = ProcessorVersion(
-            id = _dataProcessor.id, dataProcessor = _dataProcessor, publishingInfo = PublishingInfo(publisher = _dataProcessor.author),
-            command = "augment", number = 1, baseEnvironment = baseEnv)
-        processorVersionRepository.save(dataProcessor)
+        processorsRepository.save(dataProcessor)
 
-        val dataProcessorInstance = DataProcessorInstance(randomUUID(), dataProcessor, parameterInstances = arrayListOf())
+        val dataProcessorInstance = createProcessorInstance(
+            dataProcessor,
+        )
+
         val experiment = experimentService.createExperiment(
-            ownerId,
-            dataProjectId,
+            mainPerson.id,
+            dataProject.id,
             pipelineInstance.id,
             "slug",
             "name",
@@ -243,10 +242,11 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create if pipelineInstance is set and exists`() {
         val createExperiment = experimentService.createExperiment(
-            ownerId,
-            dataProjectId,
+            mainPerson.id,
+            dataProject.id,
             pipelineInstance.id,
             "slug",
             "name",
@@ -254,18 +254,20 @@ class ExperimentServiceTest : AbstractServiceTest() {
             "target",
             listOf(),
             inputFiles = listOf(FileLocation.fromPath("folder")),
-            processorInstance = dataProcessorInstance)
+            processorInstance = processorInstance
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create if pipelineInstance is set but does not exist`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                ownerId,
-                dataProjectId,
+                mainPerson.id,
+                dataProject.id,
                 randomUUID(),
                 "slug",
                 "name",
@@ -273,12 +275,14 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 "",
                 listOf(),
                 inputFiles = listOf(),
-                processorInstance = dataProcessorInstance)
+                processorInstance = processorInstance
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create many Experiments asynchronously`() {
 
         runBlocking(GlobalScope.coroutineContext) {
@@ -288,8 +292,8 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 async(GlobalScope.coroutineContext) {
                     delay(1000)
                     val experiment = experimentService.createExperiment(
-                        ownerId,
-                        dataProjectId,
+                        mainPerson.id,
+                        dataProject.id,
                         pipelineInstance.id,
                         "slug-$n",
                         "name-$n",
@@ -297,7 +301,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
                         "target-$n",
                         listOf(),
                         inputFiles = listOf(FileLocation.fromPath("folder")),
-                        processorInstance = dataProcessorInstance
+                        processorInstance = processorInstance
                     )
                     experiment
                 }

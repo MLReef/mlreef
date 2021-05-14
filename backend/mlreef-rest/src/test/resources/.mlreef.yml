@@ -1,0 +1,43 @@
+#################################################################################
+# This is the MLReef configuration file.                                        #
+# It contains the current configuration of  your data pipeline, model training, #
+# or visualisation as well as the specific configurations.                      #
+# Please refer to the documentation for information on how to edit this file    #
+#################################################################################
+
+variables:
+  # mlreef.com/api/v1/code-projects/:id/publish/finish
+  EPF_PUBLISH_URL: http://backend:8080/api/v1/epf/code-projects/1567e050-ee7b-4832-bd09-3b14663de769
+  EPF_PUBLISH_SECRET: 66d46b651773feda5098ed4672107951
+  PUBLISH_BRANCH: master
+  PUBLISH_VERSION: 24
+
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
+
+services:
+  - name: docker:19.03.12-dind
+    entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_DAEMON_OPTIONS" ]
+
+job:
+  tags:
+    - local-docker
+  # Any package dependency for the job should be added in the following base image
+  image: registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker:latest
+  only:
+    - master
+  when: on_success
+  before_script:
+    # Inform backend about publish start
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/job-start?branch=$PUBLISH_BRANCH&version=$PUBLISH_VERSION" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"
+  script:
+    - echo "$CI_REGISTRY"
+    # Build the docker image in the repositories root directory
+    - docker build --tag "$CI_REGISTRY_IMAGE:$PUBLISH_BRANCH-$PUBLISH_VERSION" -f Dockerfile .
+    # login to MLReef's docker image registry
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
+    # Upload the newly built docker image to MLReef's docker image registry
+    - docker push "$CI_REGISTRY_IMAGE:$PUBLISH_BRANCH-$PUBLISH_VERSION"
+  after_script:
+    # Update processor information
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/finish?image=$CI_REGISTRY_IMAGE:$PUBLISH_BRANCH-$PUBLISH_VERSION&branch=$PUBLISH_BRANCH&version=$PUBLISH_VERSION" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"

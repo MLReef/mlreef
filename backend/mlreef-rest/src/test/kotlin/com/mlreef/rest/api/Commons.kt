@@ -1,54 +1,10 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.Account
-import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.AccountToken
-import com.mlreef.rest.AccountTokenRepository
-import com.mlreef.rest.BaseEnvironments
-import com.mlreef.rest.BaseEnvironmentsRepository
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataAlgorithm
-import com.mlreef.rest.DataAlgorithmRepository
-import com.mlreef.rest.DataOperation
-import com.mlreef.rest.DataOperationRepository
-import com.mlreef.rest.DataProcessorInstanceRepository
-import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.DataType
-import com.mlreef.rest.DataVisualization
-import com.mlreef.rest.DataVisualizationRepository
-import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.ParameterInstanceRepository
-import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.ProcessorParameter
-import com.mlreef.rest.ProcessorParameterRepository
-import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.ProcessorVersionRepository
-import com.mlreef.rest.PublishingInfo
-import com.mlreef.rest.VisibilityScope
-import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
-import com.mlreef.rest.utils.RandomUtils
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.request.RequestDocumentation
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Component
-import java.util.UUID
-import java.util.UUID.randomUUID
-import javax.transaction.Transactional
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 object TestTags {
     const val SLOW = "slow"
@@ -68,10 +24,10 @@ internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescri
         fieldWithPath(prefix + "stars_count").type(JsonFieldType.NUMBER).description("Number of Stars"),
         fieldWithPath(prefix + "forks_count").type(JsonFieldType.NUMBER).description("Number of Forks"),
         fieldWithPath(prefix + "input_data_types").type(JsonFieldType.ARRAY).description("List of DataTypes used for Input"),
-        fieldWithPath(prefix + "output_data_types").type(JsonFieldType.ARRAY).description("List of DataTypes used for Output"),
+        fieldWithPath(prefix + "output_data_types").type(JsonFieldType.ARRAY).optional().description("List of DataTypes used for Output (code project only)"),
         fieldWithPath(prefix + "searchable_type").type(JsonFieldType.STRING).description("Type of searchable Entity"),
-        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Data project id"),
-        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Data project slug"),
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Project id"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Project slug"),
         fieldWithPath(prefix + "url").type(JsonFieldType.STRING).description("URL in Gitlab domain"),
         fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).description("Onwer id of the data project"),
         fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Project name"),
@@ -79,12 +35,66 @@ internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescri
         fieldWithPath(prefix + "gitlab_path").type(JsonFieldType.STRING).description("Project path"),
         fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Id in gitlab"),
         fieldWithPath(prefix + "published").optional().type(JsonFieldType.BOOLEAN).description("Project is published"),
+        fieldWithPath(prefix + "processor_type").optional().type(JsonFieldType.STRING).description("Processor type (Code project only)"),
+        fieldWithPath(prefix + "model_type").optional().type(JsonFieldType.STRING).description("Model type (Code project only)"),
+        fieldWithPath(prefix + "ml_category").optional().type(JsonFieldType.STRING).description("ML category (Code project only)"),
     ).apply {
-        this.add(fieldWithPath(prefix + "data_processor").optional().type(JsonFieldType.OBJECT).description("DataProcessor"))
-        this.addAll(dataProcessorFields(prefix + "data_processor."))
+        this.add(fieldWithPath(prefix + "processors").optional().type(JsonFieldType.ARRAY).description("DataProcessors array"))
+        this.addAll(dataProcessorFields(prefix + "processors[]."))
         this.addAll(searchableTags(prefix + "tags[]."))
     }.apply {
-        this.add(fieldWithPath(prefix + "experiments").optional().type(JsonFieldType.ARRAY).description("Experiments"))
+        this.add(fieldWithPath(prefix + "experiments").optional().type(JsonFieldType.ARRAY).description("Experiments (Data project only)"))
+        this.addAll(experimentResponseFields(prefix + "experiments[]."))
+    }
+}
+
+fun experimentResponseFields(prefix: String = ""): List<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("UUID"),
+        fieldWithPath(prefix + "data_project_id").type(JsonFieldType.STRING).description("Id of DataProject"),
+        fieldWithPath(prefix + "data_instance_id").optional().type(JsonFieldType.STRING).description("Id of DataPipelineInstance"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Local slug scoped to DataProject"),
+        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Name of that Experiment"),
+        fieldWithPath(prefix + "number").type(JsonFieldType.NUMBER).description("Number of this Experiment in its DataProject scope"),
+        fieldWithPath(prefix + "json_blob").type(JsonFieldType.STRING).optional().description("Json object describing experiments epochs statistics"),
+        fieldWithPath(prefix + "status").type(JsonFieldType.STRING).description("Status of experiment"),
+        fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name"),
+        fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Branch name"),
+        fieldWithPath(prefix + "created_by").optional().type(JsonFieldType.STRING).description("Creator id"),
+    ).apply {
+        this.add(fieldWithPath(prefix + "post_processing").optional().type(JsonFieldType.ARRAY).description("Postprocessing processors array"))
+        this.addAll(dataProcessorInstanceFields(prefix + "post_processing[]."))
+    }.apply {
+        this.add(fieldWithPath(prefix + "processing").optional().type(JsonFieldType.OBJECT).description("Processing processors array"))
+        this.addAll(dataProcessorInstanceFields(prefix + "processing."))
+    }.apply {
+        this.add(fieldWithPath(prefix + "input_files").optional().type(JsonFieldType.ARRAY).description("Input files/directories for experiment"))
+        this.addAll(fileLocationsFields(prefix + "input_files[]."))
+    }.apply {
+        this.add(fieldWithPath(prefix + "pipeline_job_info").type(JsonFieldType.OBJECT).optional().description("An optional PipelineInfo describing the gitlab pipeline info"))
+        this.addAll(pipelineInfoDtoResponseFields(prefix + "pipeline_job_info."))
+    }
+}
+
+fun experimentRequestFields(prefix: String = ""): List<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "data_instance_id").optional().type(JsonFieldType.STRING).description("An optional UUID of a optional DataInstance. Check that it matches the source_branch"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("A slug which is unique scoped to this DataProject"),
+        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("A name for that Experiment. I does not have to be unique, but it should be."),
+        fieldWithPath(prefix + "input_files").type(JsonFieldType.ARRAY).description("List of input files (folders) for processing"),
+        fieldWithPath(prefix + "source_branch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
+        fieldWithPath(prefix + "target_branch").type(JsonFieldType.STRING).description("Branch name for destination"),
+        fieldWithPath(prefix + "post_processing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
+        fieldWithPath(prefix + "processing").type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm")
+    ).apply {
+        this.add(fieldWithPath(prefix + "post_processing").optional().type(JsonFieldType.ARRAY).description("Postprocessing processors array"))
+        this.addAll(dataProcessorInstanceFields(prefix + "post_processing[]."))
+    }.apply {
+        this.add(fieldWithPath(prefix + "processing").optional().type(JsonFieldType.OBJECT).description("Processing processors array"))
+        this.addAll(dataProcessorInstanceFields(prefix + "processing."))
+    }.apply {
+        this.add(fieldWithPath(prefix + "input_files").optional().type(JsonFieldType.ARRAY).description("Input files/directories for experiment"))
+        this.addAll(fileLocationsFields(prefix + "input_files[]."))
     }
 }
 
@@ -122,8 +132,11 @@ internal fun projectUpdateRequestFields(): List<FieldDescriptor> {
 
 internal fun dataProcessorInstanceFields(prefix: String = ""): MutableList<FieldDescriptor> {
     return arrayListOf(
-        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID of this DataProcessor"),
-        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).optional().description("Unique slug of this DataProcessor"),
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Unique UUID of Processor"),
+        fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).optional().description("Unique slug of Processor"),
+        fieldWithPath(prefix + "project_id").type(JsonFieldType.STRING).optional().description("Project id (either id or slug or project_id + branch + version)"),
+        fieldWithPath(prefix + "branch").type(JsonFieldType.STRING).optional().description("Branch of processor (use it with project_id only)"),
+        fieldWithPath(prefix + "version").type(JsonFieldType.STRING).optional().description("Version of processor (use it with project_id and branch only)"),
         fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).optional().description("Optional Name of this DataProcessor ( not needed in Inputs)"),
         fieldWithPath(prefix + "parameters").type(JsonFieldType.ARRAY).optional().description("Name of Parameter"),
         fieldWithPath(prefix + "parameters[].name").type(JsonFieldType.STRING).optional().description("Name of Parameter"),
@@ -211,17 +224,43 @@ internal fun dataProcessorFields(prefix: String = ""): MutableList<FieldDescript
     return arrayListOf(
         fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Unique UUID of this DataProcessor"),
         fieldWithPath(prefix + "slug").type(JsonFieldType.STRING).description("Unique slug of this DataProcessor"),
-        fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).description("Optional Name of this DataProcessor ( not needed in Inputs)"),
-        fieldWithPath(prefix + "input_data_type").type(JsonFieldType.STRING).description("DataType for input data"),
-        fieldWithPath(prefix + "output_data_type").type(JsonFieldType.STRING).description("DataType for output data"),
+        fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING)
+            .description("Optional Name of this DataProcessor ( not needed in Inputs)"),
+        fieldWithPath(prefix + "input_data_type").type(JsonFieldType.ARRAY).description("DataType for input data"),
+        fieldWithPath(prefix + "output_data_type").type(JsonFieldType.ARRAY).description("DataType for output data"),
         fieldWithPath(prefix + "type").type(JsonFieldType.STRING).description("ALGORITHM, OPERATION or VISUALIZATION"),
-        fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).optional().description("PUBLIC or PRIVATE"),
+        fieldWithPath(prefix + "visibility_scope").type(JsonFieldType.STRING).optional()
+            .description("PUBLIC or PRIVATE"),
         fieldWithPath(prefix + "description").optional().type(JsonFieldType.STRING).description("Description"),
-        fieldWithPath(prefix + "code_project_id").type(JsonFieldType.STRING).optional().description("CodeProject this Processor belongs to"),
-        fieldWithPath(prefix + "author_id").optional().type(JsonFieldType.STRING).optional().description("Author who created this")
+        fieldWithPath(prefix + "code_project_id").type(JsonFieldType.STRING).optional()
+            .description("CodeProject this Processor belongs to"),
+        fieldWithPath(prefix + "author_id").optional().type(JsonFieldType.STRING).optional()
+            .description("Publisher id"),
+        fieldWithPath(prefix + "branch").optional().type(JsonFieldType.STRING).optional().description("Branch name"),
+        fieldWithPath(prefix + "version").optional().type(JsonFieldType.STRING).optional().description("Version"),
+        fieldWithPath(prefix + "publish_started_at").optional().type(JsonFieldType.STRING).optional()
+            .description("Date/time of publish start"),
+        fieldWithPath(prefix + "publish_finished_at").optional().type(JsonFieldType.STRING).optional()
+            .description("Date/time of publish finish"),
+        fieldWithPath(prefix + "status").optional().type(JsonFieldType.STRING).optional()
+            .description("Status of publishing pipeline"),
+        fieldWithPath(prefix + "model_type").optional().type(JsonFieldType.STRING).optional().description("Model type"),
+        fieldWithPath(prefix + "ml_category").optional().type(JsonFieldType.STRING).optional()
+            .description("ML category"),
     ).apply {
-        add(fieldWithPath(prefix + "versions").optional().type(JsonFieldType.ARRAY).description("Data processor versions"))
-        addAll(processorVersionFields(prefix + "versions[]."))
+        add(fieldWithPath(prefix + "environment").optional().type(JsonFieldType.OBJECT).description("Environment"))
+        addAll(environmentsFields(prefix + "environment."))
+    }.apply {
+        add(
+            fieldWithPath(prefix + "metrics_schema").optional().type(JsonFieldType.OBJECT).description("Metrics schema")
+        )
+        addAll(metricSchemaFields(prefix + "metrics_schema."))
+    }.apply {
+        add(
+            fieldWithPath(prefix + "parameters").optional().type(JsonFieldType.ARRAY)
+                .description("Processor parameters")
+        )
+        addAll(processorParametersFields(prefix + "parameters[]."))
     }
 }
 
@@ -299,12 +338,25 @@ internal fun publishingProcessFields(prefix: String = ""): MutableList<FieldDesc
     return mutableListOf(
         fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Data processor id"),
         fieldWithPath(prefix + "branch").optional().type(JsonFieldType.STRING).description("Published branch"),
-        fieldWithPath(prefix + "command").optional().type(JsonFieldType.STRING).description("Command"),
-        fieldWithPath(prefix + "path").optional().type(JsonFieldType.STRING).description("Main script path"),
-        fieldWithPath(prefix + "publish_info").optional().type(JsonFieldType.OBJECT).description("Information about commit"),
+        fieldWithPath(prefix + "version").optional().type(JsonFieldType.STRING).description("Version"),
+        fieldWithPath(prefix + "project_id").optional().type(JsonFieldType.STRING).description("Published project id"),
+        fieldWithPath(prefix + "script_path").optional().type(JsonFieldType.STRING).description("Main script path"),
+        fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).description("Published processor name"),
+        fieldWithPath(prefix + "slug").optional().type(JsonFieldType.STRING).description("Published processor slug"),
+        fieldWithPath(prefix + "description").optional().type(JsonFieldType.STRING).description("Description"),
+        fieldWithPath(prefix + "commit_sha").optional().type(JsonFieldType.STRING).description("Publishing commit sha"),
+        fieldWithPath(prefix + "published_at").optional().type(JsonFieldType.STRING)
+            .description("Publishing process initiated time (it is not start time)"),
+        fieldWithPath(prefix + "published_by").optional().type(JsonFieldType.STRING).description("Published user"),
+        fieldWithPath(prefix + "status").optional().type(JsonFieldType.STRING)
+            .description("Status of publishing process"),
+        fieldWithPath(prefix + "modelType").optional().type(JsonFieldType.STRING).description("Model type"),
+        fieldWithPath(prefix + "ml_category").optional().type(JsonFieldType.STRING).description("ML Category"),
+        fieldWithPath(prefix + "job_started_at").optional().type(JsonFieldType.STRING)
+            .description("Publishing pipeline start time"),
+        fieldWithPath(prefix + "job_finished_at").optional().type(JsonFieldType.STRING)
+            .description("Publishing pipeline finish time"),
     ).apply {
-        addAll(publishingInfoFields(prefix + "publish_info."))
-    }.apply {
         addAll(environmentsFields(prefix + "environment."))
     }
 }
@@ -322,226 +374,32 @@ internal fun environmentsFields(prefix: String = ""): MutableList<FieldDescripto
         fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Environment id"),
         fieldWithPath(prefix + "title").optional().type(JsonFieldType.STRING).description("Title"),
         fieldWithPath(prefix + "description").type(JsonFieldType.STRING).optional().description("Description"),
-        fieldWithPath(prefix + "requirements").type(JsonFieldType.STRING).optional().description("Library requirements"),
+        fieldWithPath(prefix + "requirements").type(JsonFieldType.STRING).optional()
+            .description("Library requirements"),
         fieldWithPath(prefix + "docker_image").optional().type(JsonFieldType.STRING).description("Docker image"),
         fieldWithPath(prefix + "machine_type").optional().type(JsonFieldType.STRING).description("Machine type"),
-        fieldWithPath(prefix + "sdk_version").optional().type(JsonFieldType.STRING).description("SDK version (Python, Java etc)"),
+        fieldWithPath(prefix + "sdk_version").optional().type(JsonFieldType.STRING)
+            .description("SDK version (Python, Java etc)"),
     )
 }
 
-
-@Component
-internal class AccountSubjectPreparationTrait {
-
-    lateinit var account: Account
-    lateinit var account2: Account
-    lateinit var subject: Person
-    lateinit var subject2: Person
-    var token: String = "test-dummy-token-"
-    lateinit var token2: String
-
-    private val gitlabProjectMembers = HashMap<Long, MutableSet<GitlabUserInProject>>()
-    private val gitlabUsersProjects = HashMap<Long, MutableSet<GitlabProject>>()
-
-    @Autowired
-    protected lateinit var accountTokenRepository: AccountTokenRepository
-
-    @Autowired
-    protected lateinit var personRepository: PersonRepository
-
-    @Autowired
-    protected lateinit var accountRepository: AccountRepository
-
-    private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
-
-    fun apply() {
-        deleteAll()
-        applyAccount()
-    }
-
-    fun applyAccount() {
-        account = createMockUser(personGitlabId = 1L)
-        account2 = createMockUser(userOverrideSuffix = "0002", personGitlabId = 2L)
-        subject = account.person
-        subject2 = account2.person
-        token = RandomUtils.generateRandomUserName(25)
-        token2 = RandomUtils.generateRandomUserName(25)
-    }
-
-    protected fun deleteAll() {
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
-        gitlabProjectMembers.clear()
-        gitlabUsersProjects.clear()
-    }
-
-    @Transactional
-    protected fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null, personGitlabId: Long? = null): Account {
-
-        var mockToken = AbstractRestApiTest.testPrivateUserTokenMock1
-        var userSuffix = "0000"
-        if (userOverrideSuffix != null) {
-            userSuffix = userOverrideSuffix
-            mockToken = "second-token-$userSuffix"
-        }
-        val passwordEncrypted = passwordEncoder.encode(plainPassword)
-
-        val person = personRepository.save(Person(
-            id = randomUUID(),
-            slug = "person_slug$userSuffix",
-            name = "user name $userSuffix",
-            gitlabId = personGitlabId ?: Random.nextLong().absoluteValue))
-        val account = accountRepository.save(Account(
-            id = randomUUID(),
-            username = "username$userSuffix",
-            email = "email$userSuffix@example.com",
-            passwordEncrypted = passwordEncrypted,
-            person = person))
-        accountTokenRepository.save(AccountToken(
-            id = randomUUID(),
-            accountId = account.id,
-            token = mockToken,
-            gitlabId = 0))
-        return account
-    }
+internal fun metricSchemaFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "metric_type").type(JsonFieldType.STRING).optional().description("Metric schema type"),
+        fieldWithPath(prefix + "ground_truth").type(JsonFieldType.STRING).optional().description("Ground truth"),
+        fieldWithPath(prefix + "prediction").type(JsonFieldType.STRING).optional().description("Prediction"),
+    )
 }
 
-@Component
-internal class PipelineTestPreparationTrait : AccountSubjectPreparationTrait() {
-
-    var procVersion1: ProcessorVersion? = null
-    var procVersion2: ProcessorVersion? = null
-    var procVersion3: ProcessorVersion? = null
-    lateinit var dataProject: DataProject
-    lateinit var dataProject2: DataProject
-    lateinit var codeProject: CodeProject
-    lateinit var baseEnv1: BaseEnvironments
-    lateinit var baseEnv2: BaseEnvironments
-    lateinit var baseEnv3: BaseEnvironments
-
-    @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
-
-    @Autowired
-    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-
-    @Autowired
-    private lateinit var experimentRepository: ExperimentRepository
-
-    @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var dataProcessorInstanceRepository: DataProcessorInstanceRepository
-
-    @Autowired
-    private lateinit var parameterInstanceRepository: ParameterInstanceRepository
-
-    @Autowired
-    private lateinit var processorParameterRepository: ProcessorParameterRepository
-
-    @Autowired
-    private lateinit var dataOperationRepository: DataOperationRepository
-
-    @Autowired
-    private lateinit var dataAlgorithmRepository: DataAlgorithmRepository
-
-    @Autowired
-    private lateinit var dataVisualizationRepository: DataVisualizationRepository
-
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
-
-    @Autowired
-    private lateinit var processorVersionRepository: ProcessorVersionRepository
-
-    @Autowired
-    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
-
-    override fun apply() {
-//        deleteAll()
-//        super.deleteAll()
-        applyAccount()
-
-        baseEnv1 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
-        baseEnv2 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker2:latest", sdkVersion = "3.7"))
-        baseEnv3 = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker3:latest", sdkVersion = "3.7"))
-
-        dataProject = dataProjectRepository.save(DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0000-dbdbdbdbdbdb"), "data-project1", "url", "Test DataProject",
-            "", ownerId = account.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project1"
-        ))
-        dataProject2 = dataProjectRepository.save(DataProject(
-            UUID.fromString("aaaa0001-0000-0000-0002-dbdbdbdbdbdb"), "data-project2", "url", "Test DataProject",
-            "", ownerId = account2.person.id, gitlabId = Random.nextInt().toLong().absoluteValue, gitlabNamespace = "commons", gitlabPath = "data-project2", visibilityScope = VisibilityScope.PRIVATE)
-        )
-        codeProject = codeProjectRepository.save(CodeProject(randomUUID(), "code-project1", "url", "Test DataProject", "", ownerId = account.person.id,
-            gitlabNamespace = "commons", gitlabId = Random.nextInt().toLong().absoluteValue, gitlabPath = "code-project1"))
-
-        var dataProc1 = dataOperationRepository.save(DataOperation(randomUUID(), "commons-data-operation1", "name", DataType.ANY, DataType.ANY))
-        var dataProc2 = dataAlgorithmRepository.save(DataAlgorithm(randomUUID(), "commons-algorithm", "name", DataType.ANY, DataType.ANY))
-        var dataProc3 = dataVisualizationRepository.save(DataVisualization(randomUUID(), "commons-data-visualisation", "name", DataType.ANY))
-
-        procVersion1 = ProcessorVersion(
-            id = dataProc1.id, dataProcessor = dataProc1, publishingInfo = PublishingInfo(publisher = account.person),
-            command = "command", number = 1, baseEnvironment = baseEnv1)
-
-        procVersion2 = ProcessorVersion(
-            id = dataProc2.id, dataProcessor = dataProc2, publishingInfo = PublishingInfo(publisher = account.person),
-            command = "command", number = 1, baseEnvironment = baseEnv2)
-
-        procVersion3 = ProcessorVersion(
-            id = dataProc3.id, dataProcessor = dataProc3, publishingInfo = PublishingInfo(publisher = account.person),
-            command = "command", number = 1, baseEnvironment = baseEnv3)
-
-        dataProc1 = dataOperationRepository.save(dataProc1.copy(processorVersion = procVersion1))
-        dataProc2 = dataAlgorithmRepository.save(dataProc2.copy(processorVersion = procVersion2))
-        dataProc3 = dataVisualizationRepository.save(dataProc3.copy(processorVersion = procVersion3))
-//
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "stringParam", type = ParameterType.STRING, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "floatParam", type = ParameterType.FLOAT, order = 1, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "integerParam", type = ParameterType.INTEGER, order = 2, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion1!!.id, "stringList", type = ParameterType.LIST, order = 3, defaultValue = ""))
-
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion2!!.id, "booleanParam", type = ParameterType.BOOLEAN, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion2!!.id, "complexName", type = ParameterType.COMPLEX, order = 1, defaultValue = ""))
-
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion3!!.id, "tupleParam", type = ParameterType.TUPLE, order = 0, defaultValue = ""))
-        processorParameterRepository.save(ProcessorParameter(randomUUID(), procVersion3!!.id, "hashParam", type = ParameterType.DICTIONARY, order = 1, defaultValue = ""))
-
-    }
-
-//    override fun applyAccount() {
-//        account = createMockUser()
-//        account2 = createMockUser(userOverrideSuffix = "0002")
-//        subject = account.person
-//    }
-
-    public override fun deleteAll() {
-        parameterInstanceRepository.deleteAll()
-        dataProcessorInstanceRepository.deleteAll()
-        experimentRepository.deleteAll()
-        pipelineInstanceRepository.deleteAll()
-        pipelineConfigRepository.deleteAll()
-        processorParameterRepository.deleteAll()
-        processorVersionRepository.deleteAll()
-        dataProcessorRepository.deleteAll()
-
-        dataProjectRepository.deleteAll()
-        codeProjectRepository.deleteAll()
-
-        accountTokenRepository.deleteAll()
-        accountRepository.deleteAll()
-        personRepository.deleteAll()
-        baseEnvironmentsRepository.deleteAll()
-
-        super.deleteAll()
-    }
-
-
+internal fun processorParametersFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("Parameter id"),
+        fieldWithPath(prefix + "name").type(JsonFieldType.STRING).optional().description("Parameter name"),
+        fieldWithPath(prefix + "type").type(JsonFieldType.STRING).optional().description("Parameter type"),
+        fieldWithPath(prefix + "order").type(JsonFieldType.NUMBER).optional().description("Order"),
+        fieldWithPath(prefix + "default_value").type(JsonFieldType.STRING).optional().description("Default value"),
+        fieldWithPath(prefix + "required").type(JsonFieldType.BOOLEAN).optional().description("Required"),
+        fieldWithPath(prefix + "group").type(JsonFieldType.STRING).optional().description("Group"),
+        fieldWithPath(prefix + "description").type(JsonFieldType.STRING).optional().description("Description"),
+    )
 }
-

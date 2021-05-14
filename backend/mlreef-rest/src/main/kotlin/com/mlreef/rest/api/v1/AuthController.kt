@@ -1,12 +1,12 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.Account
-import com.mlreef.rest.UserRole
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.api.v1.dto.toSecretUserDto
 import com.mlreef.rest.api.v1.dto.toUserDto
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.toUserDto

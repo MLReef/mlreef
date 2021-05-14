@@ -1,8 +1,8 @@
 package com.mlreef.rest.aspects
 
-import com.mlreef.rest.AuditEntity
 import com.mlreef.rest.annotations.RefreshProject
-import com.mlreef.rest.helpers.DataClassWithId
+import com.mlreef.rest.domain.AuditEntity
+import com.mlreef.rest.domain.helpers.DataClassWithId
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing

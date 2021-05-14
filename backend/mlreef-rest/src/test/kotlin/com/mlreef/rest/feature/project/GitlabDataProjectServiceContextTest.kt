@@ -1,14 +1,13 @@
 package com.mlreef.rest.feature.project
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.VisibilityScope
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.AbstractContextTest
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.testcommons.ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT
-import com.mlreef.rest.testcommons.EntityMocks
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.Runs
 import io.mockk.every
@@ -18,20 +17,30 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.annotation.Rollback
 import java.util.UUID
-import kotlin.random.Random
+import javax.transaction.Transactional
 
 class GitlabDataProjectServiceContextTest : AbstractContextTest() {
-    @SpykBean
+    //    @SpykBean
+    @Autowired
     private lateinit var service: ProjectService<DataProject>
+
+    @SpykBean
+    private lateinit var projectResolverService: ProjectResolverService
 
     @Test
     @Disabled
+    @Transactional
+    @Rollback
     fun `test create project`() {
         val slugSlot = slot<String>()
         val projectNameSlot = slot<String>()
         val visibilitySlot = slot<String>()
         var gitlabProject: GitlabProject? = null
+
+        val gitlabId = 109L
 
         every {
             gitlabRestClient.createProject(
@@ -46,7 +55,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
             )
         } answers {
             gitlabProject = GitlabProject(
-                Random.nextLong(),
+                gitlabId,
                 projectNameSlot.captured,
                 "test-name-withnamespace",
                 slugSlot.captured,
@@ -74,6 +83,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
             listOf()
         )
 
+        assertThat(result.gitlabId).isEqualTo(gitlabId)
         assertThat(result.slug).isEqualTo("test-slug")
         assertThat(result.name).isEqualTo("test-name")
 
@@ -91,11 +101,15 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `test update project name without visibility change`() {
         //given
         val ownerId = UUID.randomUUID()
-        val dataProject = EntityMocks.dataProject(ownerId)
-        dataProjectRepository.save(dataProject)
+        val dataProject = createDataProject(
+            ownerId = mainPerson.id,
+            gitlabId = 110L,
+        )
 
         val projectNameSlot = slot<String>()
         var gitlabProject: GitlabProject? = null
@@ -130,6 +144,11 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
             gitlabRestClient.unauthenticatedGetAllPublicProjects()
         } answers { listOf(gitlabProject!!) }
 
+        //Because of transactional nature of tests the repository can not contain any entities because of trx rollback
+        every {
+            projectResolverService.resolveProject(projectId = any())
+        } returns dataProject
+
         //when
         val result = service.updateProject(
             "test-token",
@@ -140,6 +159,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         )
 
         //then
+        assertThat(result.gitlabId).isEqualTo(dataProject.gitlabId)
         assertThat(result.slug).isEqualTo(dataProject.slug)
         assertThat(result.name).isEqualTo("new-test-name")
 
@@ -158,11 +178,16 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `test update project name with visibility change from PRIVATE to PUBLIC`() {
         //given
         val ownerId = UUID.randomUUID()
-        val dataProject = EntityMocks.dataProject(ownerId, visibilityScope = VisibilityScope.PRIVATE)
-        dataProjectRepository.save(dataProject)
+        val dataProject = createDataProject(
+            ownerId = mainPerson.id,
+            gitlabId = 111L,
+            visibility = VisibilityScope.PRIVATE,
+        )
 
         val visibilitySlot = slot<String>()
         var gitlabProject: GitlabProject? = null
@@ -197,6 +222,14 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
             gitlabRestClient.unauthenticatedGetAllPublicProjects()
         } answers { listOf(gitlabProject!!) }
 
+        //Because of transactional nature of tests the repository can not contain any entities because of trx rollback
+        every {
+            projectResolverService.resolveProject(projectId = any())
+        } returns dataProject
+        every {
+            projectResolverService.resolveProject(projectGitlabId = any())
+        } returns dataProject
+
         //when
         val result = service.updateProject(
             "test-token",
@@ -206,6 +239,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         )
 
         //then
+        assertThat(result.gitlabId).isEqualTo(dataProject.gitlabId)
         assertThat(result.slug).isEqualTo(dataProject.slug)
         assertThat(result.name).isEqualTo(dataProject.name)
 
@@ -224,11 +258,17 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `test update project name with visibility change from PUBLIC to PRIVATE`() {
         //given
         val ownerId = UUID.randomUUID()
-        val dataProject = EntityMocks.dataProject(ownerId, visibilityScope = VisibilityScope.PUBLIC)
-        dataProjectRepository.save(dataProject)
+        val dataProject = createDataProject(
+            ownerId = mainPerson.id,
+            gitlabId = 112L,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
         publicProjectRepository.save(PublicProjectHash(dataProject.gitlabId, dataProject.id))
 
         val visibilitySlot = slot<String>()
@@ -264,6 +304,14 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
             gitlabRestClient.unauthenticatedGetAllPublicProjects()
         } answers { listOf(gitlabProject!!) }
 
+        //Because of transactional nature of tests the repository can not contain any entities because of trx rollback and async update
+        every {
+            projectResolverService.resolveProject(projectId = any())
+        } returns dataProject
+        every {
+            projectResolverService.resolveProject(projectGitlabId = any())
+        } returns dataProject
+
         //when
         val result = service.updateProject(
             "test-token",
@@ -273,16 +321,17 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         )
 
         //then
+        assertThat(result.gitlabId).isEqualTo(dataProject.gitlabId)
         assertThat(result.slug).isEqualTo(dataProject.slug)
         assertThat(result.name).isEqualTo(dataProject.name)
 
         //Ensure that public project cache was updated
         // The test does work incorrectly
-//        verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
-//            publicProjectRepository.delete(
-//                eq(PublicProjectHash(result.gitlabId, result.id))
-//            )
-//        }
+        verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
+            publicProjectRepository.delete(
+                eq(PublicProjectHash(result.gitlabId, result.id))
+            )
+        }
 
         verify(exactly = 1, timeout = ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT) {
             publicProjectRepository.save(
@@ -296,11 +345,13 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
      */
     @Disabled
     @Test
+    @Transactional
+    @Rollback
     fun `test delete project`() {
         //given
         val ownerId = UUID.randomUUID()
-        val dataProject = EntityMocks.dataProject(ownerId, visibilityScope = VisibilityScope.PUBLIC)
-        dataProjectRepository.save(dataProject)
+        val dataProject = createDataProject(ownerId = ownerId, visibility = VisibilityScope.PUBLIC)
+
         publicProjectRepository.save(PublicProjectHash(dataProject.gitlabId, dataProject.id))
 
         every {
