@@ -1,9 +1,9 @@
 package com.mlreef.rest.api.v1.dto
 
+import com.mlreef.rest.domain.helpers.DataClassWithId
+import com.mlreef.rest.domain.marketplace.SearchableTag
+import com.mlreef.rest.domain.marketplace.SearchableTagType
 import com.mlreef.rest.feature.marketplace.SearchResult
-import com.mlreef.rest.helpers.DataClassWithId
-import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.rest.marketplace.SearchableTagType
 import java.util.UUID
 
 data class SearchResultDto(

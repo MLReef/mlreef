@@ -1,15 +1,16 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.Group
 import com.mlreef.rest.GroupRepository
+import com.mlreef.rest.domain.Group
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 import java.util.UUID.randomUUID
-import javax.transaction.Transactional
 
 class SubjectGroupTest : AbstractRepositoryTest() {
     @Autowired
@@ -27,6 +28,7 @@ class SubjectGroupTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `find works`() {
         val (id, entity) = createEntity()
@@ -37,6 +39,7 @@ class SubjectGroupTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `save works`() {
         val (id, entity) = createEntity()
@@ -48,6 +51,7 @@ class SubjectGroupTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `update works`() {
         val (_, entity) = createEntity()
@@ -61,6 +65,7 @@ class SubjectGroupTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `delete works`() {
         val (_, entity) = createEntity()

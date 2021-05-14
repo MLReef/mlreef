@@ -76,7 +76,7 @@ mlreef-pipeline:
 %ARTIFACTS_PATHS%
   # Workaround for failing pipelines mlreef#799 https://docs.gitlab.com/ee/ci/yaml/
   retry:
-    max: 2
+    max: %MAX_RETRIES%
     when:
       # Retry when the failure reason is unknown.
       - unknown_failure

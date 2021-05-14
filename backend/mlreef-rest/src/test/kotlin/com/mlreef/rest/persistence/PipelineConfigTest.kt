@@ -1,131 +1,172 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineType
-import com.mlreef.rest.UserRole
+import com.mlreef.rest.PipelineConfigurationRepository
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.FileLocationType
+import com.mlreef.rest.domain.PipelineConfiguration
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.ZonedDateTime
-import java.util.UUID
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.annotation.Rollback
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 class PipelineConfigTest : AbstractRepositoryTest() {
 
     private lateinit var dataProject: DataProject
+    private lateinit var dataProject2: DataProject
 
     @Autowired
-    private lateinit var repository: PipelineConfigRepository
-
-    @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var personRepository: PersonRepository
+    private lateinit var repository: PipelineConfigurationRepository
 
     companion object {
         private var gitlabIdCount: Long = 0
     }
 
     @Transactional
+    @Rollback
     @BeforeEach
     fun prepare() {
-        val owner = Person(randomUUID(), "person${gitlabIdCount}", "name${gitlabIdCount}", ++gitlabIdCount, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        personRepository.save(owner)
-        dataProject = dataProjectRepository.save(DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project${gitlabIdCount}", ++gitlabIdCount))
+        dataProject = createDataProject(
+            slug = "slug",
+            name = "Test pipeline config project 1",
+            ownerId = mainPerson.id,
+            namespace = "group1",
+            path = "project1",
+            gitlabId = Random.nextInt().absoluteValue.toLong(),
+        )
+
+        dataProject2 = createDataProject(
+            slug = "slug2",
+            name = "Test pipeline config project 2",
+            ownerId = mainPerson.id,
+            namespace = "group2",
+            path = "project2",
+            gitlabId = Random.nextInt().absoluteValue.toLong(),
+        )
     }
 
     private fun createEntity(
-        dataProjectId: UUID = randomUUID(),
+        dataProject: DataProject,
         slug: String = "pipeline-1"
-    ): Pair<UUID, PipelineConfig> {
-        val id = randomUUID()
-        val entity = PipelineConfig(
-            id = id, slug = slug, name = "Pipeline 1",
-            pipelineType = PipelineType.DATA,
-            dataProjectId = dataProjectId,
-            sourceBranch = "sourcebranch", targetBranchPattern = "")
-        return Pair(id, entity)
+    ): PipelineConfiguration {
+        return PipelineConfiguration(
+            id = randomUUID(),
+            slug = slug,
+            name = "Pipeline 1",
+            pipelineType = dataPipelineType,
+            dataProject = dataProject,
+            sourceBranch = "sourcebranch",
+            targetBranchPattern = ""
+        )
     }
 
-//    @Test
-//    fun `find works`() {
-//        val (id, entity) = createEntity(dataProjectId = dataProject.id)
-//        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
-//        repository.save(entity)
-//        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
-//    }
-//
-//    @Test
-//    fun `save works`() {
-//        val (id, entity) = createEntity(dataProjectId = dataProject.id)
-//        Assertions.assertThat(repository.findByIdOrNull(id)).isNull()
-//        val saved = repository.save(entity)
-//        Assertions.assertThat(saved).isNotNull
-//        checkAfterCreated(saved)
-//        Assertions.assertThat(repository.findByIdOrNull(id)).isNotNull
-//    }
-//
-//    @Test
-//    fun `update works`() {
-//        val (_, entity) = createEntity(dataProjectId = dataProject.id)
-//        val saved = repository.save(entity)
-//        val newValue = "newname"
-//        val copy = saved.copy(slug = newValue)
-//        val updated = repository.save(copy)
-//        Assertions.assertThat(updated).isNotNull
-//        Assertions.assertThat(updated.slug).isEqualTo(newValue)
-//    }
-//
-//    @Test
-//    fun `delete works`() {
-//        val (_, entity) = createEntity(dataProjectId = dataProject.id)
-//        val saved = repository.save(entity)
-//        repository.delete(saved)
-//        Assertions.assertThat(saved).isNotNull
-//    }
+    @Transactional
+    @Rollback
+    @Test
+    fun `find works`() {
+        val entity = createEntity(dataProject)
+        assertThat(repository.findByIdOrNull(entity.id)).isNull()
+        repository.save(entity)
+        assertThat(repository.findByIdOrNull(entity.id)).isNotNull
+    }
 
     @Transactional
+    @Rollback
+    @Test
+    fun `save works`() {
+        val entity = createEntity(dataProject = dataProject)
+        assertThat(repository.findByIdOrNull(entity.id)).isNull()
+        val saved = repository.save(entity)
+        assertThat(saved).isNotNull
+        checkAfterCreated(saved)
+        assertThat(repository.findByIdOrNull(entity.id)).isNotNull
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `update works`() {
+        val entity = createEntity(dataProject)
+        val saved = repository.save(entity)
+        val newValue = "newname"
+        val copy = saved.copy(slug = newValue)
+        val updated = repository.save(copy)
+        assertThat(updated).isNotNull
+        assertThat(updated.slug).isEqualTo(newValue)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `delete works`() {
+        val entity = createEntity(dataProject = dataProject)
+        val saved = repository.save(entity)
+        repository.delete(saved)
+        assertThat(saved).isNotNull
+        assertThat(repository.findByIdOrNull(entity.id)).isNull()
+    }
+
+    @Transactional
+    @Rollback
     @Test
     fun `must not save duplicate slug per DataProject`() {
-
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject = DataProject(randomUUID(), "slug", "url,", "CodeProject Augment", "", owner.id, "group", "project", 0)
-
-        personRepository.save(owner)
-        dataProjectRepository.save(dataProject)
-
         commitAndFail {
-            repository.save(createEntity(dataProjectId = dataProject.id, slug = "slug1").second)
-            repository.save(createEntity(dataProjectId = dataProject.id, slug = "slug1").second)
+            repository.save(createEntity(dataProject = dataProject, slug = "slug1"))
+            repository.save(createEntity(dataProject = dataProject, slug = "slug1"))
         }
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `can save duplicate slug for different DataProject`() {
+        repository.save(createEntity(dataProject = dataProject, slug = "slug1"))
+        repository.save(createEntity(dataProject = dataProject2, slug = "slug1"))
+    }
 
-        val owner = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
-        val dataProject1 = DataProject(randomUUID(), "slug1", "url,", "CodeProject Augment", "", owner.id, "group1", "project1", 201)
-        val dataProject2 = DataProject(randomUUID(), "slug2", "url,", "CodeProject Augment", "", owner.id, "group2", "project2", 202)
+    @Transactional
+    @Rollback
+    @Test
+    fun `inputFiles are added`() {
+        val entity = createEntity(dataProject)
+        val fileLocation = FileLocation(randomUUID(), FileLocationType.PATH, "path")
 
-        personRepository.save(owner)
-        dataProjectRepository.save(dataProject1)
-        dataProjectRepository.save(dataProject2)
+        assertThat(entity.inputFiles).isEmpty()
 
-        repository.save(createEntity(dataProjectId = dataProject1.id, slug = "slug1").second)
-        repository.save(createEntity(dataProjectId = dataProject2.id, slug = "slug1").second)
+        entity.addInputFile(fileLocation = fileLocation)
+        assertThat(entity.inputFiles).isNotEmpty()
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `added inputFile has a set pipelineConfigId`() {
+        val entity = createEntity(dataProject)
+        val fileLocation = FileLocation(randomUUID(), FileLocationType.PATH, "path")
+
+        val inputFile = entity.addInputFile(fileLocation = fileLocation)
+        Assertions.assertThat(inputFile.id).isEqualTo(fileLocation.id)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `added inputFile changes only pipelineConfigId`() {
+        val entity = createEntity(dataProject)
+        val fileLocation = FileLocation(randomUUID(), FileLocationType.PATH, "path")
+
+        val inputFile = entity.addInputFile(fileLocation = fileLocation)
+
+        // no changes
+        assertThat(inputFile.id).isEqualTo(fileLocation.id)
+        assertThat(inputFile.locationType).isEqualTo(fileLocation.locationType)
+        assertThat(inputFile.location).isEqualTo(fileLocation.location)
     }
 }

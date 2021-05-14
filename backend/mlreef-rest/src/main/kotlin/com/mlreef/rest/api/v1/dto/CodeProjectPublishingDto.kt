@@ -2,44 +2,49 @@ package com.mlreef.rest.api.v1.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.PublishingInfo
-import java.time.ZonedDateTime
+import com.mlreef.rest.domain.Processor
+import java.time.Instant
 import java.util.UUID
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class CodeProjectPublishingDto(
-    val id: UUID? = null,
-    val branch: String? = null,
-    val command: String? = null,
-    val environment: BaseEnvironmentsDto? = null,
-    val path: String? = null,
-    val modelType: String? = null,
-    val mlCategory: String? = null,
-    val publishInfo: PublishingInfoDto? = null,
-)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class PublishingInfoDto(
+data class CodeProjectPublishingDto(
+    val id: UUID? = null,
+    val projectId: UUID? = null,
+    val branch: String? = null,
+    val version: String? = null,
+    val scriptPath: String? = null,
+    val environment: BaseEnvironmentsDto? = null,
+    val modelType: String? = null,
+    val mlCategory: String? = null,
+    val name: String? = null,
+    val slug: String? = null,
+    val description: String? = null,
     val commitSha: String? = null,
-    val publishedAt: ZonedDateTime? = null,
-    val publishedBy: UUID? = null
+    val publishedAt: Instant? = null,
+    val jobStartedAt: Instant? = null,
+    val jobFinishedAt: Instant? = null,
+    val publishedBy: UUID? = null,
+    val status:String? = null,
 )
 
-fun ProcessorVersion.toPublishingPipelineDto() = CodeProjectPublishingDto(
+
+fun Processor.toPublishingPipelineDto() = CodeProjectPublishingDto(
     this.id,
+    this.codeProject?.id,
     this.branch,
-    this.command,
+    this.version,
+    this.mainScriptPath,
     this.baseEnvironment?.toBaseEnvironmentsDto(),
-    this.path,
-    this.modelType,
-    this.mlCategory,
-    this.publishingInfo?.toPublishingInfoDto()
-)
-
-fun PublishingInfo.toPublishingInfoDto() = PublishingInfoDto(
+    this.codeProject?.modelType,
+    this.codeProject?.mlCategory,
+    this.name,
+    this.slug,
+    this.description,
     this.commitSha,
     this.publishedAt,
-    this.publisher?.id
+    this.jobStartedAt,
+    this.jobFinishedAt,
+    this.publisher?.id,
+    this.status.name,
 )

@@ -9,7 +9,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.utils.RandomUtils
-import com.mlreef.utils.Slugs
+import com.mlreef.rest.utils.Slugs
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -32,20 +32,22 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     @BeforeEach
     @Transactional
     fun fillRepo() {
-        testsHelper.generateProcessorsInDatabase()
-        val (_, thatToken, _) = testsHelper.createRealUser()
+        val (_, thatToken, _) = createRealUser()
         token = thatToken
     }
 
     @AfterEach
     @Transactional
+    @Rollback
     fun clearRepo() {
-        testsHelper.cleanProcessorsInDatabase()
+
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `createProject shall return created project`() {
-        val (_, token1, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
         val createProject = gitlabRestClient.createProject(
             token = token1,
             slug = "unique",
@@ -58,6 +60,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `createProject must not accept empty token`() {
         assertThrows<GitlabCommonException> {
             gitlabRestClient.createProject(
@@ -73,8 +77,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
 
     @Test
     @Disabled
+    @Transactional
+    @Rollback
     fun `Can fork project into same namespace`() {
-        val (_, token, _) = testsHelper.createRealUser()
+        val (_, token, _) = createRealUser()
         val original = gitlabRestClient.createProject(
             token = token,
             slug = "original-name",
@@ -100,8 +106,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Can fork project from foreign namespace into personal namespace`() {
-        val (_, originalOwner, _) = testsHelper.createRealUser()
+        val (_, originalOwner, _) = createRealUser()
         val original = gitlabRestClient.createProject(
             token = originalOwner,
             slug = "original-name",
@@ -126,6 +134,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `createProject must not accept duplicate slug`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -135,6 +145,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userUpdateProject must not accept empty name`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -149,6 +161,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userUpdateProject must not change visibility`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -162,6 +176,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userUpdateProject should accept to change visibility  often`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -179,6 +195,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Can create Git branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -192,6 +210,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Cannot create branch without valid source branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -207,6 +227,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Cannot delete master branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -220,6 +242,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `Can delete branch`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -239,6 +263,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `deleteBranch must not delete branch twice`() {
         val createProject = createProject(token)
         assertThat(createProject).isNotNull
@@ -282,6 +308,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     )
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProjects shall deliver all projects`() {
         val createProject1 = createProject(token)
         val createProject2 = createProject(token)
@@ -293,6 +321,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProject shall deliver certain projects`() {
         val createProject1 = createProject(token)
 
@@ -302,6 +332,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProject must not deliver not-existing projects`() {
         assertThrows<NotFoundException> {
             gitlabRestClient.adminGetProject(Long.MAX_VALUE)
@@ -309,6 +341,8 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProjectMembers must not deliver for not-existing projects`() {
         assertThrows<NotFoundException> {
             gitlabRestClient.adminGetProjectMembers(Long.MAX_VALUE)
@@ -316,9 +350,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProjectMembers shall deliver creating user`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
-        val (_, _, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
+        val (_, _, _) = createRealUser()
         val project1 = createProject(token1)
         val members = gitlabRestClient.adminGetProjectMembers(project1.id)
         assertThat(members).isNotNull
@@ -327,8 +363,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProjectMember shall deliver owner`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         val member = gitlabRestClient.adminGetProjectMember(project1.id, user1.person.gitlabId!!)
         assertThat(member).isNotNull
@@ -336,9 +374,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminGetProjectMember must not deliver unconnected user`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<NotFoundException> {
             gitlabRestClient.adminGetProjectMember(project1.id, user2.person.gitlabId!!)
@@ -346,8 +386,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminAddUserToProject must not accept not-existing user`() {
-        val (_, token1, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<NotFoundException> {
             gitlabRestClient.adminAddUserToProject(project1.id, Long.MAX_VALUE)
@@ -355,8 +397,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminAddUserToProject must not accept already included user`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<ConflictException> {
             gitlabRestClient.adminAddUserToProject(project1.id, user1.person.gitlabId!!)
@@ -364,9 +408,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminAddUserToProject shall accept existing user`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         val member = gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!)
         assertThat(member).isNotNull
@@ -374,8 +420,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminEditUserInProject must not accept not-existing user`() {
-        val (_, token1, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<NotFoundException> {
             gitlabRestClient.adminEditUserInProject(project1.id, Long.MAX_VALUE)
@@ -383,8 +431,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminEditUserInProject must not accept already included user`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
             gitlabRestClient.adminEditUserInProject(project1.id, user1.person.gitlabId!!)
@@ -392,9 +442,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminEditUserInProject shall accept existing user`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!)
 
@@ -403,8 +455,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminEditUserInProject must not transform owner to guest`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
             gitlabRestClient.adminEditUserInProject(project1.id, user1.person.gitlabId!!, accessLevel = GitlabAccessLevel.GUEST)
@@ -412,9 +466,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `adminEditUserInProject shall accept multiple conversions`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         val member1 = gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
         val member2 = gitlabRestClient.adminEditUserInProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
@@ -425,8 +481,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userEditUserInProject must not accept already included user`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
             gitlabRestClient.userEditUserInProject(token1, project1.id, user1.person.gitlabId!!)
@@ -434,9 +492,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userEditUserInProject must not accept token of not owner`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
-        val (_, token2, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
+        val (_, token2, _) = createRealUser()
 
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
@@ -445,9 +505,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userEditUserInProject shall accept existing user`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!)
         val member2 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.person.gitlabId!!)
@@ -456,10 +518,12 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
 
     @Test
     @Disabled
+    @Transactional
+    @Rollback
     fun `userEditUserInProject shall accept change by maintainer`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, token2, _) = testsHelper.createRealUser()
-        val (user3, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, token2, _) = createRealUser()
+        val (user3, _, _) = createRealUser()
         val project1 = createProject(token1)
         gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
         val member2 = gitlabRestClient.userEditUserInProject(token2, project1.id, user3.person.gitlabId!!, GitlabAccessLevel.GUEST)
@@ -467,10 +531,12 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userEditUserInProject must not accept change by guest`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, token2, _) = testsHelper.createRealUser()
-        val (user3, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, token2, _) = createRealUser()
+        val (user3, _, _) = createRealUser()
         val project1 = createProject(token1)
         gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
         assertThrows<GitlabAuthenticationFailedException> {
@@ -479,8 +545,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userEditUserInProject must not transform owner to guest`() {
-        val (user1, token1, _) = testsHelper.createRealUser()
+        val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
             gitlabRestClient.userEditUserInProject(token1, project1.id, user1.person.gitlabId!!, accessLevel = GitlabAccessLevel.GUEST)
@@ -488,9 +556,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     }
 
     @Test
+    @Transactional
+    @Rollback
     fun `userEditUserInProject shall accept multiple conversions`() {
-        val (_, token1, _) = testsHelper.createRealUser()
-        val (user2, _, _) = testsHelper.createRealUser()
+        val (_, token1, _) = createRealUser()
+        val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         val member1 = gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
         val member2 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)

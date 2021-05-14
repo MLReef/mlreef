@@ -1,9 +1,10 @@
 package com.mlreef.rest.api.v1.dto
 
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.Experiment
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.helpers.DataClassWithId
+import com.mlreef.rest.domain.Experiment
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.helpers.DataClassWithId
+import com.mlreef.rest.exceptions.InternalException
 import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
@@ -20,16 +21,17 @@ class ExperimentDto(
     val status: String,
     val pipelineJobInfo: PipelineJobInfoDto? = null,
     @get:Valid val inputFiles: List<FileLocationDto>? = arrayListOf(),
-    @get:Valid val postProcessing: List<DataProcessorInstanceDto>? = arrayListOf(),
-    @get:Valid val processing: DataProcessorInstanceDto? = null,
-    val jsonBlob: String = ""
+    @get:Valid val processing: ProcessorInstanceDto? = null,
+    @get:Valid val postProcessing: List<ProcessorInstanceDto>? = arrayListOf(),
+    val jsonBlob: String = "",
+    val createdBy: UUID? = null,
 ) : DataClassWithId
 
 internal fun Experiment.toDto(): ExperimentDto =
     ExperimentDto(
         id = this.id,
-        dataProjectId = this.dataProjectId,
-        dataInstanceId = this.dataInstanceId,
+        dataProjectId = this.dataProject?.id ?: throw InternalException("Experiment ${this.id} is not attached to data processor"),
+        dataInstanceId = this.pipeline?.id,
         slug = this.slug,
         name = this.name,
         number = this.number ?: 0,
@@ -39,6 +41,7 @@ internal fun Experiment.toDto(): ExperimentDto =
         status = this.status.name,
         jsonBlob = this.jsonBlob,
         pipelineJobInfo = this.pipelineJobInfo?.toDto(),
-        postProcessing = this.postProcessing.map(DataProcessorInstance::toDto),
-        processing = this.getProcessor()?.toDto()
+        postProcessing = this.postProcessing.map(ProcessorInstance::toDto),
+        processing = this.getProcessor()?.toDto(),
+        createdBy = this.creator?.id,
     )

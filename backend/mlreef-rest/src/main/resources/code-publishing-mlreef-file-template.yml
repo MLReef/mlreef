@@ -9,7 +9,9 @@ variables:
   # mlreef.com/api/v1/code-projects/:id/publish/finish
   EPF_PUBLISH_URL: #{#EPF_PUBLISH_URL}
   EPF_PUBLISH_SECRET: #{#EPF_PUBLISH_SECRET}
-  DOCKER_HOST: "tcp://docker:2375"
+  PUBLISH_BRANCH: #{#PUBLISH_BRANCH}
+  PUBLISH_VERSION: #{#PUBLISH_VERSION}
+  #{#DOCKER_HOST}
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DAEMON_OPTIONS: "--insecure-registry=${CI_REGISTRY}"
 
@@ -22,16 +24,22 @@ job:
     - local-docker
   # Any package dependency for the job should be added in the following base image
   image: registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker:latest
-  only:
-    - master
+  #only:
+  #  - #{#PUBLISH_BRANCH}
   when: on_success
+  before_script:
+    # Inform backend about publish start
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/job-start?branch=$PUBLISH_BRANCH&version=$PUBLISH_VERSION" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"
   script:
     - echo "$CI_REGISTRY"
     # Build the docker image in the repositories root directory
-    - docker build --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" -f Dockerfile .
+    - docker build --tag "$CI_REGISTRY_IMAGE:$PUBLISH_BRANCH-$PUBLISH_VERSION" -f Dockerfile .
     # login to MLReef's docker image registry
     - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username="$CI_REGISTRY_USER" --password-stdin
     # Upload the newly built docker image to MLReef's docker image registry
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    - docker push "$CI_REGISTRY_IMAGE:$PUBLISH_BRANCH-$PUBLISH_VERSION"
+    - docker images
+    - docker logout $CI_REGISTRY
+  after_script:
     # Update processor information
-    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/rescan-processor-source?image=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"
+    - curl --include --verbose --request PUT "$EPF_PUBLISH_URL/publish/finish?image=$CI_REGISTRY_IMAGE:$PUBLISH_BRANCH-$PUBLISH_VERSION&branch=$PUBLISH_BRANCH&version=$PUBLISH_VERSION" --header "EPF-BOT-TOKEN:$EPF_PUBLISH_SECRET"

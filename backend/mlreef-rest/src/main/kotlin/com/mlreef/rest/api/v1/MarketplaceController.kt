@@ -1,20 +1,18 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataType
-import com.mlreef.rest.ProjectType
 import com.mlreef.rest.SearchableTagRepository
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.domain.ProjectType
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.marketplace.SearchableType
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.marketplace.MarketplaceService
-import com.mlreef.rest.marketplace.SearchableType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -36,7 +34,7 @@ class MarketplaceController(
     val publicProjectsCacheService: PublicProjectsCacheService,
 ) {
     companion object {
-        private const val MAX_PAGE_SIZE = 2000
+        const val MAX_PAGE_SIZE = 2000
     }
 
     @PostMapping("/entries/search")
@@ -44,7 +42,7 @@ class MarketplaceController(
         @RequestBody filter: SearchRequest?,
         @RequestParam("searchable_type") searchableType: SearchableType?,
         @RequestParam("project_type") projectType: ProjectType?,
-        @RequestParam("processor_type") processorType: DataProcessorType?,
+        @RequestParam("processor_type") processorType: String?,
         @RequestParam("visibility") visibility: VisibilityScope? = null,
         @RequestParam("model_type_or") modelTypeOr: List<String>?,
         @RequestParam("ml_category_or") mlCategoryOr: List<String>?,
@@ -57,10 +55,10 @@ class MarketplaceController(
         @RequestParam("name_exact") nameExact: String?,
         @RequestParam("namespace") namespace: String?,
         @RequestParam("namespace_exact") namespaceExact: String?,
-        @RequestParam("input_data_types") inputDataTypes: Set<DataType>? = null,
-        @RequestParam("output_data_types") outputDataTypes: Set<DataType>? = null,
-        @RequestParam("input_data_types_or") inputDataTypesOr: Set<DataType>? = null,
-        @RequestParam("output_data_types_or") outputDataTypesOr: Set<DataType>? = null,
+        @RequestParam("input_data_types") inputDataTypes: Set<String>? = null,
+        @RequestParam("output_data_types") outputDataTypes: Set<String>? = null,
+        @RequestParam("input_data_types_or") inputDataTypesOr: Set<String>? = null,
+        @RequestParam("output_data_types_or") outputDataTypesOr: Set<String>? = null,
         @RequestParam("tags") tags: List<String>? = null,
         @RequestParam("tags_or") tagsOr: List<String>? = null,
         @RequestParam("max_stars") maxStars: Int? = null,
@@ -197,11 +195,11 @@ data class SearchByTextRequest(
 data class SearchRequest(
     val searchableType: SearchableType? = null,
     val projectType: ProjectType? = null,
-    val processorType: DataProcessorType? = null,
-    val inputDataTypes: Set<DataType>? = null,
-    val outputDataTypes: Set<DataType>? = null,
-    val inputDataTypesOr: Set<DataType>? = null,
-    val outputDataTypesOr: Set<DataType>? = null,
+    val processorType: String? = null,
+    val inputDataTypes: Set<String>? = null,
+    val outputDataTypes: Set<String>? = null,
+    val inputDataTypesOr: Set<String>? = null,
+    val outputDataTypesOr: Set<String>? = null,
     val tags: List<String>? = null,
     val tagsOr: List<String>? = null,
     val maxStars: Int? = null,

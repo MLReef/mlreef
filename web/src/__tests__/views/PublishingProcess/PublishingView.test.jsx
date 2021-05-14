@@ -2,36 +2,35 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { UnconnectedPublishingView } from 'components/views/PublishingView/PublishingView';
+import PublishingView from 'components/views/PublishingView/PublishingView';
 import { storeFactory } from 'functions/testUtils';
 import { branchesMock, projectsArrayMock } from 'testData';
+import { ALGORITHM, OPERATION } from 'dataTypes';
+import hooks from 'customHooks/useSelectedProject';
 
 global.ResizeObserver = () => ({ observe: () => {} });
 
-const setup = () => {
+const setup = (processorType) => {
   const match = {
     params: { namespace: 'namespace', slug: 'some-slug' },
   };
+  hooks.useSelectedProject = () => ([{ ...projectsArrayMock.projects.selectedProject, processorType }]);
   return mount(
-    <MemoryRouter>
-      <Provider store={storeFactory()}>
-        <UnconnectedPublishingView
+    <Provider store={storeFactory({ branches: branchesMock })}>
+      <MemoryRouter>
+        <PublishingView
           match={match}
-          project={projectsArrayMock.projects.selectedProject}
-          branches={branchesMock}
           history={{ push: () => {} }}
         />
-      </Provider>
-    </MemoryRouter>,
+      </MemoryRouter>
+    </Provider>
   );
 };
 
 describe('PublishingView tests', () => {
   let wrapper;
-  beforeEach(() => {
-    wrapper = setup();
-  });
   test('assert that comp renders and contains the basic comps', () => {
+    wrapper = setup(ALGORITHM);
     expect(wrapper.find('MBreadcrumb')).toHaveLength(1);
     const liLinks = wrapper.find('li.m-breadcrumb-list-item');
     expect(liLinks).toHaveLength(3);
@@ -49,5 +48,10 @@ describe('PublishingView tests', () => {
     expect(wrapper.find('.m-vertical-steps-step')).toHaveLength(6);
     expect(wrapper.find('MCheckBoxGroup')).toHaveLength(2);
     expect(wrapper.find('MCheckBox[name="acceptance-termns-checkbox"]')).toHaveLength(1);
+  });
+
+  test('assert that some steps are disabled when processor type is operation', () => {
+    wrapper = setup(OPERATION);
+    expect(wrapper.find('.m-vertical-steps-step')).toHaveLength(4);
   });
 });

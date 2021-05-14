@@ -1,7 +1,7 @@
 package com.mlreef.rest.external_api.gitlab.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import java.time.ZonedDateTime
+import java.time.Instant
 
 /**
  *  {
@@ -22,14 +22,14 @@ class GitlabPipeline(
     val ref: String,
     val sha: String,
     val webUrl: String? = "",
-    val createdAt: ZonedDateTime? = null,
-    val updatedAt: ZonedDateTime? = null,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
     val beforeSha: String? = null,
     val user: GitlabUser? = null,
     val yamlErrors: Any? = null,
-    val startedAt: ZonedDateTime? = null,
-    val finishedAt: ZonedDateTime? = null,
-    val committedAt: ZonedDateTime? = null,
+    val startedAt: Instant? = null,
+    val finishedAt: Instant? = null,
+    val committedAt: Instant? = null,
     val duration: String? = null,
     val coverage: String? = null
 )

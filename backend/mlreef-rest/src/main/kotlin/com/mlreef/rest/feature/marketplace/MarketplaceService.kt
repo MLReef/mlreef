@@ -1,27 +1,29 @@
 package com.mlreef.rest.feature.marketplace
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProcessor
-import com.mlreef.rest.DataProcessorType
-import com.mlreef.rest.DataProject
 import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.Project
 import com.mlreef.rest.ProjectRepository
-import com.mlreef.rest.ProjectType
 import com.mlreef.rest.SearchableTagRepository
-import com.mlreef.rest.Subject
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.SearchRequest
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.Processor
+import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.ProjectType
+import com.mlreef.rest.domain.PublishStatus
+import com.mlreef.rest.domain.Subject
+import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.marketplace.Searchable
+import com.mlreef.rest.domain.marketplace.SearchableTag
+import com.mlreef.rest.domain.marketplace.SearchableType
+import com.mlreef.rest.domain.repositories.DataTypesRepository
+import com.mlreef.rest.domain.repositories.ProcessorTypeRepository
+import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.marketplace.Searchable
-import com.mlreef.rest.marketplace.SearchableTag
-import com.mlreef.rest.marketplace.SearchableType
 import com.mlreef.rest.utils.QueryBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -46,20 +48,13 @@ class MarketplaceService(
     private val codeProjectRepository: CodeProjectRepository,
     private val searchableTagRepository: SearchableTagRepository,
     private val entityManager: EntityManager,
+    private val processorTypeRepository: ProcessorTypeRepository,
+    private val dataTypesRepository: DataTypesRepository,
 ) {
     val log = LoggerFactory.getLogger(this::class.java) as Logger
 
     fun searchProjects(request: SearchRequest, pageable: Pageable, token: TokenDetails?): Page<out Project> {
         var returnEmptyResult = false
-
-        val finalProjectType = request.projectType
-            ?: if (request.searchableType == SearchableType.DATA_PROJECT) {
-                ProjectType.DATA_PROJECT
-            } else if (request.searchableType == SearchableType.CODE_PROJECT) {
-                ProjectType.CODE_PROJECT
-            } else null
-
-        val builder = getQueryBuilderForType(finalProjectType)
 
         val finalVisibility = if (token == null || token.isVisitor) {
             VisibilityScope.PUBLIC
@@ -67,14 +62,34 @@ class MarketplaceService(
             request.visibility
         }
 
-        val finalProcessorType = request.processorType
-            ?: if (request.searchableType == SearchableType.OPERATION) {
-                DataProcessorType.OPERATION
-            } else if (request.searchableType == SearchableType.ALGORITHM) {
-                DataProcessorType.ALGORITHM
-            } else if (request.searchableType == SearchableType.VISUALIZATION) {
-                DataProcessorType.VISUALIZATION
+        val finalProcessorType = (request.processorType ?: request.searchableType?.name)?.let {
+            processorTypeRepository.findByNameIgnoreCase(it)
+        }
+
+        val finalProjectType =
+            if (isCodeProjectSearch(request) || finalProcessorType != null || request.published != null) {
+                ProjectType.CODE_PROJECT
+            } else if (isDataProjectSearch(request)) {
+                ProjectType.DATA_PROJECT
             } else null
+
+        val finalInputTypesAnd = request.inputDataTypes?.map {
+            dataTypesRepository.findByNameIgnoreCase(it) ?: throw BadParametersException("Data type $it not found")
+        }
+
+        val finalOutputTypesAnd = request.outputDataTypes?.map {
+            dataTypesRepository.findByNameIgnoreCase(it) ?: throw BadParametersException("Data type $it not found")
+        }
+
+        val finalInputTypesOr = request.inputDataTypesOr?.map {
+            dataTypesRepository.findByNameIgnoreCase(it) ?: throw BadParametersException("Data type $it not found")
+        }
+
+        val finalOutputTypesOr = request.outputDataTypesOr?.map {
+            dataTypesRepository.findByNameIgnoreCase(it) ?: throw BadParametersException("Data type $it not found")
+        }
+
+        val builder = getQueryBuilderForType(finalProjectType)
 
         if (finalVisibility == VisibilityScope.PRIVATE) {
             builder
@@ -106,11 +121,11 @@ class MarketplaceService(
         request.slugExact?.let { builder.and().equals("slug", it, caseSensitive = false) }
         request.maxStars?.let { builder.and().lessOrEqualThan("_starsCount", it) }
         request.minStars?.let { builder.and().greaterOrEqualThan("_starsCount", it) }
-        finalProcessorType?.let { builder.and().equals("type", it, "processor") }
-        request.inputDataTypes?.let { builder.and().containsAll("inputDataTypes", it) }
-        request.outputDataTypes?.let { builder.and().containsAll("outputDataTypes", it) }
-        request.inputDataTypesOr?.let { builder.and().containsAny("inputDataTypes", it) }
-        request.outputDataTypesOr?.let { builder.and().containsAny("outputDataTypes", it) }
+        finalProcessorType?.let { builder.and().equals("processorType", it) }
+        finalInputTypesAnd?.let { builder.and().containsAll("inputDataTypes", it) }
+        finalOutputTypesAnd?.let { builder.and().containsAll("outputDataTypes", it) }
+        finalInputTypesOr?.let { builder.and().containsAny("inputDataTypes", it) }
+        finalOutputTypesOr?.let { builder.and().containsAny("outputDataTypes", it) }
         request.tags?.let {
             if (it.size > 0) {
                 val searchableTags = searchableTagRepository.findAllByNameIsInIgnoreCase(it)
@@ -133,18 +148,25 @@ class MarketplaceService(
         }
         request.minForksCount?.let { builder.and().greaterOrEqualThan("forksCount", it) }
         request.maxForksCount?.let { builder.and().lessOrEqualThan("forksCount", it) }
-        request.modelTypeOr?.let { builder.and().`in`("modelType", it, "version", caseSensitive = false) }
-        request.mlCategoryOr?.let { builder.and().`in`("mlCategory", it, "version", caseSensitive = false) }
+        request.modelTypeOr?.let { builder.and().`in`("modelType", it, caseSensitive = false) }
+        request.mlCategoryOr?.let { builder.and().`in`("mlCategory", it, caseSensitive = false) }
         request.ownerIdsOr?.let { builder.and().`in`("ownerId", it) }
         request.name?.let { builder.and().like("name", "%${it}%", caseSensitive = false) }
         request.nameExact?.let { builder.and().equals("name", it, caseSensitive = false) }
         request.namespace?.let { builder.and().like("gitlabNamespace", "%${it}%", caseSensitive = false) }
         request.namespaceExact?.let { builder.and().equals("gitlabNamespace", it, caseSensitive = false) }
         request.published?.let {
+            builder.subSelect("codeProject.id", Long::class.java, Processor::class.java, "statuses", grouping = true)
+                .distinct(true)
+                .where()
+                .equals("status", PublishStatus.PUBLISHED)
+                .or()
+                .equals("status", PublishStatus.PUBLISH_FINISHING)
+
             if (it) {
-                builder.and().isNotNull("publishingInfo.finishedAt", "version")
+                builder.and().`in`<UUID>("id", "statuses")
             } else {
-                builder.and().isNull("publishingInfo.finishedAt", "version")
+                builder.and().notIn<UUID>("id", "statuses")
             }
         }
 
@@ -155,15 +177,38 @@ class MarketplaceService(
         }
     }
 
+    private fun isCodeProjectSearch(request: SearchRequest): Boolean {
+        return request.searchableType == SearchableType.CODE_PROJECT
+            || request.projectType == ProjectType.CODE_PROJECT
+            || request.processorType != null
+            || request.outputDataTypes != null
+            || request.outputDataTypesOr != null
+            || request.modelTypeOr != null
+            || request.mlCategoryOr != null
+            || request.published != null
+    }
+
+    private fun isDataProjectSearch(request: SearchRequest): Boolean {
+        return (request.searchableType == SearchableType.DATA_PROJECT
+            || request.projectType == ProjectType.DATA_PROJECT)
+            && request.processorType == null
+            && request.outputDataTypes == null
+            && request.outputDataTypesOr == null
+            && request.modelTypeOr == null
+            && request.mlCategoryOr == null
+            && request.published == null
+    }
+
     private fun getQueryBuilderForType(type: ProjectType?): QueryBuilder<out Project> {
         val result = when (type) {
-            ProjectType.CODE_PROJECT -> QueryBuilder(entityManager, CodeProject::class.java)
+            ProjectType.CODE_PROJECT -> {
+                val builder = QueryBuilder(entityManager, CodeProject::class.java)
+                builder.joinLeft<Processor>("processors", alias = "processors")
+                builder
+            }
             ProjectType.DATA_PROJECT -> QueryBuilder(entityManager, DataProject::class.java)
             else -> QueryBuilder(entityManager, Project::class.java)
         }
-
-        result.joinLeft<DataProcessor>("dataProcessor", alias = "processor")
-        result.joinLeft<ProcessorVersion>("processorVersion", "processor", "version")
 
         return result
     }
@@ -241,7 +286,8 @@ class MarketplaceService(
             .let { save(it) }
 
     fun findEntriesForProjects(pageable: Pageable, projectsMap: Map<UUID, AccessLevel?>): List<Project> {
-        val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
+        val ids: List<UUID> =
+            projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
         val projects = projectRepository.findAccessibleProjects(ids, pageable)
         return projectRepository.findAllByVisibilityScope(VisibilityScope.PUBLIC, pageable)
             .toMutableSet()
@@ -250,7 +296,8 @@ class MarketplaceService(
     }
 
     fun findEntriesForProjectsBySlug(projectsMap: Map<UUID, AccessLevel?>, slug: String): Project {
-        val ids: List<UUID> = projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
+        val ids: List<UUID> =
+            projectsMap.filterValues { AccessLevel.isSufficientFor(it, AccessLevel.GUEST) }.map { it.key }.toList()
         return projectRepository.findByGlobalSlugAndVisibilityScope(slug, VisibilityScope.PUBLIC)
             ?: projectRepository.findAccessibleProject(ids, slug)
             ?: throw NotFoundException(ErrorCode.ProjectNotExisting, "Not found")
@@ -269,7 +316,12 @@ class MarketplaceService(
      *
      * *Hint*: If you need a "global order by rank" just use a page size of over 9000 which should result in one page which is ordered per rank
      */
-    fun performSearchByText(pageable: Pageable, query: String, queryAnd: Boolean, token: TokenDetails?): Collection<SearchResult> {
+    fun performSearchByText(
+        pageable: Pageable,
+        query: String,
+        queryAnd: Boolean,
+        token: TokenDetails?
+    ): Collection<SearchResult> {
         val time = currentTimeMillis()
         val builder = getQueryBuilderForType(null)
 

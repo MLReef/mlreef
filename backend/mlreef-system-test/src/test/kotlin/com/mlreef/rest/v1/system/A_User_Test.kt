@@ -10,6 +10,7 @@ import com.mlreef.rest.v1.system.ScenarioState.globalEmail
 import com.mlreef.rest.v1.system.ScenarioState.globalRandomPassword
 import com.mlreef.rest.v1.system.ScenarioState.globalRandomUserName
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Tag
@@ -55,6 +56,7 @@ class A_User_Test : AbstractSystemTest() {
     }
 
     @Test
+    @Disabled
     fun `A04 Add another user to group`() {
         val newUsername = RandomUtils.generateRandomUserName(10)
         val newPassword = RandomUtils.generateRandomPassword(30, true)

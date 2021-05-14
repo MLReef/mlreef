@@ -2,10 +2,10 @@ package com.mlreef.rest.api.v1.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Group
-import com.mlreef.rest.helpers.DataClassWithId
-import com.mlreef.rest.helpers.GroupOfUser
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Group
+import com.mlreef.rest.domain.helpers.DataClassWithId
+import com.mlreef.rest.domain.helpers.GroupOfUser
 import java.util.UUID
 
 // FIXME: Coverage says: missing tests

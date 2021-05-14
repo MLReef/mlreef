@@ -1,8 +1,8 @@
 package com.mlreef.rest.api.v1.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.BaseEnvironments
-import com.mlreef.rest.PublishingMachineType
+import com.mlreef.rest.domain.BaseEnvironments
+import com.mlreef.rest.domain.PublishingMachineType
 import java.util.UUID
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

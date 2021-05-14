@@ -1,24 +1,20 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.Account
-import com.mlreef.rest.Group
-import com.mlreef.rest.GroupRepository
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.v1.GroupCreateRequest
 import com.mlreef.rest.api.v1.GroupUpdateRequest
 import com.mlreef.rest.api.v1.dto.GroupDto
 import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.Group
+import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
 import com.mlreef.rest.feature.system.SessionsService
-import com.mlreef.rest.utils.RandomUtils
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,25 +33,11 @@ class GroupsApiTest : AbstractRestApiTest() {
 
     val rootUrl = "/api/v1/groups"
 
-    private lateinit var account2: Account
-
-    @Autowired
-    private lateinit var accountSubjectPreparationTrait: AccountSubjectPreparationTrait
-
     @Autowired
     private lateinit var sessionService: SessionsService
 
-    @Autowired
-    private lateinit var groupsRepository: GroupRepository
-
     @BeforeEach
     fun setUp() {
-        truncateAllTables()
-        accountSubjectPreparationTrait.apply()
-
-        account = accountSubjectPreparationTrait.account
-        account2 = accountSubjectPreparationTrait.account2
-
         sessionService.killAllSessions("username0000")
     }
 
@@ -75,7 +57,7 @@ class GroupsApiTest : AbstractRestApiTest() {
         val gitlabGroup2 = GitlabGroup(102L, "url", "group-name-1", "path-2")
         val gitlabGroup3 = GitlabGroup(103L, "url", "group-name-1", "path-3")
 
-        val gitlabUserInGroup = GitlabUserInGroup(1L, "url", "test-user", "username")
+        val gitlabUserInGroup = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
 
         every { restClient.userGetUserGroups(any()) } answers {
             listOf(gitlabGroup1, gitlabGroup2, gitlabGroup3)
@@ -85,18 +67,22 @@ class GroupsApiTest : AbstractRestApiTest() {
             listOf(gitlabUserInGroup)
         }
 
-        this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(
-            group1.id to AccessLevel.OWNER,
-            group2.id to AccessLevel.OWNER,
-            group3.id to AccessLevel.OWNER)
+        this.mockUserAuthentication(
+            groupIdLevelMap = mutableMapOf(
+                group1.id to AccessLevel.OWNER,
+                group2.id to AccessLevel.OWNER,
+                group3.id to AccessLevel.OWNER
+            )
         )
 
         val url = "$rootUrl/my"
 
-        val result = this.performGet(url, token)
+        val result = this.performGet(url, mainToken)
             .expectOk()
-            .document("user-groups-list",
-                responseFields(groupsOfUserResponseFields("[].")))
+            .document(
+                "user-groups-list",
+                responseFields(groupsOfUserResponseFields("[]."))
+            )
             .returnsList(GroupOfUserDto::class.java)
 
         assertThat(result.size).isEqualTo(3)
@@ -108,14 +94,14 @@ class GroupsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     // TODO: still misses some random strange mocks?
     fun `Can create Group`() {
-        this.mockUserAuthentication(returnAccount=account)
+        this.mockUserAuthentication(forAccount = mainAccount)
         val request = GroupCreateRequest(
             path = "group-create",
             namespace = "mlreef",
             name = "name"
         )
 
-        every { restClient.getUser(any()) } answers  {
+        every { restClient.getUser(any()) } answers {
             GitlabUser(
                 id = 10,
                 name = "Mock Gitlab User",
@@ -125,13 +111,15 @@ class GroupsApiTest : AbstractRestApiTest() {
             )
         }
 
-        val result = this.performPost(rootUrl, token, body = request)
+        val result = this.performPost(rootUrl, mainToken, body = request)
             //.expectOk()
-            .document("group-create",
-                requestFields(groupCreateRequestFields()))
-            //    responseFields(groupResponseFields())
-            //)
-            //.returns(GroupDto::class.java)
+            .document(
+                "group-create",
+                requestFields(groupCreateRequestFields())
+            )
+        //    responseFields(groupResponseFields())
+        //)
+        //.returns(GroupDto::class.java)
 
         //assertThat(result).isNotNull
     }
@@ -150,11 +138,13 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}"
 
-        val result = this.performPut(url, token, body = request)
+        val result = this.performPut(url, mainToken, body = request)
             .expectOk()
-            .document("group-update",
+            .document(
+                "group-update",
                 requestFields(groupUpdateRequestFields()),
-                responseFields(groupResponseFields()))
+                responseFields(groupResponseFields())
+            )
             .returns(GroupDto::class.java)
 
         assertThat(result).isNotNull
@@ -172,7 +162,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}"
 
-        this.performDelete(url, token)
+        this.performDelete(url, mainToken)
             .expectNoContent()
             .document("group-delete")
     }
@@ -187,8 +177,9 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(1L, "url", "user1", "username")
-        val gitlabUserInGroup2 = GitlabUserInGroup(2L, "url", "user1", "username")
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup2 =
+            GitlabUserInGroup(mainPerson2.gitlabId!!, "url", mainPerson2.name, mainAccount2.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1, gitlabUserInGroup2)
@@ -196,9 +187,10 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         val url = "$rootUrl/${group.id}/users"
 
-        val result = this.performGet(url, token)
+        val result = this.performGet(url, mainToken)
             .expectOk()
-            .document("group-retrieve-users",
+            .document(
+                "group-retrieve-users",
                 responseFields(usersInGroupResponseFields("[]."))
             )
             .returnsList(UserInGroupDto::class.java)
@@ -216,18 +208,20 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(1L, "url", "user1", "username")
-        val gitlabUserInGroup2 = GitlabUserInGroup(2L, "url", "user1", "username")
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup2 =
+            GitlabUserInGroup(mainPerson2.gitlabId!!, "url", mainPerson2.name, mainAccount2.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1, gitlabUserInGroup2)
         }
 
-        val url = "$rootUrl/${group.id}/users/${account2.id}?access_level=DEVELOPER"
+        val url = "$rootUrl/${group.id}/users/${mainAccount2.id}?access_level=DEVELOPER"
 
-        val result = this.performPost(url, token)
+        val result = this.performPost(url, mainToken)
             .expectOk()
-            .document("group-add-user",
+            .document(
+                "group-add-user",
                 responseFields(usersInGroupResponseFields("[]."))
             )
             .returnsList(UserInGroupDto::class.java)
@@ -245,18 +239,20 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(1L, "url", "user1", "username")
-        val gitlabUserInGroup2 = GitlabUserInGroup(2L, "url", "user1", "username")
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup2 =
+            GitlabUserInGroup(mainPerson2.gitlabId!!, "url", mainPerson2.name, mainAccount2.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1, gitlabUserInGroup2)
         }
 
-        val url = "$rootUrl/${group.id}/users/${account2.id}?access_level=DEVELOPER"
+        val url = "$rootUrl/${group.id}/users/${mainAccount2.id}?access_level=DEVELOPER"
 
-        val result = this.performPut(url, token)
+        val result = this.performPut(url, mainToken)
             .expectOk()
-            .document("group-edit-user",
+            .document(
+                "group-edit-user",
                 requestParameters(
                     parameterWithName("access_level").optional().description("Access level for the user")
                 ),
@@ -277,17 +273,18 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(1L, "url", "user1", "username")
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1)
         }
 
-        val url = "$rootUrl/${group.id}/users/${account2.id}"
+        val url = "$rootUrl/${group.id}/users/${mainAccount2.id}"
 
-        val result = this.performDelete(url, token)
+        val result = this.performDelete(url, mainToken)
             .expectOk()
-            .document("group-delete-user",
+            .document(
+                "group-delete-user",
                 responseFields(usersInGroupResponseFields("[]."))
             )
             .returnsList(UserInGroupDto::class.java)
@@ -296,13 +293,13 @@ class GroupsApiTest : AbstractRestApiTest() {
     }
 
 
-
     fun groupCreateRequestFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("path").type(JsonFieldType.STRING).description("Path of group"),
             fieldWithPath("namespace").type(JsonFieldType.STRING).description("Namespace of group"),
             fieldWithPath("name").type(JsonFieldType.STRING).description("Name of Group"),
-            fieldWithPath("visibility").type(JsonFieldType.STRING).description("Visibility level: ${VisibilityScope.values()}")
+            fieldWithPath("visibility").type(JsonFieldType.STRING)
+                .description("Visibility level: ${VisibilityScope.values()}")
         )
     }
 

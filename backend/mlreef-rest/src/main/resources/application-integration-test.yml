@@ -6,6 +6,8 @@ logging:
     org.springframework.orm: WARN
     org.hibernate: WARN
     com.mlreef.rest.testcommons.TestGitlabContainer: WARN
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{85}.%M [%line]) - %msg%n%throwable'
 spring:
@@ -21,7 +23,7 @@ spring:
     username: ${DB_USER:mlreef}
     password: ${DB_PASSWORD:password}
   jpa:
-    show-sql: true
+    show-sql: false
     generate-ddl: false
     properties:
       hibernate:
@@ -41,3 +43,9 @@ spring:
       flush-mode: on_save
       namespace: spring:session
 
+mlreef:
+  epf:
+    delay-scheduled-publish-tasks-msec: 5000000
+    delay-scheduled-pipeline-tasks-msec: 5000000
+  init-data:
+    enabled: false

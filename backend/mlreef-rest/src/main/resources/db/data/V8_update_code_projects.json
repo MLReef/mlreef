@@ -1,0 +1,15 @@
+[
+  {
+    "id": "01333333-0000-0003-0001-000000000000",
+    "name": "MY sUpEr Shode PrOjEcT 32987329847923",
+    "description": "My super shode project 11111111111",
+    "visibility": "PRIVATE",
+    "input_data_types": [
+      "TEXT"
+    ],
+    "output_data_types": [
+      "TEXT"
+    ],
+    "tags": []
+  }
+]

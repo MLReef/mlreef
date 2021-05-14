@@ -87,7 +87,10 @@ const DataOperationFilters = (props) => {
       type: UPDATE_CURRENT_PROCESSORS_ARRAY,
       currentProcessors,
     }))
-    .catch((err) => toastr.error('Error', err?.message)),
+    .catch((err) => {
+      console.log(err);
+      toastr.error('Error', err?.message)
+    }),
   [
     ownDataOpsOnly,
     namespace,

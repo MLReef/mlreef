@@ -30,10 +30,8 @@ export const calculateColor = (project) => {
     return projectClassificationsProps[0].color;
   }
 
-  const typeOfProcessor = project.dataProcessor?.type;
-
   return projectClassificationsProps
-    .filter((prop) => prop.typeOfProcessor === typeOfProcessor)[0]?.color;
+    .filter((prop) => prop.typeOfProcessor === project.processorType)[0]?.color;
 };
 
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
@@ -41,9 +39,8 @@ const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch
 class ProjectView extends React.Component {
   constructor(props) {
     super(props);
-    // esLint does not like state out of constructor
     this.state = {
-      contributors: [], // disconnected
+      contributors: [],
       isForking: false,
     };
     this.setIsForking = this.setIsForking.bind(this);

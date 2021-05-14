@@ -1,9 +1,11 @@
 package com.mlreef.rest.utils
 
+import com.mlreef.rest.utils.StringUtils.charNumberPool
+import com.mlreef.rest.utils.StringUtils.charPool
+import com.mlreef.rest.utils.StringUtils.enhancedCharPool
+
 object RandomUtils {
-    private val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
-    private val charNumberPool: List<Char> = charPool + ('0'..'9')
-    private val enhancedCharPool: List<Char> = charNumberPool + listOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '|', '{', '}', '[', ']', ':', ';')
+
     private const val DEFAULT_USERNAME_LENGTH = 10
     private const val DEFAULT_PASSWORD_LENGTH = 30
 

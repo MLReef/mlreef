@@ -150,7 +150,7 @@ const PublishingViewPublishModel = (props) => {
         </div>
       ),
     },
-  ]
+  ];
 
   if (dataProcessorType !== ALGORITHM) {
     steps.splice(3, 1);

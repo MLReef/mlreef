@@ -1,6 +1,7 @@
 package com.mlreef.rest.api.v1.dto
 
-import com.mlreef.rest.ProcessorParameter
+import com.mlreef.rest.domain.Parameter
+import com.mlreef.rest.exceptions.InternalException
 import javax.validation.constraints.NotEmpty
 
 data class ParameterDto(
@@ -12,10 +13,11 @@ data class ParameterDto(
     val description: String? = null
 )
 
-internal fun ProcessorParameter.toDto(): ParameterDto =
+internal fun Parameter.toDto(): ParameterDto =
     ParameterDto(
         name = this.name,
-        type = this.type.name,
+        type = this.parameterType?.name
+            ?: throw InternalException("Parameter ${this.name}(${this.id}) has no type"),
         required = this.required,
         defaultValue = this.defaultValue,
         order = this.order,

@@ -1,31 +1,12 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.BaseEnvironments
-import com.mlreef.rest.BaseEnvironmentsRepository
-import com.mlreef.rest.CodeProject
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataOperation
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProcessorRepository
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.DataType
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.FileLocationType
-import com.mlreef.rest.Person
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.PipelineConfigRepository
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.PipelineStatus
-import com.mlreef.rest.ProcessorParameterRepository
-import com.mlreef.rest.ProcessorVersion
-import com.mlreef.rest.ProcessorVersionRepository
-import com.mlreef.rest.PublishingInfo
-import com.mlreef.rest.SubjectRepository
-import com.mlreef.rest.UserRole
-import com.mlreef.rest.VisibilityScope
 import com.mlreef.rest.api.AbstractRestApiTest
+import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.FileLocationType
+import com.mlreef.rest.domain.PipelineConfiguration
+import com.mlreef.rest.domain.PipelineStatus
+import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Branch
@@ -33,9 +14,8 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
 import com.mlreef.rest.feature.auth.AuthService
-import com.mlreef.rest.feature.data_processors.RepositoryService
+import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.service.AbstractServiceTest
-import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -44,50 +24,22 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.ZonedDateTime
-import java.util.UUID
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.test.annotation.Rollback
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 class PipelineServiceTest : AbstractServiceTest() {
 
     lateinit var service: PipelineService
 
     @Autowired
-    private lateinit var dataProjectRepository: DataProjectRepository
-
-    @Autowired
-    private lateinit var pipelineConfigRepository: PipelineConfigRepository
-
-    @Autowired
-    private lateinit var pipelineInstanceRepository: PipelineInstanceRepository
-
-    @Autowired
-    private lateinit var subjectRepository: SubjectRepository
-
-    @Autowired
-    private lateinit var personRepository: PersonRepository
-
-    @Autowired
-    private lateinit var dataProcessorRepository: DataProcessorRepository
-
-    @Autowired
-    private lateinit var processorVersionRepository: ProcessorVersionRepository
-
-    @Autowired
-    private lateinit var codeProjectRepository: CodeProjectRepository
-
-    @Autowired
-    private lateinit var processorParameterRepository: ProcessorParameterRepository
-
-    @Autowired
-    private lateinit var baseEnvironmentsRepository: BaseEnvironmentsRepository
+    private lateinit var projectResolverService: ProjectResolverService
 
     @Autowired
     private lateinit var yamlFileGenerator: YamlFileGenerator
-
-    @Autowired
-    private lateinit var repositoryService: RepositoryService
 
     @MockkBean
     private lateinit var authService: AuthService
@@ -95,35 +47,52 @@ class PipelineServiceTest : AbstractServiceTest() {
     @MockkBean
     private lateinit var restClient: GitlabRestClient
 
-    private var ownerId: UUID = randomUUID()
-    private var dataRepositoryId: UUID = randomUUID()
-    private var dataRepositoryId2: UUID = randomUUID()
-
-    lateinit var baseEnv: BaseEnvironments
+    private lateinit var dataProject1: DataProject
+    private lateinit var dataProject2: DataProject
 
     @BeforeEach
     @Transactional
+    @Rollback
     fun prepare() {
-        truncateAllTables()
         service = PipelineService(
             conf = config,
-            pipelineConfigRepository = pipelineConfigRepository,
-            pipelineInstanceRepository = pipelineInstanceRepository,
-            subjectRepository = subjectRepository,
-            dataProjectRepository = dataProjectRepository,
-            processorVersionRepository = processorVersionRepository,
-            processorParameterRepository = processorParameterRepository,
+            pipelineConfigRepository = pipelineConfigurationRepository,
+            personRepository = personRepository,
+            pipelinesRepository = pipelineRepository,
+            processorsRepository = processorsRepository,
             gitlabRestClient = restClient,
+            projectResolverService = projectResolverService,
+            parametersRepository = parametersRepository,
+            parameterInstancesRepository = parameterInstancesRepository,
+            processorInstancesRepository = processorInstancesRepository,
+            pipelineTypesRepository = pipelineTypesRepository,
             authService = authService,
             yamlFileGenerator = yamlFileGenerator,
-            repositoryService = repositoryService,
+            entityManagerFactory = entityManagerFactory,
+            processorsService = processorsService,
         )
 
-        val subject = subjectRepository.save(Person(ownerId, "new-person", "person's name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now()))
-        dataProjectRepository.save(DataProject(dataRepositoryId, "new-repo", "url", "Test DataProject", "description", subject.id, "pipeline-test", "new-repo", 30, VisibilityScope.PUBLIC, arrayListOf()))
-        dataProjectRepository.save(DataProject(dataRepositoryId2, "new-repo2", "url", "Test DataProject", "description", subject.id, "pipeline-test", "new-repo2", 31, VisibilityScope.PUBLIC, arrayListOf()))
+        dataProject1 = createDataProject(
+            slug = "new-repo",
+            name = "Test DataProject",
+            ownerId = mainPerson.id,
+            namespace = "pipeline-test",
+            path = "new-repo",
+            gitlabId = 30L,
+            visibility = VisibilityScope.PUBLIC,
+            inputTypes = mutableSetOf()
+        )
+
+        dataProject2 = createDataProject(
+            slug = "new-repo2",
+            name = "Test DataProject",
+            ownerId = mainPerson.id,
+            namespace = "pipeline-test",
+            path = "new-repo2",
+            gitlabId = 31L,
+            visibility = VisibilityScope.PUBLIC,
+            inputTypes = mutableSetOf()
+        )
 
         mockBotToken()
     }
@@ -150,197 +119,225 @@ class PipelineServiceTest : AbstractServiceTest() {
                 email = "mock@example.com",
                 state = "active"
             ),
-            userToken))
+            userToken
+        ))
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for missing Owner`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
                 randomUUID(),
-                dataRepositoryId,
+                dataProject1.id,
                 "DATA",
                 "name",
                 "sourcebranch",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for missing DataProject`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                ownerId,
+                mainPerson.id,
                 randomUUID(),
                 "DATA",
                 "name",
                 "sourcebranch",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for missing branch name`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
+                mainPerson.id,
+                dataProject1.id,
                 "DATA",
                 "name",
                 "",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for missing slug`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
+                mainPerson.id,
+                dataProject1.id,
                 "DATA",
                 "name",
                 "",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for missing pipelineType`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
+                mainPerson.id,
+                dataProject1.id,
                 "",
-
                 "name",
                 "sourcebranch",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for invalid pipelineType`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
+                mainPerson.id,
+                dataProject1.id,
                 "DATEN",
                 "name",
                 "sourcebranch",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Cannot create PipelineConfig for duplicate slug scoped to DataProject`() {
         service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "name",
             "source",
-            listOf(), listOf())
-        assertThrows<PipelineCreateException> {
+            listOf(), listOf()
+        )
+        assertThrows<DataIntegrityViolationException> {
             service.createPipelineConfig(
-                ownerId,
-                dataRepositoryId,
+                mainPerson.id,
+                dataProject1.id,
                 "DATA",
                 "name",
                 "source",
-                listOf(), listOf())
+                listOf(), listOf()
+            )
+            pipelineConfigurationRepository.findAll()
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig if Owner and DataProject exist`() {
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig with reused slug scoped to different DataProject`() {
         service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId2,
+            mainPerson.id,
+            dataProject2.id,
             "DATA",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig with different slug scoped same DataProject`() {
         service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "another-name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig for pipelineType DATA`() {
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig with nullable and therefore generated name`() {
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
         assertThat(createExperiment.name).isNotEmpty()
@@ -348,48 +345,55 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig for pipelineType VISUAL`() {
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "VISUAL",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig for pipelineType VISUALisation`() {
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "VISUALIZATION",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig with empty targetBranchPattern`() {
         val createExperiment = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             "name",
             "sourcebranch",
-            listOf(), listOf())
+            listOf(), listOf()
+        )
 
         assertThat(createExperiment).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create PipelineConfig with DataProcessors`() {
         val pipelineConfig = createFullMockData()
 
@@ -398,10 +402,11 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create DataInstance from PipelineConfig`() {
         val pipelineConfig = createFullMockData()
 
-        val createdInstance = pipelineConfig.createInstance(1)
+        val createdInstance = pipelineConfig.createPipeline(1)
 
         assertThat(createdInstance).isNotNull
         assertThat(createdInstance.status).isEqualTo(PipelineStatus.CREATED)
@@ -409,6 +414,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     @Transactional
+    @Rollback
     fun `createStartGitlabPipeline works with initial token`() {
         createFullMockData()
         val pipelineJobInfo = service.createStartGitlabPipeline(
@@ -416,13 +422,15 @@ class PipelineServiceTest : AbstractServiceTest() {
             projectGitlabId = 1,
             sourceBranch = "sourceBranch",
             targetBranch = "targetBranch",
-            fileContent = "fileContent", secret = "secret")
+            fileContent = "fileContent", secret = "secret"
+        )
 
         assertThat(pipelineJobInfo).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `createStartGitlabPipeline works without initial token`() {
         createFullMockData()
         mockBotToken(initialTokenReturned = false)
@@ -431,51 +439,54 @@ class PipelineServiceTest : AbstractServiceTest() {
             projectGitlabId = 1,
             sourceBranch = "sourceBranch",
             targetBranch = "targetBranch",
-            fileContent = "fileContent", secret = "secret")
+            fileContent = "fileContent", secret = "secret"
+        )
 
         assertThat(pipelineJobInfo).isNotNull
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create DataInstance from PipelineConfig as deep copy`() {
         val pipelineConfig = createFullMockData()
 
-        val createdInstance = pipelineConfig.createInstance(1)
+        val pipeline = pipelineConfig.createPipeline(1)
 
-        assertThat(createdInstance.dataProjectId).isEqualTo(pipelineConfig.dataProjectId)
-        assertThat(createdInstance.pipelineConfigId).isEqualTo(pipelineConfig.id)
-        assertThat(createdInstance.sourceBranch).isEqualTo(pipelineConfig.sourceBranch)
-        assertThat(createdInstance.name).isEqualTo(pipelineConfig.name)
-        assertThat(createdInstance.number).isEqualTo(1)
-        assertThat(createdInstance.slug).isEqualTo("${pipelineConfig.slug}-${createdInstance.number}")
+        assertThat(pipeline.dataProject!!.id).isEqualTo(pipelineConfig.dataProject!!.id)
+        assertThat(pipeline.pipelineConfiguration!!.id).isEqualTo(pipelineConfig.id)
+        assertThat(pipeline.sourceBranch).isEqualTo(pipelineConfig.sourceBranch)
+        assertThat(pipeline.name).isEqualTo(pipelineConfig.name)
+        assertThat(pipeline.number).isEqualTo(1)
+        assertThat(pipeline.slug).isEqualTo("${pipelineConfig.slug}-${pipeline.number}")
 
-        assertThat(createdInstance.inputFiles.size).isEqualTo(pipelineConfig.inputFiles.size)
-        assertThat(createdInstance.dataOperations.size).isEqualTo(pipelineConfig.dataOperations.size)
+        assertThat(pipeline.inputFiles.size).isEqualTo(pipelineConfig.inputFiles.size)
+        assertThat(pipeline.processorInstances.size).isEqualTo(pipelineConfig.processorInstances.size)
 
-        createdInstance.dataOperations.forEachIndexed { index, newInstance ->
-            val oldInstance = pipelineConfig.dataOperations[index]
+        pipeline.processorInstances.forEachIndexed { index, newInstance ->
+            val oldInstance = pipelineConfig.processorInstances.toTypedArray()[index]
             assertThat(newInstance.slug).isEqualTo(oldInstance.slug)
-            assertThat(oldInstance.pipelineConfigId).isEqualTo(pipelineConfig.id)
-            assertThat(newInstance.pipelineConfigId).isEqualTo(null)
-            assertThat(oldInstance.dataInstanceId).isEqualTo(null)
-            assertThat(newInstance.dataInstanceId).isEqualTo(createdInstance.id)
+            assertThat(oldInstance.pipelineConfiguration!!.id).isEqualTo(pipelineConfig.id)
+            assertThat(newInstance.pipelineConfiguration).isEqualTo(null)
+            assertThat(oldInstance.pipeline).isEqualTo(null)
+            assertThat(newInstance.pipeline).isEqualTo(pipeline)
             assertThat(oldInstance.experimentProcessingId).isEqualTo(null)
             assertThat(newInstance.experimentProcessingId).isEqualTo(null)
             assertThat(newInstance.experimentPostProcessingId).isEqualTo(null)
             assertThat(newInstance.experimentPreProcessingId).isEqualTo(null)
         }
 
-        createdInstance.inputFiles.forEachIndexed { index, newInstance ->
-            val oldInstance = pipelineConfig.inputFiles[index]
+        pipeline.inputFiles.forEachIndexed { index, file ->
+            val oldFile = pipelineConfig.inputFiles.toTypedArray()[index]
 
-            assertThat(newInstance.location).isEqualTo(oldInstance.location)
-            assertThat(newInstance.locationType).isEqualTo(oldInstance.locationType)
+            assertThat(file.location).isEqualTo(oldFile.location)
+            assertThat(file.locationType).isEqualTo(oldFile.locationType)
         }
     }
 
     @Test
     @Transactional
+    @Rollback
     fun `Can create DataInstance from PipelineConfig with useful targetBranchPattern`() {
         val testId = randomUUID()
         assertThat(createFullMockData("slug1").createTargetBranchName(testId, 1)).isEqualTo("data-pipeline/slug1-1")
@@ -485,6 +496,7 @@ class PipelineServiceTest : AbstractServiceTest() {
 
     @Test
     @Transactional
+    @Rollback
     fun `Can commit mlreef file to gitlab`() {
         val userToken = "userToken"
         val projectId = 1L
@@ -501,7 +513,8 @@ class PipelineServiceTest : AbstractServiceTest() {
             restClient.commitFiles(
                 token = userToken, targetBranch = targetBranch,
                 fileContents = fileContents, projectId = projectId, commitMessage = any(),
-                action = "create")
+                action = "create"
+            )
         } returns (Commit())
 
         val commit = service.commitYamlFile(userToken, projectId, targetBranch, fileContent, sourceBranch)
@@ -512,42 +525,45 @@ class PipelineServiceTest : AbstractServiceTest() {
         assertThat(commit).isNotNull
     }
 
-    private fun createFullMockData(name: String = "name"): PipelineConfig {
-        val gitlabId = 1 + personRepository.count()
-        val author = personRepository.save(Person(randomUUID(), "person-$gitlabId", "name $gitlabId", gitlabId, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now()))
+    private fun createFullMockData(name: String = "name", version: String? = null): PipelineConfiguration {
+        val codeProject = createCodeProject(
+            name = "Pipeline test code project",
+            slug = "code-project-pipeline-test-${randomUUID()}",
+            namespace = "test-$name",
+            gitlabId = Random.nextInt().absoluteValue.toLong(),
+            path = "path-$name",
+            processorType = operationProcessorType
+        )
 
-        baseEnv = baseEnvironmentsRepository.save(BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker1:latest", sdkVersion = "3.7"))
-
-        val codeProjectId = randomUUID()
-
-        codeProjectRepository.save(CodeProject(id = codeProjectId, slug = "code-project-$name", name = "CodeProject $name", ownerId = author.id, url = "url",
-            description = "description", gitlabNamespace = "test-$name", gitlabId = 2 + codeProjectRepository.count(), gitlabPath = "path-$name"))
-
-        val dataOperation = dataProcessorRepository.save(DataOperation(
-            id = randomUUID(), slug = "commons-augment", name = "Augment",
-            inputDataType = DataType.IMAGE, outputDataType = DataType.IMAGE,
-            visibilityScope = VisibilityScope.PUBLIC, author = author,
-            description = "description",
-            codeProjectId = codeProjectId))
-
-        val dataOp1 = processorVersionRepository.save(ProcessorVersion(
-            id = dataOperation.id, dataProcessor = dataOperation, publishingInfo = PublishingInfo(publisher = author),
-            command = "augment", number = 1, baseEnvironment = baseEnv))
+        val processor = createProcessor(
+            project = codeProject,
+            environment = baseEnv1,
+            branch = "master",
+            version = version ?: Random.nextLong().toString(),
+            mainScript = "main.py"
+        )
 
         val createPipelineConfig = service.createPipelineConfig(
-            ownerId,
-            dataRepositoryId,
+            mainPerson.id,
+            dataProject1.id,
             "DATA",
             name,
             "sourcebranch",
-            listOf(), listOf()
+            listOf(),
+            listOf(),
         )
 
-        createPipelineConfig.addProcessor(DataProcessorInstance(id = randomUUID(), processorVersion = dataOp1))
+        createProcessorInstance(processor, createPipelineConfig)
+//        processorInstancesRepository.save(
+//            createPipelineConfig.addProcessorInstance(
+//                ProcessorInstance(id = randomUUID(), processor = processor)
+//            )
+//        )
+
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path"))
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path2"))
-        return pipelineConfigRepository.save(createPipelineConfig)
+
+//        return pipelineConfigurationRepository.save(createPipelineConfig)
+        return saveEntity(createPipelineConfig, createPipelineConfig.id, pipelineConfigurationRepository)
     }
 }

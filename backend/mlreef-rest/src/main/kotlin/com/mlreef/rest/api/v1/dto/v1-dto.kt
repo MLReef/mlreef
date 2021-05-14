@@ -1,7 +1,7 @@
 package com.mlreef.rest.api.v1.dto
 
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.I18N
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.I18N
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.ValidationException
 import org.springframework.validation.FieldError

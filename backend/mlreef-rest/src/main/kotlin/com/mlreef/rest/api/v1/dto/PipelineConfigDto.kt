@@ -1,10 +1,11 @@
 package com.mlreef.rest.api.v1.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.PipelineConfig
-import com.mlreef.rest.helpers.DataClassWithId
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.PipelineConfiguration
+import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.helpers.DataClassWithId
+import com.mlreef.rest.exceptions.InternalException
 import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
@@ -18,21 +19,25 @@ data class PipelineConfigDto(
     val name: String,
     @get:NotEmpty val sourceBranch: String,
     val targetBranchPattern: String = "",
-    @get:Valid val dataOperations: List<DataProcessorInstanceDto>? = arrayListOf(),
+    @get:Valid val dataOperations: List<ProcessorInstanceDto>? = arrayListOf(),
     @get:Valid val inputFiles: List<FileLocationDto>? = arrayListOf(),
-    val instances: List<PipelineInstanceDto>? = null
+    val instances: List<PipelineDto>? = null,
+    val createdBy: UUID? = null,
 ) : DataClassWithId
 
-internal fun PipelineConfig.toDto(instances: List<PipelineInstanceDto>? = null): PipelineConfigDto =
+internal fun PipelineConfiguration.toDto(): PipelineConfigDto =
     PipelineConfigDto(
         id = this.id,
         slug = this.slug,
         name = this.name,
-        pipelineType = this.pipelineType.name,
-        dataProjectId = this.dataProjectId,
+        pipelineType = this.pipelineType?.name
+            ?: throw InternalException("Pipeline configuration has no pipeline type"),
+        dataProjectId = this.dataProject?.id
+            ?: throw InternalException("Pipeline configuration ${this.id} is detached from Data project"),
         sourceBranch = this.sourceBranch,
         targetBranchPattern = this.targetBranchPattern,
         inputFiles = this.inputFiles.map(FileLocation::toDto),
-        dataOperations = this.dataOperations.map(DataProcessorInstance::toDto),
-        instances = instances
+        dataOperations = this.processorInstances.map(ProcessorInstance::toDto),
+        instances = this.pipelines.map(com.mlreef.rest.domain.Pipeline::toDto),
+        createdBy = this.creator?.id,
     )

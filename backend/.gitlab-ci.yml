@@ -1,7 +1,6 @@
 .only-on-backend-code-changes:
   only:
     changes:
-      - backend/mlreef-domain/src/**/*
       - backend/mlreef-rest/src/**/*
       - backend/Dockerfile
       - backend/gradle.properties

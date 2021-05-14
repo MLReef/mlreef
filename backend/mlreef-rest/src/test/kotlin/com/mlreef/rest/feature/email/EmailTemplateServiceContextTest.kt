@@ -5,6 +5,8 @@ import com.ninjasquad.springmockk.SpykBean
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 
 class EmailTemplateServiceContextTest : AbstractContextTest() {
     @SpykBean
@@ -14,6 +16,8 @@ class EmailTemplateServiceContextTest : AbstractContextTest() {
     fun setUp() {
     }
 
+    @Transactional
+    @Rollback
     @Test
     fun `reset password html template generates message`() {
         val params = mapOf(
@@ -26,6 +30,8 @@ class EmailTemplateServiceContextTest : AbstractContextTest() {
         assertThat(html).contains("Hello Test user")
     }
 
+    @Transactional
+    @Rollback
     @Test
     fun `reset password text template generates message`() {
         val params = mapOf(
@@ -38,6 +44,8 @@ class EmailTemplateServiceContextTest : AbstractContextTest() {
         assertThat(html).contains("Dear Test user")
     }
 
+    @Transactional
+    @Rollback
     @Test
     fun `welcome message html template generates message`() {
         val params = mapOf(
@@ -49,6 +57,8 @@ class EmailTemplateServiceContextTest : AbstractContextTest() {
         assertThat(html).contains("Hello Test user")
     }
 
+    @Transactional
+    @Rollback
     @Test
     fun `welcome message text template generates message`() {
         val params = mapOf(

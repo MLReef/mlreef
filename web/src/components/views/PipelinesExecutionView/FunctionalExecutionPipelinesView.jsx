@@ -202,9 +202,7 @@ const FunctionalExecutionPipelinesView = (props) => {
           </MCard.Section>
 
           <MCard.Section>
-            <DragDropZone
-              isExperiment={isExperiment}
-            />
+            <DragDropZone isExperiment={isExperiment} />
           </MCard.Section>
         </MCard>
 

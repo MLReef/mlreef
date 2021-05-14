@@ -10,6 +10,7 @@ import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
+import org.testcontainers.containers.wait.strategy.Wait
 import java.time.Duration
 
 @ActiveProfiles(ApplicationProfiles.TEST)
@@ -30,9 +31,14 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
                 .withTimes(1)
                 .withStartupTimeout(Duration.ofSeconds(600))
 
+            val waitStrategyForHealthCheck = Wait
+                .forHealthcheck()
+                .withStartupTimeout(Duration.ofSeconds(900))
+
             val container = TestGitlabContainer().apply {
                 withExposedPorts(80)
                 setWaitStrategy(waitStrategyForLog)
+                setWaitStrategy(waitStrategyForHealthCheck)
                 withLogConsumer(Slf4jLogConsumer(logger))
                 withEnv(createConfig())
                 withClasspathResourceMapping("gitlab.rb", "/etc/gitlab/gitlab.rb", BindMode.READ_ONLY)
@@ -58,7 +64,7 @@ class TestGitlabContainer private constructor() : GenericContainer<TestGitlabCon
         override fun initialize(applicationContext: ConfigurableApplicationContext) {
             val container = instance
             container.start()
-            Thread.sleep(WAIT_FOR_COMPLETE_CONTAINER_UP_MS)
+//            Thread.sleep(WAIT_FOR_COMPLETE_CONTAINER_UP_MS)
             val port = container.firstMappedPort
             val host = container.containerIpAddress
             val gitlabRootUrl = "http://$host:$port"

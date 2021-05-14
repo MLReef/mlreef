@@ -1,36 +1,28 @@
 package com.mlreef.rest.api
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.DataProject
-import com.mlreef.rest.ParameterType
-import com.mlreef.rest.Person
-import com.mlreef.rest.ProcessorVersion
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
-import com.mlreef.rest.api.v1.dto.DataProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.ExperimentDto
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GitlabCommonException
+import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -38,40 +30,19 @@ import javax.transaction.Transactional
 @Suppress("UsePropertyAccessSyntax")
 class ExperimentsApiTest : AbstractRestApiTest() {
 
-    private lateinit var dataOp1: ProcessorVersion
-    private lateinit var dataOp2: ProcessorVersion
-    private lateinit var dataOp3: ProcessorVersion
-    private lateinit var subject: Person
-    private lateinit var dataProject: DataProject
-    private lateinit var dataProject2: DataProject
     val rootUrl = "/api/v1/data-projects"
     val epfUrl = "/api/v1/epf"
-
-    @Autowired
-    private lateinit var pipelineTestPreparationTrait: PipelineTestPreparationTrait
 
     @BeforeEach
     @Transactional
     fun prepareRepo() {
         MockKAnnotations.init(this, relaxUnitFun = true, relaxed = true)
-        pipelineTestPreparationTrait.apply()
-        account = pipelineTestPreparationTrait.account
-        token = pipelineTestPreparationTrait.token
-        subject = pipelineTestPreparationTrait.subject
-        dataOp1 = pipelineTestPreparationTrait.procVersion1!!
-        dataOp2 = pipelineTestPreparationTrait.procVersion2!!
-        dataOp3 = pipelineTestPreparationTrait.procVersion3!!
-        dataProject = pipelineTestPreparationTrait.dataProject
-        dataProject2 = pipelineTestPreparationTrait.dataProject2
-
         mockGitlabPipelineWithBranch("targetBranch")
-        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
     }
 
     @AfterEach
     @Transactional
     fun clearRepo() {
-        pipelineTestPreparationTrait.deleteAll()
     }
 
     @Transactional
@@ -79,6 +50,8 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can create new Experiment`() {
+        val dataProject = createDataProject()
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug-2",
             name = "Experiment Name",
@@ -86,31 +59,41 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             sourceBranch = "source",
             targetBranch = "target",
             inputFiles = listOf(FileLocationDto("folder")),
-            processing = DataProcessorInstanceDto("commons-algorithm", listOf(
-                ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
-                ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
-            )),
+            processing = ProcessorInstanceDto(
+                slug = "commons-algorithm",
+                parameters = listOf(
+                    ParameterInstanceDto("booleanParam", type = "BOOLEAN", value = "true"),
+                    ParameterInstanceDto("complexName", type = "COMPLEX", value = "(1.0, 2.0)")
+                )
+            ),
             postProcessing = listOf(
-                DataProcessorInstanceDto("commons-data-visualisation", listOf(
-                    ParameterInstanceDto("tupleParam", type = ParameterType.TUPLE.name, value = "(\"asdf\", 1.0)"),
-                    ParameterInstanceDto("hashParam", type = ParameterType.DICTIONARY.name, value = "{\"key\":\"value\"}")
-                ))))
+                ProcessorInstanceDto(
+                    slug = "commons-data-visualisation",
+                    parameters = listOf(
+                        ParameterInstanceDto(
+                            "tupleParam",
+                            type = "TUPLE",
+                            value = "(\"asdf\", 1.0)"
+                        ),
+                        ParameterInstanceDto(
+                            "hashParam",
+                            type = "DICTIONARY",
+                            value = "{\"key\":\"value\"}"
+                        )
+                    )
+                )
+            )
+        )
 
-        this.mockGetUserProjectsList(listOf(dataProject.id), account, AccessLevel.OWNER)
+        this.mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
 
         val url = "$rootUrl/${dataProject.id}/experiments"
         val returnedResult: ExperimentDto = this.performPost(url, token, request)
             .andExpect(status().isOk)
-            .document("experiments-create-success",
-                requestFields(experimentCreateRequestFields())
-                    .and(dataProcessorInstanceFields("post_processing[]."))
-                    .and(dataProcessorInstanceFields("processing."))
-                    .and(fileLocationsFields("input_files[].")),
-                responseFields(experimentDtoResponseFields())
-                    .and(pipelineInfoDtoResponseFields("pipeline_job_info."))
-                    .and(dataProcessorInstanceFields("post_processing[]."))
-                    .and(dataProcessorInstanceFields("processing."))
-                    .and(fileLocationsFields("input_files[]."))
+            .document(
+                "experiments-create-success",
+                requestFields(experimentRequestFields()),
+                responseFields(experimentResponseFields())
             )
             .returns(ExperimentDto::class.java)
 
@@ -121,7 +104,23 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     fun `Can create second Experiment with different slug for same project`() {
-        createExperiment(dataProject.id, dataOp1, "first-experiment")
+        val dataProject = createDataProject()
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        createExperiment(
+            pipeline,
+            "slug1",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -129,10 +128,13 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             sourceBranch = "source",
             targetBranch = "target",
             inputFiles = listOf(FileLocationDto("folder")),
-            processing = DataProcessorInstanceDto("commons-algorithm", listOf(
-                ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
-                ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
-            ))
+            processing = ProcessorInstanceDto(
+                slug = "commons-algorithm",
+                parameters = listOf(
+                    ParameterInstanceDto("booleanParam", type = "BOOLEAN", value = "true"),
+                    ParameterInstanceDto("complexName", type = "COMPLEX", value = "(1.0, 2.0)")
+                )
+            )
         )
         val url = "$rootUrl/${dataProject.id}/experiments"
         val returnedResult: ExperimentDto = performPost(url, token, body = request)
@@ -146,7 +148,22 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     fun `Can create second Experiment with same slug for different project`() {
-        createExperiment(dataProject.id, dataOp1, "experiment-slug")
+        val dataProject1 = createDataProject()
+        val dataProject2 = createDataProject()
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject1, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject1
+        )
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -154,13 +171,16 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             sourceBranch = "source",
             targetBranch = "target",
             inputFiles = listOf(FileLocationDto("folder")),
-            processing = DataProcessorInstanceDto("commons-algorithm", listOf(
-                ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
-                ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
-            ))
+            processing = ProcessorInstanceDto(
+                slug = "commons-algorithm",
+                parameters = listOf(
+                    ParameterInstanceDto("booleanParam", type = "BOOLEAN", value = "true"),
+                    ParameterInstanceDto("complexName", type = "COMPLEX", value = "(1.0, 2.0)")
+                )
+            )
         )
 
-        this.mockGetUserProjectsList(listOf(dataProject.id, dataProject2.id), account, AccessLevel.OWNER)
+        mockUserAuthentication(listOf(dataProject1.id, dataProject2.id), mainAccount, AccessLevel.OWNER)
 
         val url = "$rootUrl/${dataProject2.id}/experiments"
 
@@ -175,8 +195,23 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     fun `Cannot create new Experiment with duplicate slug`() {
+        val dataProject = createDataProject()
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
 
-        createExperiment(dataProject.id, dataOp1, "experiment-slug")
+        createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
         val request = ExperimentCreateRequest(
             slug = "experiment-slug",
             name = "Experiment Name",
@@ -184,10 +219,13 @@ class ExperimentsApiTest : AbstractRestApiTest() {
             sourceBranch = "source",
             targetBranch = "target",
             inputFiles = listOf(FileLocationDto("folder")),
-            processing = DataProcessorInstanceDto("commons-algorithm", listOf(
-                ParameterInstanceDto("booleanParam", type = ParameterType.BOOLEAN.name, value = "true"),
-                ParameterInstanceDto("complexName", type = ParameterType.COMPLEX.name, value = "(1.0, 2.0)")
-            ))
+            processing = ProcessorInstanceDto(
+                slug = "commons-algorithm",
+                parameters = listOf(
+                    ParameterInstanceDto("booleanParam", type = "BOOLEAN", value = "true"),
+                    ParameterInstanceDto("complexName", type = "COMPLEX", value = "(1.0, 2.0)")
+                )
+            )
         )
         val url = "$rootUrl/${dataProject.id}/experiments"
         this.performPost(url, token, request).andExpect(status().isConflict)
@@ -198,19 +236,52 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve all own Experiments`() {
+        val dataProject1 = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val dataProject2 = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject1, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+        val files = arrayListOf(FileLocation.fromPath("folder"))
 
-        createExperiment(dataProject.id, dataOp1, "experiment-1-slug")
-        createExperiment(dataProject.id, dataOp1, "experiment-2-slug")
-        createExperiment(dataProject2.id, dataOp1, "experiment-3-slug")
+        createExperiment(
+            pipeline,
+            "experiment-slug-1",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject1,
+            inputFiles = files
+        )
+        createExperiment(
+            pipeline,
+            "experiment-slug-2",
+            "My second experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject1,
+            inputFiles = files
+        )
+        createExperiment(
+            pipeline,
+            "experiment-slug-3",
+            "My third experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject2,
+            inputFiles = files
+        )
 
-        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject.id}/experiments", token)
+        mockUserAuthentication(listOf(dataProject1.id, dataProject2.id), mainAccount, AccessLevel.OWNER)
+
+        val returnedResult: List<ExperimentDto> = performGet("$rootUrl/${dataProject1.id}/experiments", token)
             .andExpect(status().isOk)
-            .document("experiments-retrieve-all",
-                responseFields(experimentDtoResponseFields("[]."))
+            .document(
+                "experiments-retrieve-all",
+                responseFields(experimentResponseFields("[]."))
                     .and(pipelineInfoDtoResponseFields("[].pipeline_job_info."))
                     .and(dataProcessorInstanceFields("[].post_processing[]."))
                     .and(fileLocationsFields("[].input_files[]."))
-                    .and(dataProcessorInstanceFields("[].processing.")))
+                    .and(dataProcessorInstanceFields("[].processing."))
+            )
             .returnsList(ExperimentDto::class.java)
         assertThat(returnedResult.size).isEqualTo(2)
     }
@@ -220,15 +291,35 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific own Experiment`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
-        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}", token)
+        val dataProject = createDataProject()
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+        val files = arrayListOf(FileLocation.fromPath("folder"))
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            inputFiles = files,
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment.id}", token)
             .andExpect(status().isOk)
-            .document("experiments-retrieve-one",
-                responseFields(experimentDtoResponseFields())
+            .document(
+                "experiments-retrieve-one",
+                responseFields(experimentResponseFields())
                     .and(pipelineInfoDtoResponseFields("pipeline_job_info."))
                     .and(dataProcessorInstanceFields("post_processing[]."))
                     .and(fileLocationsFields("input_files[]."))
-                    .and(dataProcessorInstanceFields("processing.")))
+                    .and(dataProcessorInstanceFields("processing."))
+            )
 
     }
 
@@ -237,29 +328,100 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve specific own Experiment via number`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
-        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.number}", token).andExpect(status().isOk)
+        val dataProject = createDataProject()
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment.number}", token).andExpect(status().isOk)
     }
 
     @Transactional
     @Rollback
     @Test
-    fun `Cannot retrieve foreign Experiment`() {
-        val experiment1 = createExperiment(dataProject2.id, dataOp1)
+    fun `Cannot retrieve foreign Experiment of Private DataProject`() {
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
 
-        this.performGet("$rootUrl/${dataProject2.id}/experiments/${experiment1.id}", token)
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject
+        )
+
+        mockUserAuthentication(listOf(), mainAccount, AccessLevel.OWNER)
+
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment.id}", token)
             .andExpect(status().isForbidden)
     }
 
     @Transactional
     @Rollback
     @Test
+    fun `Can retrieve foreign Experiment of Public DataProject`() {
+        val dataProject = createDataProject(visibility = VisibilityScope.PUBLIC)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject
+        )
+
+        mockUserAuthentication(listOf(), mainAccount, AccessLevel.OWNER)
+
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment.id}", token)
+            .andExpect(status().isOk)
+    }
+
+
+    @Transactional
+    @Rollback
+    @Test
     @Tag(TestTags.RESTDOC)
     fun `Can finish own Experiment's pipelineJobInfo`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        val dataProject = createDataProject(visibility = VisibilityScope.PUBLIC)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
 
-        val beforeRequestTime = ZonedDateTime.now()
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            testPipelineJobInfo = createTestPipelineInfo(),
+        )
+
+        val beforeRequestTime = Instant.now()
+        val secret = experimentsRepository.findByIdOrNull(experiment.id)!!.pipelineJobInfo!!.secret!!
 
         val tokenDetails = TokenDetails(
             "testusername",
@@ -271,16 +433,18 @@ class ExperimentsApiTest : AbstractRestApiTest() {
 
         mockSecurityContextHolder(tokenDetails)
 
-        val returnedResult = this.performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
+        val returnedResult = this.performEPFPut(secret, "$epfUrl/experiments/${experiment.id}/finish")
             .andExpect(status().isOk)
-            .document("experiments-epf-finish",
-                responseFields(pipelineInfoDtoResponseFields()))
+            .document(
+                "experiments-epf-finish",
+                responseFields(pipelineInfoDtoResponseFields())
+            )
             .returns(PipelineJobInfoDto::class.java)
 
         assertThat(returnedResult).isNotNull()
         assertThat(returnedResult.finishedAt).isNotNull()
         assertThat(returnedResult.finishedAt).isAfter(beforeRequestTime)
-        assertThat(returnedResult.finishedAt).isBefore(ZonedDateTime.now())
+        assertThat(returnedResult.finishedAt).isBefore(Instant.now())
     }
 
     @Transactional
@@ -288,10 +452,24 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can update own Experiment's pipelineJobInfo`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        val dataProject = createDataProject(visibility = VisibilityScope.PUBLIC)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            testPipelineJobInfo = createTestPipelineInfo(),
+        )
 
         val beforeRequestTime = ZonedDateTime.now()
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
+        val secret = experimentsRepository.findByIdOrNull(experiment.id)!!.pipelineJobInfo!!.secret!!
 
         val tokenDetails = TokenDetails(
             "testusername",
@@ -303,12 +481,16 @@ class ExperimentsApiTest : AbstractRestApiTest() {
 
         mockSecurityContextHolder(tokenDetails)
 
-        val returnedResult = this.performEPFPut(token,
-            "$epfUrl/experiments/${experiment1.id}/update",
-            FileLocationDto("file"))
+        val returnedResult = this.performEPFPut(
+            secret,
+            "$epfUrl/experiments/${experiment.id}/update",
+            FileLocationDto("file")
+        )
             .andExpect(status().isOk)
-            .document("experiments-epf-update",
-                responseFields(pipelineInfoDtoResponseFields()))
+            .document(
+                "experiments-epf-update",
+                responseFields(pipelineInfoDtoResponseFields())
+            )
             .returns(PipelineJobInfoDto::class.java)
 
         assertThat(returnedResult).isNotNull()
@@ -319,13 +501,30 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's pipelineJobInfo`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
 
-        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", token)
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            testPipelineJobInfo = createTestPipelineInfo(),
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment.id}/info", token)
             .andExpect(status().isOk)
             .document(
                 "experiments-retrieve-one-info",
-                responseFields(pipelineInfoDtoResponseFields()))
+                responseFields(pipelineInfoDtoResponseFields())
+            )
     }
 
     @Transactional
@@ -333,8 +532,25 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's pipelineJobInfo via number`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
-        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.number}/info", token).andExpect(status().isOk)
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            testPipelineJobInfo = createTestPipelineInfo(),
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        performGet("$rootUrl/${dataProject.id}/experiments/${experiment.number}/info", token).andExpect(status().isOk)
     }
 
     @Transactional
@@ -342,9 +558,26 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's MLReef file`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val files = arrayListOf(FileLocation.fromPath("folder"))
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
 
-        val result = performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/mlreef-file", token)
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            inputFiles = files,
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        val result = performGet("$rootUrl/${dataProject.id}/experiments/${experiment.id}/mlreef-file", token)
             .andExpect(status().isOk)
             .document("experiments-retrieve-one-mlreef-file")
             .andReturn()
@@ -359,19 +592,61 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve own Experiment's MLReef file via number`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
-        performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.number}/mlreef-file", token).andExpect(status().isOk)
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val files = arrayListOf(FileLocation.fromPath("folder"))
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            inputFiles = files,
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        performGet(
+            "$rootUrl/${dataProject.id}/experiments/${experiment.number}/mlreef-file",
+            token
+        ).andExpect(status().isOk)
     }
 
     @Transactional
     @Rollback
     @Test
     fun `Can start own Experiment as gitlab pipeline`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+        val files = arrayListOf(FileLocation.fromPath("folder"))
 
-        every { restClient.adminGetBranch(any(), any()) } throws GitlabCommonException(404, ErrorCode.NotFound, "Branch not found exception")
+        mockGitlabBranchExisting(branchName = pipeline.targetBranch, exists = true)
+        mockGitlabBranchExisting(branchName = "${pipeline.targetBranch}-1", exists = true)
+        mockGitlabBranchExisting(branchName = "${pipeline.targetBranch}-2", exists = true)
+        mockGitlabBranchExisting(branchName = "${pipeline.targetBranch}-3", exists = true)
+        mockGitlabBranchExisting(branchName = "${pipeline.targetBranch}-4", exists = false)
 
-        val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", token)
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject,
+            inputFiles = files,
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
+
+        val pipelineJobInfoDto = performPost("$rootUrl/${dataProject.id}/experiments/${experiment.id}/start", token)
             .andExpect(status().isOk)
             .document("experiments-create-mlreef-file-commit")
             .returns(PipelineJobInfoDto::class.java)
@@ -381,6 +656,9 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         assertThat(pipelineJobInfoDto.committedAt).isNotNull()
         assertThat(pipelineJobInfoDto.updatedAt).isNull()
         assertThat(pipelineJobInfoDto.finishedAt).isNull()
+
+        val experimentInDb = experimentsRepository.findByIdOrNull(experiment.id)!!
+        assertThat(experimentInDb.targetBranch).isEqualTo("${pipeline.targetBranch}-4")
     }
 
     @Deprecated("See IntegrationTest")
@@ -389,40 +667,44 @@ class ExperimentsApiTest : AbstractRestApiTest() {
     @Test
     @Disabled
     fun `Can manipulate Experiment in the correct Order PENDING - RUNNING - SUCCESS`() {
-        val experiment1 = createExperiment(dataProject.id, dataOp1)
+        val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
+        val codeProject = createCodeProject()
+        val processor = createProcessor(codeProject)
+        val processorInstance = createProcessorInstance(processor)
+        val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
+        val pipeline = createPipeline(pipelineConfig, number = 1)
+
+        val experiment = createExperiment(
+            pipeline,
+            "experiment-slug",
+            "My first experiment",
+            processorInstance = processorInstance,
+            dataProject = dataProject
+        )
+
+        mockUserAuthentication(listOf(dataProject.id), mainAccount, AccessLevel.OWNER)
 
         mockGitlabPipelineWithBranch(
-            targetBranch = experiment1.targetBranch
+            targetBranch = experiment.targetBranch
         )
         // Start experiment
-        this.performPost("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/start", token)
+        this.performPost("$rootUrl/${dataProject.id}/experiments/${experiment.id}/start", token)
             .andExpect(status().isOk)
 
-        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment1.id}/info", token)
+        this.performGet("$rootUrl/${dataProject.id}/experiments/${experiment.id}/info", token)
             .andExpect(status().isOk)
             .returns(PipelineJobInfoDto::class.java)
 
-        val token = experimentRepository.findByIdOrNull(experiment1.id)!!.pipelineJobInfo!!.secret!!
+        val secret = experimentsRepository.findByIdOrNull(experiment.id)!!.pipelineJobInfo!!.secret!!
 
-        val update = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/update", body = Object())
+        val update = performEPFPut(secret, "$epfUrl/experiments/${experiment.id}/update", body = Object())
             .returns(PipelineJobInfoDto::class.java)
 
         assertThat(update).isNotNull()
-        val finish = performEPFPut(token, "$epfUrl/experiments/${experiment1.id}/finish")
+        val finish = performEPFPut(secret, "$epfUrl/experiments/${experiment.id}/finish")
             .returns(PipelineJobInfoDto::class.java)
         assertThat(finish).isNotNull()
     }
 
-    private fun experimentCreateRequestFields(): List<FieldDescriptor> {
-        return listOf(
-            fieldWithPath("data_instance_id").optional().type(JsonFieldType.STRING).description("An optional UUID of a optional DataInstance. Check that it matches the source_branch"),
-            fieldWithPath("slug").type(JsonFieldType.STRING).description("A slug which is unique scoped to this DataProject"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("A name for that Experiment. I does not have to be unique, but it should be."),
-            fieldWithPath("input_files").type(JsonFieldType.ARRAY).description("List of input files (folders) for processing"),
-            fieldWithPath("source_branch").type(JsonFieldType.STRING).description("Branch name for initial checkout"),
-            fieldWithPath("target_branch").type(JsonFieldType.STRING).description("Branch name for destination"),
-            fieldWithPath("post_processing").type(JsonFieldType.ARRAY).optional().description("An optional List of DataProcessors used during PostProcessing"),
-            fieldWithPath("processing").type(JsonFieldType.OBJECT).optional().description("An optional DataAlgorithm")
-        )
-    }
+
 }

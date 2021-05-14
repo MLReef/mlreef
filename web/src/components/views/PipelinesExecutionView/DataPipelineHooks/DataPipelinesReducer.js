@@ -14,7 +14,7 @@ import {
   SET_PROCESSOR_SELECTED,
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
-  UPDATE_CURRENT_PROCESSORS_ARRAY
+  UPDATE_CURRENT_PROCESSORS_ARRAY,
 } from './actions';
 
 const mlSearchApi = new MLSearchApi();
@@ -137,17 +137,31 @@ export const fetchProcessorsPaginatedByType = (operationTypeToExecute, body) => 
       slug: projSlug,
       input_data_types: inputDataTypes,
       stars_count: stars,
-      data_processor: processor,
+      processors,
     } = proj;
+    const processor = processors
+      ?.filter(({ branch }) => branch === 'master')
+      ?.sort((proc1, proc2) => {
+        if (new Date(proc2.publish_finished_at) > new Date(proc1.publish_finished_at)) {
+          return 1;
+        }
+
+        if (new Date(proc2.publish_finished_at) < new Date(proc1.publish_finished_at)) {
+          return -1;
+        }
+
+        return 0;
+      })[0];
+
+    console.log(processor);
     return {
       ...processor,
-      parameters: processor.versions[0].parameters,
+      parameters: processor.parameters,
       nameSpace,
       slug: projSlug,
       inputDataTypes,
       stars,
     };
-  }))
-
+  }));
 
 export default DataPipelinesReducer;

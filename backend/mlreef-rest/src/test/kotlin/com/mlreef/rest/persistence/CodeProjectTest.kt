@@ -1,18 +1,20 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.CodeProject
 import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.Person
-import com.mlreef.rest.UserRole
+import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.Person
+import com.mlreef.rest.domain.ProcessorType
+import com.mlreef.rest.domain.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.annotation.Rollback
+import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
-import javax.transaction.Transactional
 
 class CodeProjectTest : AbstractRepositoryTest() {
 
@@ -26,17 +28,20 @@ class CodeProjectTest : AbstractRepositoryTest() {
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = ZonedDateTime.now())
         val entity = CodeProject(id = id, slug = "code-project-augment", name = "CodeProject Augment", ownerId = person.id, url = "url",
-            gitlabNamespace = "", gitlabId = 0, gitlabPath = "", description = "")
+            gitlabNamespace = "", gitlabId = 0, gitlabPath = "", description = "", processorType = ProcessorType(
+                randomUUID(), "Type"))
         return Pair(id, entity)
     }
 
     @Transactional
+    @Rollback
     @BeforeEach
     fun prepare() {
         truncateDbTables(listOf("account", "account_token"), cascade = true)
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `find works`() {
         val (id, entity) = createEntity()
@@ -47,6 +52,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `save works`() {
         val (id, entity) = createEntity()
@@ -58,6 +64,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `update works`() {
         val (_, entity) = createEntity()
@@ -71,6 +78,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `delete works`() {
         val (_, entity) = createEntity()

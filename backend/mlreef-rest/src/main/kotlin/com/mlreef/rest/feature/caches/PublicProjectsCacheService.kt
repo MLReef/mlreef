@@ -1,17 +1,17 @@
 package com.mlreef.rest.feature.caches
 
-import com.mlreef.rest.AccessLevel
-import com.mlreef.rest.AuditEntity
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.Project
+import com.mlreef.rest.domain.AccessLevel
+import com.mlreef.rest.domain.AuditEntity
+import com.mlreef.rest.domain.Project
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.feature.caches.repositories.PublicProjectsRepository
+import com.mlreef.rest.feature.project.ProjectResolverService
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -36,22 +36,23 @@ interface PublicProjectsCacheService : MessageListener {
 @Service
 class RedisPublicProjectsCacheService(
     publicProjectsRepository: PublicProjectsRepository,
-    private val codeProjectRepository: CodeProjectRepository,
-    private val dataProjectsRepository: DataProjectRepository,
-    private val gitlabClient: GitlabRestClient
+    private val gitlabClient: GitlabRestClient,
+    @Lazy
+    private val projectResolverService: ProjectResolverService,
 ) : PublicProjectsCacheService {
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
+    init {
+        log.info("Public project service run...")
+    }
+
     private val initializedProjectsRepository: PublicProjectsRepository by lazy {
         val publicProjectsList = gitlabClient.unauthenticatedGetAllPublicProjects()
         val projectsList = publicProjectsList.map {
-            val projectInDb = (
-                codeProjectRepository.findByGitlabId(it.id)
-                    ?: dataProjectsRepository.findByGitlabId(it.id)
-                ) as? AuditEntity?
+            val projectInDb = projectResolverService.resolveProject(projectGitlabId = it.id)
             PublicProjectHash(it.id, projectInDb?.id)
         }
         publicProjectsRepository.saveAll(projectsList)
@@ -113,10 +114,7 @@ class RedisPublicProjectsCacheService(
     }
 
     private fun refreshProjectInCache(projectId: UUID) {
-        val projectAny = (
-            codeProjectRepository.findByIdOrNull(projectId)
-                ?: dataProjectsRepository.findByIdOrNull(projectId)
-            ) as Any?
+        val projectAny = projectResolverService.resolveProject(projectId)
 
         if (projectAny == null) {
             val projectHash = initializedProjectsRepository.findByProjectId(projectId)

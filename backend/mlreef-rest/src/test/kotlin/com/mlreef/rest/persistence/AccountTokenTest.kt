@@ -1,12 +1,13 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.AccountToken
 import com.mlreef.rest.AccountTokenRepository
+import com.mlreef.rest.domain.AccountToken
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.annotation.Rollback
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -23,12 +24,14 @@ class AccountTokenTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @BeforeEach
     fun prepare() {
         truncateDbTables(listOf("account", "account_token"), cascade = true)
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `find works`() {
         val (id, entity) = createEntity()
@@ -39,6 +42,7 @@ class AccountTokenTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `save works`() {
         val (id, entity) = createEntity()
@@ -50,6 +54,7 @@ class AccountTokenTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `update works`() {
         val (_, entity) = createEntity()
@@ -63,6 +68,7 @@ class AccountTokenTest : AbstractRepositoryTest() {
     }
 
     @Transactional
+    @Rollback
     @Test
     fun `delete works`() {
         val (_, entity) = createEntity()

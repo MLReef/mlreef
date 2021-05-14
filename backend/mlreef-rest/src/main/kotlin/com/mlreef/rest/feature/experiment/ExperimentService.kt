@@ -1,32 +1,38 @@
 package com.mlreef.rest.feature.experiment
 
-import com.mlreef.rest.Account
 import com.mlreef.rest.ApplicationConfiguration
-import com.mlreef.rest.DataProcessorInstance
-import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.EPF_CONTROLLER_PATH
-import com.mlreef.rest.Experiment
 import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.ExperimentStatus
-import com.mlreef.rest.FileLocation
-import com.mlreef.rest.ParameterInstance
-import com.mlreef.rest.PipelineInstanceRepository
-import com.mlreef.rest.PipelineJobInfo
-import com.mlreef.rest.ProcessorParameterRepository
-import com.mlreef.rest.ProcessorVersionRepository
+import com.mlreef.rest.ParametersRepository
+import com.mlreef.rest.PersonRepository
+import com.mlreef.rest.PipelinesRepository
+import com.mlreef.rest.ProcessorsRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.Experiment
+import com.mlreef.rest.domain.ExperimentStatus
+import com.mlreef.rest.domain.FileLocation
+import com.mlreef.rest.domain.ParameterInstance
+import com.mlreef.rest.domain.PipelineJobInfo
+import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.PublishStatus
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.ExperimentUpdateException
+import com.mlreef.rest.exceptions.InconsistentStateOfObject
 import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
+import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.pipeline.YamlFileGenerator
-import com.mlreef.utils.Slugs
+import com.mlreef.rest.feature.processors.ProcessorsService
+import com.mlreef.rest.feature.project.ProjectResolverService
+import com.mlreef.rest.utils.Slugs
 import lombok.RequiredArgsConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -41,12 +47,15 @@ class ExperimentService(
     private val conf: ApplicationConfiguration,
     private val experimentRepository: ExperimentRepository,
     private val subjectRepository: SubjectRepository,
-    private val dataProjectRepository: DataProjectRepository,
-    private val processorVersionRepository: ProcessorVersionRepository,
-    private val pipelineInstanceRepository: PipelineInstanceRepository,
-    private val processorParameterRepository: ProcessorParameterRepository,
+    private val projectResolverService: ProjectResolverService,
+    private val processorsRepository: ProcessorsRepository,
+    private val pipelineInstanceRepository: PipelinesRepository,
+    private val parametersRepository: ParametersRepository,
     private val yamlFileGenerator: YamlFileGenerator,
+    private val processorsService: ProcessorsService,
     private val gitlabRestClient: GitlabRestClient,
+    private val pipelineService: PipelineService,
+    private val personRepository: PersonRepository,
 ) {
     @PostConstruct
     fun init() {
@@ -57,11 +66,16 @@ class ExperimentService(
     val synchedExperimentNumber: Any = Object()
 
     fun getExperimentsForProject(projectId: UUID): List<Experiment> {
-        return experimentRepository.findAllByDataProjectId(projectId)
+        val dataProject = projectResolverService.resolveDataProject(projectId)
+            ?: throw NotFoundException("Project $projectId not found")
+        return experimentRepository.findAllByDataProject(dataProject)
     }
 
     fun getExperimentById(projectId: UUID, experimentId: UUID): Experiment? {
-        return experimentRepository.findOneByDataProjectIdAndId(projectId, experimentId)
+        val dataProject = projectResolverService.resolveDataProject(projectId)
+            ?: throw NotFoundException("Project $projectId not found")
+
+        return experimentRepository.findOneByDataProjectAndId(dataProject, experimentId)
     }
 
     /**
@@ -71,23 +85,24 @@ class ExperimentService(
     fun createExperiment(
         authorId: UUID,
         dataProjectId: UUID,
-        dataInstanceId: UUID?,
+        pipelineId: UUID?,
         slug: String,
         name: String,
         sourceBranch: String,
         targetBranch: String,
-        postProcessors: List<DataProcessorInstance> = listOf(),
+        postProcessors: List<ProcessorInstance> = listOf(),
         inputFiles: List<FileLocation>,
-        processorInstance: DataProcessorInstance,
+        processorInstance: ProcessorInstance,
     ): Experiment {
-        subjectRepository.findByIdOrNull(authorId)
-            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationOwnerMissing, "Owner is missing!")
-        dataProjectRepository.findByIdOrNull(dataProjectId)
-            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationProjectMissing, "DataProject is missing!")
+        val subject = personRepository.findByIdOrNull(authorId)
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationOwnerMissing, "Owner is missing!")
 
-        dataInstanceId?.let {
-            pipelineInstanceRepository.findByIdOrNull(dataInstanceId)
-                ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationDataInstanceMissing, "DataPipelineInstance with that Id is missing:$dataInstanceId")
+        val dataProject = projectResolverService.resolveDataProject(dataProjectId)
+            ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationOwnerMissing, "Project $dataProjectId not found for experiment!")
+
+        val pipeline = pipelineId?.let {
+            pipelineInstanceRepository.findByIdOrNull(it)
+                ?: throw ExperimentCreateException(ErrorCode.ExperimentCreationDataInstanceMissing, "DataPipelineInstance with that Id is missing:$it")
         }
 
         require(!name.isBlank()) { "name is missing!" }
@@ -103,21 +118,83 @@ class ExperimentService(
         return synchronized(synchedExperimentNumber) {
             val experiment = Experiment(
                 id = randomUUID(),
-                dataProjectId = dataProjectId,
-                dataInstanceId = dataInstanceId,
+                dataProject = dataProject,
+                pipeline = pipeline,
                 slug = validSlug,
                 name = name,
-                number = (experimentRepository.maxNumberByDataProjectId(dataProjectId) ?: 0) + 1,
+                number = (experimentRepository.maxNumberByDataProjectId(dataProject) ?: 0) + 1,
                 inputFiles = inputFiles,
                 sourceBranch = sourceBranch,
                 targetBranch = targetBranch,
+                creator = subject,
             )
 
             postProcessors.forEach { experiment.addPostProcessor(it) }
             experiment.setProcessor(processorInstance)
             experimentRepository.save(experiment)
         }
+    }
 
+    fun startExperiment(experiment: Experiment, token: String): Experiment {
+        val secret = pipelineService.createSecret()
+
+        val finalTargetBranch = getTargetBranchForExperiment(experiment)
+
+        val fileContent = this.createExperimentFile(
+            experiment = experiment,
+            author = experiment.creator?.account ?: throw InconsistentStateOfObject("Experiment has no author"),
+            secret = secret,
+            overrideTargetBranch = finalTargetBranch
+        )
+
+        val pipelineJobInfo = pipelineService.createStartGitlabPipeline(
+            userToken = token,
+            projectGitlabId = experiment.dataProject?.gitlabId ?: throw InconsistentStateOfObject("Experiment is not attached to data project"),
+            targetBranch = finalTargetBranch,
+            fileContent = fileContent,
+            sourceBranch = experiment.sourceBranch,
+            secret = secret
+        )
+
+        return this.savePipelineInfo(experiment, pipelineJobInfo, finalTargetBranch)
+    }
+
+    fun cancelExperiment(dataProjectId: UUID, experimentId: UUID): Experiment {
+        val dataProject = projectResolverService.resolveDataProject(dataProjectId)
+            ?: throw NotFoundException("Data project $dataProjectId was not found")
+
+        val experiment = experimentRepository.findByIdOrNull(experimentId)?.takeIf { it.dataProject?.id == dataProjectId }
+            ?: throw NotFoundException("Experiment $experimentId was not found or it is not in Data project $dataProjectId")
+
+        experiment.pipelineJobInfo?.gitlabId?.let {
+            try {
+                gitlabRestClient.adminCancelPipeline(dataProject.gitlabId, it)
+            } catch (ex: Exception) {
+                log.error("Cannot cancel pipeline #${experiment.pipelineJobInfo?.gitlabId} in gitlab for experiment $experimentId: Exception: $ex")
+            }
+        }
+
+        return experimentRepository.save(
+            experiment.copy(status = ExperimentStatus.CANCELED)
+        )
+    }
+
+    fun deleteExperiment(dataProjectId: UUID, experimentId: UUID) {
+        val dataProject = projectResolverService.resolveDataProject(dataProjectId)
+            ?: throw NotFoundException("Data project $dataProjectId was not found")
+
+        val canceledExperiment = cancelExperiment(dataProjectId, experimentId)
+
+        canceledExperiment.pipelineJobInfo?.gitlabId?.let {
+            try {
+                gitlabRestClient.adminDeletePipeline(dataProject.gitlabId, it)
+            } catch (ex: Exception) {
+                log.error("Cannot delete pipeline #${canceledExperiment.pipelineJobInfo?.gitlabId} in gitlab for experiment $experimentId: Exception: $ex")
+            }
+        }
+
+        dataProject.experiments.remove(canceledExperiment) //To disable cascade undelete reversal operation
+        experimentRepository.deleteById(canceledExperiment.id)
     }
 
     private inline fun require(value: Boolean, lazyMessage: () -> Any): Unit {
@@ -128,7 +205,7 @@ class ExperimentService(
     }
 
     fun createExperimentFile(author: Account, experiment: Experiment, secret: String, overrideTargetBranch: String? = null): String {
-        val processors: MutableList<DataProcessorInstance> = arrayListOf()
+        val processors: MutableList<ProcessorInstance> = arrayListOf()
         experiment.getProcessor()?.let { processors.add(it) }
         processors.addAll(experiment.postProcessing)
 
@@ -144,7 +221,8 @@ class ExperimentService(
             epfImageTag = conf.epf.imageTag,
             sourceBranch = experiment.sourceBranch,
             targetBranch = overrideTargetBranch ?: experiment.targetBranch,
-            dataProcessors = processors,
+            processorsInstances = processors,
+            retries = conf.epf.retriesForPipeline,
         )
     }
 
@@ -157,54 +235,58 @@ class ExperimentService(
         }
     }
 
-    fun newDataProcessorInstance(processorSlug: String): DataProcessorInstance =
-        processorVersionRepository.findAllBySlug(processorSlug, PageRequest.of(0, 1))
-            .firstOrNull()
-            ?.let { DataProcessorInstance(randomUUID(), it) }
-            ?: throw ExperimentCreateException(ErrorCode.DataProcessorNotUsable, processorSlug)
+    fun newProcessorInstance(id: UUID? = null, slug: String? = null, codeProjectId: UUID? = null, branch: String? = null, version: String? = null): ProcessorInstance {
+        val processor = processorsService.findProcessor(id, slug, codeProjectId, branch, version)
+            ?.takeIf { it.status in listOf(PublishStatus.PUBLISHED, PublishStatus.PUBLISH_FINISHING) }
+            ?: throw NotFoundException("Processor ${id ?: slug ?: codeProjectId?.let { "$it ${branch} ${version}" }} not found or is in unpublished/failed state")
+
+        return processor.let { ProcessorInstance(randomUUID(), it) }
+    }
 
 
-    fun addParameterInstance(processorInstance: DataProcessorInstance, name: String, value: String): ParameterInstance =
-        processorParameterRepository
-            .findByProcessorVersionIdAndName(processorInstance.processorVersion.id, name)
-            ?.let { processorInstance.addParameterInstances(it, value) }
+    fun addParameterInstance(processorInstance: ProcessorInstance, name: String, value: String): ParameterInstance =
+        parametersRepository
+            .findByProcessorAndName(processorInstance.processor, name)
+            ?.let { processorInstance.createParameterInstances(it, value) }
             ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, name)
 
 
-    fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo, targetBranch: String? = null): Experiment =
-        experiment
-            .copy(
-                status = ExperimentStatus.PENDING,
-                pipelineJobInfo = pipelineJobInfo,
-                targetBranch = targetBranch ?: experiment.targetBranch,
-            )
-            .let { experimentRepository.save(it) }
+    fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo, targetBranch: String? = null): Experiment {
+        experiment.status = ExperimentStatus.PENDING
+        experiment.pipelineJobInfo = pipelineJobInfo
+        experiment.targetBranch = if (targetBranch == null || experiment.targetBranch == targetBranch) {
+            experiment.targetBranch
+        } else {
+            targetBranch
+        }
+        return experimentRepository.save(experiment)
+    }
 
     private fun getExperimentImagePath(): String {
         return conf.epf.experimentImagePath!!
     }
 
-    fun getTargetBranchForExperiment(experiment: Experiment): String {
-        val dataProject = dataProjectRepository.findByIdOrNull(experiment.dataProjectId)
-            ?: throw NotFoundException(ErrorCode.NotFound, "Data project ${experiment.dataProjectId} not found")
-
-        if (!branchExists(dataProject.gitlabId, experiment.targetBranch)) {
+    private fun getTargetBranchForExperiment(experiment: Experiment): String {
+        experiment.dataProject ?: throw InconsistentStateOfObject("Experiment ${experiment.id} is not attached to data project")
+        if (!branchExists(experiment.dataProject!!.gitlabId, experiment.targetBranch)) {
             return experiment.targetBranch
         }
 
-        var branchWithNumber = "${experiment.targetBranch}-${experiment.number}"
+        for (i in 1..100) {
+            val branchWithNumber = "${experiment.targetBranch}-$i"
 
-        if (!branchExists(dataProject.gitlabId, branchWithNumber)) {
+            if (!branchExists(experiment.dataProject!!.gitlabId, branchWithNumber)) {
+                return branchWithNumber
+            }
+        }
+
+        val branchWithNumber = "${experiment.targetBranch}-${Random.nextLong().absoluteValue}"
+
+        if (!branchExists(experiment.dataProject!!.gitlabId, branchWithNumber)) {
             return branchWithNumber
         }
 
-        branchWithNumber = "${experiment.targetBranch}-${Random.nextLong().absoluteValue}"
-
-        if (!branchExists(dataProject.gitlabId, branchWithNumber)) {
-            return branchWithNumber
-        }
-
-        throw ExperimentCreateException(ErrorCode.ExperimentCreationDataInstanceMissing, "Cannot create any branch for experiment ${experiment.slug} (${experiment.id})")
+        throw InternalException("Cannot create any branch for experiment ${experiment.slug} (${experiment.id})")
     }
 
     private fun branchExists(projectId: Long, branch: String): Boolean {

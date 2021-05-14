@@ -3,6 +3,7 @@ package com.mlreef.rest.testcommons
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.mlreef.rest.BaseTest
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
@@ -15,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 
-abstract class AbstractRestTest {
+abstract class AbstractRestTest: BaseTest() {
 
     lateinit var mockMvc: MockMvc
 
@@ -106,6 +107,14 @@ abstract class AbstractRestTest {
         return this.andReturn().let {
             val constructCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, clazz)
             objectMapper.readValue(it.response.contentAsByteArray, constructCollectionType)
+        }
+    }
+
+    @Deprecated("Is not working properly")
+    fun <S, T : RestResponsePage<S>> ResultActions.returnsPage(clazz: Class<S>): T {
+        return this.andReturn().let {
+            val pageType = object : TypeReference<T>() {}
+            objectMapper.readValue(it.response.contentAsByteArray, pageType)
         }
     }
 

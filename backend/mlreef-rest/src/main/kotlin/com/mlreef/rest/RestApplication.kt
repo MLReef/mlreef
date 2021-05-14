@@ -20,11 +20,13 @@ object ApplicationProfiles {
     const val PROD = "prod"
 }
 
-@SpringBootApplication(scanBasePackages = [
-    "com.mlreef",
-    "com.mlreef.rest",
-    "com.mlreef.rest.marketplace"
-])
+@SpringBootApplication(
+    scanBasePackages = [
+        "com.mlreef",
+        "com.mlreef.rest",
+        "com.mlreef.rest.marketplace"
+    ]
+)
 @EnableConfigurationProperties(
     ApplicationConfiguration::class,
     EpfConfiguration::class,
@@ -50,7 +52,10 @@ internal class AssertGitlabAppStartupRunner(private val restClient: GitlabRestCl
         } catch (e: Exception) {
             log.error("####################################################################################################")
             log.error("# Could not run AssertGitlabAppStartupRunner: Gitlab connection will never work with this config   #")
-            log.error("####################################################################################################", e)
+            log.error(
+                "####################################################################################################",
+                e
+            )
             throw e
         }
     }
@@ -80,6 +85,16 @@ class EpfConfiguration {
     var epfImagePath: String? = null
     var experimentImagePath: String? = null
     var pipServer: String? = null
+    var useDockerHost: Boolean = true
+    var maxUpdatePublishStatus: Int = 10
+    var retriesForPipeline: Int = 2
+
+    //time after publish pipeline creation we consider it as failed if no success/finished status is gotten from gitlab
+    var timeToConsiderPipelineFailedSec: Long = 60 * 60 * 3 //Default - 3 hours
+
+    var mainPublishBranch: String = "master"
+    var maxProcessorsForMainBranch: Int = 10
+    var maxProcessorsForNonmainBranch: Int = 10
 }
 
 @ConfigurationProperties(prefix = "mlreef.proxy")
