@@ -4,7 +4,7 @@ import { mergeWithGitlabProject } from 'store/actions/projectInfoActions';
 import { adaptProjectModel, parseToCamelCase } from 'functions/dataParserHelpers';
 import { useEffect, useState } from 'react';
 import { setGlobalMarkerColor } from 'store/actions/userActions';
-import { calculateColor } from 'components/projectView/projectView';
+import { calculateColor } from 'components/DetailedProjectView/ProjectViewactionsAndFunctions';
 import { SET_SELECTED_PROJECT } from 'store/actionTypes';
 
 const projectApi = new ProjectApi();
