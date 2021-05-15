@@ -11,7 +11,7 @@ import GroupsOverview from 'components/views/groupsOverview';
 import GroupsView from 'components/views/MlreefGroups/GroupView';
 import UserAccountView from 'components/views/userSettings/UserAccount';
 import ProfileView from 'components/userProfile/userProfile';
-import ProjectView from 'components/projectView/projectView';
+import DetailedProjectView from 'components/DetailedProjectView/DetailedProjectView';
 import CreateProjectView from 'components/views/create-project/createProject';
 import BranchesView from 'components/branches-list-view/branchesView';
 import NewBranchView from 'components/views/NewBranch';
@@ -172,7 +172,7 @@ export default [
     name: 'project',
     path: '/:namespace/:slug',
     exact: true,
-    component: ProjectView,
+    component: DetailedProjectView,
   },
   {
     name: 'projectSettings',
@@ -211,12 +211,12 @@ export default [
   {
     name: 'projectBranchFolder',
     path: '/:namespace/:slug/-/tree/:branch/:path(.+)',
-    component: ProjectView,
+    component: DetailedProjectView,
   },
   {
     name: 'projectBranch',
     path: '/:namespace/:slug/-/tree/:branch',
-    component: ProjectView,
+    component: DetailedProjectView,
   },
   {
     name: 'createProject',

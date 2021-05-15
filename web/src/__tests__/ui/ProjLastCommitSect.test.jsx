@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
-import ProjectLastCommitSect from 'components/projectView/LastCommitSect';
+import ProjectLastCommitSect from 'components/DetailedProjectView/LastCommitSect';
 import { commitMockObject, usersArrayMock } from 'testData';
 import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers';
 
