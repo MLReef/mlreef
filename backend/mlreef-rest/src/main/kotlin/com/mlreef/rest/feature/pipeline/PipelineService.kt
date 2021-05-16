@@ -25,6 +25,7 @@ import com.mlreef.rest.domain.PipelineStatus
 import com.mlreef.rest.domain.PipelineType
 import com.mlreef.rest.domain.Processor
 import com.mlreef.rest.domain.ProcessorInstance
+import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.PublishStatus
 import com.mlreef.rest.domain.repositories.PipelineTypesRepository
 import com.mlreef.rest.exceptions.BadRequestException
@@ -46,8 +47,11 @@ import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
+import com.mlreef.rest.feature.MLREEF_NAME
+import com.mlreef.rest.feature.UNPUBLISH_COMMIT_MESSAGE
 import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.feature.processors.ProcessorsService
+import com.mlreef.rest.feature.processors.RepositoryService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.rest.utils.Slugs
@@ -92,6 +96,7 @@ class PipelineService(
     @PersistenceUnit
     private val entityManagerFactory: EntityManagerFactory,
     private val processorsService: ProcessorsService,
+    private val repositoryService: RepositoryService,
 ) {
     private val DEFAULT_BASE_IMAGE_PATH = "registry.gitlab.com/mlreef/mlreef/experiment:master"
 
@@ -339,8 +344,8 @@ class PipelineService(
         fileContent: String,
         sourceBranch: String = "master"
     ): Commit {
-        val commitMessage = "[skip ci] create .mlreef.yml"
-        val fileContents = mapOf(Pair(".mlreef.yml", fileContent))
+        val commitMessage = "[skip ci] create $MLREEF_NAME"
+        val fileContents = mapOf(Pair(MLREEF_NAME, fileContent))
         try {
             gitlabRestClient.createBranch(
                 token = userToken,
@@ -350,6 +355,11 @@ class PipelineService(
             )
         } catch (e: RestException) {
             throw PipelineStartException("Cannot create branch $targetBranch for project $projectId, check the source_branch $sourceBranch: ${e.message}")
+        }
+        try {
+            this.removePipelineFiles(gitlabProjectId = projectId, branch = targetBranch, message = "Clean branch $targetBranch before pipeline start")
+        } catch (ex: Exception) {
+            log.error("Cannot delete pipeline file from repo")
         }
         return try {
             val commitFiles = gitlabRestClient.commitFiles(
@@ -776,6 +786,52 @@ class PipelineService(
             }
         } catch (ex: Exception) {
             log.error("Cannot get pipeline from gitlab: $ex")
+            null
+        }
+    }
+
+    private fun isPipelineFilePresent(projectGitlabId: Long, branch: String, fileName: String): Boolean {
+        return repositoryService.findFileInRepository(projectGitlabId, fileName, branch = branch) != null
+    }
+
+    fun removePipelineFiles(project: Project? = null, gitlabProjectId: Long? = null, branch: String, token: String? = null, message: String? = null): Commit? {
+        val fileContents = mutableMapOf<String, String>()
+
+        val gitlabId = gitlabProjectId
+            ?: project?.gitlabId
+            ?: throw BadRequestException(ErrorCode.BadParametersRequest, "Gitlab project id is not present")
+
+        if (isPipelineFilePresent(gitlabId, branch, MLREEF_NAME)) fileContents.put(MLREEF_NAME, "")
+
+        return if (fileContents.size > 0) {
+            fileContents.map {
+                log.info("Deleting file ${it.key} in branch $branch for gitlab project $gitlabId")
+                try {
+                    if (token != null) {
+                        gitlabRestClient.commitFiles(
+                            token = token,
+                            projectId = gitlabId,
+                            targetBranch = branch,
+                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
+                            fileContents = mapOf(it.key to it.value),
+                            action = "delete"
+                        )
+                    } else {
+                        gitlabRestClient.adminCommitFiles(
+                            projectId = gitlabId,
+                            targetBranch = branch,
+                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
+                            fileContents = mapOf(it.key to it.value),
+                            action = "delete"
+                        )
+                    }
+                } catch (e: RestException) {
+                    log.error("Cannot delete ${it.key} file in branch $branch for gitlab project $gitlabId: ${e.errorName}")
+                    null
+                }
+            }.filterNotNull().firstOrNull()
+        } else {
+            log.warn("Not file $MLREEF_NAME in branch $branch for gitlab project $gitlabId")
             null
         }
     }

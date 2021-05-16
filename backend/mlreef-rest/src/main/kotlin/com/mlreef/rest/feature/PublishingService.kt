@@ -572,7 +572,7 @@ class PublishingService(
                             token = token,
                             projectId = project.gitlabId,
                             targetBranch = branch,
-                            commitMessage = message ?: UNPUBLISH_COMMIT_MESSAGE,
+                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
                             fileContents = mapOf(it.key to it.value),
                             action = "delete"
                         )
@@ -580,7 +580,7 @@ class PublishingService(
                         gitlabRestClient.adminCommitFiles(
                             projectId = project.gitlabId,
                             targetBranch = branch,
-                            commitMessage = message ?: UNPUBLISH_COMMIT_MESSAGE,
+                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
                             fileContents = mapOf(it.key to it.value),
                             action = "delete"
                         )
