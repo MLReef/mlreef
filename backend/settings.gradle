@@ -1,6 +1,5 @@
 rootProject.name = "backend"
 
-include "mlreef-domain"
 include "mlreef-rest"
 include 'mlreef-system-test'
 

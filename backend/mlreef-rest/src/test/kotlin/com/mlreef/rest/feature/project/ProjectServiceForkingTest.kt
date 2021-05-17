@@ -1,6 +1,7 @@
 package com.mlreef.rest.feature.project
 
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.ProjectsConfiguration
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.ProcessorType
 import com.mlreef.rest.domain.Project
@@ -46,6 +47,16 @@ internal open class ProjectServiceForkingTest {
         every { this@mockk.save(any()) } answers { this.arg(0) }
     }
 
+    private val projectsConfiguration = ProjectsConfiguration(
+        false, 1, 1
+    )
+
+//    private val repoMock: CodeProjectRepository = mockk {
+//        every { this@mockk.findByIdOrNull(originalCodeProject.id) } answers { originalCodeProject }
+//        //let the save function return the same entity that was saved
+//        every { this@mockk.save(any()) } answers { this.arg(0) }
+//    }
+
     private val gitlabRestClientMock: GitlabRestClient = mockk {
         val sourceId = slot<Long>()
         every { this@mockk.forkProject(any(), capture(sourceId), any(), any()) } answers {
@@ -69,9 +80,10 @@ internal open class ProjectServiceForkingTest {
         accountRepository = mockk(),
         groupRepository = mockk(),
         subjectRepository = mockk(),
-        parameterTypesRepository = mockk(),
+        userResolverService = mockk(),
         dataTypesRepository = mockk(),
         processorTypeRepository = mockk(),
+        projectsConfiguration = projectsConfiguration,
     )
 
 

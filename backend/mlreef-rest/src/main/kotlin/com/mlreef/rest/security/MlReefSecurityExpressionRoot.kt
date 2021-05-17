@@ -9,6 +9,7 @@ import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineDto
 import com.mlreef.rest.api.v1.dto.ProcessorDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.helpers.DataClassWithId
@@ -214,13 +215,31 @@ class MlReefSecurityExpressionRoot(
     }
 
     // Common security check
-    fun isGitlabAdmin(): Boolean = tokenDetails?.gitlabUser?.isAdmin ?: false
+    fun isGitlabAdmin(): Boolean = !visitor && tokenDetails?.gitlabUser?.isAdmin ?: false
 
-    fun isUserItself(userId: UUID?): Boolean = userId?.let { tokenDetails?.accountId == it } ?: false
+    fun isUserItself(userId: UUID?): Boolean = !visitor && userId?.let { tokenDetails?.accountId == it } ?: false
 
-    fun isUserItself(userGitlabId: Long?): Boolean = userGitlabId?.let { tokenDetails?.gitlabUser?.id == it } ?: false
+    fun isUserItself(userGitlabId: Long?): Boolean = !visitor && userGitlabId?.let { tokenDetails?.gitlabUser?.id == it } ?: false
 
-    fun isUserItself(userName: String?): Boolean = userName?.let { tokenDetails?.username == it } ?: false
+    fun isUserItself(userId: String?): Boolean {
+        if (visitor) return false
+
+        val finalUserId = userId.tryToUUID()
+        val finalUserGitlabId = if (finalUserId == null) userId?.toLongOrNull() else null
+        val username = if (finalUserId == null && finalUserGitlabId == null) userId else null
+
+        return finalUserId?.let { tokenDetails?.accountId == it } ?: false ||
+            finalUserGitlabId?.let { tokenDetails?.gitlabUser?.id == it } ?: false ||
+            username?.let { tokenDetails?.username == it } ?: false
+    }
+
+    fun isUserItself(userId: UUID?, userName: String?, userGitlabId: Long?): Boolean {
+        if (visitor) return false
+
+        return userId?.let { tokenDetails?.accountId == it } ?: false ||
+            userGitlabId?.let { tokenDetails?.gitlabUser?.id == it } ?: false ||
+            userName?.let { tokenDetails?.username == it } ?: false
+    }
 
     fun isUserItselfByToken(token: String?) = token?.let { tokenDetails?.accessToken == it } ?: false
 

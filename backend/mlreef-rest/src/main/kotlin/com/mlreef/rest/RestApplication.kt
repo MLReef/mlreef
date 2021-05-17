@@ -32,6 +32,7 @@ object ApplicationProfiles {
     EpfConfiguration::class,
     GitlabConfiguration::class,
     ProxyConfiguration::class,
+    ProjectsConfiguration::class,
 )
 class RestApplication
 
@@ -102,4 +103,11 @@ class ProxyConfiguration(
     var enabled: Boolean = false,
     var host: String? = null,
     var port: Int? = null,
+)
+
+@ConfigurationProperties(prefix = "mlreef.projects")
+class ProjectsConfiguration(
+    var syncFork: Boolean = true,
+    var waitGitlabForkSec: Int = 30,
+    var pauseForkFinishedPollingSec: Int = 2, //pause between project status requests
 )

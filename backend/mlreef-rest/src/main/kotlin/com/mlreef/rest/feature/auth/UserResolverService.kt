@@ -20,38 +20,25 @@ class UserResolverService(
     }
 
     fun resolveAccount(
-        userName: String?,
-        userId: UUID?,
-        gitlabId: Long?
-    ): Account? {
-        return findAccountByUserId(userId)
-            ?: findAccountByUserName(userName)
-            ?: findAccountByGitlabId(gitlabId)
-    }
+        userName: String? = null,
+        userId: UUID? = null,
+        gitlabId: Long? = null,
+        userToken: String? = null,
+        personId: UUID? = null,
+        email: String? = null,
+    ): Account? = findAccountByUserId(userId)
+        ?: findAccountByUserName(userName)
+        ?: findAccountByGitlabId(gitlabId)
+        ?: findAccountByToken(userToken)
+        ?: findAccountByPersonId(personId)
+        ?: findAccountByEmail(email)
 
-    private fun findAccountByUserName(userName: String?): Account? {
-        return userName?.let { accountRepository.findOneByUsername(it) }
-    }
-
-    private fun findAccountByUserId(userId: UUID?): Account? {
-        return userId?.let { accountRepository.findByIdOrNull(it) }
-    }
-
-    private fun findAccountByGitlabId(gitlabId: Long?): Account? {
-        return gitlabId?.let { accountRepository.findAccountByGitlabId(it) }
-    }
-
-    fun findGitlabUserViaToken(token: String): GitlabUser? {
-        return try {
-            gitlabRestClient.getUser(token)
-        } catch (e: ResourceAccessException) {
-            log.error(e.message ?: "Cannot execute gitlabRestClient.getUser")
-            null
-        } catch (e: Exception) {
-            log.error(e.message, e)
-            null
-        }
-    }
+    private fun findAccountByUserName(userName: String?) = userName?.let { accountRepository.findOneByUsername(it) }
+    private fun findAccountByUserId(userId: UUID?) = userId?.let { accountRepository.findByIdOrNull(it) }
+    private fun findAccountByGitlabId(gitlabId: Long?) = gitlabId?.let { accountRepository.findAccountByGitlabId(it) }
+    private fun findAccountByToken(token: String?) = token?.let { gitlabRestClient.getUser(it).let { accountRepository.findAccountByGitlabId(it.id) } }
+    private fun findAccountByPersonId(personId: UUID?) = personId?.let { accountRepository.findAccountByPersonId(it) }
+    private fun findAccountByEmail(email: String?) = email?.let { accountRepository.findOneByEmail(it) }
 
     fun findGitlabUserViaGitlabId(id: Long): GitlabUser? {
         return try {
@@ -64,6 +51,4 @@ class UserResolverService(
             null
         }
     }
-
-
 }

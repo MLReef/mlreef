@@ -5,5 +5,6 @@ package com.mlreef.rest.annotations
 annotation class RefreshUserInformation(
     val userId: String = "",
     val gitlabId: String = "",
+    val username: String = "",
     val list: String = ""
 )

@@ -15,9 +15,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
 
-    implementation project(':mlreef-domain')
     implementation project(':mlreef-rest')
-    testRuntime project(':mlreef-domain')
     testRuntime project(':mlreef-rest')
 
     testRuntime "org.jetbrains.kotlin:kotlin-stdlib-jdk8"

@@ -4,6 +4,7 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.DataProject
@@ -11,6 +12,7 @@ import com.mlreef.rest.domain.I18N
 import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.exceptions.BadParametersException
+import com.mlreef.rest.exceptions.BadRequestException
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabConnectException
@@ -31,7 +33,9 @@ import com.mlreef.rest.feature.email.EmailVariables
 import com.mlreef.rest.feature.email.TemplateType
 import com.mlreef.rest.feature.groups.GroupsService
 import com.mlreef.rest.feature.project.ProjectService
+import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.utils.RandomUtils
+import com.mlreef.rest.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
@@ -56,7 +60,8 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val dataProjectsService: ProjectService<DataProject>,
     private val codeProjectsService: ProjectService<CodeProject>,
-    private val emailService: EmailService
+    private val emailService: EmailService,
+    private val reservedNamesService: ReservedNamesService,
 ) {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
@@ -87,6 +92,16 @@ class AuthService(
                 authorities = listOf(SimpleGrantedAuthority("VISITOR"))
             )
         }
+    }
+
+    fun checkAvailability(userName: String): String {
+        reservedNamesService.assertUserNameIsNotReserved(userName)
+        val possibleSlug = Slugs.toSlug(userName)
+        val existingUser = personRepository.findBySlug(possibleSlug)
+        if (existingUser != null) {
+            throw ConflictException(ErrorCode.UserAlreadyExisting, "User exists for $possibleSlug / $userName")
+        }
+        return possibleSlug
     }
 
     fun loginUser(plainPassword: String, username: String?, email: String?): Pair<Account, OAuthToken> {
@@ -122,6 +137,10 @@ class AuthService(
 
         byUsername?.let { throw UserAlreadyExistsException(username = username) }
         byEmail?.let { throw UserAlreadyExistsException(email = email) }
+        finalUserName.tryToUUID()?.let { throw BadRequestException("Incorrect username $username. Username cannot be UUID") }
+        finalUserName.toLongOrNull()?.let { throw BadRequestException("Incorrect username $username. Username cannot be number only") }
+
+        val personSlug = checkAvailability(finalUserName)
 
         val newGitlabUser = createGitlabUser(username = finalUserName, email = finalEmail, password = plainPassword)
         createGitlabToken(newGitlabUser)
@@ -133,7 +152,7 @@ class AuthService(
         val person = personRepository.save(
             Person(
                 id = randomUUID(),
-                slug = finalUserName,
+                slug = personSlug,
                 name = finalUserName,
                 gitlabId = newGitlabUser.id
             )

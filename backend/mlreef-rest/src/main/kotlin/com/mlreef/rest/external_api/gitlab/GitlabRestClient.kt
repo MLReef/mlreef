@@ -91,8 +91,8 @@ class GitlabRestClient(
         private const val PERMANENT_TOKEN_VALUE_PREFIX = ""
         private const val IS_ADMIN_INTERNAL_HEADER = "is-admin"
 
-        private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 5
-        private const val PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS = 1500L
+        private const val REPEAT_REQUESTS_WHEN_GITLAB_UNAVAILABLE = 2
+        private const val PAUSE_BETWEEN_REPEAT_WHEN_GITLAB_UNAVAILABLE_MS = 1000L
         private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_MESSAGE_EMPTY = "\"limit_reached\":[]"
         private const val GITLAB_FAILED_LIMIT_REACHED_ERROR_PREFIX = "\"limit_reached\":["
     }
@@ -147,23 +147,13 @@ class GitlabRestClient(
         sourceId: Long,
         targetName: String? = null,
         targetPath: String? = null,
+        namespaceId: Long? = null,
+        namespacePath: String? = null,
     ): GitlabProject =
-        GitlabForkProjectRequest(
-
-            name = targetName,
-
-            )
+        GitlabForkProjectRequest(name = targetName, path = targetPath, namespaceId = namespaceId, namespacePath = namespacePath)
             .let { GitlabHttpEntity(it, createUserHeaders(token)) }
-            .addErrorDescription(
-                409,
-                ErrorCode.GitlabProjectAlreadyExists,
-                "The project name is already in use by another project in the same namespace"
-            )
-            .addErrorDescription(
-                400,
-                ErrorCode.GitlabProjectAlreadyExists,
-                "The project name is already in use by another project in the same namespace"
-            )
+            .addErrorDescription(409, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
+            .addErrorDescription(400, ErrorCode.GitlabProjectAlreadyExists, "The project name is already in use by another project in the same namespace")
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects/$sourceId/fork"
                 restTemplate(builder).exchange(url, HttpMethod.POST, it, GitlabProject::class.java)
@@ -875,6 +865,26 @@ class GitlabRestClient(
             .makeRequest {
                 val url = "$gitlabServiceRootUrl/projects?simple=true"
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabProjectSimplified>>())
+            }
+    }
+
+    // https://docs.gitlab.com/ee/api/namespaces.html#list-namespaces
+    fun getNamespaces(token: String): List<GitlabNamespace> {
+        return GitlabHttpEntity<String>(null, createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot get namespaces list from Gitlab")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/namespaces"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabNamespace>>())
+            }
+    }
+
+    // https://docs.gitlab.com/ee/api/namespaces.html#list-namespaces
+    fun getNamespaceById(token: String, id: Long): GitlabNamespace {
+        return GitlabHttpEntity<String>(null, createUserHeaders(token))
+            .addErrorDescription(ErrorCode.GitlabCommonError, "Cannot get namespace $id from Gitlab")
+            .makeRequest {
+                val url = "$gitlabServiceRootUrl/namespaces/$id"
+                restTemplate(builder).exchange(url, HttpMethod.GET, it, GitlabNamespace::class.java)
             }
     }
 
