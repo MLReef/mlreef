@@ -55,9 +55,9 @@ mlreef:
     enabled: true
     path: classpath:db/data/*.*
     command-separators: ; #it's a list, split items with ,
-    owner-username: mlreef
+    owner-username: ${GITLAB_ADMIN_USERNAME:mlreef}
     owner-email: mlreef@example.org
-    owner-password: password
+    owner-password: ${GITLAB_ADMIN_PASSWORD:password}
     owner-subject-id: aaaa0000-0001-0000-0000-cccccccccccc
     owner-account-id: aaaa0000-0002-0000-0000-aaaaaaaaaaaa
 
