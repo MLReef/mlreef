@@ -14,16 +14,14 @@ import ProjectsArraySection from 'components/layout/Dashboard/ProjectsArraySecti
 import DashboardProvider from 'components/layout/Dashboard//DashboardContext';
 import ProjectsDropDown from 'components/layout/Dashboard/ProjectsDropDown';
 
-const DashboardV2 = (props) => {
+const DashboardExplore = (props) => {
   const { actions } = props;
 
   const { classification1, classification2 } = useParams();
 
-  const class1 = classification1 || 'my-repositories';
+  const class1 = classification1 || 'public';
 
   const class2 = classification2 || 'data_project';
-
-  const myReposActivClass = class1 === 'my-repositories' ? 'active' : '';
 
   const starredClass = class1 === 'starred' ? 'active' : '';
 
@@ -71,19 +69,10 @@ const DashboardV2 = (props) => {
       <div className="dashboard-v2-content">
         <ProjectsDropDown />
         <div className="dashboard-v2-content-links-section-1">
-          <div className={myReposActivClass}>
-            <Link
-              className={`tab-link ${myReposActivClass}`}
-              to={`/dashboard/my-repositories/${class2}`}
-              onClick={setLoadingStatus}
-            >
-              My repositories
-            </Link>
-          </div>
           <div className={starredClass}>
             <Link
               className={`tab-link ${starredClass}`}
-              to={`/dashboard/starred/${class2}`}
+              to={`/explore/starred/${class2}`}
               onClick={setLoadingStatus}
             >
               Starred
@@ -92,7 +81,7 @@ const DashboardV2 = (props) => {
           <div className={publicClass}>
             <Link
               className={`tab-link ${publicClass}`}
-              to={`/dashboard/public/${class2}`}
+              to={`/explore/public/${class2}`}
               onClick={setLoadingStatus}
             >
               Public
@@ -111,7 +100,7 @@ const DashboardV2 = (props) => {
                   id={lowerCaseST}
                   className="tab-link-2"
                   style={{ color: finalColor, fontWeight: class2 === lowerCaseST ? 'bold' : 'normal' }}
-                  to={`/dashboard/${class1}/${lowerCaseST}`}
+                  to={`/explore/${class1}/${lowerCaseST}`}
                   onClick={() => {
                     actions.setGlobalMarkerColor(color);
                     actions.setIsLoading(true);
@@ -150,11 +139,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-DashboardV2.propTypes = {
+DashboardExplore.propTypes = {
   actions: shape({
     setGlobalMarkerColor: func.isRequired,
     setIsLoading: func.isRequired,
   }).isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DashboardV2);
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardExplore);

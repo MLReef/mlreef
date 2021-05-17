@@ -1,8 +1,8 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
-import FiltersSections from 'components/views/DashboardV2/FiltersSections';
-import { DashboardContext } from 'components/views/DashboardV2/DashboardContext';
+import FiltersSections from 'components/layout/Dashboard//FiltersSections';
+import { DashboardContext } from 'components/layout/Dashboard/DashboardContext';
 
 const setup = (dispatch) => mount(
   <MemoryRouter>
