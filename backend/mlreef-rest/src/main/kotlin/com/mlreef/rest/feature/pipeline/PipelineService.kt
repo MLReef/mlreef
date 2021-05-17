@@ -801,37 +801,35 @@ class PipelineService(
             ?: project?.gitlabId
             ?: throw BadRequestException(ErrorCode.BadParametersRequest, "Gitlab project id is not present")
 
-        if (isPipelineFilePresent(gitlabId, branch, MLREEF_NAME)) fileContents.put(MLREEF_NAME, "")
+        if (isPipelineFilePresent(gitlabId, branch, MLREEF_NAME)) fileContents[MLREEF_NAME] = ""
 
-        return if (fileContents.size > 0) {
-            fileContents.map {
-                log.info("Deleting file ${it.key} in branch $branch for gitlab project $gitlabId")
-                try {
-                    if (token != null) {
-                        gitlabRestClient.commitFiles(
-                            token = token,
-                            projectId = gitlabId,
-                            targetBranch = branch,
-                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
-                            fileContents = mapOf(it.key to it.value),
-                            action = "delete"
-                        )
-                    } else {
-                        gitlabRestClient.adminCommitFiles(
-                            projectId = gitlabId,
-                            targetBranch = branch,
-                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
-                            fileContents = mapOf(it.key to it.value),
-                            action = "delete"
-                        )
-                    }
-                } catch (e: RestException) {
-                    log.error("Cannot delete ${it.key} file in branch $branch for gitlab project $gitlabId: ${e.errorName}")
-                    null
+        return if (fileContents.isNotEmpty()) {
+            log.info("Deleting file(s) ${fileContents.keys.joinToString(", ")} in branch $branch for gitlab project $gitlabId")
+            try {
+                if (token != null) {
+                    gitlabRestClient.commitFiles(
+                        token = token,
+                        projectId = gitlabId,
+                        targetBranch = branch,
+                        commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
+                        fileContents = fileContents,
+                        action = "delete"
+                    )
+                } else {
+                    gitlabRestClient.adminCommitFiles(
+                        projectId = gitlabId,
+                        targetBranch = branch,
+                        commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
+                        fileContents = fileContents,
+                        action = "delete"
+                    )
                 }
-            }.filterNotNull().firstOrNull()
+            } catch (e: RestException) {
+                log.error("Cannot delete ${fileContents.keys.joinToString(", ")} file(s) in branch $branch for gitlab project $gitlabId: ${e.errorName}")
+                null
+            }
         } else {
-            log.warn("Not file $MLREEF_NAME in branch $branch for gitlab project $gitlabId")
+            log.warn("No file $MLREEF_NAME in branch $branch for gitlab project $gitlabId")
             null
         }
     }

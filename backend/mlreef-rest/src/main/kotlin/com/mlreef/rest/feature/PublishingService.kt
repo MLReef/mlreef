@@ -561,35 +561,33 @@ class PublishingService(
     private fun removePublicationFiles(project: CodeProject, branch: String, token: String? = null, message: String? = null): Commit? {
         val fileContents = mutableMapOf<String, String>()
 
-        if (isPublicationFilePresent(project, branch, MLREEF_NAME)) fileContents.put(MLREEF_NAME, "")
-        if (isPublicationFilePresent(project, branch, DOCKERFILE_NAME)) fileContents.put(DOCKERFILE_NAME, "")
+        if (isPublicationFilePresent(project, branch, MLREEF_NAME)) fileContents[MLREEF_NAME] = ""
+        if (isPublicationFilePresent(project, branch, DOCKERFILE_NAME)) fileContents[DOCKERFILE_NAME] = ""
 
-        return if (fileContents.size > 0) {
-            fileContents.map {
-                try {
-                    if (token != null) {
-                        gitlabRestClient.commitFiles(
-                            token = token,
-                            projectId = project.gitlabId,
-                            targetBranch = branch,
-                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
-                            fileContents = mapOf(it.key to it.value),
-                            action = "delete"
-                        )
-                    } else {
-                        gitlabRestClient.adminCommitFiles(
-                            projectId = project.gitlabId,
-                            targetBranch = branch,
-                            commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
-                            fileContents = mapOf(it.key to it.value),
-                            action = "delete"
-                        )
-                    }
-                } catch (e: RestException) {
-                    log.error("Cannot delete ${it.key} file in branch $branch for project ${project.id}: ${e.errorName}")
-                    null
+        return if (fileContents.isNotEmpty()) {
+            try {
+                if (token != null) {
+                    gitlabRestClient.commitFiles(
+                        token = token,
+                        projectId = project.gitlabId,
+                        targetBranch = branch,
+                        commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
+                        fileContents = fileContents,
+                        action = "delete"
+                    )
+                } else {
+                    gitlabRestClient.adminCommitFiles(
+                        projectId = project.gitlabId,
+                        targetBranch = branch,
+                        commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
+                        fileContents = fileContents,
+                        action = "delete"
+                    )
                 }
-            }.filterNotNull().firstOrNull()
+            } catch (e: RestException) {
+                log.error("Cannot delete ${fileContents.keys.joinToString(", ")} file(s) in branch $branch for project ${project.id}: ${e.errorName}")
+                null
+            }
         } else null
     }
 
