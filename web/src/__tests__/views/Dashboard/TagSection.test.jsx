@@ -1,9 +1,9 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
-import TagSection from 'components/views/DashboardV2/TagSection';
-import { DashboardContext } from 'components/views/DashboardV2/DashboardContext';
-import { sortingOPtions } from 'components/views/DashboardV2/constants';
+import TagSection from 'components/layout/Dashboard/TagSection';
+import { DashboardContext } from 'components/layout/Dashboard/DashboardContext';
+import { sortingOPtions } from 'components/layout/Dashboard/constants';
 
 const setup = (dispatch) => mount(
   <MemoryRouter>

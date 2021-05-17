@@ -1,5 +1,5 @@
-import { publishedStateOptions, sortingOPtions } from 'components/views/DashboardV2/constants';
-import { reducer } from 'components/views/DashboardV2/DashboardContext';
+import { publishedStateOptions, sortingOPtions } from 'components/layout/Dashboard/constants';
+import { reducer } from 'components/layout/Dashboard/DashboardContext';
 
 describe('test reducer code', () => {
   test('assert that data types array is set correctly', () => {

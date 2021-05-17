@@ -45,6 +45,7 @@ import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview';
 import Fileview from 'components/views/FileviewComp/Fileview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
+import DashboardExplore from 'components/views/DashboardExplore/DashboardExplore';
 
 export default [
   {
@@ -73,6 +74,24 @@ export default [
     meta: {
       authRequired: true,
     },
+  },
+  {
+    name: 'explore-v2',
+    path: '/explore/:classification1/:classification2',
+    exact: true,
+    component: DashboardExplore,
+  },
+  {
+    name: 'explore-v2',
+    path: '/explore/:classification1',
+    exact: true,
+    component: DashboardExplore,
+  },
+  {
+    name: 'explore-v2',
+    path: '/explore',
+    exact: true,
+    component: DashboardExplore,
   },
   {
     name: 'notFound',

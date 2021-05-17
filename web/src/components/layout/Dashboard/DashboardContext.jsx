@@ -36,7 +36,7 @@ const DashboardProvider = ({ children }) => {
   const initialState = JSON.parse(sessionStorage.getItem('dashboard-filterings')) || {
     selectedDataTypes: [],
     minimumStars: '',
-    sorting: sortingOPtions[0],
+    sorting: sortingOPtions[1].value,
     publishState: publishedStateOptions[0],
   };
 
