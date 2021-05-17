@@ -70,7 +70,7 @@ class DataSetup(
 
     private lateinit var gitlabUser: GitlabUser
     private lateinit var devPerson: Person
-    private lateinit var gitlabToken: OAuthToken
+    private var gitlabToken: OAuthToken? = null
     private val needToDeleteUser: AtomicBoolean = AtomicBoolean(false)
 
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -89,7 +89,12 @@ class DataSetup(
         gitlabUser = user
         devPerson = person
 
-        gitlabToken = createUserTokenInGitlab(gitlabUser.username, userPassword)
+        gitlabToken = try {
+            createUserTokenInGitlab(gitlabUser.username, userPassword)
+        } catch (ex: Exception) {
+            logger.error("Cannot get token in Gitlab. Possible password of user $username is incorrect. Exception: ${ex.message}")
+            null
+        }
 
         val loadedScripts = resourcesToLoad
             .filter { it.exists() && it.isFile }
@@ -143,6 +148,10 @@ class DataSetup(
     }
 
     private fun processJsonScript(fileName: String, script: String) {
+        if (gitlabToken == null) {
+            logger.warn("OAuth token for user $username was not optained from Gitlab. No json files can be processed and loaded. Skipping $fileName")
+            return
+        }
         if (fileName.contains(DATA_PROJECTS_FILE_NAME)) {
             if (fileName.contains(CREATE_SCRIPT_PREFIX)) {
                 createDataProjects(script)
@@ -168,7 +177,7 @@ class DataSetup(
         dataProjects.forEach {
             try {
                 dataProjectService.createProject(
-                    gitlabToken.accessToken,
+                    gitlabToken!!.accessToken,
                     devPerson.id,
                     it.slug,
                     it.name,
@@ -191,7 +200,7 @@ class DataSetup(
         dataProjects.forEach {
             try {
                 dataProjectService.updateProject(
-                    gitlabToken.accessToken,
+                    gitlabToken!!.accessToken,
                     devPerson.id,
                     it.id ?: throw BadParametersException("Incorrect script for project ${it.name}. No id is provided"),
                     it.name,
@@ -219,7 +228,7 @@ class DataSetup(
                 val currentId = it.tryToUUID()
                 val currentName = if (currentId != null) null else it
                 dataProjectService.deleteProject(
-                    gitlabToken.accessToken,
+                    gitlabToken!!.accessToken,
                     devPerson.id,
                     currentId,
                     currentName,
@@ -236,7 +245,7 @@ class DataSetup(
         codeProjects.forEach {
             try {
                 codeProjectService.createProject(
-                    gitlabToken.accessToken,
+                    gitlabToken!!.accessToken,
                     devPerson.id,
                     it.slug,
                     it.name,
@@ -261,7 +270,7 @@ class DataSetup(
         codeProjects.forEach {
             try {
                 codeProjectService.updateProject(
-                    gitlabToken.accessToken,
+                    gitlabToken!!.accessToken,
                     devPerson.id,
                     it.id ?: throw BadParametersException("Incorrect script for project ${it.name}. No id is provided"),
                     it.name,
@@ -289,7 +298,7 @@ class DataSetup(
                 val currentId = it.tryToUUID()
                 val currentName = if (currentId != null) null else it
                 codeProjectService.deleteProject(
-                    gitlabToken.accessToken,
+                    gitlabToken!!.accessToken,
                     devPerson.id,
                     currentId,
                     currentName,
@@ -319,7 +328,7 @@ class DataSetup(
         val gitlabUser = try {
             gitlabRestClient.adminCreateUser(email = finalEmail, name = finalUserName, username = finalUserName, password = finalPassword)
         } catch (clientErrorException: ConflictException) {
-            logger.info("Already existing dev user")
+            logger.info("Already existing user $finalUserName")
             gitlabRestClient.adminGetUsers(username = finalUserName).firstOrNull { it.username == finalUserName }
                 ?: gitlabRestClient.adminGetUsers(searchNameEmail = finalEmail).firstOrNull { it.username == finalUserName }
                 ?: throw IllegalStateException("Cannot create AND cannot find user $finalUserName!")
