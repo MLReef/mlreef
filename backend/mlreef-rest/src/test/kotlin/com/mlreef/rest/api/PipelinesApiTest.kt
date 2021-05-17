@@ -40,8 +40,8 @@ class PipelinesApiTest : AbstractRestApiTest() {
 
         processorInstancesRepository.save(processorInstance)
 
-        pipelineRepository.save(pipelineConfig1.createPipeline(1))
-        pipelineRepository.save(pipelineConfig1.createPipeline(2))
+        pipelineRepository.save(pipelineConfig1.createPipeline(mainPerson, 1))
+        pipelineRepository.save(pipelineConfig1.createPipeline(mainPerson, 2))
 
         this.mockUserAuthentication(listOf(dataProject.id, codeProject.id), mainAccount, AccessLevel.OWNER)
 
@@ -69,8 +69,8 @@ class PipelinesApiTest : AbstractRestApiTest() {
 
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
 
-        pipelineRepository.save(pipelineConfig.createPipeline(1))
-        pipelineRepository.save(pipelineConfig.createPipeline(2))
+        pipelineRepository.save(pipelineConfig.createPipeline(mainPerson, 1))
+        pipelineRepository.save(pipelineConfig.createPipeline(mainPerson, 2))
 
         this.mockUserAuthentication(forAccount = mainAccount)
 
@@ -93,13 +93,13 @@ class PipelinesApiTest : AbstractRestApiTest() {
 
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
 
-        pipelineRepository.save(pipelineConfig.createPipeline(1))
-        pipelineRepository.save(pipelineConfig.createPipeline(2))
+        pipelineRepository.save(pipelineConfig.createPipeline(mainPerson, 1))
+        pipelineRepository.save(pipelineConfig.createPipeline(mainPerson, 2))
 
         this.mockUserAuthentication(forAccount = mainAccount)
 
         this.performGet("$rootUrl/${pipelineConfig.id}/instances", token)
-                .expectForbidden()
+            .expectForbidden()
     }
 
     @Transactional
@@ -139,7 +139,7 @@ class PipelinesApiTest : AbstractRestApiTest() {
         val dataProject = createDataProject(visibility = VisibilityScope.PUBLIC)
 
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, number = 1)
+        val pipeline = createPipeline(pipelineConfig, person = mainPerson, number = 1)
 
         this.mockUserAuthentication(forAccount = mainAccount)
 
@@ -163,7 +163,7 @@ class PipelinesApiTest : AbstractRestApiTest() {
         val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
 
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, number = 1)
+        val pipeline = createPipeline(pipelineConfig, person = mainPerson, number = 1)
 
         this.mockUserAuthentication(listOf(dataProject.id, codeProject.id), mainAccount, AccessLevel.OWNER)
 
@@ -188,7 +188,7 @@ class PipelinesApiTest : AbstractRestApiTest() {
         val files = arrayListOf(FileLocation.fromPath("folder"))
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = files, processorInstance = processorInstance)
 
-        val pipeline = createPipeline(pipelineConfig)
+        val pipeline = createPipeline(pipelineConfig, mainPerson)
 
         this.mockUserAuthentication(listOf(dataProject.id, codeProject.id), mainAccount, AccessLevel.MAINTAINER)
 
@@ -214,7 +214,7 @@ class PipelinesApiTest : AbstractRestApiTest() {
         val processorInstance = createProcessorInstance(processor)
         val dataProject = createDataProject(visibility = VisibilityScope.PRIVATE)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
 
         this.mockUserAuthentication(listOf(dataProject.id, codeProject.id), mainAccount, AccessLevel.OWNER)
 

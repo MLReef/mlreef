@@ -233,7 +233,7 @@ class ProjectFullChainTest : BaseTest() {
         val processor = createProcessor(codeProject, slug = processorSlug)
         val processorInstance = createProcessorInstance(processor, pipelineConfig, name = processorInstanceName, persist = false) //Config make persist in cascade
 
-        val pipeline = createPipeline(pipelineConfig, slug = pipelineSlug, persist = false)
+        val pipeline = createPipeline(pipelineConfig, mainPerson, slug = pipelineSlug, persist = false)
 
         assertThat(dataProjectRepository.findByNameIgnoreCase(dataProjectName)).isNotNull()
         assertThat(codeProjectRepository.findByNameIgnoreCase(codeProjectName)).isNotNull()
@@ -341,7 +341,7 @@ class ProjectFullChainTest : BaseTest() {
         val pipelineConfig = createPipelineConfiguration(dataProject, configSlug, inTransaction = useIsolatedTransaction)
         val processor = createProcessor(codeProject, slug = processorSlug, inTransaction = useIsolatedTransaction)
         var processorInstance = createProcessorInstance(processor, pipelineConfig, name = processorInstanceName, persist = true, inTransaction = useIsolatedTransaction)
-        val pipeline = createPipeline(pipelineConfig, slug = pipelineSlug, inTransaction = useIsolatedTransaction)
+        val pipeline = createPipeline(pipelineConfig, mainPerson, slug = pipelineSlug, inTransaction = useIsolatedTransaction)
         val experiment = createExperiment(pipeline, slug = experimentSlug, persist = false)
 
         assertThat(dataProjectRepository.findByNameIgnoreCase(dataProjectName)).isNotNull()

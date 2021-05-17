@@ -9,12 +9,14 @@ import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineDto
 import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.DataProject
 import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.PipelineConfiguration
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
@@ -98,6 +100,8 @@ class PipelineConfigsController(
     fun createPipelineConfigAndPipelineAndStartIt(
         @PathVariable dataProjectId: UUID,
         @Valid @RequestBody createRequest: PipelineConfigCreateRequest,
+        tokenDetails: TokenDetails,
+        account: Account,
         person: Person,
     ): PipelineDto {
         val newPipelineConfig = pipelineService.createNewPipelineConfig(
@@ -106,11 +110,11 @@ class PipelineConfigsController(
             person = person,
         )
 
-        val pipeline = pipelineService.createPipelineFromConfig(newPipelineConfig, 1)
+        val pipeline = pipelineService.createPipelineFromConfig(newPipelineConfig, 1, person)
 
         pipelineService.startPipeline(
-            currentUserService.account(),
-            currentUserService.accessToken(),
+            account,
+            tokenDetails.accessToken,
             dataProjectId,
             pipeline,
         )

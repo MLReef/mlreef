@@ -119,6 +119,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
         pipelineInstance = createPipeline(
             pipelineConfig,
+            mainPerson,
             "test-pipeline-slug",
             1,
         )

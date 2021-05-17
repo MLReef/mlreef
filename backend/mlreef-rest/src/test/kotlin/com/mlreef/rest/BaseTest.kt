@@ -418,12 +418,13 @@ class BaseTest {
 
     protected fun createPipeline(
         pipelineConfiguration: PipelineConfiguration,
+        person: Person,
         slug: String? = null,
         number: Int? = null,
         persist: Boolean = true,
         inTransaction: Boolean = false,
     ): Pipeline {
-        val pipeline = pipelineConfiguration.createPipeline(number ?: 1, slug = slug)
+        val pipeline = pipelineConfiguration.createPipeline(person, number ?: 1, slug = slug)
 
         return if (persist) {
             saveEntity(pipeline, pipeline.id, pipelineRepository, inTransaction)
