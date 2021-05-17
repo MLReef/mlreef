@@ -93,7 +93,7 @@ data class PipelineConfiguration(
         return element
     }
 
-    fun createPipeline(number: Int, slug: String? = null): Pipeline {
+    fun createPipeline(creator: Person, number: Int, slug: String? = null): Pipeline {
         val instanceId = randomUUID()
 
         val targetBranch = this.createTargetBranchName(instanceId, number)
@@ -110,7 +110,8 @@ data class PipelineConfiguration(
             name = name,
             number = number,
             targetBranch = targetBranch,
-            status = PipelineStatus.CREATED
+            status = PipelineStatus.CREATED,
+            creator = creator,
         )
 
         this.pipelines.add(newPipeline)

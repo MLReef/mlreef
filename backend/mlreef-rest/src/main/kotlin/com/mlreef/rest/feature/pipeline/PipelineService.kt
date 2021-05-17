@@ -162,6 +162,7 @@ class PipelineService(
                 processorInstancesRepository.save(processorInstance)
                 val parameterInstances = createNewParameters(instanceDto, processorInstance)
                 parameterInstancesRepository.saveAll(parameterInstances)
+                processorInstancesRepository.save(processorInstance)
             }
             createRequest.inputFiles.forEach { fileLocationDto ->
                 val fileLocation = FileLocation.fromDto(fileLocationDto.location, fileLocationDto.locationType)
@@ -175,8 +176,8 @@ class PipelineService(
     }
 
     @Transactional
-    fun createPipelineFromConfig(pipelineConfig: PipelineConfiguration, number: Int): Pipeline {
-        val pipeline = pipelinesRepository.save(pipelineConfig.createPipeline(number))
+    fun createPipelineFromConfig(pipelineConfig: PipelineConfiguration, number: Int, person: Person): Pipeline {
+        val pipeline = pipelinesRepository.save(pipelineConfig.createPipeline(person, number))
         processorInstancesRepository.saveAll(pipeline.processorInstances)
 
         log.info("Created new Instance $pipeline for Pipeline Configuration $pipelineConfig")
@@ -455,8 +456,7 @@ class PipelineService(
 
         val nextNumber = (pipelinesRepository.maxNumberByPipelineConfig(finalPipelineConfig) ?: 0) + 1
 
-        var pipeline = finalPipelineConfig.createPipeline(nextNumber)
-        pipeline.creator = subject
+        var pipeline = finalPipelineConfig.createPipeline(subject, nextNumber)
 
         pipeline = pipelinesRepository.save(pipeline)
 

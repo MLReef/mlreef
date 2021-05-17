@@ -236,7 +236,7 @@ class ExperimentService(
     }
 
     fun newProcessorInstance(id: UUID? = null, slug: String? = null, codeProjectId: UUID? = null, branch: String? = null, version: String? = null): ProcessorInstance {
-        val processor = processorsService.findProcessor(id, slug, codeProjectId, branch, version)
+        val processor = processorsService.resolveProcessor(id, slug, codeProjectId, branch, version)
             ?.takeIf { it.status in listOf(PublishStatus.PUBLISHED, PublishStatus.PUBLISH_FINISHING) }
             ?: throw NotFoundException("Processor ${id ?: slug ?: codeProjectId?.let { "$it ${branch} ${version}" }} not found or is in unpublished/failed state")
 
@@ -248,7 +248,7 @@ class ExperimentService(
         parametersRepository
             .findByProcessorAndName(processorInstance.processor, name)
             ?.let { processorInstance.createParameterInstances(it, value) }
-            ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, name)
+            ?: throw ExperimentCreateException(ErrorCode.ProcessorParameterNotUsable, "Parameter does not exist: $name")
 
 
     fun savePipelineInfo(experiment: Experiment, pipelineJobInfo: PipelineJobInfo, targetBranch: String? = null): Experiment {

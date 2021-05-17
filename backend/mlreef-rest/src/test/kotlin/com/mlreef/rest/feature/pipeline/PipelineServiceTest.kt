@@ -411,7 +411,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Can create DataInstance from PipelineConfig`() {
         val pipelineConfig = createFullMockData()
 
-        val createdInstance = pipelineConfig.createPipeline(1)
+        val createdInstance = pipelineConfig.createPipeline(mainPerson, 1)
 
         assertThat(createdInstance).isNotNull
         assertThat(createdInstance.status).isEqualTo(PipelineStatus.CREATED)
@@ -456,7 +456,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Can create DataInstance from PipelineConfig as deep copy`() {
         val pipelineConfig = createFullMockData()
 
-        val pipeline = pipelineConfig.createPipeline(1)
+        val pipeline = pipelineConfig.createPipeline(mainPerson, 1)
 
         assertThat(pipeline.dataProject!!.id).isEqualTo(pipelineConfig.dataProject!!.id)
         assertThat(pipeline.pipelineConfiguration!!.id).isEqualTo(pipelineConfig.id)
@@ -559,16 +559,10 @@ class PipelineServiceTest : AbstractServiceTest() {
         )
 
         createProcessorInstance(processor, createPipelineConfig)
-//        processorInstancesRepository.save(
-//            createPipelineConfig.addProcessorInstance(
-//                ProcessorInstance(id = randomUUID(), processor = processor)
-//            )
-//        )
 
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path"))
         createPipelineConfig.addInputFile(FileLocation(randomUUID(), FileLocationType.PATH, "/path2"))
 
-//        return pipelineConfigurationRepository.save(createPipelineConfig)
         return saveEntity(createPipelineConfig, createPipelineConfig.id, pipelineConfigurationRepository)
     }
 }

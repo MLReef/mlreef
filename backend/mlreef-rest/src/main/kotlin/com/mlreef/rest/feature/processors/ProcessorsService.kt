@@ -250,6 +250,13 @@ class ProcessorsService(
         }
     }
 
+    fun resolveProcessor(id: UUID? = null, slug: String? = null, codeProjectId: UUID? = null, branch: String? = null, version: String? = null): Processor? {
+        if (id == null && slug == null && (codeProjectId == null || branch == null || version == null)) throw BadRequestException("Either processor id or slug or code project id + branch + version must be present")
+        return id?.let { this.getProcessorById(it) }
+            ?: slug?.let { this.getProcessorBySlug(it) }
+            ?: codeProjectId?.takeIf { branch != null && version != null }?.let { this.getProcessorByProjectIdBranchAndVersion(it, branch!!, version!!) }
+    }
+
     @Transactional
     fun getProcessorById(id: UUID): Processor? {
         return processorsRepository.findByIdOrNull(id)

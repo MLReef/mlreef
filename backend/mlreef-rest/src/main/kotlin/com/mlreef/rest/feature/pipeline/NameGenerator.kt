@@ -42,7 +42,7 @@ class NameGenerator {
             val hour = dateTime.hour.toString().padStart(2, '0')
             val minutes = dateTime.minute.toString().padStart(2, '0')
             val seconds = dateTime.second.toString().padStart(2, '0')
-            return "${day}${month}${year}${hour}${minutes}${seconds}"
+            return "${day}/${month}/${year}-${hour}:${minutes}:${seconds}"
         }
 
         fun getRandomNameWithDate(dateTime: ZonedDateTime = ZonedDateTime.now()): String {
