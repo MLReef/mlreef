@@ -35,14 +35,18 @@ class NameGenerator {
         private fun getRandomNoun(): String = nouns.random()
         private fun getRandomAdjective(): String = adjectives.random()
 
-        private fun getDateString(dateTime: ZonedDateTime = ZonedDateTime.now()): String {
+        private fun getDateString(dateTime: ZonedDateTime = ZonedDateTime.now(), useTime: Boolean = false): String {
             val day = dateTime.dayOfMonth
             val month = dateTime.monthValue.toString().padStart(2, '0')
             val year = dateTime.year
-            val hour = dateTime.hour.toString().padStart(2, '0')
-            val minutes = dateTime.minute.toString().padStart(2, '0')
-            val seconds = dateTime.second.toString().padStart(2, '0')
-            return "${day}/${month}/${year}-${hour}:${minutes}:${seconds}"
+            val result = "${day}-${month}-${year}"
+            return if (useTime) {
+                val hour = dateTime.hour.toString().padStart(2, '0')
+                val minutes = dateTime.minute.toString().padStart(2, '0')
+                val seconds = dateTime.second.toString().padStart(2, '0')
+
+                "$result-${hour}-${minutes}-${seconds}"
+            } else result
         }
 
         fun getRandomNameWithDate(dateTime: ZonedDateTime = ZonedDateTime.now()): String {

@@ -766,7 +766,7 @@ class PipelineService(
             if (dataProject.pipelineConfigurations.find { it.name == "$currentName $i" } == null) return i
         }
 
-        throw PipelineCreateException(message = "Cannot generate uniwue name for pipeline $currentName")
+        throw PipelineCreateException(message = "Cannot generate unique name for pipeline $currentName")
     }
 
     private fun getGitlabPipeline(
