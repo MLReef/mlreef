@@ -788,6 +788,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         val request = ProjectForkRequest(
             targetName = "Fork Name",
             targetPath = "fork-name",
+            targetNamespace = "group1",
         )
 
         this.mockUserAuthentication(forAccount = mainAccount)
@@ -1990,11 +1991,13 @@ private fun projectCreateRequestFields(): List<FieldDescriptor> = listOf(
 
 private fun projectForkRequestFields(): List<FieldDescriptor> = listOf(
     PayloadDocumentation.fieldWithPath("target_namespace_gitlab_id").type(NUMBER).optional()
-        .description("The gitlabId (long) of the namespace you want to fork to."),
+        .description("DEPRECATED! Use target_namespace! The gitlabId (long) of the namespace you want to fork to."),
     PayloadDocumentation.fieldWithPath("target_name").type(STRING).optional()
         .description("The new name of the project. If omitted will default to the original project's value."),
     PayloadDocumentation.fieldWithPath("target_path").type(STRING).optional()
         .description("The new path (slug) of the project. If omitted will default to the original project's value."),
+    PayloadDocumentation.fieldWithPath("target_namespace").type(STRING).optional()
+        .description("The namespace name (String) or id (Number) the project to be forked to"),
 )
 
 fun usersInProjectResponseFields(prefix: String = ""): List<FieldDescriptor> = listOf(
@@ -2009,6 +2012,7 @@ fun usersInProjectResponseFields(prefix: String = ""): List<FieldDescriptor> = l
 fun projectAddEditUserRequestFields(): List<FieldDescriptor> = listOf(
     PayloadDocumentation.fieldWithPath("user_id").type(STRING).optional().description("User id"),
     PayloadDocumentation.fieldWithPath("gitlab_id").type(NUMBER).optional().description("Gitlab user id"),
+    PayloadDocumentation.fieldWithPath("username").type(NUMBER).optional().description("Username"),
     PayloadDocumentation.fieldWithPath("level").type(STRING).optional().description("Role/Level of user in project"),
     PayloadDocumentation.fieldWithPath("expires_at").type(STRING).optional().description("Expiration date")
 )

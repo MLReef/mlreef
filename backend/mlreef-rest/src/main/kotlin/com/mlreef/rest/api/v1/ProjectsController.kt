@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.mlreef.rest.api.v1.dto.CodeProjectDto
 import com.mlreef.rest.api.v1.dto.DataProjectDto
+import com.mlreef.rest.api.v1.dto.NamespaceDto
 import com.mlreef.rest.api.v1.dto.ParameterDto
 import com.mlreef.rest.api.v1.dto.ProcessorDto
 import com.mlreef.rest.api.v1.dto.ProjectDto
@@ -155,35 +156,41 @@ class ProjectsController(
         }
     }
 
-    @GetMapping("/{id}/users")
-    @PreAuthorize("canViewProject(#id)")
-    fun getUsersInDataProjectById(
-        @PathVariable id: UUID,
-    ): List<UserInProjectDto> {
-        val usersInProject = projectService.getUsersInProject(id)
-        return usersInProject.map { it.toDto() }
-    }
-
-
     @Deprecated("To be deleted, /public endpoints is doing the same")
     @GetMapping("/public/all")
     fun getPublicProjectsUnpaged(): List<ProjectDto> {
         throw RestException(ErrorCode.AccessDenied, "Use /public endpoint to request public projects")
-//        val allPublicProjects = projectService.getAllPublicProjects()
-//        return allPublicProjects.map { it.toDto() }
+    }
+
+    @GetMapping("/namespaces")
+    fun getNamespaces(token: TokenDetails): List<NamespaceDto> {
+        return projectService.getNamespaces(token.accessToken).map {
+            NamespaceDto(
+                it.id,
+                it.name,
+                it.fullPath,
+                it.path,
+            )
+        }
     }
 
     @GetMapping("/{id}")
     @PostAuthorize("postCanViewProject()")
-    fun getProjectById(@PathVariable id: String): ProjectDto {
+    fun getProjectById(
+        @PathVariable id: String,
+        token: TokenDetails,
+    ): ProjectDto {
         val uuid = id.tryToUUID()
         val gitlabId = if (uuid == null) id.toLongOrNull() else null
+        val projectName = if (uuid == null && gitlabId == null) id else null
 
         val project = when {
             uuid != null -> projectService.getProjectById(uuid)
             gitlabId != null -> projectService.getProjectByGitlabId(gitlabId)
-            else -> projectService.getProjectByName(id)
-        } ?: throw ProjectNotFoundException(projectId = uuid, projectName = id, gitlabId = gitlabId)
+            projectName != null -> projectService.getProjectByName(id)
+                ?: if (!token.isVisitor) projectService.getProjectsByNamespaceAndSlug(token.username, id) else null
+            else -> throw BadRequestException("No id $id was provided")
+        } ?: throw ProjectNotFoundException(projectId = uuid, projectName = projectName, gitlabId = gitlabId)
 
         return project.toDto()
     }
@@ -252,6 +259,7 @@ class ProjectsController(
             creatorId = person.id,
             name = projectForkRequest.targetName,
             path = projectForkRequest.targetPath,
+            namespaceIdOrName = projectForkRequest.targetNamespace,
         ).toDto() as T
 
     @PostMapping("/data")
@@ -347,33 +355,72 @@ class ProjectsController(
         )
     }
 
-
-    @PostMapping("/{id}/users")
-    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun addUsersToDataProjectById(
+    //-------------- Users in project
+    @GetMapping("/{id}/users")
+    @PreAuthorize("canViewProject(#id)")
+    fun getUsersInDataProjectById(
         @PathVariable id: UUID,
-        @RequestBody(required = false) body: ProjectUserMembershipRequest? = null,
-        @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) userGitlabId: Long?,
+    ): List<UserInProjectDto> {
+        val usersInProject = projectService.getUsersInProject(id)
+        return usersInProject.map { it.toDto() }
+    }
+
+    @PostMapping("/{projectId}/users/{userPathId}")
+    @PreAuthorize("hasAccessToProject(#projectId, 'MAINTAINER')")
+    fun addUsersToProjectById(
+        @PathVariable projectId: UUID,
+        @PathVariable(required = false) userPathId: String?,
         @RequestParam(value = "level", required = false) level: String?,
         @RequestParam(value = "expires_at", required = false) expiresAt: Instant?,
     ): List<UserInProjectDto> {
+        val userId = userPathId.tryToUUID()
+        val userGitlabId = if (userId == null) userPathId?.toLongOrNull() else null
+        val username = if (userId == null && userGitlabId == null) userPathId else null
 
-        val accessLevelStr = body?.level ?: level
-        val accessLevel = if (accessLevelStr != null) AccessLevel.parse(accessLevelStr) else null
-        val currentUserId = body?.userId ?: userId
-        val currentUserGitlabId = body?.gitlabId ?: userGitlabId
+        userId ?: userGitlabId ?: username ?: throw BadRequestException("No user identification to add is defined")
+
+        projectService.addUserToProject(
+            projectUUID = projectId,
+            userId = userId,
+            userGitlabId = userGitlabId,
+            userName = username,
+            accessLevel = level?.let { AccessLevel.parse(it) },
+            accessTill = expiresAt
+        )
+
+        return getUsersInDataProjectById(projectId)
+    }
+
+    @PostMapping("/{projectId}/users")
+    @PreAuthorize("hasAccessToProject(#projectId, 'MAINTAINER')")
+    fun addUsersToProjectByParamsOrBody(
+        @PathVariable projectId: UUID,
+        @RequestBody(required = false) body: ProjectUserMembershipRequest? = null,
+        @RequestParam(value = "user_id", required = false) userParamId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) userParamGitlabId: Long?,
+        @RequestParam(value = "username", required = false) userParamName: String?,
+        @RequestParam(value = "level", required = false) level: String?,
+        @RequestParam(value = "expires_at", required = false) expiresAt: Instant?,
+    ): List<UserInProjectDto> {
+        val userId = body?.userId ?: userParamId
+        val userGitlabId = if (userId == null) body?.gitlabId ?: userParamGitlabId else null
+        val username = if (userId == null && userGitlabId == null) body?.username ?: userParamName else null
+
+        userId ?: userGitlabId ?: username ?: throw BadRequestException("No user identification to add is defined")
+
+        val accessLevel = (body?.level ?: level)?.let { AccessLevel.parse(it) }
         val currentExpiration = body?.expiresAt ?: expiresAt
 
         projectService.addUserToProject(
-            projectUUID = id,
-            userId = currentUserId,
-            userGitlabId = currentUserGitlabId,
+            projectUUID = projectId,
+            userId = userId,
+            userGitlabId = userGitlabId,
+            userName = username,
             accessLevel = accessLevel,
             accessTill = currentExpiration
         )
 
-        return getUsersInDataProjectById(id)
+        return getUsersInDataProjectById(projectId)
     }
 
     @PostMapping("/{id}/groups")
@@ -401,6 +448,58 @@ class ProjectsController(
             accessTill = currentExpiration
         )
 
+        return getUsersInDataProjectById(id)
+    }
+
+    @DeleteMapping("/{projectId}/users/{userId}")
+    @PreAuthorize("hasAccessToProject(#projectId, 'MAINTAINER') || isUserItself(#userId)")
+    fun deleteUsersFromDataProjectById(
+        @PathVariable projectId: UUID,
+        @PathVariable userId: String,
+    ): List<UserInProjectDto> {
+        val finalUserId = userId.tryToUUID()
+        val finalUserGitlabId = if (finalUserId == null) userId.toLongOrNull() else null
+        val username = if (finalUserId == null && finalUserGitlabId == null) userId else null
+
+        projectService.deleteUserFromProject(
+            projectUUID = projectId,
+            userId = finalUserId,
+            userName = username,
+            userGitlabId = finalUserGitlabId
+        )
+
+        return getUsersInDataProjectById(projectId)
+    }
+
+    @DeleteMapping("/{projectId}/users")
+    @PreAuthorize("hasAccessToProject(#projectId, 'MAINTAINER') || isUserItself(#userId, #userName, #userGitlabId)")
+    fun deleteUsersFromDataProjectByParams(
+        @PathVariable projectId: UUID,
+        @RequestParam(value = "user_id", required = false) userId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) userGitlabId: Long?,
+        @RequestParam(value = "username", required = false) userName: String?,
+        token: TokenDetails,
+    ): List<UserInProjectDto> {
+        userId ?: userGitlabId ?: userName ?: throw BadRequestException("No user identification to delete is defined")
+
+        projectService.deleteUserFromProject(
+            projectUUID = projectId,
+            userId = userId,
+            userName = userName,
+            userGitlabId = userGitlabId
+        )
+
+        return getUsersInDataProjectById(projectId)
+    }
+
+    @DeleteMapping("/{id}/groups")
+    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
+    fun deleteGroupFromDataProjectById(
+        @PathVariable id: UUID,
+        @RequestParam(value = "group_id", required = false) groupId: UUID?,
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+    ): List<UserInProjectDto> {
+        projectService.deleteGroupFromProject(projectUUID = id, groupId = groupId, groupGitlabId = gitlabId)
         return getUsersInDataProjectById(id)
     }
 
@@ -432,57 +531,9 @@ class ProjectsController(
         owner: Person
     ): ProcessorDto {
         throw BadRequestException("Use publish for that")
-//        val codeProject = codeProjectService.getProjectById(codeProjectId)
-//            ?: throw NotFoundException(ErrorCode.NotFound, "Code project with id $codeProjectId not found")
-//
-//        val dataProcessor = processorsService.createProcessorForCodeProject(
-//            codeProject = codeProject,
-//            slug = request.slug,
-//            name = request.name,
-//            branch = request.branch,
-//            version = request.version ?: "0.1",
-//            description = request.description,
-//            mainScriptPath = request.mainScriptPath,
-//            author = owner,
-//        )
-//
-//        return dataProcessor.toDto()
     }
 
     //-------------------- Other
-
-    @Deprecated("Tips for API Design: DECIDE and be consistent ")
-    @DeleteMapping("/{id}/users")
-    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun deleteUsersFromDataProjectById(
-        @PathVariable id: UUID,
-        @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
-    ): List<UserInProjectDto> {
-        projectService.deleteUserFromProject(projectUUID = id, userId = userId, userGitlabId = gitlabId)
-        return getUsersInDataProjectById(id)
-    }
-
-    @Deprecated("Tips for API Design: DECIDE and be consistent ")
-    @DeleteMapping("/{id}/users/{userId}")
-    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER') || isUserItself(#userId)")
-    fun deleteUserFromDataProjectById(@PathVariable id: UUID, @PathVariable userId: UUID): List<UserInProjectDto> {
-        projectService.deleteUserFromProject(id, userId)
-        return getUsersInDataProjectById(id)
-    }
-
-    @DeleteMapping("/{id}/groups")
-    @PreAuthorize("hasAccessToProject(#id, 'MAINTAINER')")
-    fun deleteGroupFromDataProjectById(
-        @PathVariable id: UUID,
-        @RequestParam(value = "group_id", required = false) groupId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
-    ): List<UserInProjectDto> {
-        projectService.deleteGroupFromProject(projectUUID = id, groupId = groupId, groupGitlabId = gitlabId)
-        return getUsersInDataProjectById(id)
-    }
-
-//    ------------------------------------------------------------------------------------------------------------------
 
     @GetMapping("/{namespace}/{slug}")
     @PostAuthorize("postCanViewProject()")
@@ -572,6 +623,7 @@ class ProjectForkRequest(
     val targetNamespaceGitlabId: Long? = null,
     val targetName: String? = null,
     val targetPath: String? = null,
+    val targetNamespace: String? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -590,6 +642,7 @@ class ProjectUpdateRequest(
 class ProjectUserMembershipRequest(
     val userId: UUID? = null,
     val gitlabId: Long? = null,
+    val username: String? = null,
     val level: String? = null,
     val expiresAt: Instant? = null,
 )

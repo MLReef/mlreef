@@ -42,6 +42,7 @@ class RefreshUserTokenAspect(
     fun refreshUserInformation(joinPoint: JoinPoint, refreshUserInformation: RefreshUserInformation) {
         val userId: String? = stringEvaluator.getValue(joinPoint, refreshUserInformation.userId)
         val gitlabUserId: String? = stringEvaluator.getValue(joinPoint, refreshUserInformation.gitlabId)
+        val username: String? = stringEvaluator.getValue(joinPoint, refreshUserInformation.username)
         val usersList: List<DataClassWithId>? = listEvaluator.getCollectionValue(joinPoint, refreshUserInformation.list)?.toList()
 
         val usernames = ArrayList<String?>()
@@ -60,10 +61,12 @@ class RefreshUserTokenAspect(
             )
         } else if (!gitlabUserId.isNullOrBlank()) {
             val gitlabId = gitlabUserId.toLongOrNull()
-            if (gitlabId!=null) {
+            if (gitlabId != null) {
                 val user = accountRepository.findAccountByGitlabId(gitlabId)
                 usernames.add(user?.username)
             }
+        } else if (!username.isNullOrBlank()) {
+            usernames.add(username)
         } else {
             usernames.add(currentUserService.accountOrNull()?.username)
         }

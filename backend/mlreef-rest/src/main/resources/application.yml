@@ -60,6 +60,10 @@ mlreef:
     owner-password: ${GITLAB_ADMIN_PASSWORD:password}
     owner-subject-id: aaaa0000-0001-0000-0000-cccccccccccc
     owner-account-id: aaaa0000-0002-0000-0000-aaaaaaaaaaaa
+  projects:
+    sync-fork: true
+    wait-gitlab-fork-sec: 30
+    pause-fork-finished-polling-sec: 2
 
 
 

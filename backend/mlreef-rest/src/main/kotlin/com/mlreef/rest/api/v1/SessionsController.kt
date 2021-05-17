@@ -3,6 +3,7 @@ package com.mlreef.rest.api.v1
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.api.v1.dto.toUserDto
+import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.feature.auth.UserResolverService
@@ -76,8 +77,8 @@ class SessionsController(
     ): UserDto? {
         log.debug("Find user by username=$userName and userId=$userId and gitlabId=$gitlabId")
         val user = userResolverService.resolveAccount(userName, userId, gitlabId)
-        val gitlabUser =
-            if (user != null && user.person.gitlabId != null) userResolverService.findGitlabUserViaGitlabId(user.person.gitlabId!!) else null
+        user?.person?.gitlabId?.let { userResolverService.findGitlabUserViaGitlabId(it) }
+            ?: if (user != null) throw NotFoundException("No user with id ${user.person.gitlabId} exists in Gitlab")
         return user?.toUserDto()
     }
 }

@@ -98,7 +98,7 @@ interface PersonRepository : KtCrudRepository<Person, UUID> {
     //FIXME dangerous!! Multiple names should be ok!
     fun findByName(name: String): Person?
     fun findByGitlabId(gitlabId: Long): Person?
-
+    fun findBySlug(slug: String): Person?
 }
 
 @Repository

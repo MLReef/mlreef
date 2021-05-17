@@ -1,4 +1,5 @@
 plugins {
+    id 'io.spring.dependency-management'
     id 'org.springframework.boot' version '2.3.1.RELEASE'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin-spring'
@@ -11,9 +12,9 @@ plugins {
 
 group = 'com.mlreef'
 version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
 
 dependencies {
-    implementation project(path: ':mlreef-domain', configuration: 'default')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9'
