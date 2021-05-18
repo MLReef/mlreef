@@ -35,7 +35,6 @@ import com.mlreef.rest.feature.groups.GroupsService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.utils.RandomUtils
-import com.mlreef.rest.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
@@ -96,7 +95,7 @@ class AuthService(
 
     fun checkAvailability(userName: String): String {
         reservedNamesService.assertUserNameIsNotReserved(userName)
-        val possibleSlug = Slugs.toSlug(userName)
+        val possibleSlug = userName
         val existingUser = personRepository.findBySlug(possibleSlug)
         if (existingUser != null) {
             throw ConflictException(ErrorCode.UserAlreadyExisting, "User exists for $possibleSlug / $userName")
