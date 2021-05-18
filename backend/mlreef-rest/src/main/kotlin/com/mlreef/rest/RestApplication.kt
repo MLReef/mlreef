@@ -87,7 +87,7 @@ class EpfConfiguration {
     var pipServer: String? = null
     var useDockerHost: Boolean = true
     var maxUpdatePublishStatus: Int = 10
-    var retriesForPipeline: Int = 2
+    var retriesForPipeline: Int = 0
 
     //time after publish pipeline creation we consider it as failed if no success/finished status is gotten from gitlab
     var timeToConsiderPipelineFailedSec: Long = 60 * 60 * 3 //Default - 3 hours
