@@ -77,6 +77,7 @@ class CreateProject extends Component {
       description: '',
       dataTypesSelected: [],
       isFetching: false,
+      isWaiting: false,
     };
 
     this.handleDTCallback = this.handleDTCallback.bind(this);
@@ -224,12 +225,13 @@ class CreateProject extends Component {
     this.setState({ isFetching: true });
 
     projectGeneraInfoApi.create(body, projectType)
-      .then(() => {
-        this.setState({ redirect: `/${nameSpace}/${slug}` });
-      })
+      .then(() => this.setState({ isWaiting: true }))
+      .then(() => setTimeout(() => {
+        this.setState({ redirect: `/${nameSpace}/${slug}`, isWaiting: false });
+      }, 5000))
       .catch((err) => toastr.error('Error', err.message))
       .finally(() => {
-        this.setState({ isFetching: false });
+        this.setState({ isFetching: false});
       });
   }
 
@@ -284,6 +286,7 @@ class CreateProject extends Component {
      description,
      dataTypesSelected: dtTypesSel,
      isFetching,
+     isWaiting,
    } = this.state;
    const { match: { params: { classification } }, groups, user } = this.props;
    const specificType = projectClassificationsProps
@@ -469,7 +472,7 @@ class CreateProject extends Component {
                  cypressTag="create-btn"
                  disabled={!isValid}
                  className="btn btn-primary ml-auto"
-                 waiting={isFetching}
+                 waiting={isFetching || isWaiting}
                  onClick={this.handleSubmit}
                >
                  Create new
