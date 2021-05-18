@@ -139,8 +139,8 @@ export const fetchProcessorsPaginatedByType = (operationTypeToExecute, body) => 
       stars_count: stars,
       processors,
     } = proj;
-    const processor = processors
-      ?.filter(({ branch }) => branch === 'master')
+    const filteredProcessors = processors?.filter(({ branch }) => branch === 'master');
+    const processor = (filteredProcessors.length > 0 ? filteredProcessors : processors)
       ?.sort((proc1, proc2) => {
         if (new Date(proc2.publish_finished_at) > new Date(proc1.publish_finished_at)) {
           return 1;
@@ -153,7 +153,6 @@ export const fetchProcessorsPaginatedByType = (operationTypeToExecute, body) => 
         return 0;
       })[0];
 
-    console.log(processor);
     return {
       ...processor,
       parameters: processor.parameters,
