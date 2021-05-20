@@ -66,6 +66,8 @@ class MarketplaceController(
         @RequestParam("min_forks") minForksCount: Int? = null,
         @RequestParam("max_forks") maxForksCount: Int? = null,
         @RequestParam("published") published: Boolean? = null,
+        @RequestParam("own") own: Boolean? = null,
+        @RequestParam("participate") participate: Boolean? = null,
         @RequestParam("query") query: String? = "",
         @RequestParam("query_and") queryAnd: Boolean? = false,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
@@ -99,6 +101,8 @@ class MarketplaceController(
             minForksCount = minForksCount ?: filter.minForksCount,
             maxForksCount = maxForksCount ?: filter.maxForksCount,
             published = published ?: filter.published,
+            own = own ?: filter.own,
+            participate = participate ?: filter.participate,
         ) ?: SearchRequest(
             searchableType = searchableType,
             projectType = projectType,
@@ -126,6 +130,8 @@ class MarketplaceController(
             minForksCount = minForksCount,
             maxForksCount = maxForksCount,
             published = published,
+            own = own,
+            participate = participate,
         )
 
         return marketplaceService.searchProjects(finalFilter, pageable, profile).map { it.toDto() }
@@ -219,5 +225,7 @@ data class SearchRequest(
     val namespace: String? = null,
     val namespaceExact: String? = null,
     val published: Boolean? = null,
+    val own: Boolean? = null,
+    val participate: Boolean? = null,
 )
 

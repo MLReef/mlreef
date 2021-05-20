@@ -28,7 +28,6 @@ import com.mlreef.rest.utils.QueryBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -89,6 +88,32 @@ class MarketplaceService(
             dataTypesRepository.findByNameIgnoreCase(it) ?: throw BadParametersException("Data type $it not found")
         }
 
+        val finalProjectIdsIn = (if (request.own != null || request.participate != null) {
+            val resultList = token?.takeIf { !it.isVisitor }?.projects?.mapNotNull {
+                if (request.own == true && it.value == AccessLevel.OWNER) {
+                    it.key
+                } else if (request.participate == true && it.value != AccessLevel.OWNER) {
+                    it.key
+                } else null
+            }
+            resultList
+        } else null)?.takeIf { it.isNotEmpty() }
+
+        val finalProjectIdsNotIn = (if (request.own != null || request.participate != null) {
+            val resultList = token?.takeIf { !it.isVisitor }?.projects?.mapNotNull {
+                if (request.own == false && it.value == AccessLevel.OWNER) {
+                    it.key
+                } else if (request.participate == false && it.value != AccessLevel.OWNER) {
+                    it.key
+                } else null
+            }
+            resultList
+        } else null)?.takeIf { it.isNotEmpty() }
+
+        if ((request.own != null || request.participate != null) && finalProjectIdsIn == null && finalProjectIdsNotIn == null) {
+            returnEmptyResult = true
+        }
+
         val builder = getQueryBuilderForType(finalProjectType)
 
         if (finalVisibility == VisibilityScope.PRIVATE) {
@@ -96,8 +121,23 @@ class MarketplaceService(
                 .and()
                 .openBracket()
                 .equals("visibilityScope", VisibilityScope.PRIVATE)
-                .and()
-                .`in`("id", token?.projects?.map { it.key } ?: listOf())
+                .apply {
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsIn,
+                        true
+                    )
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsNotIn,
+                        false
+                    )
+                    addFilterByProjectsListIds(
+                        this,
+                        token?.projects?.map { it.key } ?: listOf(),
+                        true
+                    ) //the third filter just to escape private projects leakage
+                }
                 .closeBracket()
         } else if (finalVisibility == null) {
             builder
@@ -105,14 +145,59 @@ class MarketplaceService(
                 .openBracket()
                 .openBracket()
                 .equals("visibilityScope", VisibilityScope.PRIVATE)
-                .and()
-                .`in`("id", token?.projects?.map { it.key } ?: listOf())
+                .apply {
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsIn,
+                        true
+                    )
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsNotIn,
+                        false
+                    )
+                    addFilterByProjectsListIds(
+                        this,
+                        token?.projects?.map { it.key } ?: listOf(),
+                        true
+                    ) //the third filter just to escape private projects leakage
+                }
                 .closeBracket()
                 .or()
+                .openBracket()
                 .equals("visibilityScope", VisibilityScope.PUBLIC)
+                .apply {
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsIn,
+                        true
+                    )
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsNotIn,
+                        false
+                    )
+                }
+                .closeBracket()
                 .closeBracket()
         } else {
-            builder.and().equals("visibilityScope", VisibilityScope.PUBLIC)
+            builder
+                .and()
+                .openBracket()
+                .equals("visibilityScope", VisibilityScope.PUBLIC)
+                .apply {
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsIn,
+                        true
+                    )
+                    addFilterByProjectsListIds(
+                        this,
+                        finalProjectIdsNotIn,
+                        false
+                    )
+                }
+                .closeBracket()
         }
 
         request.globalSlug?.let { builder.and().like("globalSlug", "%$it%", caseSensitive = false) }
@@ -171,9 +256,24 @@ class MarketplaceService(
         }
 
         return if (returnEmptyResult) {
-            PageImpl(listOf(), pageable, 0)
+            Page.empty()
+//            PageImpl(listOf(), pageable, 0)
         } else {
             builder.select(pageable, true) //use distinct because with connect ManyToMany SearchableTags table
+        }
+    }
+
+    private fun addFilterByProjectsListIds(builder: QueryBuilder<out Project>, idsList: List<UUID>?, logicOperator: Boolean) {
+        idsList?.let {
+            builder
+                .and()
+                .apply {
+                    if (logicOperator) {
+                        this.`in`("id", it)
+                    } else {
+                        this.notIn("id", it)
+                    }
+                }
         }
     }
 
