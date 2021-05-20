@@ -21,6 +21,8 @@ import * as projectActions from 'store/actions/projectInfoActions';
 // import { fixHostname } from 'functions/helpers';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import MLoadingSpinner from './ui/MLoadingSpinner';
+import AuthWrapper from './AuthWrapper';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 
@@ -146,13 +148,15 @@ const ProjectTitleNActions = (props) => {
 
         {classProject.defaultBranch !== null && forkable && (
           <div className="options d-flex mr-2">
-            <Link
-              to={`/${project.namespace}/${project.slug}/-/fork`}
-              className="option-name btn btn-hidden border-rounded-left border-rounded-right py-2 px-3 my-0"
-            >
-              <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />
-              <span className="my-auto d-none d-lg-block">Fork</span>
-            </Link>
+            <AuthWrapper minRole={ACCESS_LEVEL.GUEST}>
+              <Link
+                to={`/${project.namespace}/${project.slug}/-/fork`}
+                className="option-name btn btn-hidden border-rounded-left border-rounded-right py-2 px-3 my-0"
+              >
+                <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />
+                <span className="my-auto d-none d-lg-block">Fork</span>
+              </Link>
+            </AuthWrapper>
 
             <MWrapper norender title="Hidding the counter until the feature is ready in the API">
               <div className="counter border-rounded-right h-100">

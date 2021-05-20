@@ -13,7 +13,6 @@ import { bindActionCreators } from 'redux';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getBranchesList } from 'store/actions/branchesActions';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
-import { generateBreadCrumbs } from 'functions/helpers';
 import './dataVisualizationDetail.scss';
 import Navbar from '../../navbar/navbar';
 import ProjectContainer from '../../projectContainer';
@@ -112,7 +111,7 @@ const DataVisualizationDetails = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="main-content">
         <br />

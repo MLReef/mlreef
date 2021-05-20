@@ -2,12 +2,11 @@ import React from 'react';
 import './SettingsView.scss';
 import PropTypes from 'prop-types';
 import ProjectContainer from 'components/projectContainer';
+import hooks from 'customHooks/useSelectedProject';
 import Navbar from 'components/navbar/navbar';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
-import { generateBreadCrumbs } from 'functions/helpers';
 import SettingsViewMembers from './SettingsViewMembers';
 import SettingsViewGeneral from './SettingsViewGeneral';
-import hooks from 'customHooks/useSelectedProject';
 
 const SettingsView = (props) => {
   const {
@@ -34,7 +33,7 @@ const SettingsView = (props) => {
       <ProjectContainer
         setIsForking={() => {}}
         activeFeature="settings"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="settings-view main-content">
         <div className="settings-view-content">

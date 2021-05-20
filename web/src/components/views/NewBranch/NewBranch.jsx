@@ -11,7 +11,6 @@ import MButton from 'components/ui/MButton';
 import ProjectContainer from 'components/projectContainer';
 import Navbar from 'components/navbar/navbar';
 
-import { generateBreadCrumbs } from 'functions/helpers';
 import { validateBranchName } from 'functions/validations';
 import './NewBranch.scss';
 import hooks from 'customHooks/useSelectedProject';
@@ -86,7 +85,7 @@ const NewBranch = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
 
       <div className="new-branch-view main-content">

@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { Route, Link, Switch } from 'react-router-dom';
 import hooks from 'customHooks/useSelectedProject';
 import { shape } from 'prop-types';
-import { generateBreadCrumbs } from 'functions/helpers';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import TabularData from 'components/commons/TabularData';
 import Navbar from 'components/navbar/navbar';
@@ -70,7 +69,7 @@ const Insights = (props) => {
       <ProjectContainer
         project={selectedProject}
         activeFeature="insights"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
 
       <div className="main-content py-4">

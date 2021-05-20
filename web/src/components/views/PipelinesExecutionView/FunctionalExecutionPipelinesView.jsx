@@ -6,7 +6,6 @@ import './PipelinesExecutionView.scss';
 import { OPERATION, ALGORITHM, VISUALIZATION } from 'dataTypes';
 import { string, shape } from 'prop-types';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import useLoading from 'customHooks/useLoading';
 import DataPiplineApi from 'apis/DataPipelineApi';
@@ -166,8 +165,8 @@ const FunctionalExecutionPipelinesView = (props) => {
       />
       <Navbar />
       <ProjectContainer
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
         activeFeature={activeFeature}
+        breadcrumbs={customCrumbs}
       />
       <Instruction
         id={instructionDataModel.id}

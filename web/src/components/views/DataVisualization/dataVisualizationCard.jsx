@@ -14,6 +14,7 @@ import { toastr } from 'react-redux-toastr';
 import { useHistory } from 'router';
 import hooks from 'customHooks/useSelectedProject';
 import DataInstanteDeleteModal from 'components/DeleteDataInstance/DeleteDatainstance';
+import ACCESS_LEVEL from 'domain/accessLevels';
 import AuthWrapper from 'components/AuthWrapper';
 import { getPipelineIcon, getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
@@ -37,7 +38,7 @@ const DataVisualizationCard = ({
     let buttons;
     if (dataVisualizationState === RUNNING || dataVisualizationState === PENDING) {
       buttons = [
-        <AuthWrapper minRole={30}>
+        <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
           <button
             type="button"
             key="abort-button"

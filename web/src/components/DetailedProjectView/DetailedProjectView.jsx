@@ -6,7 +6,6 @@ import {
 } from 'prop-types';
 import forkingImage from 'images/forking.png';
 import FilesContainer from 'components/FilesContainer';
-import { generateBreadCrumbs } from 'functions/helpers';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import { redirectNotFound } from 'store/actions/errorsActions';
 import * as projectActions from 'store/actions/projectInfoActions';
@@ -103,10 +102,9 @@ const DetailedProjectView = (props) => {
         {gid && (
           <>
             <ProjectContainer
-              isEmptyProject={project.emptyRepo}
               setIsForking={setIsForking}
               activeFeature="data"
-              breadcrumbs={generateBreadCrumbs(project, customCrumbs)}
+              breadcrumbs={customCrumbs}
             />
             <div className="main-content">
               {project.emptyRepo ? (

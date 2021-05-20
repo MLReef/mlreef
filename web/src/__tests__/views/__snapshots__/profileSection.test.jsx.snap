@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`UI renders user profile with user data assert that user profile is rendered correctly 1`] = `ShallowWrapper {}`;

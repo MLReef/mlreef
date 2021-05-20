@@ -1,0 +1,9 @@
+enum ACCESS_LEVEL {
+  GUEST = 10,
+  REPORTER = 20,
+  DEVELOPER = 30,
+  MAINTAINER = 40,
+  OWNER = 50,
+}
+
+export default ACCESS_LEVEL;

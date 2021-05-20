@@ -3,7 +3,6 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 import DetailedProjectView from 'components/DetailedProjectView/DetailedProjectView';
-import projActions from 'components/DetailedProjectView/ProjectViewactionsAndFunctions';
 import { generatePromiseResponse, sleep, storeFactory } from 'functions/testUtils';
 import { branchesMock, commitMockObject, filesMock, usersArrayMock } from 'testData';
 import testData from './projectTestData.json';
@@ -51,7 +50,7 @@ describe('test basic rendering for data projects', () => {
     await sleep(500);
     wrapper.setProps({});
 
-    const authWrappers = wrapper.find('AuthWrapper');
+    const authWrappers = wrapper.find('div.feature-list').find('AuthWrapper');
     expect(authWrappers.at(0).find('a#insights')).toHaveLength(1);
     expect(authWrappers.at(0).childAt(0).props().title).not.toBe('Please login');
 
@@ -73,24 +72,27 @@ describe('test basic rendering for data projects', () => {
     const wrapper = setup(false);
     await sleep(500);
     wrapper.setProps({});
-
-    const authWrappers = wrapper.find('AuthWrapper');
+    const authWrappers = wrapper.find('div.feature-list').find('AuthWrapper');
 
     expect(authWrappers.at(0).find('a#insights')).toHaveLength(1);
     expect(authWrappers.at(0).childAt(0).props().title).toBe('Please login');
 
-    expect(authWrappers.at(2).find('p.visualizations-count')).toHaveLength(1);
-    expect(authWrappers.at(2).childAt(0).props().title).toBe('Please login');
+    const repoInfoAuthWrapper = wrapper.find('RepoInfo').find('AuthWrapper');
 
-    expect(authWrappers.at(3).find('p.datasets-count')).toHaveLength(1);
-    expect(authWrappers.at(3).childAt(0).props().title).toBe('Please login');
+    expect(repoInfoAuthWrapper.at(0).find('p.visualizations-count')).toHaveLength(1);
+    expect(repoInfoAuthWrapper.at(0).childAt(0).props().title).toBe('Please login');
 
-    expect(authWrappers.at(5).find('a').text()).toBe('Data Ops');
-    expect(authWrappers.at(5).childAt(0).props().title).toBe('Please login');
+    expect(repoInfoAuthWrapper.at(1).find('p.datasets-count')).toHaveLength(1);
+    expect(repoInfoAuthWrapper.at(1).childAt(0).props().title).toBe('Please login');
 
-    expect(authWrappers.at(6).find('a').text()).toBe('Data Visualization');
-    expect(authWrappers.at(6).childAt(0).props().title).toBe('Please login');
-  });
+    const repoFeaturesAuthWrapper = wrapper.find('RepoFeatures').find('AuthWrapper');
+
+    expect(repoFeaturesAuthWrapper.at(1).find('a').text()).toBe('Data Ops');
+    expect(repoFeaturesAuthWrapper.at(1).childAt(0).props().title).toBe('Please login');
+
+    expect(repoFeaturesAuthWrapper.at(2).find('a').text()).toBe('Data Visualization');
+    expect(repoFeaturesAuthWrapper.at(2).childAt(0).props().title).toBe('Please login');
+  }); 
 
   afterEach(() => {
     global.fetch.mockClear();

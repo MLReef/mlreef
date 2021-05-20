@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from 'react-markdown';
-import { generateBreadCrumbs } from 'functions/helpers';
 import { MergeRequestEditWithActions } from 'components/layout/MergeRequests';
 import * as mergeRequestActions from 'store/actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
@@ -27,6 +26,7 @@ import MergeRequestAPI from '../../apis/MergeRequestApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import ProjectContainer from '../projectContainer';
 import './basicMR.css';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 dayjs.extend(relativeTime);
 
@@ -201,7 +201,7 @@ const BasicMergeRequestView = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="basic-merge-request-view-content main-content v1023">
         <div style={{ display: 'flex', marginTop: '1em' }}>
@@ -222,7 +222,7 @@ const BasicMergeRequestView = (props) => {
               </Link>
             </div>
           </div>
-          <AuthWrapper minRole={30} norender>
+          <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
             {actionButtons}
           </AuthWrapper>
 
@@ -272,7 +272,7 @@ const BasicMergeRequestView = (props) => {
                     )}
                   </div>
                   <div className="vertical" />
-                  <AuthWrapper minRole={30} norender>
+                  <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
                     <div className="state-box">
 
                       {state === 'merged'

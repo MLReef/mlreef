@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import {
   shape, string, func, bool,
 } from 'prop-types';
-import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
@@ -17,12 +16,14 @@ import { fireModal } from 'store/actions/actionModalActions';
 import BranchesApi from 'apis/BranchesApi';
 import ExperimentsApi from 'apis/experimentApi';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
+import ACCESS_LEVEL from 'domain/accessLevels';
 import ExperimentTable from 'components/commons/ExperimentTable';
 import Navbar from '../navbar/navbar';
 import ProjectContainer from '../projectContainer';
 import './experimentsOverview.css';
 import emptyLogo from '../../images/experiments_empty-01.png';
 import experimentActions from './ExperimentActions';
+import { projectClassificationsProps } from 'dataTypes';
 
 export const buttons = [
   'All',
@@ -190,16 +191,17 @@ const ExperimentsOverview = (props) => {
       <ProjectContainer
         activeFeature="experiments"
         viewName="Experiments"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       {experiments.length > 0 && (
         <div className="main-content mb-5">
-          <AuthWrapper minRole={30} norender>
+          <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
             <div className="d-flex mt-3">
               <button
                 id="new-experiment"
+                style={{ backgroundColor: projectClassificationsProps[1].color, color: 'white' }}
                 type="button"
-                className="btn btn-primary ml-auto"
+                className="btn ml-auto"
                 onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
               >
                 New experiment
@@ -223,11 +225,12 @@ const ExperimentsOverview = (props) => {
             <img src={emptyLogo} width="240" alt="Create an experiment" />
             <span>{'You don\'t have any experiment in your ML project'}</span>
             <p>Why not start one?</p>
-            <AuthWrapper minRole={30}>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
               <button
                 id="new-experiment"
+                style={{ backgroundColor: projectClassificationsProps[1].color, color: 'white' }}
                 type="button"
-                className="btn btn-primary"
+                className="btn"
                 onClick={() => history.push(`/${namespace}/${slug}/-/experiments/new`)}
               >
                 Start an experiment

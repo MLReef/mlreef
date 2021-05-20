@@ -14,6 +14,8 @@ import NewDirectoryPartial from 'components/layout/NewDirectoryPartial';
 import { fireModal, closeModal } from 'store/actions/actionModalActions';
 import MBranchSelector from 'components/ui/MBranchSelector';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import { projectClassificationsProps } from 'dataTypes';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 export class RepoFeatures extends Component {
   constructor(props) {
@@ -106,7 +108,7 @@ export class RepoFeatures extends Component {
           showExperiments
           showVisualizations
         />
-        <AuthWrapper minRole={30} norender>
+        <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender className="mt-3">
           <MDropdown
             className="mr-2 mt-3"
             label={<i className="fa fa-plus" />}
@@ -141,11 +143,6 @@ export class RepoFeatures extends Component {
                     New branch
                   </Link>
                 </li>
- {/*                <li className="plus-option">
-                  <Link to={`/${namespace}/${slug}/-/import-data/-/overview`}>
-                    Import data
-                  </Link>
-                </li> */}
               </ul>
             )}
           />
@@ -154,29 +151,35 @@ export class RepoFeatures extends Component {
         {!isCodeProject && (
           <>
             <AuthWrapper
-              minRole={30}
+              minRole={ACCESS_LEVEL.DEVELOPER}
               resource={{ type: 'project' }}
               className="mx-2 mt-3"
             >
               <Link
-                className="btn btn-dark px-3 mr-2 mt-3"
+                style={{ backgroundColor: projectClassificationsProps[2].color, color: 'white' }}
+                className="btn px-3 mr-2 mt-3"
                 to={`/${namespace}/${slug}/-/datasets/new`}
                 data-icon="o"
               >
-                Data Ops
+                <p className="m-0">
+                  Data Ops
+                </p>
               </Link>
             </AuthWrapper>
 
             <AuthWrapper
-              minRole={30}
+              minRole={ACCESS_LEVEL.DEVELOPER}
               className="ml-2 mr-auto mt-3"
             >
               <Link
-                className="btn btn-dark px-3 mr-auto mt-3"
+                style={{ backgroundColor: projectClassificationsProps[3].color, color: 'white' }}
+                className="btn px-3 mr-auto mt-3"
                 data-icon="v"
                 to={`/${namespace}/${slug}/-/visualizations/new`}
               >
-                Data Visualization
+                <p className="m-0">
+                  Data Visualization
+                </p>
               </Link>
             </AuthWrapper>
           </>

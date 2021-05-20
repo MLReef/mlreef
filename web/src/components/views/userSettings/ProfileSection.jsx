@@ -124,7 +124,7 @@ const ProfileSection = (props) => {
             className="mt-3 w-auto"
             id="user_status"
             type="text"
-            value={status === null ? '' : status}
+            value={status}
             placeholder="What's your status?"
             onChange={(e) => setUserStatus(e.target.value)}
           />

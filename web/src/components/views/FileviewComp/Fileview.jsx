@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import MCodeRenderer from 'components/layout/MCodefileRenderer/MCodefileRenderer';
 import './Fileview.scss';
 import { connect } from 'react-redux';
-import { toastr } from 'react-redux-toastr';
 import { Base64 } from 'js-base64';
 import { Link } from 'react-router-dom';
 import {
@@ -13,7 +12,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import AuthWrapper from 'components/AuthWrapper';
 import MDropdown from 'components/ui/MDropdown';
 import MWrapper from 'components/ui/MWrapper';
-import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import useLoading from 'customHooks/useLoading';
@@ -25,6 +23,7 @@ import ProjectContainer from '../../projectContainer';
 import Navbar from '../../navbar/navbar';
 import DeleteFileModal from '../../DeleteFileModal/DeleteFileModal';
 import ContributorsSection from './ContributorsSection';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 dayjs.extend(relativeTime);
 
@@ -117,7 +116,7 @@ const FileView = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="fileview-branch-path">
         <MDropdown
@@ -239,7 +238,7 @@ const FileView = (props) => {
                 </button>
               </MWrapper>
               {isImageFile === false && (
-                <AuthWrapper minRole={30}>
+                <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
                   <Link
                     className="btn btn-sm btn-basic-dark ml-2"
                     style={{ height: 'min-content' }}
@@ -249,7 +248,7 @@ const FileView = (props) => {
                   </Link>
                 </AuthWrapper>
               )}
-              <AuthWrapper minRole={30} norender>
+              <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
                 <button
                   type="button"
                   className="btn btn-sm btn-danger ml-2"

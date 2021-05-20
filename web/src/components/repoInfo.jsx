@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const calculateSize = (pipeCategoriesArray) => pipeCategoriesArray 
   && pipeCategoriesArray?.length > 0
@@ -49,7 +50,7 @@ const RepoInfo = ({
 
         {isDataProject ? (
           <>
-            <AuthWrapper minRole={10}>
+            <AuthWrapper minRole={ACCESS_LEVEL.GUEST}>
               <Link className="repo-stat" to={`/${project.namespace}/${project.slug}/-/visualizations`}>
                 <p className="stat-type visualizations-count">
                   {visualizationsArrSize}
@@ -58,7 +59,7 @@ const RepoInfo = ({
                 </p>
               </Link>
             </AuthWrapper>
-            <AuthWrapper minRole={10}>
+            <AuthWrapper minRole={ACCESS_LEVEL.GUEST}>
               <Link disabled to={`/${project.namespace}/${project.slug}/-/datasets`} className="repo-stat">
                 <p className="stat-type datasets-count">
                   {datasetsArrSize}

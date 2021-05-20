@@ -8,7 +8,6 @@ import hooks from 'customHooks/useSelectedProject';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
 import { getProjectPipelinesByType } from 'store/actions/pipelinesActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import { generateBreadCrumbs } from 'functions/helpers';
 import Navbar from '../../navbar/navbar';
 import ProjectContainer from '../../projectContainer';
 import Instruction from '../../instruction/instruction';
@@ -68,7 +67,7 @@ export const DataVisualizationOverview = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <Instruction
         id="DataVisualizationOverview"
