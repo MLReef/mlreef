@@ -16,6 +16,7 @@ import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.DataProject
+import com.mlreef.rest.domain.DataType
 import com.mlreef.rest.domain.Group
 import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.ProcessorType
@@ -308,7 +309,7 @@ open class ProjectServiceImpl<T : Project>(
             return Page.empty(pageable ?: Pageable.unpaged())
         } else {
             val type = getProjectType()
-            return if (type!=null) {
+            return if (type != null) {
                 repository.findAllByOwnerIdAndType(token.personId, type = type, pageable)
             } else {
                 repository.findAllByOwnerId(token.personId, pageable)
@@ -321,7 +322,7 @@ open class ProjectServiceImpl<T : Project>(
             return listOf()
         } else {
             val type = getProjectType()
-            return if (type!=null) {
+            return if (type != null) {
                 repository.findAllByOwnerIdAndType(token.personId, type = type)
             } else {
                 repository.findAllByOwnerId(token.personId)
@@ -577,10 +578,19 @@ open class ProjectServiceImpl<T : Project>(
             throw ConflictException(ErrorCode.GitlabProjectCreationFailed, "Cannot update Project $originalId: ${e.message}")
         }
 
-        val fork: T = if (original is CodeProject)
-            createCodeProjectEntity(ownerId = creatorId, gitlabFork, original.processorType) as T
-        else
+        val fork: T = if (original is CodeProject) {
+            createCodeProjectEntity(
+                ownerId = creatorId,
+                gitlabProject = gitlabFork,
+                processorType = original.processorType,
+                modelType = original.modelType,
+                mlCategory = original.mlCategory,
+                inputDataTypes = original.inputDataTypes,
+                outputDataTypes = original.outputDataTypes,
+            ) as T
+        } else {
             createDataProjectEntity(ownerId = creatorId, gitlabFork) as T
+        }
 
         val savedProject = this.saveProject(fork.copy(createdAt = now(), updatedAt = now()))
 
@@ -929,7 +939,16 @@ open class ProjectServiceImpl<T : Project>(
             visibilityScope = gitlabProject.visibility.toVisibilityScope()
         )
 
-    private fun createCodeProjectEntity(ownerId: UUID, gitlabProject: GitlabProject, processorType: ProcessorType, id: UUID? = null): CodeProject =
+    private fun createCodeProjectEntity(
+        ownerId: UUID,
+        gitlabProject: GitlabProject,
+        processorType: ProcessorType,
+        id: UUID? = null,
+        modelType: String? = null,
+        mlCategory: String? = null,
+        inputDataTypes: MutableSet<DataType> = mutableSetOf(),
+        outputDataTypes: MutableSet<DataType> = mutableSetOf(),
+    ): CodeProject =
         CodeProject(
             id = id ?: randomUUID(),
             slug = gitlabProject.path,
@@ -942,7 +961,11 @@ open class ProjectServiceImpl<T : Project>(
             gitlabNamespace = gitlabProject.pathWithNamespace.split("/")[0],
             gitlabId = gitlabProject.id,
             visibilityScope = gitlabProject.visibility.toVisibilityScope(),
-            processorType = processorType
+            processorType = processorType,
+            modelType = modelType,
+            mlCategory = mlCategory,
+            inputDataTypes = mutableSetOf(*inputDataTypes.map { it.copy() }.toTypedArray()),
+            outputDataTypes = mutableSetOf(*outputDataTypes.map { it.copy() }.toTypedArray()),
         )
 
     @Transactional

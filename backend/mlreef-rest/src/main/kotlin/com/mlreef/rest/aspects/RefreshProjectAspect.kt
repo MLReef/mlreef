@@ -41,8 +41,8 @@ class RefreshProjectAspect(
             .map { it.id.toString() }
             .toMutableList()
             .apply {
-                if (projectId != null) add(projectId)
-                if (resultProjectId!=null) add(resultProjectId)
+                projectId?.let { add(it) }
+                resultProjectId?.let { add(it) }
             }
 
         projectsIds.forEach {
