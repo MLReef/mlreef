@@ -278,16 +278,16 @@ class QueryBuilder<T> private constructor(
 
     fun orderBy(fieldsList: List<String>): QueryBuilder<T> {
         for (field in fieldsList) {
-            orderBy(field)
+            this.orderBy(field)
         }
         return this
     }
 
     fun orderBy(field: String): QueryBuilder<T> {
         if (field.startsWith("-")) {
-            orderBy.add(builder.desc(from.get<Any>(field.substring(1))))
+            this.descOrderBy(field.substring(1))
         } else {
-            orderBy.add(builder.asc(from.get<Any>(field)))
+            this.ascOrderBy(field)
         }
         return this
     }

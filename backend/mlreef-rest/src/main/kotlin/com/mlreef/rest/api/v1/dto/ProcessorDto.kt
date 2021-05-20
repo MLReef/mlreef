@@ -56,7 +56,7 @@ fun Processor.toDto(): ProcessorDto {
     return ProcessorDto(
         this.id,
         this.codeProject!!.slug,
-        this.name ?: "${this.codeProject!!.name} ${this.branch} processor",
+        this.name ?: "${this.codeProject!!.name} (${this.branch}-${this.version})",
         this.codeProject!!.inputDataTypes.map { it.name },
         this.codeProject!!.outputDataTypes.map { it.name },
         this.codeProject!!.processorType.name,

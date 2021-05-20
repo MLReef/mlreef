@@ -1225,6 +1225,226 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by own`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                own = true,
+            ), page(), token1
+        )
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds =
+            getDataProjectSlugsByIndex(0, 2, 3, 5, 6, 8) + getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 8)
+
+        assertThat(searchResult).hasSize(13)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                own = true,
+            ), page(), token2
+        )
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getDataProjectSlugsByIndex(1, 4, 7, 9) + getCodeProjectSlugsByIndex(1, 7)
+
+        assertThat(searchResult).hasSize(6)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by not own`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                own = false,
+            ), page(), token1
+        )
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds = getDataProjectSlugsByIndex(1, 7, 9) +
+            getCodeProjectSlugsByIndex(7, 9) +
+            listOf(
+                codeProjectOperation.slug,
+                codeProjectAlgorithm.slug,
+                codeProjectVisualization.slug,
+                dataProjectImages.slug
+            )
+
+        assertThat(searchResult).hasSize(9)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                own = false,
+            ), page(), token2
+        )
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getDataProjectSlugsByIndex(0, 3, 5, 6) +
+            getCodeProjectSlugsByIndex(0, 3, 6, 9) +
+            listOf(
+                codeProjectOperation.slug,
+                codeProjectAlgorithm.slug,
+                codeProjectVisualization.slug,
+                dataProjectImages.slug
+            )
+
+        assertThat(searchResult).hasSize(12)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by participate`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                participate = true,
+            ), page(), token1
+        )
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds =
+            getDataProjectSlugsByIndex(1, 9) + getCodeProjectSlugsByIndex(9)
+
+        assertThat(searchResult).hasSize(3)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                participate = true,
+            ), page(), token2
+        )
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getDataProjectSlugsByIndex(0, 6) + getCodeProjectSlugsByIndex(9)
+
+        assertThat(searchResult).hasSize(3)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by not participate`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                participate = false,
+            ), page(), token1
+        )
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds = getDataProjectSlugsByIndex(0, 2, 3, 5, 6, 7, 8) +
+            getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 7, 8) +
+            listOf(
+                codeProjectOperation.slug,
+                codeProjectAlgorithm.slug,
+                codeProjectVisualization.slug,
+                dataProjectImages.slug
+            )
+
+        assertThat(searchResult).hasSize(19)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                participate = false,
+            ), page(), token2
+        )
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getDataProjectSlugsByIndex(1, 3, 4, 5, 7, 9) +
+            getCodeProjectSlugsByIndex(0, 1, 3, 6, 7) +
+            listOf(
+                codeProjectOperation.slug,
+                codeProjectAlgorithm.slug,
+                codeProjectVisualization.slug,
+                dataProjectImages.slug
+            )
+
+        assertThat(searchResult).hasSize(15)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by not own and not participate`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                own = false,
+                participate = false,
+            ), page(), token1
+        )
+        var ids = searchResult.map { it.slug }
+
+        var expectationIds = getDataProjectSlugsByIndex(7) +
+            getCodeProjectSlugsByIndex(7) +
+            listOf(
+                codeProjectOperation.slug,
+                codeProjectAlgorithm.slug,
+                codeProjectVisualization.slug,
+                dataProjectImages.slug
+            )
+
+        assertThat(searchResult).hasSize(6)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                own = false,
+                participate = false,
+            ), page(), token2
+        )
+        ids = searchResult.map { it.slug }
+
+        expectationIds = getDataProjectSlugsByIndex(3, 5) +
+            getCodeProjectSlugsByIndex(0, 3, 6) +
+            listOf(
+                codeProjectOperation.slug,
+                codeProjectAlgorithm.slug,
+                codeProjectVisualization.slug,
+                dataProjectImages.slug
+            )
+
+        assertThat(searchResult).hasSize(9)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    fun `search project by own and participate - RETURNS ALL USER'S PROJECTS`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                own = true,
+                participate = true,
+            ), page(), token1
+        )
+
+        assertThat(searchResult.content).hasSize(16) //returns all user's projects because connection is 'own OR participate'
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                own = true,
+                participate = true,
+            ), page(), token2
+        )
+
+        assertThat(searchResult.content).hasSize(9)
+    }
+
     private fun page() = PageRequest.of(0, 100)
 
     private fun createMockedProjects() {
@@ -1375,7 +1595,6 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             mlCategory = "mlCategory0",
             name = "Marketplace service test code project 0",
         )
-
 
         codeProject1 = createCodeProject(
             slug = "slug11",

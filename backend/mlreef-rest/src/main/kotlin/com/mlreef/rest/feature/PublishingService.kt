@@ -302,7 +302,7 @@ class PublishingService(
             existingProcessor?.id,
         )
 
-        val name = parsedProcessor.name ?: "${project.name} Processor"
+        val name = parsedProcessor.name ?: "${project.name}"
 
         val logdate = Instant.now().toString()
 
