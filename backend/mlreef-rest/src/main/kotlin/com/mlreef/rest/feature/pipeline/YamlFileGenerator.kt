@@ -6,6 +6,7 @@ import com.mlreef.rest.exceptions.DataProcessorIncorrectStructureException
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import java.util.UUID
 import java.util.stream.Collectors
 
 
@@ -36,6 +37,11 @@ const val FINAL_OUTPUT_PATH = "%FINAL_OUTPUT_PATH%"
 const val IS_ALGORITHM = "%IS_ALGORITHM%"
 const val BASE_IMAGE_PATH = "%BASE_IMAGE_PATH%"
 const val MAX_RETRIES = "%MAX_RETRIES%"
+
+val typeWrappedByParentheses = listOf(
+    UUID.fromString("09e16b54-a1e8-434c-b39a-63aea1a48df7"),
+    UUID.fromString("0c7ba828-336f-4924-990e-5544514f6122"),
+)
 
 val NEWLINE = System.lineSeparator()
 
@@ -172,9 +178,11 @@ class YamlFileGenerator {
                 "$it ${
                     instance.parameterInstances.joinToString(" ") {
                         if (it.name.equals(INPUT_PATH_PARAM_NAME, true)) {
-                            if (!inputPath.isNullOrBlank()) "--${it.name} /$inputPath" else ""
+                            if (!inputPath.isNullOrBlank()) "--${it.name} \"/$inputPath\"" else ""
                         } else if (it.name.equals(OUTPUT_PATH_PARAM_NAME, true)) {
-                            if (!outputPath.isNullOrBlank()) "--${it.name} /$outputPath" else ""
+                            if (!outputPath.isNullOrBlank()) "--${it.name} \"/$outputPath\"" else ""
+                        } else if (it.parameterType == null || it.parameterType!!.id in typeWrappedByParentheses) {
+                            "--${it.name} \"${it.value}\""
                         } else {
                             "--${it.name} ${it.value}"
                         }
