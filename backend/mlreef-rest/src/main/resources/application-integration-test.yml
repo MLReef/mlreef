@@ -23,7 +23,7 @@ spring:
     username: ${DB_USER:mlreef}
     password: ${DB_PASSWORD:password}
   jpa:
-    show-sql: false
+    show-sql: true
     generate-ddl: false
     properties:
       hibernate:
