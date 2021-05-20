@@ -220,7 +220,7 @@ class CodeProject(
         val processor = Processor(
             UUID.randomUUID(),
             this,
-            name = name ?: "${this.name} Processor",
+            name = name ?: this.name,
             slug = slug ?: "${this.slug}-processor",
             mainScriptPath = mainScript ?: "main.py",
             imageName = "${this.name}:master",

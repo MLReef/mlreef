@@ -372,9 +372,9 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve all public SearchableTags`() {
-        val searchableTag1 = createTag("TAG1")
-        val searchableTag2 = createTag("TAG2")
-        val searchableTag3 = createTag("TAG3")
+        createTag("TAG1")
+        createTag("TAG2")
+        createTag("TAG3")
 
         mockUserAuthentication(forAccount = mainAccount)
 
@@ -390,9 +390,9 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     fun `Visitor can retrieve all public MarketplaceEntries`() {
-        val dataProject1 = createDataProject(slug = "slug1")
-        val dataProject2 = createDataProject(slug = "slug2")
-        val dataProject3 = createDataProject(slug = "slug3")
+        createDataProject(slug = "slug1")
+        createDataProject(slug = "slug2")
+        createDataProject(slug = "slug3")
 
         val returnedResult: RestResponsePage<ProjectDto> = this.performGet("$rootUrl/entries")
             .checkStatus(HttpStatus.OK)
@@ -422,9 +422,9 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Test
     @Tag(TestTags.RESTDOC)
     fun `Visitor can retrieve all public SearchableTags`() {
-        val searchableTag1 = createTag("TAG1")
-        val searchableTag2 = createTag("TAG2")
-        val searchableTag3 = createTag("TAG3")
+        createTag("TAG1")
+        createTag("TAG2")
+        createTag("TAG3")
 
         val returnedResult = this.performGet("$rootUrl/tags")
             .checkStatus(HttpStatus.OK)
@@ -517,6 +517,10 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 .description("Namespace of project, any part of requested string must match (LIKE %TEXT% request)"),
             fieldWithPath(prefix + "namespace_exact").type(JsonFieldType.STRING).optional()
                 .description("Namespace of project, complete part of requested string must match (EQUAL TEXT request)"),
+            fieldWithPath(prefix + "own").type(JsonFieldType.BOOLEAN).optional()
+                .description("Filter by own project"),
+            fieldWithPath(prefix + "participate").type(JsonFieldType.BOOLEAN).optional()
+                .description("Filter by participation in project"),
         )
     }
 
