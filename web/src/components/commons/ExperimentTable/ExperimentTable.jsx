@@ -10,6 +10,7 @@ import { sortAsc, sortDesc } from 'components/ui/MDataTable/functions';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MAccordion from 'components/ui/MAccordion';
 import AuthWrapper from 'components/AuthWrapper';
+import ACCESS_LEVEL from 'domain/accessLevels';
 import ExperimentTableOverall from './ExperimentTableOverall';
 import ExperimentTableRow from './ExperimentTableRow';
 import ExperimentTableFilters from './ExperimentTableFilters';
@@ -154,7 +155,7 @@ const ExperimentTable = (props) => {
               setFilteredRows={setFilteredRows}
             />
             <div className="experiment-table-btn-group">
-              <AuthWrapper norender minRole={30}>
+              <AuthWrapper norender minRole={ACCESS_LEVEL.DEVELOPER}>
                 <>
                   {selectedRows.length > 0 && (
                     <button

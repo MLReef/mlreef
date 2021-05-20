@@ -8,6 +8,8 @@ import * as pt from 'components/ui/MDataTable/propTypes';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import { getPipelineIcon } from 'functions/pipeLinesHelpers';
 import ExperimentTableRowPanel from './ExperimentTableRowPanel';
+import AuthWrapper from 'components/AuthWrapper';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const getHours = (secs) => {
   const h = Math.floor(secs / 3600);
@@ -116,11 +118,13 @@ const ExperimentTableRow = (props) => {
                 className="label-color"
                 style={{ backgroundColor: featuredCols.label.color }}
               />
-              <Link to={`${pathname}/${uuid}`}>
-                <span className="label-text">
-                  {featuredCols.label.value.replace('experiment/', '')}
-                </span>
-              </Link>
+              <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
+                <Link to={`${pathname}/${uuid}`}>
+                  <span className="label-text">
+                    {featuredCols.label.value.replace('experiment/', '')}
+                  </span>
+                </Link>
+              </AuthWrapper>
             </div>
           </td>
         )}

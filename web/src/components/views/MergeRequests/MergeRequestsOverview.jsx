@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import {
   shape, string, arrayOf, func,
 } from 'prop-types';
-import { generateBreadCrumbs } from 'functions/helpers';
 import AuthWrapper from 'components/AuthWrapper';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
@@ -16,6 +15,7 @@ import ProjectContainer from '../../projectContainer';
 import './merge-request-overview.css';
 import { mrStates } from '../../../dataTypes';
 import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 /**
    * @param {mrs} is the merge requests list to be classified by state
@@ -100,7 +100,7 @@ const MergeRequestOverview = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="main-content">
         {!mrsList
@@ -122,7 +122,7 @@ const MergeRequestOverview = (props) => {
                 <button type="button" className="btn btn-basic-dark mr-auto mb-2" id="all" onClick={handleFilterBtnClick}>
                   All
                 </button>
-                <AuthWrapper minRole={30} norender>
+                <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
                   <button
                     type="button"
                     className="btn btn-primary mr-2 ml-2 mb-2"

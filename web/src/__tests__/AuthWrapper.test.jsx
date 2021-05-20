@@ -4,6 +4,7 @@ import renderer from 'react-test-renderer';
 import { storeFactory } from 'functions/testUtils';
 import AuthWrapper from 'components/AuthWrapper';
 import initialState from 'store/reducers/initialState';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 /*
  * These snapshots should never break!
@@ -121,13 +122,13 @@ describe('Evaluate AuthWrapper', () => {
           </section>
           <section>
             visitor: developer covered
-            <AuthWrapper minRole={30}>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
               <Subject desc="should render covered" />
             </AuthWrapper>
           </section>
           <section>
             visitor: developer, norender
-            <AuthWrapper minRole={30} norender>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
               <Subject desc="should not render" />
             </AuthWrapper>
           </section>
@@ -168,13 +169,13 @@ describe('Evaluate AuthWrapper', () => {
           </section>
           <section>
             authenticated: developer
-            <AuthWrapper minRole={30}>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
               <Subject desc="should render covered" />
             </AuthWrapper>
           </section>
           <section>
             authenticated: developer, norender
-            <AuthWrapper minRole={30} norender>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
               <Subject desc="should not render" />
             </AuthWrapper>
           </section>
@@ -215,25 +216,25 @@ describe('Evaluate AuthWrapper', () => {
           </section>
           <section>
             developer: developer
-            <AuthWrapper minRole={30}>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
               <Subject desc="should render" />
             </AuthWrapper>
           </section>
           <section>
             developer: developer, covered
-            <AuthWrapper minRole={30} norender>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
               <Subject desc="should render" />
             </AuthWrapper>
           </section>
           <section>
             developer: developer w/o perms, covered
-            <AuthWrapper minRole={40}>
+            <AuthWrapper minRole={ACCESS_LEVEL.MAINTAINER}>
               <Subject desc="should render covered" />
             </AuthWrapper>
           </section>
           <section>
             developer: developer w/o perms, no render
-            <AuthWrapper minRole={40} norender>
+            <AuthWrapper minRole={ACCESS_LEVEL.MAINTAINER} norender>
               <Subject desc="should not render" />
             </AuthWrapper>
           </section>
@@ -274,13 +275,13 @@ describe('Evaluate AuthWrapper', () => {
           </section>
           <section>
             owner: developer
-            <AuthWrapper minRole={30}>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
               <Subject desc="should render" />
             </AuthWrapper>
           </section>
           <section>
             owner: developer, covered
-            <AuthWrapper minRole={30} norender>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
               <Subject desc="should render" />
             </AuthWrapper>
           </section>

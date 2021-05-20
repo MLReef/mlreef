@@ -10,7 +10,6 @@ import {
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import { toastr } from 'react-redux-toastr';
 import hooks from 'customHooks/useSelectedProject';
-import { generateBreadCrumbs } from 'functions/helpers';
 import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHelpers';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
@@ -113,7 +112,7 @@ const CommitDetails = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <br />
       <br />

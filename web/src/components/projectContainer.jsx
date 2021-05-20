@@ -1,24 +1,25 @@
 import React, { useEffect } from 'react';
 import { Link } from 'router';
 import {
-  string, objectOf, shape, arrayOf,
+  string, objectOf, shape, arrayOf, func, bool,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import MParagraph from 'components/ui/MParagraph';
+import { generateBreadCrumbs } from 'functions/helpers';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import { connect } from 'react-redux';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import ProjectInfo from './ProjectTitleNActions';
+import { projectClassificationsProps } from 'dataTypes';
 
 const ProjectContainer = (props) => {
   const {
-    isEmptyProject,
     activeFeature,
     globalColorMarker,
     project,
     project: { namespace, slug },
-    forceShowExperimentList,
     breadcrumbs,
+    auth,
   } = props;
   useEffect(() => {
     const activeFeatureNode = document.getElementById(activeFeature);
@@ -29,7 +30,7 @@ const ProjectContainer = (props) => {
   }, [activeFeature, globalColorMarker]);
 
   const isDataProject = project.projectType === PROJECT_TYPES.DATA_PROJ
-      || project.projectType === PROJECT_TYPES.DATA;
+  || project.projectType === PROJECT_TYPES.DATA;
 
   let description;
 
@@ -39,10 +40,12 @@ const ProjectContainer = (props) => {
 
   const projectRoute = { name: 'project', params: { namespace, slug } };
 
+  const customBreadcrumbs = generateBreadCrumbs(project, breadcrumbs || [], auth);
+
   return (
     <div className="project-container" style={{ backgroundColor: '#e5e5e5' }}>
       <div className="project-details main-content">
-        <MBreadcrumb items={breadcrumbs} />
+        <MBreadcrumb items={customBreadcrumbs} />
         <ProjectInfo />
         <MParagraph
           className="project-desc"
@@ -54,10 +57,9 @@ const ProjectContainer = (props) => {
             {isDataProject ? 'Data' : 'Code'}
           </Link>
 
-          {(isDataProject && !isEmptyProject) && (
+          {(isDataProject && !project.emptyRepo) && (
             <>
               <Link
-                onClick={forceShowExperimentList}
                 to={`/${namespace}/${slug}/-/experiments`}
                 className="feature"
                 id="experiments"
@@ -77,7 +79,6 @@ const ProjectContainer = (props) => {
             className="feature"
           >
             <Link
-              onClick={forceShowExperimentList}
               to={`/${namespace}/${slug}/-/settings`}
               className="feature"
               id="settings"
@@ -92,8 +93,9 @@ const ProjectContainer = (props) => {
 };
 
 function mapStateToProps(state) {
-  const { user: { globalColorMarker }, projects: { selectedProject: project } } = state;
+  const { user: { globalColorMarker, auth }, projects: { selectedProject: project } } = state;
   return {
+    auth,
     globalColorMarker,
     project,
   };
@@ -106,6 +108,12 @@ ProjectContainer.propTypes = {
   project: objectOf(shape).isRequired,
   activeFeature: string.isRequired,
   breadcrumbs: arrayOf(shape),
+  globalColorMarker: string,
+  auth: bool.isRequired,
+};
+
+ProjectContainer.defaultProps = {
+  globalColorMarker: projectClassificationsProps[0].color,
 };
 
 export default connect(mapStateToProps)(ProjectContainer);

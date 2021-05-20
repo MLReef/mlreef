@@ -5,7 +5,6 @@ import {
   shape, string,
 } from 'prop-types';
 import { closeModal, fireModal } from 'store/actions/actionModalActions';
-import { generateBreadCrumbs } from 'functions/helpers';
 import { MLoadingSpinnerContainer } from 'components/ui/MLoadingSpinner';
 import { filterPipelinesOnStatus } from 'functions/pipeLinesHelpers';
 import { getProjectPipelinesByType } from 'store/actions/pipelinesActions';
@@ -76,7 +75,7 @@ const DataInstanceOverview = (props) => {
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+          breadcrumbs={customCrumbs}
         />
         <Instruction
           id="DataInstanceOverview"

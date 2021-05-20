@@ -10,7 +10,6 @@ import {
   arrayOf,
 } from 'prop-types';
 import MBranchSelector from 'components/ui/MBranchSelector';
-import { generateBreadCrumbs } from 'functions/helpers';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
@@ -93,7 +92,7 @@ export const UnconnectedCommitsView = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <br />
       <br />

@@ -7,7 +7,6 @@ import { Redirect, Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
 import MBranchSelector from 'components/ui/MBranchSelector';
-import { generateBreadCrumbs } from 'functions/helpers';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import commitDetailActions from 'components/commits-details/actionsAndFunctions';
@@ -127,7 +126,7 @@ const NewMergeRequest = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="main-content">
         <br />

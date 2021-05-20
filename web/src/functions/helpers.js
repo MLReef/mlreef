@@ -32,7 +32,7 @@ export const handleResponse = async (res) => {
   return body;
 };
 
-export const generateBreadCrumbs = (selectedProject, customCrumbs) => {
+export const generateBreadCrumbs = (selectedProject, customCrumbs, isAuth) => {
   const {
     gitlabNamespace,
     slug,
@@ -40,10 +40,15 @@ export const generateBreadCrumbs = (selectedProject, customCrumbs) => {
     name,
   } = selectedProject;
   const userKind = gitlab?.namespace?.kind;
+  let nameSpacelink = `/${gitlabNamespace}`;
+  if (isAuth) {
+    nameSpacelink = userKind === 'group' ? `/groups/${gitlabNamespace}` : '/dashboard/my-repositories/data_project';
+  }
+
   const crumbs = [
     {
       name: `${gitlabNamespace}`,
-      href: userKind === 'group' ? `/groups/${gitlabNamespace}` : `/${gitlabNamespace}`,
+      href: nameSpacelink,
     },
     {
       name: `${name}`,

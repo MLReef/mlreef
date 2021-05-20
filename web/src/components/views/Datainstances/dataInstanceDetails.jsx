@@ -9,7 +9,6 @@ import moment from 'moment';
 import { bindActionCreators } from 'redux';
 import hooks from 'customHooks/useSelectedProject';
 import AuthWrapper from 'components/AuthWrapper';
-import { generateBreadCrumbs } from 'functions/helpers';
 import { getInfoFromStatus } from 'functions/pipeLinesHelpers';
 import PropTypes, { shape, func } from 'prop-types';
 import DataCard from 'components/layout/DataCard';
@@ -25,6 +24,7 @@ import { suscribeRT } from 'functions/apiCalls';
 import JobIdLink from './JobIdLink';
 import DataintanceFiles from './DatainstanceFiles';
 import MTimer from 'components/ui/MTimer/MTimer';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const timeout = 30000;
 const durationChangetimeout = 5000;
@@ -121,7 +121,7 @@ const DataInstanceDetails = (props) => {
       <Navbar />
       <ProjectContainer
         activeFeature="data"
-        breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+        breadcrumbs={customCrumbs}
       />
       <div className="main-content">
         <br />
@@ -139,7 +139,7 @@ const DataInstanceDetails = (props) => {
                 </Link>
               </div>
               <AuthWrapper
-                minRole={30}
+                minRole={ACCESS_LEVEL.DEVELOPER}
               >
                 <button
                   type="button"

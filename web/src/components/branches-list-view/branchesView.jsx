@@ -10,7 +10,6 @@ import {
 import MInput from 'components/ui/MInput';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
 import AuthWrapper from 'components/AuthWrapper';
-import { generateBreadCrumbs } from 'functions/helpers';
 import * as branchesActions from 'store/actions/branchesActions';
 import * as projectActions from 'store/actions/projectInfoActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
@@ -20,6 +19,7 @@ import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
 import './branchesView.css';
 import DeleteBranchModal from './deleteBranchModal';
 import BranchesApi from '../../apis/BranchesApi.ts';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const branchesApi = new BranchesApi();
 
@@ -174,7 +174,7 @@ class BranchesView extends Component {
         <Navbar />
         <ProjectContainer
           activeFeature="data"
-          breadcrumbs={generateBreadCrumbs(selectedProject, customCrumbs)}
+          breadcrumbs={customCrumbs}
         />
         <div className="main-content">
           <div id="inputs-div" className="my-3">
@@ -185,12 +185,11 @@ class BranchesView extends Component {
               onChange={(e) => {
                 const currentValue = e.currentTarget.value;
                 this.setState({
-                  isFiltering: true,
                   nameToFilterBy: currentValue,
                 });
               }}
             />
-            <AuthWrapper minRole={30} norender>
+            <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
               <button
                 className="btn btn-primary mb-auto ml-3"
                 id="new-branch"
@@ -246,7 +245,7 @@ class BranchesView extends Component {
                     ) : (
                       <MLoadingSpinner />
                     )}
-                    <AuthWrapper minRole={30} norender>
+                    <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
                       <Link
                         className="btn btn-outline-dark my-auto mr-2"
                         to={`/${namespace}/${slug}/-/merge_requests/new?${genQuery(branch)}`}

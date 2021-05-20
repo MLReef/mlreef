@@ -8,6 +8,7 @@ import { toastr } from 'react-redux-toastr';
 import FilesTable from '../files-table/filesTable';
 import filesContainerActions from './filesContainerActions';
 import FilesApi from '../../apis/FilesApi.ts';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const filesApi = new FilesApi();
 
@@ -76,7 +77,7 @@ const FilesContainer = ({
             &quot;.
           </b>
         </p>
-        <AuthWrapper minRole={30}>
+        <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER}>
           <Link
             type="button"
             className="btn btn-basic-dark btn-sm mr-2"
