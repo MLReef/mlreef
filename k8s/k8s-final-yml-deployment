@@ -13,6 +13,6 @@ set -x
 kubectl delete configmap k8s-runner-ca-crt || echo "configmap k8s-runner-ca-crt does not exist"
 kubectl  create configmap k8s-runner-ca-crt --from-file=$(pwd)/k8s-runner-ca.crt
 
-## Deploy all services other than gitlab. The yml got generated through k8s/prepare_final_deployment_yml
+## Deploy all services other than gitlab. The yml got generated through k8s/prepare-final-deployment-yml
 kubectl apply -f apps-${dashed_domain}.yml
 

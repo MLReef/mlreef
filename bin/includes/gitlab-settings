@@ -7,6 +7,14 @@
 # @returns: The HTTP code received by _curl_.
 # 302: means that Gitlab is up and running
 # 502: Gitlab is still starting or broken
+
+# Set max_artifacts_size using api
 setMaxArtifactSizeForGitlab() {
   curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "$INSTANCE_HOST":"$GITLAB_PORT"/"api/v4/application/settings?max_artifacts_size=2048"
 }
+
+# Set max_attachment_size using api
+setMaxAttachmentSizeForGitlab() {
+  curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "$INSTANCE_HOST":"$GITLAB_PORT"/"api/v4/application/settings?max_attachment_size=2048"
+}
+

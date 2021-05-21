@@ -68,7 +68,7 @@ services:
         registry_external_url 'http://gitlab:5050'
         registry_nginx['enable'] = true
         # Max sizes for upload
-        nginx['client_max_body_size'] = "1024m"
+        nginx['client_max_body_size'] = "2048m"
         # Access port for the internal Docker registry (has to be exposed via Docker as well)
         registry_nginx['listen_port'] = 5050    
 #     GITLAB_SSH_PORT: 10022                                      # TODO use correct environment parameter

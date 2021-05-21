@@ -52,6 +52,11 @@ setMaxArtifactSizeForGitlab() {
   curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}"/"api/v4/application/settings?max_artifacts_size=5120"
 }
 
+# Set max_attachment_size using api
+setMaxAttachmentSizeForGitlab() {
+  curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}"/"api/v4/application/settings?max_attachment_size=5120"
+}
+
 # Set container_registry_token_expire_delay api
 setContainerRegistryTokenExpireDelayForGitlab() {
   curl --request PUT --header "PRIVATE-TOKEN: $GITLAB_ADMIN_TOKEN" "${INSTANCE_HOST}:${GITLAB_PORT}"/"api/v4/application/settings?container_registry_token_expire_delay=30"
@@ -84,6 +89,7 @@ recreateGitlabAdminToken
 # Gitlab setting changes
 log "Changing gitlab settings"
 setMaxArtifactSizeForGitlab
+setMaxAttachmentSizeForGitlab
 setContainerRegistryTokenExpireDelayForGitlab
 
 log "Getting Gitlab runners registration token from Gitlab."
