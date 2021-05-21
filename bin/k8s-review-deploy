@@ -33,7 +33,7 @@ fi
 kubectl version
 
 ## Prepare the final yml files for deployment
-./k8s/prepare_final_deployment_yml
+./k8s/prepare-final-deployment-yml
 
 ## Delete resources in namespace before fresh deployment
 kubectl delete deploy,svc,ing,pod -l ref=${CI_ENVIRONMENT_SLUG}
@@ -42,7 +42,7 @@ kubectl delete deploy,svc,ing,pod -l ref=${CI_ENVIRONMENT_SLUG}
 ./k8s/gitlab-deployment
 
 ## All other services than gitlab deployment
-./k8s/k8s_final_yml_deployment
+./k8s/k8s-final-yml-deployment
 sleep 30
 
 ## Recreate ingress as some services got created after ingress creation

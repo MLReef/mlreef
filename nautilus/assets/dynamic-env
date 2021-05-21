@@ -15,6 +15,7 @@ export GITLAB_OMNIBUS_CONFIG="\
     registry_external_url '$MLREEF_DOCKER_REGISTRY_EXTERNAL_URL';   \
     registry_nginx['enable'] = true;                                \
     registry_nginx['listen_port'] = $MLREEF_DOCKER_REGISTRY_PORT;   \
+    nginx['client_max_body_size'] = "5012m";                        \ 
     redis['bind'] = '127.0.0.1';                                    \
     redis['port'] = 6379;                                           \
     "

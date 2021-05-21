@@ -112,7 +112,7 @@ LOCALCONF
 cat review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml
 kubectl apply -f review-deploy-tls-${CI_ENVIRONMENT_SLUG}.yml
 
-## Apply finally generate yml file from bin/k8s-review-deploy => k8s/prepare_final_deployment_yml
+## Apply finally generate yml file from bin/k8s-review-deploy => k8s/prepare-final-deployment-yml
 kubectl apply -f gitlab-${dashed_domain}.yml
 
 # Ingress deployment ( gitlab endpoint should be up before further steps)
@@ -163,6 +163,7 @@ EOM
 
 #Change gitlab default setting
 setMaxArtifactSizeForGitlab
+setMaxAttachmentSizeForGitlab
 setContainerRegistryTokenExpireDelayForGitlab
 
 ###gitlab local group and project creation###
