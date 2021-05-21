@@ -106,7 +106,7 @@ const FileView = (props) => {
         namespace={namespace}
         slug={slug}
         projectId={gid}
-        filepath={encodeURIComponent(file)}
+        filepath={file}
         isModalVisible={isDeleteModalVisible}
         fileName={fileName}
         branches={branches.map((branchObj) => branchObj.name)}
