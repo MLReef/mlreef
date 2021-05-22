@@ -3,11 +3,20 @@ import {
   arrayOf, number, shape, string,
 } from 'prop-types';
 import { pluralize } from 'functions/dataParserHelpers';
-import { CommitDiv } from 'components/views/CommitsView/CommitView';
+import CommitDiv from 'components/layout/CommitDiv/CommitDiv';
+import './CommitList.scss';
 
-const CommitsList = ({
-  commits, users, projectId, changesNumber, namespace, slug, branch
-}) => {
+const CommitsList = (props) => {
+  const {
+    commits,
+    users,
+    projectId,
+    changesNumber,
+    namespace,
+    slug,
+    branch,
+  } = props;
+
   function extractColaborators(commitToExtractUsers) {
     const setOfUniqueNames = new Set(commitToExtractUsers.map((commit) => commit.author_name));
     return setOfUniqueNames.size;
@@ -25,21 +34,11 @@ const CommitsList = ({
           ),
       ),
     )];
+
+  const colaborators = extractColaborators(commits);
   return (
-    <div style={{
-      borderTopLeftRadius: '1em',
-      borderTopRightRadius: '1em',
-    }}
-    >
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '3px 5em',
-        color: 'white',
-        backgroundColor: '#32AFC3',
-        borderRadius: 'inherit',
-      }}
-      >
+    <div className="commit-list">
+      <div className="commit-list-summary">
         <p>
           <b>
             {`${commits.length} commit${pluralize(commits.length)}`}
@@ -52,21 +51,21 @@ const CommitsList = ({
         </p>
         <p>
           <b>
-            {`${extractColaborators(commits)} contributor${pluralize(extractColaborators(commits))}`}
+            {`${colaborators} contributor${pluralize(colaborators)}`}
           </b>
         </p>
       </div>
       <div>
         {distinct.map((commit, index) => (
-          <div key={index.toString()} className="commit-per-date">
-            <div className="commit-header">
+          <div key={index.toString()} className="commit-list-per-date">
+            <div className="commit-list-per-date-header">
               <p>
                 {` Commits on ${commit}`}
               </p>
             </div>
             {commits.map((item) => {
-              let avatarImage = 'https://assets.gitlab-static.net/uploads/-/system/user/avatar/3839940/avatar.png';
-              let userName = '';
+              let avatarImage;
+              let userName;
               if (users) {
                 users.forEach((user) => {
                   const { name } = user;

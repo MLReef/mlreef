@@ -1,0 +1,42 @@
+.commit-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+
+  &-summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 5em;
+    color: white;
+    background-color: #32AFC3;
+    border-radius: inherit;
+  }
+
+  &-per-date{
+    border: 1px solid #adadad;
+    border-radius: 0.3vw;
+    margin-bottom: 8px;
+
+    &-header{
+      display: flex;
+      margin-top: 0;
+      border-bottom: 1px solid #e5e5e5;
+      background-color: #e5e5e5;
+      border-radius: 0.3vw 0.3vw 0 0;
+      
+      p {
+        margin-left: 1em;
+        color: #1c2b40;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  &-per-date:last-child{
+    border-bottom: 1px solid #adadad;
+    margin-bottom: 2em;
+  }
+}
