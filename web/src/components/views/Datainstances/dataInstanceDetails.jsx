@@ -27,7 +27,6 @@ import MTimer from 'components/ui/MTimer/MTimer';
 import ACCESS_LEVEL from 'domain/accessLevels';
 
 const timeout = 30000;
-const durationChangetimeout = 5000;
 
 const DataInstanceDetails = (props) => {
   const {

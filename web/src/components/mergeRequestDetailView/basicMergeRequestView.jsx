@@ -16,7 +16,7 @@ import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import AuthWrapper from 'components/AuthWrapper';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import hooks from 'customHooks/useSelectedProject';
-import CommitsList from 'components/CommitList';
+import CommitsList from 'components/layout/CommitsList/CommitList';
 import MButton from 'components/ui/MButton';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MWrapper from 'components/ui/MWrapper';

@@ -1,12 +1,13 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import CommitsView, { CommitDiv } from 'components/views/CommitsView/CommitView';
+import CommitsView from 'components/views/CommitsView/CommitView';
 import actions from 'components/views/CommitsView/actions';
 import { Provider } from 'react-redux';
 import { storeFactory } from 'functions/testUtils';
 import { branchesMock, projectsArrayMock, commitMockObject } from 'testData';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import { MemoryRouter } from 'react-router-dom';
+import CommitDiv from 'components/layout/CommitDiv/CommitDiv';
 
 const commits = [{
   ...commitMockObject, title: 'first commit',
@@ -101,7 +102,7 @@ describe('test CommitDiv', () => {
     const today = new Date();
     const previous = new Date(commitMockObject.committed_date);
     const timediff = getTimeCreatedAgo(previous, today);
-    expect(wrapper.find('.commit-data').childAt(1).text().includes(timediff)).toBe(true);
+    expect(wrapper.find('.commit-div-data').childAt(1).text().includes(timediff)).toBe(true);
     try {
       wrapper.find('button').simulate('click');
     } catch (error) {

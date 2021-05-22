@@ -409,6 +409,8 @@ export const groupsMock = [{
 ];
 
 export const usersArrayMock = [{
+  name: 'mlreef',
+  avatar_url: 'https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80&d=identicon',
   userInfo: {
     id: 2,
     name: 'mlreef',

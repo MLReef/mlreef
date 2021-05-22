@@ -10,7 +10,7 @@ import MBranchSelector from 'components/ui/MBranchSelector';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import commitDetailActions from 'components/commits-details/actionsAndFunctions';
-import CommitsList from 'components/CommitList';
+import CommitsList from 'components/layout/CommitsList/CommitList';
 import actions from './mergeReqActions';
 import ProjectContainer from '../../projectContainer';
 import Navbar from '../../navbar/navbar';
@@ -69,6 +69,7 @@ const NewMergeRequest = (props) => {
     brApi.compare(gid, branchSelected, branch)
       .then(async (res) => {
         setCommits(res.commits);
+        console.log(res.commits);
         setDiffs(res.diffs);
       }).catch((err) => {
         toastr.error('Error', err.message);

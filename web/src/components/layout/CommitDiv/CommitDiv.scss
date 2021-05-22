@@ -1,0 +1,34 @@
+.commit-div {
+  display: flex;
+  padding: 0.5rem 1rem;
+  &-data {
+    padding-left: 0.5em;
+    display: flex;
+    flex-direction: column;
+    
+    a {
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 1em 0.5rem 0rem 0rem;
+      cursor: pointer;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 20rem;
+    }
+  }
+  
+  &-details {
+    display: flex;
+    margin: 1em 1em 1em auto;
+    border: 1px solid var(--secondary);
+    border-radius: 5px;
+    background-color: var(--light);
+
+    span {
+      margin: auto;
+      padding: 0.5em 1em;
+    }
+  }
+}

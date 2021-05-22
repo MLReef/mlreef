@@ -19,7 +19,7 @@ const getDiffDetails = (gid, diffsArray, newCommits) => Promise.all(
       } = await getFileDifferences(
         gid,
         imageDiff,
-        newCommits.parent_ids[0],
+        Array.isArray(newCommits) ? newCommits[0].id : newCommits.parent_ids[0],
         newCommits.id,
       );
       return {

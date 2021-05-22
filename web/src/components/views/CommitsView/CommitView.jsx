@@ -1,20 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import {
   string,
   shape,
-  objectOf,
   func,
   arrayOf,
 } from 'prop-types';
 import MBranchSelector from 'components/ui/MBranchSelector';
-import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import Navbar from 'components/navbar/navbar';
+import CommitDiv from 'components/layout/CommitDiv/CommitDiv';
 import ProjectContainer from 'components/projectContainer';
 import './CommitView.scss';
 import actions from './actions';
@@ -166,86 +163,6 @@ export const UnconnectedCommitsView = (props) => {
       </div>
     </div>
   );
-};
-
-export function CommitDiv(props) {
-  const {
-    branch,
-    time,
-    id,
-    name,
-    title,
-    commitid,
-    avatarImage,
-    userName,
-    namespace,
-    slug,
-  } = props;
-  const spanRef = useRef();
-  const today = new Date();
-  const previous = new Date(time);
-  const timediff = getTimeCreatedAgo(previous, today);
-  const inputRef = useRef();
-
-  function onClick() {
-    const phantomInput = document.createElement('input');
-    phantomInput.value = spanRef.current.innerText;
-    document.body.appendChild(phantomInput);
-    phantomInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(phantomInput);
-  }
-
-  return (
-    <div className="commits" key={id}>
-      <div className="commit-list">
-        {avatarImage
-          ? (
-            <Link to={`/${userName}`}>
-              <span style={{ position: 'relative' }}>
-                <img width="32" height="32" className="avatar-circle mt-3 ml-1" src={avatarImage} alt="avatar" />
-              </span>
-            </Link>
-          ) : <MEmptyAvatar styleClass="avatar-sm" projectName={userName} />}
-        <div className="commit-data">
-          <Link to={`/${namespace}/${slug}/-/commits/${branch}/-/${commitid}`}>{title}</Link>
-          <span>
-            <a href={`/${userName}`}>
-              {name}
-            </a>
-            {' '}
-            authored
-            {' '}
-            {timediff}
-          </span>
-        </div>
-        <div className="commit-details btn-group">
-          <input type="text" ref={inputRef} style={{ display: 'none' }} />
-          <span ref={spanRef} className="border-rounded-left" title={id}>{id}</span>
-          <button
-            title={id}
-            type="button"
-            label="clone"
-            className="btn btn-icon fa fa-copy t-primary"
-            onClick={onClick}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-CommitDiv.propTypes = {
-  branch: string.isRequired,
-  time: string.isRequired,
-  id: string.isRequired,
-  name: string.isRequired,
-  title: string.isRequired,
-  commitid: string.isRequired,
-  namespace: string.isRequired,
-  slug: string.isRequired,
-  avatarImage: string.isRequired,
-  userName: string.isRequired,
 };
 
 UnconnectedCommitsView.defaultProps = {
