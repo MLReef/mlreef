@@ -4,6 +4,7 @@ import { mount } from 'enzyme';
 import ProjectLastCommitSect from 'components/DetailedProjectView/LastCommitSect';
 import { commitMockObject, usersArrayMock } from 'testData';
 import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers';
+import { sleep } from 'functions/testUtils';
 
 const commitInfoParsed = parseToCamelCase(commitMockObject);
 
@@ -44,7 +45,8 @@ describe('test functionality', () => {
     wrapper = setup();
   });
 
-  test('assert that commit info is rendered when non-null', () => {
+  test('assert that commit info is rendered when non-null', async () => {
+    await sleep(10);
     wrapper.setProps({});
     expect(wrapper.find('.last-commit-info')).toHaveLength(1);
     const avatarImg = wrapper.find('img.avatar-circle');

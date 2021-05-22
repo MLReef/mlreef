@@ -8,6 +8,7 @@ import { parseToCamelCase, getTimeCreatedAgo } from 'functions/dataParserHelpers
 import { getCommits } from 'functions/apiCalls';
 import UserApi from 'apis/UserApi';
 import CommitsApi from 'apis/CommitsApi';
+import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 
 const userApi = new UserApi();
 const commitApi = new CommitsApi();
@@ -63,12 +64,14 @@ const ProjectLastCommitSect = ({
   return (
     <div className="last-commit-info">
       <div className="last-commit-details">
-        {userInfo && (
+        {avatarName ? (
           <Link to={`/${avatarName}`}>
             <span style={{ position: 'relative' }}>
               <img className="avatar-circle mt-2" width="32" height="32" src={userInfo.avatar_url} alt="avatar" />
             </span>
           </Link>
+        ) : (
+          <MEmptyAvatar styleClass="avatar-sm" projectName={avatarName} />
         )}
         <div className="last-commit-name">
           <p>

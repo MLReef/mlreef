@@ -1,6 +1,6 @@
 import { isJson } from "./validations";
 
-const imageFormats = [
+export const imageFormats = [
   '.png',
   '.jpg',
   '.gif',
@@ -91,9 +91,12 @@ export const parseDecimal = (input, digits = 5) => {
 };
 
 export const isImageFormat = (fileName) => {
+  if (!fileName) {
+    return false;
+  }
   let imageFormatCounter = 0;
   imageFormats.forEach((format) => {
-    if (fileName.toLowerCase().includes(format)) {
+    if (fileName?.toLowerCase()?.includes(format)) {
       imageFormatCounter += 1;
     }
   });

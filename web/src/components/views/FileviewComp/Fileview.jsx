@@ -16,6 +16,8 @@ import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import useLoading from 'customHooks/useLoading';
 import MLoadingSpinner from 'components/ui/MLoadingSpinner';
+import ACCESS_LEVEL from 'domain/accessLevels';
+import { isImageFormat } from 'functions/dataParserHelpers';
 import functions from './functions';
 
 import ProjectContainer from '../../projectContainer';
@@ -23,7 +25,6 @@ import ProjectContainer from '../../projectContainer';
 import Navbar from '../../navbar/navbar';
 import DeleteFileModal from '../../DeleteFileModal/DeleteFileModal';
 import ContributorsSection from './ContributorsSection';
-import ACCESS_LEVEL from 'domain/accessLevels';
 
 dayjs.extend(relativeTime);
 
@@ -69,11 +70,9 @@ const FileView = (props) => {
     created_at: createdAt,
   } = commitInfo;
 
-  let fileName = null;
-  let fileSize = null;
-  let fileContent = null;
+  let fileName;
+  let fileSize;
   let filepath = [];
-  let extension;
   let isImageFile = false;
   const filteredBranches = branches.filter((br) => !br.name.startsWith('data-pipeline/')
       && !br.name.startsWith('experiment/'));
@@ -81,9 +80,7 @@ const FileView = (props) => {
   if (fileData) {
     fileName = fileData.file_name;
     fileSize = fileData.size;
-    fileContent = Base64.decode(fileData.content);
-    extension = fileName.split('.').pop().toLowerCase();
-    isImageFile = extension === 'jpg' || extension === 'png';
+    isImageFile = isImageFormat(fileName);
     filepath = fileData.file_path.split('/');
   }
 
@@ -275,9 +272,7 @@ const FileView = (props) => {
           )
           : (
             <FileSection
-              extension={extension}
               fileName={fileName}
-              fileContent={fileContent}
               rawFileContent={fileData?.content}
             />
           )}
@@ -287,32 +282,41 @@ const FileView = (props) => {
 };
 
 const FileSection = ({
-  extension, fileName, fileContent, rawFileContent,
-}) => (
-  <div
-    itemProp="text"
-    className="fileview-file-container-content"
-  >
-    <div className="fileview-file-container-content-blob">
-      {extension === 'jpg' || extension === 'png' ? (
-        <div className="d-flex">
-          <img
-            className="file-img mx-auto"
-            src={`data:image/png;base64,${rawFileContent}`}
-            alt={fileName}
+  fileName, rawFileContent,
+}) => {
+  const fileContent = rawFileContent && Base64.decode(rawFileContent);
+  const extension = fileName?.split('.')?.pop()?.toLowerCase();
+  return (
+    <div
+      itemProp="text"
+      className="fileview-file-container-content"
+    >
+      <div className="fileview-file-container-content-blob">
+        {isImageFormat(fileName) ? (
+          <div className="d-flex">
+            <img
+              className="file-img mx-auto"
+              src={`data:image/${extension};base64,${rawFileContent}`}
+              alt={fileName}
+            />
+          </div>
+        ) : (
+          fileContent && (
+          <MCodeRenderer
+            code={fileContent}
+            fileExtension={extension}
           />
-        </div>
-      ) : (
-        fileContent && (
-        <MCodeRenderer
-          code={fileContent}
-          fileExtension={extension}
-        />
-        )
-      )}
+          )
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+FileSection.propTypes = {
+  fileName: string.isRequired,
+  rawFileContent: string.isRequired,
+};
 
 FileView.propTypes = {
   match: shape({
@@ -330,9 +334,9 @@ FileView.propTypes = {
   ).isRequired,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps({ branches }) {
   return {
-    branches: state.branches,
+    branches,
   };
 }
 
