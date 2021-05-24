@@ -28,20 +28,23 @@ request_epf_endpoint_update() {
 }
 echo "LOG: Waiting for creation of experiments file."
 #waits for creation of experiment.json file
-while read path action file; do 
-  if [ "$file"=="$FILE" ];  then
-    echo "The file '$file' appeared in directory '$path' via '$action'";
-    break;
-  fi
-done < <(inotifywait -m $1 -e create)
+
+while ! test -f "$STAT"; do
+  echo "waiting for creation of $STAT"
+  inotifywait -q --timeout 60 --event create $1 >/dev/null || {
+    (( $? == 2 )) && sleep 10  ## inotify exit status 2 means timeout expired
+    echo "inotifywait timeout. sleep 10 seconds"
+  }
+done
+
 echo "LOG: Starting experiment tracking"
 #pushes changes to database
+
 while read path action file ; do 
     echo "MLReef-experiment statistic service:"
     cat $STAT
     request_epf_endpoint_update
     sleep 10 ;
-done < <(inotifywait -m $STAT -e close_write)
-
+done < <(inotifywait -m  -e close_write $STAT)
 
 # to prevent this script from running forever we kill it in ci script

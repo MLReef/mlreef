@@ -57,8 +57,8 @@ before_script:
   - echo "The final output path is $$LAST_OUTPUT_PATH"
   # Redirect background job output to a file. https://gitlab.com/mlreef/mlreef/-/issues/1004 .
   # As the background_process output needs to be shown on terminal, can't use  > /dev/null 2>&1
-  # only run background-push if it is an experiment
-  - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM > background.out &
+  # only run background-push if it is an experiment. It is taken care inside background-push script.
+  - background-push "$FINAL_OUTPUT_PATH" $IS_ALGORITHM > background.out 2>&1 &
   # Run dockerd and respective base image changes
   - dockerd --host=unix:///var/run/docker.sock --insecure-registry=${CI_REGISTRY} > /dev/null 2>&1 &
   - sleep 10
@@ -109,4 +109,5 @@ mlreef-pipeline:
     echo "Kill inotifywait as background-push invokes this"
     killall inotifywait || echo "inotifywait was not killed"
     sleep 15
+    ps -ef  # Check the remaining processes for debugging purpose
 #@formatter:on
