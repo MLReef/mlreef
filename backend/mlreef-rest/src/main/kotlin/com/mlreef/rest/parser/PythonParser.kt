@@ -144,10 +144,10 @@ class PythonParser(
     fun createProcessor(values: Map<String, String>): EPFAnnotation {
         val slug: String = values["slug"]
             ?: values["name"]?.toSlug()
-            ?: throw NullPointerException()
+            ?: ""
         val name: String = values["name"]
             ?: values["slug"]
-            ?: throw NullPointerException()
+            ?: ""
         val description: String = values["description"] ?: ""
 
         return Processor(
