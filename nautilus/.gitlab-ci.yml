@@ -1,4 +1,4 @@
-build nautilus:
+.build nautilus:
   extends: [".base-docker-build"]
   only:
     changes:
@@ -6,6 +6,7 @@ build nautilus:
       - bin/ci-deploy
       - bin/resources/runner-config*
       - epf/**/*
+      - images/**/*
       - nautilus/**/*
       - k8s/**/*
       - web/**/*
@@ -20,3 +21,19 @@ build nautilus:
       docker tag $NAUTILUS_IMAGE_PATH $NAUTILUS_LATEST_IMAGE_PATH
       docker push $NAUTILUS_LATEST_IMAGE_PATH
     fi
+
+# make build_nautilus manual for all branches except master
+
+build_nautilus_master:
+  extends: .build nautilus
+  only:
+    refs:
+      - master
+
+build_nautilus_manual:
+  extends: .build nautilus
+  when: manual
+  except:
+    refs:
+      - master
+
