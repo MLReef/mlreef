@@ -11,7 +11,7 @@ cd "$(dirname "$0")"/..
 set -x  # output all commands
 ########################################
 
-###Local epf image upload ###
+###Local epf/experiment image upload ###
 export LOCAL_CI_REGISTRY="$MLREEF_DOCKER_REGISTRY"
 export LOCAL_CI_REGISTRY_USER=root
 
@@ -29,5 +29,5 @@ docker build --tag "$LOCAL_EPF_IMAGE_PATH" -f epf/Dockerfile epf
 docker push "$LOCAL_EPF_IMAGE_PATH"
 log "$LOCAL_EPF_IMAGE_PATH has been successfully uploaded "
 
-###Local epf image upload ends ###
+###Local epf/experiment image upload ends ###
 
