@@ -21,6 +21,7 @@ import com.mlreef.rest.domain.DataProject
 import com.mlreef.rest.domain.OldDataType
 import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.Project
+import com.mlreef.rest.domain.ProjectType
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.exceptions.BadParametersException
@@ -30,6 +31,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.exceptions.ProjectNotFoundException
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.processors.ProcessorsService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
@@ -64,6 +66,7 @@ class ProjectsController(
     private val codeProjectService: ProjectService<CodeProject>,
     private val processorsService: ProcessorsService,
     private val projectResolverService: ProjectResolverService,
+    private val marketplaceService: MarketplaceService,
 ) {
     companion object {
         private const val MAX_PAGE_SIZE = 20
@@ -75,8 +78,10 @@ class ProjectsController(
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectDto> {
-        val isDataProjectRequest = request.requestURI.contains("data-projects");
-        val projectsPage = projectService.getAllProjectsAccessibleByUser(profile, pageable, isDataProjectRequest)
+        val isDataProjectRequest = request.requestURI.contains("data-projects")
+        val isCodeProjectRequest = request.requestURI.contains("code-projects")
+
+        val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProjectRequest, isCodeProjectRequest)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toDto() }
@@ -91,14 +96,24 @@ class ProjectsController(
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectShortDto> {
-        val isDataProjectRequest = request.requestURI.contains("data-projects");
-        val projectsPage = projectService.getAllProjectsAccessibleByUser(profile, pageable, isDataProjectRequest)
+        val isDataProjectRequest = request.requestURI.contains("data-projects")
+        val isCodeProjectRequest = request.requestURI.contains("code-projects")
+
+        val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProjectRequest, isCodeProjectRequest)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toShortDto(profile.personId) }
         } else {
             projectsPage.map { it.toShortDto(profile.personId) }
         }
+    }
+
+    private fun getAccessibleProjectsPage(profile: TokenDetails, pageable: Pageable, isDataProject: Boolean, isCodeProject: Boolean): Page<out Project> {
+        val filter = SearchRequest(
+            projectType = if (isDataProject) ProjectType.DATA_PROJECT else if (isCodeProject) ProjectType.CODE_PROJECT else null
+        )
+
+        return marketplaceService.searchProjects(filter, pageable, profile)
     }
 
     @GetMapping("/starred")
@@ -119,8 +134,17 @@ class ProjectsController(
     fun getOwnProjects(
         profile: TokenDetails,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
     ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getOwnProjectsOfUserPaged(profile, pageable)
+        val isDataProject = request.requestURI.contains("data-projects")
+        val isCodeProject = request.requestURI.contains("code-projects")
+
+        val filter = SearchRequest(
+            own = true,
+            projectType = if (isDataProject) ProjectType.DATA_PROJECT else if (isCodeProject) ProjectType.CODE_PROJECT else null
+        )
+
+        val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toDto() }
@@ -133,8 +157,20 @@ class ProjectsController(
     fun getMyProjects(
         profile: TokenDetails,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
     ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getAllProjectsUserMemberIn(profile, pageable)
+        val isDataProject = request.requestURI.contains("data-projects")
+        val isCodeProject = request.requestURI.contains("code-projects")
+
+        val filter = SearchRequest(
+            own = true,
+            participate = true,
+            projectType = if (isDataProject) ProjectType.DATA_PROJECT else if (isCodeProject) ProjectType.CODE_PROJECT else null
+        )
+
+        val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
+
+//        val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProject, isCodeProject)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toDto() }
@@ -145,9 +181,19 @@ class ProjectsController(
 
     @GetMapping("/public")
     fun getPublicProjectsPaged(
+        profile: TokenDetails,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
     ): Iterable<ProjectDto> {
-        val projectsPage = projectService.getAllPublicProjectsOnly(pageable)
+        val isDataProject = request.requestURI.contains("data-projects")
+        val isCodeProject = request.requestURI.contains("code-projects")
+
+        val filter = SearchRequest(
+            visibility = VisibilityScope.PUBLIC,
+            projectType = if (isDataProject) ProjectType.DATA_PROJECT else if (isCodeProject) ProjectType.CODE_PROJECT else null
+        )
+
+        val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
             projectsPage.content.map { it.toDto() }

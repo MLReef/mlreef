@@ -88,7 +88,7 @@ class MarketplaceService(
             dataTypesRepository.findByNameIgnoreCase(it) ?: throw BadParametersException("Data type $it not found")
         }
 
-        val finalProjectIdsIn = (if (request.own != null || request.participate != null) {
+        val finalProjectIdsIn_And = (if (request.own != null || request.participate != null) {
             val resultList = token?.takeIf { !it.isVisitor }?.projects?.mapNotNull {
                 if (request.own == true && it.value == AccessLevel.OWNER) {
                     it.key
@@ -99,7 +99,7 @@ class MarketplaceService(
             resultList
         } else null)?.takeIf { it.isNotEmpty() }
 
-        val finalProjectIdsNotIn = (if (request.own != null || request.participate != null) {
+        val finalProjectIdsNotIn_And = (if (request.own != null || request.participate != null) {
             val resultList = token?.takeIf { !it.isVisitor }?.projects?.mapNotNull {
                 if (request.own == false && it.value == AccessLevel.OWNER) {
                     it.key
@@ -110,95 +110,49 @@ class MarketplaceService(
             resultList
         } else null)?.takeIf { it.isNotEmpty() }
 
-        if ((request.own != null || request.participate != null) && finalProjectIdsIn == null && finalProjectIdsNotIn == null) {
+        if ((request.own != null || request.participate != null) && finalProjectIdsIn_And == null && finalProjectIdsNotIn_And == null) {
             returnEmptyResult = true
         }
 
         val builder = getQueryBuilderForType(finalProjectType)
 
-        if (finalVisibility == VisibilityScope.PRIVATE) {
-            builder
-                .and()
-                .openBracket()
-                .equals("visibilityScope", VisibilityScope.PRIVATE)
-                .apply {
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsIn,
-                        true
-                    )
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsNotIn,
-                        false
-                    )
-                    addFilterByProjectsListIds(
-                        this,
-                        token?.projects?.map { it.key } ?: listOf(),
-                        true
-                    ) //the third filter just to escape private projects leakage
-                }
-                .closeBracket()
-        } else if (finalVisibility == null) {
-            builder
-                .and()
-                .openBracket()
-                .openBracket()
-                .equals("visibilityScope", VisibilityScope.PRIVATE)
-                .apply {
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsIn,
-                        true
-                    )
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsNotIn,
-                        false
-                    )
-                    addFilterByProjectsListIds(
-                        this,
-                        token?.projects?.map { it.key } ?: listOf(),
-                        true
-                    ) //the third filter just to escape private projects leakage
-                }
-                .closeBracket()
-                .or()
-                .openBracket()
-                .equals("visibilityScope", VisibilityScope.PUBLIC)
-                .apply {
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsIn,
-                        true
-                    )
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsNotIn,
-                        false
-                    )
-                }
-                .closeBracket()
-                .closeBracket()
-        } else {
-            builder
-                .and()
-                .openBracket()
-                .equals("visibilityScope", VisibilityScope.PUBLIC)
-                .apply {
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsIn,
-                        true
-                    )
-                    addFilterByProjectsListIds(
-                        this,
-                        finalProjectIdsNotIn,
-                        false
-                    )
-                }
-                .closeBracket()
+        when (finalVisibility) {
+            VisibilityScope.PRIVATE -> {
+                builder
+                    .and()
+                    .openBracket()
+                    .apply {
+                        limitPrivateProjectsListByUserOwnsOnly(this, token?.projects?.map { it.key } ?: listOf())
+                    }
+                    .closeBracket()
+            }
+            VisibilityScope.PUBLIC -> {
+                builder
+                    .and()
+                    .openBracket()
+                    .equals("visibilityScope", VisibilityScope.PUBLIC)
+                    .closeBracket()
+            }
+            null -> {
+                builder
+                    .and()
+                    .openBracket()
+                    .openBracket()
+                    .apply {
+                        limitPrivateProjectsListByUserOwnsOnly(this, token?.projects?.map { it.key } ?: listOf())
+                    }
+                    .closeBracket()
+                    .or()
+                    .openBracket()
+                    .equals("visibilityScope", VisibilityScope.PUBLIC)
+                    .closeBracket()
+                    .closeBracket()
+            }
+            else -> throw BadParametersException("Incorrect visibility scope")
         }
+
+        addFilterByProjectsListIds(builder, finalProjectIdsIn_And, true, true)
+        addFilterByProjectsListIds(builder, finalProjectIdsNotIn_And, false, true)
 
         request.globalSlug?.let { builder.and().like("globalSlug", "%$it%", caseSensitive = false) }
         request.globalSlugExact?.let { builder.and().equals("globalSlug", it, caseSensitive = false) }
@@ -266,12 +220,32 @@ class MarketplaceService(
         }
     }
 
-    private fun addFilterByProjectsListIds(builder: QueryBuilder<out Project>, idsList: List<UUID>?, logicOperator: Boolean) {
+    private fun limitPrivateProjectsListByUserOwnsOnly(builder: QueryBuilder<out Project>, userProjectsIdsList: List<UUID>) {
+        builder
+            .and()
+            .equals("visibilityScope", VisibilityScope.PRIVATE)
+            .apply {
+                addFilterByProjectsListIds(
+                    this,
+                    userProjectsIdsList,
+                    true,
+                    true,
+                ) //the filter is applied just to escape private projects leakage
+            }
+    }
+
+    private fun addFilterByProjectsListIds(builder: QueryBuilder<out Project>, idsList: List<UUID>?, inOperator: Boolean, andOperator: Boolean) {
         idsList?.let {
             builder
-                .and()
                 .apply {
-                    if (logicOperator) {
+                    if (andOperator) {
+                        this.and()
+                    } else {
+                        this.or()
+                    }
+                }
+                .apply {
+                    if (inOperator) {
                         this.`in`("id", it)
                     } else {
                         this.notIn("id", it)

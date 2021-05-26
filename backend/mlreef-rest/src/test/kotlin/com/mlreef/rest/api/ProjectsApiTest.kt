@@ -1453,7 +1453,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can retrieve accessible Projects with |`() {
+    fun `Can retrieve accessible Projects`() {
         val project1 = dataProjectRepository.save(
             DataProject(
                 randomUUID(),
@@ -1777,7 +1777,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can retrieve unpaged public Projects with |public`() {
+    fun `Can retrieve unpaged public Projects`() {
         val project1 = dataProjectRepository.save(
             DataProject(
                 randomUUID(),
@@ -1884,7 +1884,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can retrieve starred accessible Projects with |starred`() {
+    fun `Can retrieve starred accessible Projects with starred`() {
         val project1 = createDataProject(
             slug = "slug-1",
             name = "Test Project 1",

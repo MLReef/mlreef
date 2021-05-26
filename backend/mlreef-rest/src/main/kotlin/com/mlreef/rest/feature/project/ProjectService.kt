@@ -286,6 +286,7 @@ open class ProjectServiceImpl<T : Project>(
         private val DEFAULT_DATA_PROJECT_INPUT_TYPE = "NONE"
     }
 
+    @Deprecated("Use marketplace search")
     override fun getAllProjectsAccessibleByUser(token: TokenDetails, pageable: Pageable?, isDataProjectRequest: Boolean): Page<T> =
         if (token.isVisitor)
             if (isDataProjectRequest)
