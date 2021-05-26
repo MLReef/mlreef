@@ -27,8 +27,7 @@ const ProjectsArraySection = (props) => {
     actions, isLoading,
   } = props;
   const { classification1, classification2, repoName } = useParams();
-  console.log('repoName', repoName);
-  const class1 = classification1 || 'my-repositories';
+  const class1 = classification1 || 'public';
   const class2 = classification2 || 'data_project';
   const [projects, setProjects] = useState([]);
   const scrolling = useRef(false);

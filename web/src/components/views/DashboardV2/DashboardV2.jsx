@@ -25,7 +25,7 @@ const DashboardV2 = (props) => {
 
   const hist = useHistory();
 
-  const class1 = classification1 || 'my-repositories';
+  const class1 = classification1 || 'public';
 
   const class2 = classification2 || 'data_project';
 

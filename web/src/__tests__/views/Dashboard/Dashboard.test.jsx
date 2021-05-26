@@ -36,7 +36,10 @@ describe('test html elements', () => {
     expect((await screen.findAllByText('mlreef')).pop()).toBeDefined();
     expect((await screen.findAllByText('Add noise 22feb')).pop()).toBeDefined();
 
-    screen.debug();
+    const req = global.fetch.mock.calls[0][0];
+    expect(req.url).toBe('/api/v1/explore/entries/search?searchable_type=DATA_PROJECT&page=0&size=10');
+
+    // emulate on key up event to search
     const searchInput = screen.getByTestId('search-bar-input');
     act(() => {
       searchInput.setAttribute('value', 'jaja');

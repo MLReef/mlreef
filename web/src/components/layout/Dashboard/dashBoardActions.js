@@ -65,13 +65,13 @@ const buildProjectsRequestBodyV2 = (
   classifcation1, dTypes = [], repoName, minimumStars, publishStatus
 ) => {
   let body = {};
-  const { user: { username } } = store.getState();
-  if (classifcation1 === '' || classifcation1 === 'my-repositories') {
+  if (classifcation1 === 'my-repositories') {
     body = {
       ...body,
-      namespace: username,
+      participate: true,
+      own: true,
     };
-  } else if (classifcation1 === 'all') {
+  } else if (classifcation1 === '' || classifcation1 === 'all') {
     body = {
       ...body,
       visibility: 'PUBLIC',
