@@ -306,6 +306,7 @@ class ProcessorsService(
                 UUID.randomUUID(),
                 codeProject,
                 mainScriptPath,
+                null,
                 name,
                 slug ?: Slugs.toSlug("${codeProject.slug}-$branch-$version"),
                 description,

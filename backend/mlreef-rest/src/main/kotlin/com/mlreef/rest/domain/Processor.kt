@@ -43,6 +43,9 @@ data class Processor(
     @Column(name = "main_script_path", nullable = false)
     var mainScriptPath: String? = null,
 
+    @Column(name = "requirements_file_path")
+    var requirementsFilePath: String? = null,
+
     var name: String? = null,
     var slug: String? = null,
     var description: String? = null,

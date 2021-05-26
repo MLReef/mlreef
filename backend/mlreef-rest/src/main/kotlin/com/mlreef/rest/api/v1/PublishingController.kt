@@ -75,6 +75,7 @@ internal class CodeProjectPublishingController(
     ): CodeProjectPublishingDto =
         publishingService.startPublishing(
             mainFilePath = request.path,
+            requirementsFilePath = request.requirementsFile,
             environmentId = request.environment,
             modelType = request.modelType,
             mlCategory = request.mlCategory,
@@ -176,6 +177,7 @@ internal class CodeProjectPublishingController(
             branch = request.branch ?: throw BadRequestException("Branch is mandatory for republish"),
             version = request.version ?: throw BadRequestException("Version is mandatory for republish"),
             mainFilePath = request.path,
+            requirementsFilePath = request.requirementsFile,
             environmentId = request.environment,
             republisherSubjectId = token.personId,
             isProjectOwner = token.projects.get(id) == AccessLevel.OWNER,
@@ -187,6 +189,7 @@ internal class CodeProjectPublishingController(
 class PublishingRequest(
     val slug: String? = null,
     val path: String? = null,
+    val requirementsFile: String? = null,
     val environment: UUID? = null,
     val branch: String? = null,
     val version: String? = null,

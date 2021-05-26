@@ -102,11 +102,13 @@ const val PUBLISH_BRANCH = "PUBLISH_BRANCH"
 const val PUBLISH_VERSION = "PUBLISH_VERSION"
 const val PIP_SERVER_URL = "PIP_SERVER_URL"
 const val DOCKER_HOST_PARAMETER = "DOCKER_HOST"
+const val REQUIREMENTS_FILE = "REQUIREMENTS_FILE"
 
 const val UNPUBLISH_PROCESSOR_ID = "UNPUBLISH_PROCESSOR_ID"
 const val UNPUBLISH_IMAGE = "UNPUBLISH_IMAGE"
 
 const val DOCKER_HOST_VALUE = "DOCKER_HOST: \"tcp://docker:2375\""
+const val DEFAULT_REQUIREMENTS_FILE_NAME = "requirements.txt"
 
 
 val dockerfileTemplate: String = ClassPathResource("code-publishing-dockerfile-template")
@@ -175,6 +177,7 @@ class PublishingService(
      */
     fun startPublishing(
         mainFilePath: String? = null,
+        requirementsFilePath: String? = null,
         environmentId: UUID? = null,
         branch: String? = null,
         version: String? = null,
@@ -192,6 +195,7 @@ class PublishingService(
 
         val processor = prepareProcessorForPublishing(
             mainFilePath,
+            requirementsFilePath,
             environmentId,
             branch,
             version,
@@ -209,7 +213,7 @@ class PublishingService(
         val finishUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/code-projects/${project.id}"
 
         val filesToCommit = mapOf(
-            DOCKERFILE_NAME to generateCodePublishingDockerFile(getEpfDockerImagePath()),
+            DOCKERFILE_NAME to generateCodePublishingDockerFile(getEpfDockerImagePath(), processor.requirementsFilePath),
             MLREEF_NAME to generateCodePublishingYAML(project.name, processor.secret!!, finishUrl, processor.branch, processor.version!!, conf.epf.useDockerHost)
         )
 
@@ -230,6 +234,7 @@ class PublishingService(
     @Transactional
     fun prepareProcessorForPublishing(
         mainFilePath: String? = null,
+        requirementsFilePath: String? = null,
         environmentId: UUID? = null,
         branch: String? = null,
         version: String? = null,
@@ -264,6 +269,8 @@ class PublishingService(
         val finalScriptPath = republishingProcessor?.mainScriptPath
             ?: mainFilePath
             ?: throw NotFoundException(ErrorCode.NotFound, "No script was provided. Publishing is not available")
+
+        val finalRequirementsPath = republishingProcessor?.requirementsFilePath ?: requirementsFilePath
 
         val fileInRepo = repositoryService.getFilesContentOfRepository(
             project.gitlabId,
@@ -302,7 +309,7 @@ class PublishingService(
             existingProcessor?.id,
         )
 
-        val name = parsedProcessor.name ?: "${project.name}"
+        val name = parsedProcessor.name ?: project.name
 
         val logdate = Instant.now().toString()
 
@@ -319,6 +326,7 @@ class PublishingService(
         val processor = (existingProcessor ?: Processor(UUID.randomUUID())).apply {
             this.codeProject = project
             this.mainScriptPath = finalScriptPath
+            this.requirementsFilePath = finalRequirementsPath
             this.name = name
             this.slug = finalSlug
             this.description = parsedProcessor.description
@@ -462,6 +470,7 @@ class PublishingService(
         userToken: String,
         projectId: UUID,
         mainFilePath: String? = null,
+        requirementsFilePath: String? = null,
         environmentId: UUID? = null,
         slug: String? = null,
         branch: String,
@@ -503,6 +512,7 @@ class PublishingService(
         processorsService.saveProcessor(
             processor.copy(
                 mainScriptPath = mainFilePath ?: processor.mainScriptPath,
+                requirementsFilePath = requirementsFilePath ?: processor.requirementsFilePath,
                 baseEnvironment = baseEnvironment ?: processor.baseEnvironment,
                 log = logs,
                 republish = true,
@@ -959,12 +969,13 @@ class PublishingService(
         return template ?: throw InternalException("Template cannot be parsed")
     }
 
-    private fun generateCodePublishingDockerFile(imageName: String): String {
+    private fun generateCodePublishingDockerFile(imageName: String, requirementsFileName: String?): String {
         val expressionParser: ExpressionParser = SpelExpressionParser()
         val context = StandardEvaluationContext()
 
         context.setVariable(IMAGE_NAME_VARIABLE, adaptProjectName(imageName))
         context.setVariable(PIP_SERVER_URL, getPipServerUrl())
+        context.setVariable(REQUIREMENTS_FILE, requirementsFileName ?: DEFAULT_REQUIREMENTS_FILE_NAME)
 
         val template = try {
             val expression = expressionParser.parseExpression(dockerfileTemplate, TemplateParserContext())
