@@ -61,7 +61,9 @@ const getValuesStateOptions = (publishedStateOption) => {
  * @returns: body containing request filters.
  */
 
-const buildProjectsRequestBodyV2 = (classifcation1, dTypes = [], minimumStars, publishStatus) => {
+const buildProjectsRequestBodyV2 = (
+  classifcation1, dTypes = [], repoName, minimumStars, publishStatus
+) => {
   let body = {};
   const { user: { username } } = store.getState();
   if (classifcation1 === '' || classifcation1 === 'my-repositories') {
@@ -79,6 +81,10 @@ const buildProjectsRequestBodyV2 = (classifcation1, dTypes = [], minimumStars, p
       ...body,
       min_stars: 1,
     };
+  }
+
+  if (repoName) {
+    body = { ...body, name: decodeURIComponent(repoName) }
   }
 
   body = { ...body, input_data_types_or: [...dTypes]}
@@ -100,18 +106,22 @@ const getProjects = (
   selectedDataTypes, 
   minimumStars, 
   publishState, 
+  repoName,
   page, 
-  size
-) => mlSearchApi  
-  .searchPaginated(searchableType.toUpperCase(), 
+  size,
+) => mlSearchApi
+  .searchPaginated(
+    searchableType.toUpperCase(),
     buildProjectsRequestBodyV2(
       classification1,
       getDataTypeNames(dataTypes, selectedDataTypes),
+      repoName,
       minimumStars,
       getValuesStateOptions(searchableType === 'data_project' ? null : publishState),
     ),
     page, 
-    size)
+    size,
+  )
   .then((projsPag) => ({
     ...projsPag,
     projects: mergeGitlabResource(projsPag.content.map(parseToCamelCase)),

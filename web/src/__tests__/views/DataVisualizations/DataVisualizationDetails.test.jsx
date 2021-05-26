@@ -68,7 +68,6 @@ describe('Data instance details contains basic UI elements', () => {
     expect(branchLink.href.includes('/my-namespace/the-project-name/-/tree/data-visualization%2Fspecial-whale-7052021150849')).toBeTruthy();
 
     const jobLink = screen.getByTestId('job-link').getElementsByTagName('a').item(0);
-    console.log(jobLink.innerHTML);
     expect(jobLink.href.includes('/my-namespace/the-project-name/insights/-/jobs/528')).toBeTruthy();
 
     const timeCreatedAgo = moment(

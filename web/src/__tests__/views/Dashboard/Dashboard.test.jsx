@@ -1,48 +1,55 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { render, unmountComponentAtNode } from 'react-dom';
 import DashboardV2 from 'components/views/DashboardV2';
 import { sleep, storeFactory, generatePromiseResponse } from 'functions/testUtils';
 import { Provider } from 'react-redux';
 import { mockedOperations } from 'testData';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
 global.ResizeObserver = () => ({ observe: () => {} });
 
 describe('test html elements', () => {
-  let container;
   beforeEach(() => {
     jest.spyOn(global, 'fetch').mockImplementation(() => generatePromiseResponse(
       200,
       true,
       mockedOperations,
-      100,
+      10,
     ));
   });
 
   test('assert that Dashboard renders projects array', async () => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
+    act(() => {
+      render(
+        <Provider store={storeFactory({})}>
+          <MemoryRouter>
+            <DashboardV2 />
+          </MemoryRouter>
+        </Provider>,
+      );
+    });
 
-    render(
-      <Provider store={storeFactory({})}>
-        <MemoryRouter>
-          <DashboardV2 />
-        </MemoryRouter>
-      </Provider>,
-      container,
-    );
-
-    await sleep(500);
+    await sleep(50);
 
     expect(global.fetch).toHaveBeenCalled();
-    expect(container.innerHTML.includes('mlreef')).toBe(true);
-    expect(container.innerHTML.includes('Add noise 22feb')).toBe(true);
+    expect((await screen.findAllByText('mlreef')).pop()).toBeDefined();
+    expect((await screen.findAllByText('Add noise 22feb')).pop()).toBeDefined();
+
+    screen.debug();
+    const searchInput = screen.getByTestId('search-bar-input');
+    act(() => {
+      searchInput.setAttribute('value', 'jaja');
+      fireEvent.keyUp(searchInput, { key: 'Enter' });
+    });
+    // Assert that after keyup the view is loading
+    expect(screen.getByTestId('global-marker')
+      .children.item(0)
+      .getAttribute('style'))
+      .toBe('animation-iteration-count: infinite; animation-duration: 1s; background-color: rgb(145, 189, 68);');
   });
 
   afterEach(() => {
-    unmountComponentAtNode(container);
-    container.remove();
-    container = null;
     global.fetch.mockClear();
   });
 });

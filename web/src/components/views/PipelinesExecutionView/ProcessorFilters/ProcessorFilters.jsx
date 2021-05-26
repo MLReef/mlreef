@@ -1,11 +1,12 @@
 import React, {
-  useCallback,
-  useContext, useEffect, useState,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
-import './ProcessorFilters.scss'
+import './ProcessorFilters.scss';
 import { toastr } from 'react-redux-toastr';
-import { PROJECT_DATA_TYPES } from 'domain/project/ProjectDataTypes';
 import { toCamelCase } from 'functions/helpers';
+import useLoading from 'customHooks/useLoading';
 import MTooltip from 'components/ui/MTooltip';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MCheckBoxGroup from 'components/ui/MCheckBoxGroup';
@@ -14,52 +15,7 @@ import { string } from 'prop-types';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import { addInformationToProcessors, fetchProcessorsPaginatedByType } from '../DataPipelineHooks/DataPipelinesReducer';
 import { UPDATE_CURRENT_PROCESSORS_ARRAY } from '../DataPipelineHooks/actions';
-
-const {
-  IMAGE, TEXT, AUDIO, VIDEO, TABULAR, NUMBER, BINARY, MODEL, TIME_SERIES, HIERARCHICAL,
-} = PROJECT_DATA_TYPES;
-
-const dtypes = [
-  IMAGE,
-  TEXT,
-  AUDIO,
-  VIDEO,
-  NUMBER,
-  BINARY,
-  MODEL,
-  TABULAR,
-  HIERARCHICAL,
-  TIME_SERIES,
-];
-
-const buildBody = (ownDataOpsOnly, namespace, starredOpsOnly, numberOfStars, dtypesSelected) => {
-  let body = {
-    published: true,
-  };
-
-  if (ownDataOpsOnly) {
-    body = {
-      ...body,
-      namespace,
-    };
-  }
-
-  if (starredOpsOnly) {
-    body = {
-      ...body,
-      min_stars: numberOfStars,
-    };
-  }
-
-  if (dtypesSelected.length > 0) {
-    body = {
-      ...body,
-      input_data_types_or: dtypesSelected,
-    };
-  }
-
-  return body;
-};
+import { buildBody, dtypes } from './functionsAndConstants';
 
 const DataOperationFilters = (props) => {
   const { namespace, operationTypeToExecute } = props;
@@ -71,10 +27,12 @@ const DataOperationFilters = (props) => {
   const [ownDataOpsOnly, setOwnDataOpsOnly] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [numberOfStars, setNumberOfStars] = useState(1);
+  const [projectName, setProjectName] = useState('');
 
-  const fetchProcessors = useCallback(() => fetchProcessorsPaginatedByType(
+  const fetchProcessors = () => fetchProcessorsPaginatedByType(
     operationTypeToExecute.toUpperCase(),
     buildBody(
+      projectName,
       ownDataOpsOnly,
       namespace,
       starredOpsOnly,
@@ -88,10 +46,15 @@ const DataOperationFilters = (props) => {
       currentProcessors,
     }))
     .catch((err) => {
-      console.log(err);
-      toastr.error('Error', err?.message)
-    }),
-  [
+      toastr.error('Error', err?.message);
+    });
+
+  const [loading, executeFetch] = useLoading(fetchProcessors);
+
+  useEffect(() => {
+    executeFetch();
+  }, [
+    projectName,
     ownDataOpsOnly,
     namespace,
     operationTypeToExecute,
@@ -99,10 +62,6 @@ const DataOperationFilters = (props) => {
     numberOfStars,
     dtypesSelected,
   ]);
-
-  useEffect(() => {
-    fetchProcessors();
-  }, [fetchProcessors]);
 
   return (
     <div className="data-operations-filters">
@@ -137,6 +96,17 @@ const DataOperationFilters = (props) => {
         {' '}
         from the list
       </p>
+      <input
+        id="search-by-name-input"
+        type="text"
+        placeholder="Type a repository name and hit enter"
+        defaultValue=""
+        onKeyUp={(e) => {
+          if (e.key === 'Enter' && !loading) {
+            setProjectName(e.target.value);
+          }
+        }}
+      />
       <button
         type="button"
         className="data-operations-filters-show-filters-btn"
@@ -146,54 +116,51 @@ const DataOperationFilters = (props) => {
         {filtersVisible ? 'Hide ' : 'See '}
         filters
       </button>
-
-      {filtersVisible && (
-        <>
-          <MCheckBox
-            name="own-data-operators"
-            labelValue={`Only owned ${operationClassification}`}
-            callback={(...[,, val]) => setOwnDataOpsOnly(val)}
-          />
-          <MCheckBox
-            name="only-starred-operators"
-            labelValue={`Only starred ${operationClassification}`}
-            callback={(...[,, val]) => setStarredeOpsOnly(val)}
-          />
-          {starredOpsOnly && (
-            <div className="mt-3">
-              <label htmlFor="min-stars-input">
-                Minimum of stars
-                <input
-                  id="min-stars-input"
-                  defaultValue={numberOfStars}
-                  placeholder="2"
-                  onChange={({ target: { value } }) => {
-                    if (value === '' || value === '0') return;
-                    setNumberOfStars(value);
-                  }}
-                  type="number"
-                />
-              </label>
-            </div>
-          )}
-          <p style={{ margin: '1rem 0 0 0' }}>Filter by input datatype</p>
-          <div className="data-operations-filters-checkbox-group">
-            <MCheckBoxGroup
-              name="data-operation-filters"
-              className="data-operations-filters-checkbox-group-items"
-              onSelect={(...[value]) => {
-                setDtypesSelected(
-                  dtypesSelected.includes(value)
-                    ? dtypesSelected.filter((dtype) => dtype !== value)
-                    : [...dtypesSelected, value],
-                );
+      <div style={{ display: filtersVisible ? '' : 'none' }}>
+        <MCheckBox
+          name="own-data-operators"
+          labelValue={`Only owned ${operationClassification}`}
+          callback={(...[,, val]) => setOwnDataOpsOnly(val)}
+        />
+        <MCheckBox
+          name="only-starred-operators"
+          labelValue={`Only starred ${operationClassification}`}
+          callback={(...[,, val]) => setStarredeOpsOnly(val)}
+        />
+        {starredOpsOnly && (
+        <div className="mt-3">
+          <label htmlFor="min-stars-input">
+            Minimum of stars
+            <input
+              id="min-stars-input"
+              defaultValue={numberOfStars}
+              placeholder="2"
+              onChange={({ target: { value } }) => {
+                if (value === '' || value === '0') return;
+                setNumberOfStars(value);
               }}
-              values={dtypesSelected}
-              options={dtypes.map((dtype, ind) => ({ label: toCamelCase(dtype), value: ind }))}
+              type="number"
             />
-          </div>
-        </>
-      )}
+          </label>
+        </div>
+        )}
+        <p style={{ margin: '1rem 0 0 0' }}>Filter by input datatype</p>
+        <div className="data-operations-filters-checkbox-group">
+          <MCheckBoxGroup
+            name="data-operation-filters"
+            className="data-operations-filters-checkbox-group-items"
+            onSelect={(...[value]) => {
+              setDtypesSelected(
+                dtypesSelected.includes(value)
+                  ? dtypesSelected.filter((dtype) => dtype !== value)
+                  : [...dtypesSelected, value],
+              );
+            }}
+            values={dtypesSelected}
+            options={dtypes.map((dtype, ind) => ({ label: toCamelCase(dtype), value: ind }))}
+          />
+        </div>
+      </div>
     </div>
   );
 };
