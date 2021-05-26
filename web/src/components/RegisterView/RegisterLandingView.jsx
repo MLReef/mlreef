@@ -81,7 +81,7 @@ const RegisterLandingView = (props) => {
             TagManager.initialize(tagManagerArgs);
           }}
         >
-          <Link className="option-link mb-3 danger-box" to="/dashboard/ml-project#explore">
+          <Link className="option-link mb-3 danger-box" to="/dashboard/public/data_project">
             <div id="explore-link-icon" className="option-icon" style={{ backgroundColor: 'var(--danger)' }} />
             <div id="explore-link-content" className="state-body">
               <h4 id="explore-link-title" className="state-title mt-0">Explore Public Projects</h4>
