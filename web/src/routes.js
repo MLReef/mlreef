@@ -1,11 +1,9 @@
-import React from 'react';
 import { Redirect } from 'react-router-dom';
 import LoginView from 'components/login/login';
 import RegisterView from 'components/RegisterView';
 import ResetPasswordView from 'components/views/ResetPassword/ResetPasswordView';
 import PasswordConfirmationView from 'components/views/ResetPassword/PasswordConfirmationView';
 import ErrorView from 'components/views/ErrorView';
-import ExploreView from 'components/views/ExploreView';
 import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
 import GroupsOverview from 'components/views/groupsOverview';
 import GroupsView from 'components/views/MlreefGroups/GroupView';
@@ -40,17 +38,17 @@ import NotFoundView from 'components/views/ErrorView/NotFoundView';
 // this is component for testing layout and should be removed after alpha
 import DemoView from 'components/Demo';
 import DetailedRepositoryView from 'components/views/DetailedRepositoryView';
+import DashboardExplore from 'components/views/DashboardExplore/DashboardExplore';
 import Publications from 'components/views/Publications/Publications';
 import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview';
 import Fileview from 'components/views/FileviewComp/Fileview';
 import BasicMergeRequestView from './components/mergeRequestDetailView/basicMergeRequestView';
-import DashboardExplore from 'components/views/DashboardExplore/DashboardExplore';
 
 export default [
   {
     name: 'dashboard-v2',
-    path: '/dashboard/:classification1/:classification2',
+    path: '/dashboard/:classification1/:classification2/repository-name/:repoName',
     exact: true,
     component: DashboardV2,
     meta: {
@@ -59,7 +57,7 @@ export default [
   },
   {
     name: 'dashboard-v2',
-    path: '/dashboard/:classification1',
+    path: '/dashboard/:classification1/:classification2',
     exact: true,
     component: DashboardV2,
     meta: {
@@ -78,6 +76,12 @@ export default [
   {
     name: 'explore-v2',
     path: '/explore/:classification1/:classification2',
+    exact: true,
+    component: DashboardExplore,
+  },
+  {
+    name: 'explore-v2',
+    path: '/explore/:classification1/:classification2/repository-name/:repoName',
     exact: true,
     component: DashboardExplore,
   },
@@ -137,11 +141,6 @@ export default [
     meta: {
       authRequired: true,
     },
-  },
-  {
-    name: 'explore',
-    path: '/explore',
-    component: ExploreView,
   },
   {
     name: 'newGroup',

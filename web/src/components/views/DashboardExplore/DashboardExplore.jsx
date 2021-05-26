@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Navbar from 'components/navbar/navbar';
@@ -13,11 +13,19 @@ import 'components/layout/Dashboard/DashboardV2.scss';
 import ProjectsArraySection from 'components/layout/Dashboard/ProjectsArraySection';
 import DashboardProvider from 'components/layout/Dashboard//DashboardContext';
 import ProjectsDropDown from 'components/layout/Dashboard/ProjectsDropDown';
+import useHistory from 'router/useHistory';
 
 const DashboardExplore = (props) => {
-  const { actions } = props;
+  const { actions, isLoading } = props;
 
-  const { classification1, classification2 } = useParams();
+  const projectNameRef = useRef();
+
+  const params = useParams();
+  const { classification1, classification2, repoName } = params;
+
+  const location = useLocation();
+
+  const hist = useHistory();
 
   const class1 = classification1 || 'public';
 
@@ -67,7 +75,26 @@ const DashboardExplore = (props) => {
         )}
       />
       <div className="dashboard-v2-content">
-        <ProjectsDropDown />
+        <div className="dashboard-v2-content-search-bar">
+          <input
+            ref={projectNameRef}
+            placeholder="Type a repository name and hit enter"
+            type="text"
+            defaultValue={repoName}
+            onKeyUp={(e) => {
+              const locationBase = location.pathname.split('/')[1];
+              const baseUrl = `/${locationBase}/${class1}/${class2}`;
+              if (e.key === 'Enter' && !isLoading) {
+                const completeUrl = projectNameRef.current.value.length === 0
+                  ? baseUrl
+                  : `${baseUrl}/repository-name/${encodeURIComponent(projectNameRef.current.value)}`;
+                setLoadingStatus();
+                hist.push(completeUrl);
+              }
+            }}
+          />
+          <ProjectsDropDown />
+        </div>
         <div className="dashboard-v2-content-links-section-1">
           <div className={starredClass}>
             <Link
@@ -115,10 +142,7 @@ const DashboardExplore = (props) => {
         <DashboardProvider>
           <FiltersSection />
           <TagSection />
-          <ProjectsArraySection
-            classification1={class1}
-            classification2={class2}
-          />
+          <ProjectsArraySection />
         </DashboardProvider>
       </div>
     </div>

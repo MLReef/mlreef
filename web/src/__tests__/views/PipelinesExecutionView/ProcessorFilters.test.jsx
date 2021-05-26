@@ -5,6 +5,7 @@ import DataPipelinesReducer, { initialState } from 'components/views/PipelinesEx
 import DataOperationFilters from 'components/views/PipelinesExecutionView/ProcessorFilters';
 import { OPERATION } from 'dataTypes';
 import { mockedOperations } from 'testData';
+import { sleep } from 'functions/testUtils';
 
 const MockProvider = (props = {}) => {
   const contextValue = useReducer(
@@ -80,5 +81,13 @@ describe('test functionality', () => {
     expect(global.fetch.mock.calls.length).toBeGreaterThan(2);
     const body = JSON.parse(global.fetch.mock.calls[2][0]._bodyInit);
     expect(body.min_stars).toBe('2');
+  });
+
+  test('assert that the key up event is working correctly', async () => {
+    await sleep(50);
+    wrapper.find('#search-by-name-input').simulate('keyUp', { key: 'Enter', target: { value: 'project to find' } });
+    wrapper.setProps({});
+    const body = JSON.parse(global.fetch.mock.calls[1][0]._bodyInit);
+    expect(body.name).toBe('project to find');
   });
 });

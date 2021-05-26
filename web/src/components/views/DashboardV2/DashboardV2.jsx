@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Navbar from 'components/navbar/navbar';
@@ -13,11 +13,17 @@ import 'components/layout/Dashboard/DashboardV2.scss';
 import ProjectsArraySection from 'components/layout/Dashboard/ProjectsArraySection';
 import DashboardProvider from 'components/layout/Dashboard//DashboardContext';
 import ProjectsDropDown from 'components/layout/Dashboard/ProjectsDropDown';
+import { useHistory } from 'router';
 
 const DashboardV2 = (props) => {
-  const { actions } = props;
+  const { actions, isLoading } = props;
 
-  const { classification1, classification2 } = useParams();
+  const location = useLocation();
+
+  const params = useParams();
+  const { classification1, classification2, repoName } = params;
+
+  const hist = useHistory();
 
   const class1 = classification1 || 'my-repositories';
 
@@ -69,7 +75,27 @@ const DashboardV2 = (props) => {
         )}
       />
       <div className="dashboard-v2-content">
-        <ProjectsDropDown />
+        <div className="dashboard-v2-content-search-bar">
+          <input
+            data-testid="search-bar-input"
+            className="dashboard-v2-content-search-bar-input"
+            placeholder="Type a repository name and hit enter"
+            type="text"
+            defaultValue={repoName}
+            onKeyUp={(e) => {
+              const locationBase = location.pathname.split('/')[1];
+              const baseUrl = `/${locationBase}/${class1}/${class2}`;
+              if (e.key === 'Enter' && !isLoading) {
+                const completeUrl = e.target.value.length === 0
+                  ? baseUrl
+                  : `${baseUrl}/repository-name/${encodeURIComponent(e.target.value)}`;
+                setLoadingStatus();
+                hist.push(completeUrl);
+              }
+            }}
+          />
+          <ProjectsDropDown />
+        </div>
         <div className="dashboard-v2-content-links-section-1">
           <div className={myReposActivClass}>
             <Link
@@ -126,10 +152,7 @@ const DashboardV2 = (props) => {
         <DashboardProvider>
           <FiltersSection />
           <TagSection />
-          <ProjectsArraySection
-            classification1={class1}
-            classification2={class2}
-          />
+          <ProjectsArraySection />
         </DashboardProvider>
       </div>
     </div>

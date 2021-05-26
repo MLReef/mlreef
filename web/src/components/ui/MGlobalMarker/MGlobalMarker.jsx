@@ -1,18 +1,18 @@
 import React from 'react';
-import "./MGlobalMarker.scss";
+import './MGlobalMarker.scss';
 import { string, bool } from 'prop-types';
 
 const LOADING = false;
 
 const MGlobalMarker = ({ isLoading, globalColorMarker }) => (
-  <div className="global-marker">
-    <div 
+  <div data-testid="global-marker" className="global-marker">
+    <div
       className="global-marker-bar"
       style={{
         animationIterationCount: isLoading ? 'infinite' : 'unset',
         animationDuration: isLoading ? '1s' : '0s',
         backgroundColor: globalColorMarker,
-      }} 
+      }}
     />
   </div>
 );
@@ -20,10 +20,10 @@ const MGlobalMarker = ({ isLoading, globalColorMarker }) => (
 MGlobalMarker.propTypes = {
   isLoading: bool,
   globalColorMarker: string.isRequired,
-}
+};
 
 MGlobalMarker.defaultProps = {
   isLoading: LOADING,
-}
+};
 
 export default MGlobalMarker;

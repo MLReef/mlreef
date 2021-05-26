@@ -8,30 +8,36 @@
   &-content {
     min-width: $bp-sm;
 
-    &-dropdown {
+    &-search-bar {
       display: flex;
-      justify-content: flex-end;
-      margin: 1rem 5% 0 0;
-      
-      button:hover {
-        cursor: pointer;
+      margin: 1rem 5% 0 5%;
+      input {
+        margin-right: 1rem;
       }
+      &-dropdown {
+        display: flex;
+        justify-content: flex-end;
+        
+        button:hover {
+          cursor: pointer;
+        }
+  
+        button.new-project {
+          border-radius: 0.3rem;
+          padding: 0.5rem;
+          width: max-content;
+        }
 
-      button.new-project {
-        border-radius: 0.3rem;
-        padding: 0.75rem;
+        &-content {
+          position: absolute;
+          background-color: #fff;
+          width: 250px;
+          border: 2px solid var(--primary);
+          border-radius: 4px;
+          z-index: 1;
+          padding: 0.5rem;
+        }
       }
-    }
-    
-    &-dropdown-content {
-      position: absolute;
-      /* top: 105px; */
-      background-color: #fff;
-      width: 250px;
-      border: 2px solid var(--primary);
-      border-radius: 4px;
-      z-index: 1;
-      padding: 0.5rem;
     }
 
     &-links-section-1 {

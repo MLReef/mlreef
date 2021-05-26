@@ -2,10 +2,11 @@ import React, {
   useCallback,
   useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
+import { useParams } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import { bindActionCreators } from 'redux';
 import {
-  bool, func, shape, string,
+  bool, func, shape,
 } from 'prop-types';
 import { connect } from 'react-redux';
 import MBricksWall from 'components/ui/MBricksWall';
@@ -23,8 +24,12 @@ const comparingFunctions = {
 
 const ProjectsArraySection = (props) => {
   const {
-    actions, isLoading, classification1, classification2,
+    actions, isLoading,
   } = props;
+  const { classification1, classification2, repoName } = useParams();
+  console.log('repoName', repoName);
+  const class1 = classification1 || 'my-repositories';
+  const class2 = classification2 || 'data_project';
   const [projects, setProjects] = useState([]);
   const scrolling = useRef(false);
   const page = useRef(0);
@@ -40,11 +45,12 @@ const ProjectsArraySection = (props) => {
   }, [classification2]);
 
   const fetch = (p) => dashboardActions.getProjects(
-    classification2,
-    classification1,
+    class2,
+    class1,
     selectedDataTypes,
     minimumStars,
     publishState,
+    repoName,
     p,
     10,
   ).then((res) => {
@@ -70,6 +76,7 @@ const ProjectsArraySection = (props) => {
     classification1,
     classification2,
     selectedDataTypes,
+    repoName,
     minimumStars,
     publishState,
   ]);
@@ -94,13 +101,6 @@ const ProjectsArraySection = (props) => {
 
   return (
     <div className="dashboard-v2-content-projects">
-      <div className="dashboard-v2-content-projects-count">
-        <p>
-          {sortedProjects.length}
-          {' '}
-          projects found
-        </p>
-      </div>
       <div className="dashboard-v2-content-projects-margin-div">
         {sortedProjects.length > 0 && !isLoading ? (
           <MScrollableSection
@@ -159,8 +159,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 ProjectsArraySection.propTypes = {
-  classification1: string.isRequired,
-  classification2: string.isRequired,
   isLoading: bool.isRequired,
   actions: shape({ setIsLoading: func }).isRequired,
 };
