@@ -102,7 +102,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
     >
       <a
         className="option-link mb-3 danger-box"
-        href="/dashboard/ml-project#explore"
+        href="/dashboard/public/data_project"
         onClick={[Function]}
       >
         <div
