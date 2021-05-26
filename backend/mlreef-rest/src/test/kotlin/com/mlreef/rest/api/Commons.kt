@@ -341,21 +341,20 @@ internal fun publishingProcessFields(prefix: String = ""): MutableList<FieldDesc
         fieldWithPath(prefix + "version").optional().type(JsonFieldType.STRING).description("Version"),
         fieldWithPath(prefix + "project_id").optional().type(JsonFieldType.STRING).description("Published project id"),
         fieldWithPath(prefix + "script_path").optional().type(JsonFieldType.STRING).description("Main script path"),
+        fieldWithPath(prefix + "requirements_file").optional().type(JsonFieldType.STRING).description("Requirements file path"),
         fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).description("Published processor name"),
         fieldWithPath(prefix + "slug").optional().type(JsonFieldType.STRING).description("Published processor slug"),
         fieldWithPath(prefix + "description").optional().type(JsonFieldType.STRING).description("Description"),
         fieldWithPath(prefix + "commit_sha").optional().type(JsonFieldType.STRING).description("Publishing commit sha"),
-        fieldWithPath(prefix + "published_at").optional().type(JsonFieldType.STRING)
-            .description("Publishing process initiated time (it is not start time)"),
+        fieldWithPath(prefix + "published_at").optional().type(JsonFieldType.STRING).description("Publishing process initiated time (it is not start time)"),
         fieldWithPath(prefix + "published_by").optional().type(JsonFieldType.STRING).description("Published user"),
-        fieldWithPath(prefix + "status").optional().type(JsonFieldType.STRING)
-            .description("Status of publishing process"),
+        fieldWithPath(prefix + "status").optional().type(JsonFieldType.STRING).description("Status of publishing process"),
         fieldWithPath(prefix + "modelType").optional().type(JsonFieldType.STRING).description("Model type"),
         fieldWithPath(prefix + "ml_category").optional().type(JsonFieldType.STRING).description("ML Category"),
-        fieldWithPath(prefix + "job_started_at").optional().type(JsonFieldType.STRING)
-            .description("Publishing pipeline start time"),
-        fieldWithPath(prefix + "job_finished_at").optional().type(JsonFieldType.STRING)
-            .description("Publishing pipeline finish time"),
+        fieldWithPath(prefix + "job_started_at").optional().type(JsonFieldType.STRING).description("Publishing pipeline start time"),
+        fieldWithPath(prefix + "job_finished_at").optional().type(JsonFieldType.STRING).description("Publishing pipeline finish time"),
+        fieldWithPath(prefix + "gitlab_pipeline_id").optional().type(JsonFieldType.NUMBER).description("Gitlab pipeline id"),
+        fieldWithPath(prefix + "entry_file").optional().type(JsonFieldType.STRING).description("Main script file"),
     ).apply {
         addAll(environmentsFields(prefix + "environment."))
     }

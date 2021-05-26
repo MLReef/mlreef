@@ -14,6 +14,7 @@ data class CodeProjectPublishingDto(
     val branch: String? = null,
     val version: String? = null,
     val scriptPath: String? = null,
+    val requirementsFile: String? = null,
     val environment: BaseEnvironmentsDto? = null,
     val modelType: String? = null,
     val mlCategory: String? = null,
@@ -25,7 +26,9 @@ data class CodeProjectPublishingDto(
     val jobStartedAt: Instant? = null,
     val jobFinishedAt: Instant? = null,
     val publishedBy: UUID? = null,
-    val status:String? = null,
+    val status: String? = null,
+    val gitlabPipelineId: Long? = null,
+    val entryFile: String? = null,
 )
 
 
@@ -35,6 +38,7 @@ fun Processor.toPublishingPipelineDto() = CodeProjectPublishingDto(
     this.branch,
     this.version,
     this.mainScriptPath,
+    this.requirementsFilePath,
     this.baseEnvironment?.toBaseEnvironmentsDto(),
     this.codeProject?.modelType,
     this.codeProject?.mlCategory,
@@ -47,4 +51,6 @@ fun Processor.toPublishingPipelineDto() = CodeProjectPublishingDto(
     this.jobFinishedAt,
     this.publisher?.id,
     this.status.name,
+    this.gitlabPipelineId,
+    this.mainScriptPath,
 )

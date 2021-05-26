@@ -228,6 +228,7 @@ class PublishingApiTest : AbstractRestApiTest() {
     fun `Can Publish existing Repository`() {
         val request = PublishingRequest(
             path = "main.py",
+            requirementsFile = "requirements.txt",
             environment = baseEnv1.id,
             branch = "master",
             version = "0.10"
@@ -292,6 +293,7 @@ class PublishingApiTest : AbstractRestApiTest() {
         return listOf(
             fieldWithPath("slug").type(JsonFieldType.STRING).optional().description("Slug for processor"),
             fieldWithPath("path").type(JsonFieldType.STRING).optional().description("Path to main script"),
+            fieldWithPath("requirements_file").type(JsonFieldType.STRING).optional().description("Path to requirements.txt file (null if default requirements.txt needs to be used)"),
             fieldWithPath("environment").type(JsonFieldType.STRING).description("Environment id"),
             fieldWithPath("branch").type(JsonFieldType.STRING).description("Branch for publishing"),
             fieldWithPath("version").optional().type(JsonFieldType.STRING).description("User's version"),
