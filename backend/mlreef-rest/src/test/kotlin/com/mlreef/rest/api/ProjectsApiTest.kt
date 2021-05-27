@@ -35,6 +35,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation
 import org.springframework.test.annotation.Rollback
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Instant
 import java.time.Period
 import java.util.UUID.randomUUID
@@ -358,110 +359,6 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
-    fun `Can retrieve own DataProject by namespace and slug`() {
-        val id1 = randomUUID()
-        val project1 = DataProject(
-            id1,
-            "slug-1",
-            "www.url.com",
-            "Test Data Project 1",
-            "description",
-            mainPerson.id,
-            "mlreef",
-            "project-1",
-            1,
-            VisibilityScope.PUBLIC,
-            mutableSetOf()
-        )
-        val project2 = DataProject(
-            randomUUID(),
-            "slug-2",
-            "www.url.net",
-            "Test Data Project 2",
-            "description",
-            mainPerson.id,
-            "mlreef",
-            "project-2",
-            2,
-            VisibilityScope.PUBLIC,
-            mutableSetOf()
-        )
-        val project3 = DataProject(
-            randomUUID(),
-            "slug-3",
-            "www.url.xyz",
-            "Test Data Project 3",
-            "description",
-            mainPerson2.id,
-            "mlreef",
-            "project-3",
-            3,
-            VisibilityScope.PUBLIC,
-            mutableSetOf()
-        )
-        dataProjectRepository.save(project1)
-        dataProjectRepository.save(project2)
-        dataProjectRepository.save(project3)
-
-        val project4 = CodeProject(
-            randomUUID(),
-            "slug-4",
-            "www.url.com",
-            "Test Code Project 4",
-            "description",
-            mainPerson.id,
-            "group4",
-            "project-4",
-            4,
-            processorType = operationProcessorType
-        )
-        val project5 = CodeProject(
-            randomUUID(),
-            "slug-5",
-            "www.url.net",
-            "Test Code Project 5",
-            "description",
-            mainPerson.id,
-            "group5",
-            "project-5",
-            5,
-            processorType = operationProcessorType
-        )
-        val project6 = CodeProject(
-            randomUUID(),
-            "slug-6",
-            "www.url.xyz",
-            "Test Code Project 6",
-            "description",
-            mainPerson2.id,
-            "group6",
-            "project-6",
-            6,
-            processorType = operationProcessorType
-        )
-        codeProjectRepository.save(project4)
-        codeProjectRepository.save(project5)
-        codeProjectRepository.save(project6)
-
-        this.mockUserAuthentication(
-            listOf(project1.id, project2.id, project4.id, project5.id),
-            mainAccount,
-            AccessLevel.OWNER
-        )
-
-        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-1", token)
-            .expectOk()
-            .document("data-project-retrieve-one-by-namespace-slug", responseFields(projectResponseFields()))
-            .returns(ProjectDto::class.java)
-
-        assertThat(returnedResult.id).isEqualTo(id1)
-        assertThat(returnedResult.gitlabPath).isEqualTo("project-1")
-    }
-
-    @Transactional
-    @Rollback
-    @Test
-    @Tag(TestTags.RESTDOC)
     fun `Can retrieve own CodeProject by namespace and slug`() {
         val id1 = randomUUID()
         val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", "description", mainPerson.id, "mlreef", "project-1", 1, VisibilityScope.PUBLIC, mutableSetOf())
@@ -517,7 +414,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             AccessLevel.OWNER
         )
 
-        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/project-5", token)
+        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/slug-5", token)
             .expectOk()
             .document("code-project-retrieve-by-namespace-slug", responseFields(projectResponseFields()))
             .returns(ProjectDto::class.java)
@@ -1969,6 +1866,143 @@ class ProjectsApiTest : AbstractRestApiTest() {
             .returnsList(DataProjectDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve own Projects by namespace and slug`() {
+        val id1 = randomUUID()
+        val project1 = DataProject(
+            id1,
+            "slug-1",
+            "www.url.com",
+            "Test Data Project 1",
+            "description",
+            mainPerson3.id,
+            "mlreef",
+            "project-1",
+            1,
+            VisibilityScope.PUBLIC,
+            mutableSetOf()
+        )
+        val project2 = DataProject(
+            randomUUID(),
+            "slug-2",
+            "www.url.net",
+            "Test Data Project 2",
+            "description",
+            mainPerson3.id,
+            "mlreef",
+            "project-2",
+            2,
+            VisibilityScope.PUBLIC,
+            mutableSetOf()
+        )
+        val project3 = DataProject(
+            randomUUID(),
+            "slug-3",
+            "www.url.xyz",
+            "Test Data Project 3",
+            "description",
+            mainPerson2.id,
+            "mlreef",
+            "project-3",
+            3,
+            VisibilityScope.PUBLIC,
+            mutableSetOf()
+        )
+        dataProjectRepository.save(project1)
+        dataProjectRepository.save(project2)
+        dataProjectRepository.save(project3)
+
+        val project4 = CodeProject(
+            randomUUID(),
+            "slug-4",
+            "www.url.com",
+            "Test Code Project 4",
+            "description",
+            mainPerson3.id,
+            "group4",
+            "project-4",
+            4,
+            processorType = operationProcessorType
+        )
+        val project5 = CodeProject(
+            randomUUID(),
+            "slug-5",
+            "www.url.net",
+            "Test Code Project 5",
+            "description",
+            mainPerson3.id,
+            "group5",
+            "project-5",
+            5,
+            processorType = operationProcessorType
+        )
+        val project6 = CodeProject(
+            randomUUID(),
+            "slug-6",
+            "www.url.xyz",
+            "Test Code Project 6",
+            "description",
+            mainPerson2.id,
+            "group6",
+            "project-6",
+            6,
+            processorType = operationProcessorType
+        )
+        codeProjectRepository.save(project4)
+        codeProjectRepository.save(project5)
+        codeProjectRepository.save(project6)
+
+        this.mockUserAuthentication(
+            listOf(project1.id, project2.id, project4.id, project5.id),
+            mainAccount3,
+            AccessLevel.OWNER
+        )
+
+        val returnedResult: ProjectDto = this.performGet("$rootUrl/mlreef/slug-1", token)
+            .expectOk()
+            .document("project-retrieve-one-by-namespace-slug", responseFields(projectResponseFields()))
+            .returns(ProjectDto::class.java)
+
+        assertThat(returnedResult.id).isEqualTo(id1)
+        assertThat(returnedResult.gitlabPath).isEqualTo("project-1")
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve specific own DataProcessor`() {
+        val project = CodeProject(
+            randomUUID(),
+            "slug-4",
+            "www.url.com",
+            "Test Code Project 4",
+            "description",
+            mainPerson3.id,
+            "group4",
+            "project-4",
+            4,
+            processorType = operationProcessorType
+        )
+        codeProjectRepository.save(project)
+
+        createProcessor(project, "Test processor", "test-processor")
+
+        mockUserAuthentication(listOf(project.id), mainAccount3, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.gitlabNamespace}/${project.slug}/processor"
+
+        this.performGet(url, token)
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .document(
+                "data-processors-codeproject-retrieve-one-by-namespace-slug",
+                responseFields(wrapToPage(dataProcessorFields()))
+            )
     }
 
 }

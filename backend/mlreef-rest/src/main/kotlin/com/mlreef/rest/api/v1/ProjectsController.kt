@@ -581,10 +581,11 @@ class ProjectsController(
 
     //-------------------- Other
 
+    //TODO: possible need to add an unique index to database for gitlab_namespace + slug. Currently it is not present
     @GetMapping("/{namespace}/{slug}")
     @PostAuthorize("postCanViewProject()")
-    fun getProjectsByNamespaceAndSlugInPath(@PathVariable namespace: String, @PathVariable slug: String): ProjectDto {
-        val project = projectService.getProjectsByNamespaceAndPath(namespace, slug)
+    fun getProjectByNamespaceAndSlug(@PathVariable namespace: String, @PathVariable slug: String): ProjectDto {
+        val project = projectService.getProjectsByNamespaceAndSlug(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
         return project.toDto()
     }
@@ -592,7 +593,7 @@ class ProjectsController(
     @Deprecated("maybe unused, frontend unclear")
     @GetMapping("/{namespace}/{slug}/processor")
     @PreAuthorize("canViewProject(#namespace, #slug)")
-    fun getDataProcessorByNamespaceAndSlug(
+    fun getProcessorsByNamespaceAndSlug(
         @PathVariable namespace: String,
         @PathVariable slug: String,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
