@@ -56,8 +56,6 @@ deploy_review:
   image:
     name: registry.gitlab.com/mlreef/devops/k8s-images/k8s-kubectl:latest
     entrypoint: ["/bin/bash", "-c"]
-  except:
-    - tags
   environment:
     name: review/$CI_BUILD_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
@@ -97,7 +95,8 @@ stop_review:
   only:
     - branches
   except:
-    - tags
+    refs:
+      - master
   environment:
     name: review/$CI_BUILD_REF_NAME
     action: stop
