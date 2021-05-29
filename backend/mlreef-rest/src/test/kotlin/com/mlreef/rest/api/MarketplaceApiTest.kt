@@ -12,6 +12,8 @@ import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.marketplace.SearchableType
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.testcommons.RestResponsePage
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
@@ -27,7 +29,9 @@ import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.transaction.Transactional
+import kotlin.random.Random
 
 class MarketplaceApiTest : AbstractRestApiTest() {
 
@@ -431,6 +435,129 @@ class MarketplaceApiTest : AbstractRestApiTest() {
             .returnsList(SearchableTagDto::class.java)
 
         assertThat(returnedResult.size).isEqualTo(3)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Test pagination for the search - Sync mode`() {
+        val codeProjectsCount = Random.nextInt(51, 59)
+        val dataProjectsCount = Random.nextInt(52, 55)
+        val totalProjectsCount = codeProjectsCount + dataProjectsCount
+        val pageSize = Random.nextInt(10, 19)
+        val pageCount = (totalProjectsCount / pageSize) + (if (totalProjectsCount % pageSize != 0) 1 else 0)
+
+        val codeProjectsList = (1..codeProjectsCount).map {
+            createCodeProject(
+                slug = "code-project-sync-pagination-$it",
+                name = "Code Project pagination sync test $it",
+                processorType = listOf(operationProcessorType, algorithmProcessorType, visualizationProcessorType)[Random.nextInt(0, 3)],
+                inputTypes = listOf(imageDataType, tabularDataType),
+                outputTypes = listOf(modelDataType, timeSeriesDataType),
+                ownerId = mainPerson2.id,
+            )
+        }
+
+        val dataProjectsList = (1..dataProjectsCount).map {
+            createDataProject(
+                slug = "data-project-sync-pagination-$it",
+                name = "Data Project pagination sync test $it",
+                inputTypes = listOf(imageDataType, tabularDataType),
+                ownerId = mainPerson2.id,
+            )
+        }
+
+        val filterRequest = SearchRequest(
+            ownerIdsOr = listOf(mainPerson2.id),
+        )
+
+        val totalResults = mutableListOf<ProjectDto>()
+        val url = "$rootUrl/entries/search"
+
+        (0..pageCount - 1).forEach {
+            val pagedResult: RestResponsePage<ProjectDto> = this.performPost("$url?page=$it&size=$pageSize", null, filterRequest)
+                .checkStatus(HttpStatus.OK)
+                .expectOk()
+                .returns()
+
+            if (it != pageCount - 1) {
+                assertThat(pagedResult.content.size).isEqualTo(pageSize)
+            } else {
+                assertThat(pagedResult.content.size).isEqualTo(totalProjectsCount % pageSize)
+            }
+
+            totalResults.addAll(pagedResult.content)
+        }
+
+        assertThat(totalResults.size).isEqualTo(totalProjectsCount)
+        assertThat(totalResults.map { it.name }).containsOnlyOnceElementsOf((codeProjectsList + dataProjectsList).map { it.name })
+    }
+
+    @Test
+//    @Disabled("Still bot work")
+    @Tag(TestTags.RESTDOC)
+    fun `Test pagination for the search - Async mode`() {
+        val codeProjectsCount = Random.nextInt(51, 59)
+        val dataProjectsCount = Random.nextInt(52, 55)
+        val totalProjectsCount = codeProjectsCount + dataProjectsCount
+        val pageSize = Random.nextInt(10, 19)
+        val pageCount = (totalProjectsCount / pageSize) + (if (totalProjectsCount % pageSize != 0) 1 else 0)
+
+        val codeProjectsList = (1..codeProjectsCount).map {
+            createCodeProject(
+                slug = "code-project-sync-pagination-$it",
+                name = "Code Project pagination sync test $it",
+                processorType = listOf(operationProcessorType, algorithmProcessorType, visualizationProcessorType)[Random.nextInt(0, 3)],
+                inputTypes = listOf(imageDataType, tabularDataType),
+                outputTypes = listOf(modelDataType, timeSeriesDataType),
+                ownerId = mainPerson2.id,
+            )
+        }
+
+        val dataProjectsList = (1..dataProjectsCount).map {
+            createDataProject(
+                slug = "data-project-sync-pagination-$it",
+                name = "Data Project pagination sync test $it",
+                inputTypes = listOf(imageDataType, tabularDataType),
+                ownerId = mainPerson2.id,
+            )
+        }
+
+        val filterRequest = SearchRequest(
+            ownerIdsOr = listOf(mainPerson2.id),
+        )
+
+        val totalResults = CopyOnWriteArrayList<ProjectDto>()
+        val url = "$rootUrl/entries/search"
+
+        val jobs = (0..pageCount - 1).map {
+            GlobalScope.launch {
+                val pagedResult: RestResponsePage<ProjectDto> = performPost("$url?page=$it&size=$pageSize", null, filterRequest)
+                    .checkStatus(HttpStatus.OK)
+                    .expectOk()
+                    .returns()
+
+                println("Page received: ${pagedResult.number} last - ${pagedResult.isLast}")
+
+                if (it != pageCount - 1) {
+                    assertThat(pagedResult.content.size).isEqualTo(pageSize)
+                } else {
+                    assertThat(pagedResult.content.size).isEqualTo(totalProjectsCount % pageSize)
+                }
+
+                totalResults.addAll(pagedResult.content)
+            }
+        }
+
+        while (jobs.any { it.isActive }) Thread.sleep(1000)
+
+        assertThat(totalResults.size).isEqualTo(totalProjectsCount)
+        assertThat(totalResults.map { it.name }).containsOnlyOnceElementsOf((codeProjectsList + dataProjectsList).map { it.name })
+
+        //Cleanup - as we work in async mode without transactional and rollback we need to delete just created projects
+        dataProjectRepository.deleteAll(dataProjectsList)
+        codeProjectRepository.deleteAll(codeProjectsList)
     }
 
     internal fun searchResultFields(prefix: String = ""): List<FieldDescriptor> {
