@@ -58,6 +58,7 @@ docker run -it --rm --detach --name mlreef           \
 ```
 The container comes up with a default runner running on same docker network on localhost.
 
+The mlreef app would be available  on `http://localhost`.
 
 ### Run mlreef in a separate docker network
 
@@ -90,6 +91,7 @@ docker run -it --rm --detach --name mlreef           \
 ```
 The container comes up with a default runner running on same docker network on localhost.
 
+The mlreef app would be available  on `http://localhost`.
 
 Adding Machine Learning Runners
 --------------------
@@ -129,3 +131,9 @@ docker exec -it ml-runner                   \
 
 GPU Capabilities
 --------------------
+
+A gitlab-runner can be setup for different executors with GPU capabilities as per following doc:
+
+https://docs.gitlab.com/runner/configuration/gpus.html
+
+ 
