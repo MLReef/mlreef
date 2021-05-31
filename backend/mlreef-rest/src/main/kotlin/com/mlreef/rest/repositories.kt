@@ -24,6 +24,7 @@ import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.ProjectType
 import com.mlreef.rest.domain.PublishStatus
 import com.mlreef.rest.domain.ReadOnlyRepository
+import com.mlreef.rest.domain.RecentProject
 import com.mlreef.rest.domain.Subject
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.marketplace.SearchableTag
@@ -392,4 +393,11 @@ interface EmailRepository : KtCrudRepository<Email, UUID>
 interface BaseEnvironmentsRepository : KtCrudRepository<BaseEnvironments, UUID> {
     fun findByTitle(title: String): BaseEnvironments?
     fun findByDockerImage(imageName: String): List<BaseEnvironments>
+}
+
+@Repository
+interface RecentProjectsRepository : KtCrudRepository<RecentProject, UUID> {
+    fun findByUserOrderByUpdateDateDesc(user: Subject): List<RecentProject>
+    fun findByProjectOrderByUpdateDateDesc(project: Project): List<RecentProject>
+    fun findByProjectAndUser(project: Project, user: Subject): RecentProject?
 }

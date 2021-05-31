@@ -165,7 +165,7 @@ internal class ExperimentsController(
         val experiment = beforeGetExperiment(idOrNumber, dataProjectId)
 
         return experimentService
-            .startExperiment(experiment, userToken.accessToken)
+            .startExperiment(experiment, userToken.accessToken, userToken.personId)
             .pipelineJobInfo!!
             .toDto()
     }

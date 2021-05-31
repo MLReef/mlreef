@@ -447,6 +447,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         val totalProjectsCount = codeProjectsCount + dataProjectsCount
         val pageSize = Random.nextInt(10, 19)
         val pageCount = (totalProjectsCount / pageSize) + (if (totalProjectsCount % pageSize != 0) 1 else 0)
+        val lastPageIsComplete = (totalProjectsCount % pageSize == 0)
 
         val codeProjectsList = (1..codeProjectsCount).map {
             createCodeProject(
@@ -481,7 +482,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 .expectOk()
                 .returns()
 
-            if (it != pageCount - 1) {
+            if (it != pageCount - 1 || lastPageIsComplete) {
                 assertThat(pagedResult.content.size).isEqualTo(pageSize)
             } else {
                 assertThat(pagedResult.content.size).isEqualTo(totalProjectsCount % pageSize)
@@ -495,7 +496,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     }
 
     @Test
-//    @Disabled("Still bot work")
+//    @Disabled("Working but need to be skipped")
     @Tag(TestTags.RESTDOC)
     fun `Test pagination for the search - Async mode`() {
         val codeProjectsCount = Random.nextInt(51, 59)
@@ -503,6 +504,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         val totalProjectsCount = codeProjectsCount + dataProjectsCount
         val pageSize = Random.nextInt(10, 19)
         val pageCount = (totalProjectsCount / pageSize) + (if (totalProjectsCount % pageSize != 0) 1 else 0)
+        val lastPageIsComplete = (totalProjectsCount % pageSize == 0)
 
         val codeProjectsList = (1..codeProjectsCount).map {
             createCodeProject(
@@ -540,7 +542,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
 
                 println("Page received: ${pagedResult.number} last - ${pagedResult.isLast}")
 
-                if (it != pageCount - 1) {
+                if (it != pageCount - 1 || lastPageIsComplete) {
                     assertThat(pagedResult.content.size).isEqualTo(pageSize)
                 } else {
                     assertThat(pagedResult.content.size).isEqualTo(totalProjectsCount % pageSize)

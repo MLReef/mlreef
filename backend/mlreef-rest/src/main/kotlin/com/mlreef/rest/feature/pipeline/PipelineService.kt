@@ -9,6 +9,7 @@ import com.mlreef.rest.PipelineConfigurationRepository
 import com.mlreef.rest.PipelinesRepository
 import com.mlreef.rest.ProcessorInstancesRepository
 import com.mlreef.rest.ProcessorsRepository
+import com.mlreef.rest.annotations.SaveRecentProject
 import com.mlreef.rest.api.v1.PipelineConfigCreateRequest
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
@@ -131,6 +132,7 @@ class PipelineService(
         return pipelinesRepository.findByIdOrNull(pipelineId)
     }
 
+    @SaveRecentProject(projectId = "#dataProjectId", userId = "#person.id", operation = "createPipelineConfig")
     @Transactional
     fun createNewPipelineConfig(
         dataProjectId: UUID,
@@ -255,12 +257,14 @@ class PipelineService(
         return pipelineConfigRepository.save(pipelineConfig)
     }
 
+    @SaveRecentProject(projectId = "#dataProjectId", userId = "#person.id", operation = "updatePipelineProject")
     @Transactional
     fun updatePipelineConfig(
         dataProjectId: UUID,
         pipelineConfigId: UUID,
         processorInstancesDtos: List<ProcessorInstanceDto>,
-        inputFiles: List<FileLocationDto>
+        inputFiles: List<FileLocationDto>,
+        person: Person,
     ): PipelineConfiguration {
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
             ?: throw NotFoundException("Project $dataProjectId not found")
@@ -465,12 +469,14 @@ class PipelineService(
         return pipeline
     }
 
+    @SaveRecentProject(projectId = "#dataProjectId", userId = "#starterId", operation = "startPipeline")
     fun startPipeline(
         author: Account,
         userToken: String,
         dataProjectId: UUID,
         pipeline: Pipeline,
-        secret: String? = null
+        starterId: UUID? = null,
+        secret: String? = null,
     ): Pipeline {
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
             ?: throw NotFoundException("Project $dataProjectId not found")
@@ -501,10 +507,11 @@ class PipelineService(
         userToken: String,
         dataProjectId: UUID,
         instance: Pipeline,
-        secret: String
+        secret: String,
+        personId: UUID,
     ) {
         GlobalScope.launch {
-            startPipeline(author, userToken, dataProjectId, instance, secret)
+            startPipeline(author, userToken, dataProjectId, instance, personId, secret)
         }
     }
 

@@ -64,6 +64,7 @@ mlreef:
     sync-fork: true
     wait-gitlab-fork-sec: 30
     pause-fork-finished-polling-sec: 2
+    max-recent-projects-history-size: 10
 
 
 

@@ -21,40 +21,52 @@ class ExpressionEvaluator<T>(private val targetClass: Class<T>) : CachedExpressi
     private val conditionCache: Map<ExpressionKey, Expression> = ConcurrentHashMap<ExpressionKey, Expression>(64)
     private val targetMethodCache: ConcurrentMap<AnnotatedElementKey, Method?> = ConcurrentHashMap<AnnotatedElementKey, Method>(64)
 
-    fun getValue(joinPoint: JoinPoint, condition: String?): T? {
+    companion object {
+        private const val RETURN_OBJECT_SPEL_NAME_KEY = "returnObject"
+        private const val RETURN_OBJECT_SPEL_NAME_KEY_2 = "result"
+    }
+
+    fun getValue(joinPoint: JoinPoint, condition: String?, result: Any? = null): T? {
         return if (condition.isNullOrBlank()) {
             null
         } else {
-            getValue(joinPoint.target, joinPoint.args,
+            getValue(
+                joinPoint.target,
+                joinPoint.args,
                 joinPoint.target.javaClass,
-                (joinPoint.signature as MethodSignature).getMethod(), condition)
+                (joinPoint.signature as MethodSignature).getMethod(),
+                condition,
+                result,
+            )
         }
     }
 
-    private fun getValue(obj: Any, args: Array<Any>?, clazz: Class<*>, method: Method, condition: String): T? {
+    private fun getValue(obj: Any, args: Array<Any>?, clazz: Class<*>, method: Method, condition: String, result: Any?): T? {
         if (args == null) {
             return null
         }
-        val evaluationContext: EvaluationContext = this.createEvaluationContext(obj, clazz, method, args)
+        val evaluationContext: EvaluationContext = this.createEvaluationContext(obj, clazz, method, args, result)
         val methodKey = AnnotatedElementKey(method, clazz)
         return this.condition(condition, methodKey, evaluationContext, targetClass)
     }
 
-    fun getCollectionValue(joinPoint: JoinPoint, condition: String?): Collection<T>? {
+    fun getCollectionValue(joinPoint: JoinPoint, condition: String?, result: Any? = null): Collection<T>? {
         return if (condition.isNullOrBlank()) {
             null
         } else {
-            getCollectionValue(joinPoint.target, joinPoint.args,
+            getCollectionValue(
+                joinPoint.target, joinPoint.args,
                 joinPoint.target.javaClass,
-                (joinPoint.signature as MethodSignature).getMethod(), condition)
+                (joinPoint.signature as MethodSignature).getMethod(), condition, result
+            )
         }
     }
 
-    private fun getCollectionValue(obj: Any, args: Array<Any>?, clazz: Class<*>, method: Method, condition: String): Collection<T>? {
+    private fun getCollectionValue(obj: Any, args: Array<Any>?, clazz: Class<*>, method: Method, condition: String, result: Any?): Collection<T>? {
         if (args == null) {
             return null
         }
-        val evaluationContext: EvaluationContext = this.createEvaluationContext(obj, clazz, method, args)
+        val evaluationContext: EvaluationContext = this.createEvaluationContext(obj, clazz, method, args, result)
         val methodKey = AnnotatedElementKey(method, clazz)
         return this.conditionCollection(condition, methodKey, evaluationContext)
     }
@@ -63,10 +75,13 @@ class ExpressionEvaluator<T>(private val targetClass: Class<T>) : CachedExpressi
      * Create the suitable [EvaluationContext] for the specified event handling
      * on the specified method.
      */
-    fun createEvaluationContext(obj: Any, targetClass: Class<*>, method: Method, args: Array<Any>): EvaluationContext {
+    fun createEvaluationContext(obj: Any, targetClass: Class<*>, method: Method, args: Array<Any>, result: Any?): EvaluationContext {
         val targetMethod: Method = getTargetMethod(targetClass, method)
         val root = ExpressionRootObject(obj, args)
-        return MethodBasedEvaluationContext(root, targetMethod, args, paramNameDiscoverer)
+        val context = MethodBasedEvaluationContext(root, targetMethod, args, paramNameDiscoverer)
+        context.setVariable(RETURN_OBJECT_SPEL_NAME_KEY, result)
+        context.setVariable(RETURN_OBJECT_SPEL_NAME_KEY_2, result)
+        return context
     }
 
     /**

@@ -83,14 +83,16 @@ class PipelineConfigsController(
     fun updatePipelineConfig(
         @PathVariable dataProjectId: UUID,
         @PathVariable id: UUID,
-        @Valid @RequestBody updateRequest: PipelineConfigUpdateRequest
+        @Valid @RequestBody updateRequest: PipelineConfigUpdateRequest,
+        person: Person
     ): PipelineConfigDto {
         log.info(updateRequest.toString())
         return pipelineService.updatePipelineConfig(
             dataProjectId,
             id,
             updateRequest.dataOperations,
-            updateRequest.inputFiles
+            updateRequest.inputFiles,
+            person,
         ).toDto()
     }
 
@@ -117,6 +119,7 @@ class PipelineConfigsController(
             tokenDetails.accessToken,
             dataProjectId,
             pipeline,
+            person.id,
         )
 
         return pipelineService.getPipelineById(pipeline.id)?.toDto()

@@ -2005,6 +2005,114 @@ class ProjectsApiTest : AbstractRestApiTest() {
             )
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can retrieve recent Projects`() {
+        val project1 = DataProject(
+            randomUUID(),
+            "slug-1",
+            "www.url.com",
+            "Test Data Project 1",
+            "description",
+            mainPerson3.id,
+            "mlreef",
+            "project-1",
+            1,
+            VisibilityScope.PUBLIC,
+            mutableSetOf()
+        )
+        val project2 = DataProject(
+            randomUUID(),
+            "slug-2",
+            "www.url.net",
+            "Test Data Project 2",
+            "description",
+            mainPerson3.id,
+            "mlreef",
+            "project-2",
+            2,
+            VisibilityScope.PUBLIC,
+            mutableSetOf()
+        )
+        val project3 = DataProject(
+            randomUUID(),
+            "slug-3",
+            "www.url.xyz",
+            "Test Data Project 3",
+            "description",
+            mainPerson2.id,
+            "mlreef",
+            "project-3",
+            3,
+            VisibilityScope.PUBLIC,
+            mutableSetOf()
+        )
+        dataProjectRepository.save(project1)
+        dataProjectRepository.save(project2)
+        dataProjectRepository.save(project3)
+
+        val project4 = CodeProject(
+            randomUUID(),
+            "slug-4",
+            "www.url.com",
+            "Test Code Project 4",
+            "description",
+            mainPerson3.id,
+            "group4",
+            "project-4",
+            4,
+            processorType = operationProcessorType
+        )
+        val project5 = CodeProject(
+            randomUUID(),
+            "slug-5",
+            "www.url.net",
+            "Test Code Project 5",
+            "description",
+            mainPerson3.id,
+            "group5",
+            "project-5",
+            5,
+            processorType = operationProcessorType
+        )
+        val project6 = CodeProject(
+            randomUUID(),
+            "slug-6",
+            "www.url.xyz",
+            "Test Code Project 6",
+            "description",
+            mainPerson2.id,
+            "group6",
+            "project-6",
+            6,
+            processorType = operationProcessorType
+        )
+        codeProjectRepository.save(project4)
+        codeProjectRepository.save(project5)
+        codeProjectRepository.save(project6)
+
+        createRecentProject(project1, mainPerson3)
+        createRecentProject(project2, mainPerson3)
+        createRecentProject(project3, mainPerson3)
+        createRecentProject(project4, mainPerson3)
+        createRecentProject(project5, mainPerson3)
+
+        this.mockUserAuthentication(
+            listOf(project1.id, project2.id, project4.id, project5.id),
+            mainAccount3,
+            AccessLevel.OWNER
+        )
+
+        val returnedResult = this.performGet("$rootUrl/recent", mainToken3)
+            .expectOk()
+            .document("project-retrieve-recent-projects", responseFields(projectResponseFields("[].")))
+            .returnsList(ProjectDto::class.java)
+
+        assertThat(returnedResult.size).isEqualTo(5)
+    }
+
 }
 
 private fun projectCreateRequestFields(): List<FieldDescriptor> = listOf(

@@ -1,6 +1,7 @@
 package com.mlreef.rest.config
 
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.project.RecentProjectService
 import com.mlreef.rest.feature.system.SessionsService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -13,14 +14,20 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter
 import javax.annotation.PostConstruct
 
 @Configuration
-class MessagingConfig(private val sessionService: SessionsService,
-                      private val connectionFactory: RedisConnectionFactory,
-                      private val publicProjectsCacheService: PublicProjectsCacheService) {
+class MessagingConfig(
+    private val sessionService: SessionsService,
+    private val connectionFactory: RedisConnectionFactory,
+    private val publicProjectsCacheService: PublicProjectsCacheService,
+    private val recentProjectService: RecentProjectService,
+) {
     companion object {
         private val log = LoggerFactory.getLogger(MessagingConfig::class.java)
         const val REFRESH_USER_INFORMATION_TOPIC = "pubsub:queue:mlreef:userupdate"
         const val REFRESH_GROUP_INFORMATION_TOPIC = "pubsub:queue:mlreef:groupupdate"
         const val REFRESH_PROJECT_TOPIC = "pubsub:queue:mlreef:projectupdate"
+        const val RECENT_PROJECT_TOPIC = "pubsub:queue:mlreef:recentproject"
+
+        const val PUB_SUB_FIELD_SEPARATOR = "|"
     }
 
     @PostConstruct
@@ -36,6 +43,12 @@ class MessagingConfig(private val sessionService: SessionsService,
     @Bean
     fun projectMessageListenerAdapter(): MessageListenerAdapter {
         return MessageListenerAdapter(publicProjectsCacheService)
+    }
+
+    @Bean
+    fun recentProjectMessageListenerAdapter(): MessageListenerAdapter {
+        val adapter = MessageListenerAdapter(recentProjectService)
+        return adapter
     }
 
     @Bean
@@ -57,12 +70,19 @@ class MessagingConfig(private val sessionService: SessionsService,
     }
 
     @Bean
-    fun redisContainer(): RedisMessageListenerContainer? {
+    @Qualifier("recentProject")
+    fun saveRecentProjectTopic(): ChannelTopic {
+        return ChannelTopic(RECENT_PROJECT_TOPIC)
+    }
+
+    @Bean
+    fun redisContainer(): RedisMessageListenerContainer {
         val container = RedisMessageListenerContainer()
         container.connectionFactory = connectionFactory
         container.addMessageListener(userInformationMessageListenerAdapter(), refreshUserTopic())
         container.addMessageListener(userInformationMessageListenerAdapter(), refreshGroupTopic())
         container.addMessageListener(projectMessageListenerAdapter(), refreshProjectTopic())
+        container.addMessageListener(recentProjectMessageListenerAdapter(), saveRecentProjectTopic())
         return container
     }
 }

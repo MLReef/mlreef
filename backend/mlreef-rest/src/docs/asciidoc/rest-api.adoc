@@ -221,6 +221,12 @@ Public projects (can include own and shared), but without paging.
 
 operation::project-retrieve-public-all[snippets='curl-request']
 
+=== GET /projects/recent
+
+Get recent projects used by requested user
+
+operation::project-retrieve-recent-projects[snippets='curl-request,response-body,response-fields']
+
 === GET /projects/:id
 
 operation::data-project-retrieve-one[snippets='curl-request,response-body,response-fields']

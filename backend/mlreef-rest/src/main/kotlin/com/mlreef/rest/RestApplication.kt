@@ -110,4 +110,5 @@ class ProjectsConfiguration(
     var syncFork: Boolean = true,
     var waitGitlabForkSec: Int = 30,
     var pauseForkFinishedPollingSec: Int = 2, //pause between project status requests
+    var maxRecentProjectsHistorySize: Int = 10,
 )

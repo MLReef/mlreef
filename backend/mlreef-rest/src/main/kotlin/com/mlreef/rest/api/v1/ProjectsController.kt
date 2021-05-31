@@ -35,6 +35,7 @@ import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.processors.ProcessorsService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
+import com.mlreef.rest.feature.project.RecentProjectService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -67,6 +68,7 @@ class ProjectsController(
     private val processorsService: ProcessorsService,
     private val projectResolverService: ProjectResolverService,
     private val marketplaceService: MarketplaceService,
+    private val recentProjectService: RecentProjectService,
 ) {
     companion object {
         private const val MAX_PAGE_SIZE = 20
@@ -106,6 +108,28 @@ class ProjectsController(
         } else {
             projectsPage.map { it.toShortDto(profile.personId) }
         }
+    }
+
+    @GetMapping("/recent")
+    fun getRecentProjects(
+        profile: TokenDetails,
+        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
+    ): Iterable<ProjectDto> {
+        val isDataProjectRequest = request.requestURI.contains("data-projects")
+        val isCodeProjectRequest = request.requestURI.contains("code-projects")
+
+        val projects = recentProjectService
+            .getRecentProjectsForUser(profile.personId)
+            .filter {
+                if (isDataProjectRequest) {
+                    it.project is DataProject
+                } else if (isCodeProjectRequest) {
+                    it.project is CodeProject
+                } else true
+            }
+
+        return projects.map { it.project.toDto() }
     }
 
     private fun getAccessibleProjectsPage(profile: TokenDetails, pageable: Pageable, isDataProject: Boolean, isCodeProject: Boolean): Page<out Project> {
