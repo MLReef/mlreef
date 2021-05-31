@@ -19,7 +19,9 @@ import com.mlreef.rest.domain.PipelineType
 import com.mlreef.rest.domain.Processor
 import com.mlreef.rest.domain.ProcessorInstance
 import com.mlreef.rest.domain.ProcessorType
+import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.PublishStatus
+import com.mlreef.rest.domain.RecentProject
 import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.marketplace.SearchableTag
@@ -127,6 +129,9 @@ class BaseTest {
 
     @Autowired
     protected lateinit var metricTypesRepository: MetricTypesRepository
+
+    @Autowired
+    protected lateinit var recentProjectsRepository: RecentProjectsRepository
 
     @Autowired
     protected lateinit var processorsService: ProcessorsService
@@ -473,6 +478,19 @@ class BaseTest {
         return if (persist) {
             saveEntity(paramInstance, paramInstance.id, parameterInstancesRepository, inTransaction)
         } else paramInstance
+    }
+
+    protected fun createRecentProject(
+        project: Project,
+        person: Person,
+        persist: Boolean = true,
+        inTransaction: Boolean = false,
+    ): RecentProject {
+        val recent = RecentProject(UUID.randomUUID(), person, project, Instant.now().minusSeconds(Random.nextInt(1, 999999).toLong()), "operation")
+
+        return if (persist) {
+            saveEntity(recent, recent.id, recentProjectsRepository, inTransaction)
+        } else recent
     }
 
     fun createPerson(

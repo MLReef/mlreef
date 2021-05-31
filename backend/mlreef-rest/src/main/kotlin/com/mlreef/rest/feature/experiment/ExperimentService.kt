@@ -8,6 +8,7 @@ import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.PipelinesRepository
 import com.mlreef.rest.ProcessorsRepository
 import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.annotations.SaveRecentProject
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.Experiment
 import com.mlreef.rest.domain.ExperimentStatus
@@ -82,6 +83,7 @@ class ExperimentService(
      * Creates an Experiment with the given Parameters in MLReef domain.
      * If a dataInstanceId is provided, the dataInstance must exist!
      */
+    @SaveRecentProject(projectId = "#dataProjectId", userId = "#authorId", operation = "createExperiment")
     fun createExperiment(
         authorId: UUID,
         dataProjectId: UUID,
@@ -135,7 +137,8 @@ class ExperimentService(
         }
     }
 
-    fun startExperiment(experiment: Experiment, token: String): Experiment {
+    @SaveRecentProject(projectId = "#result.dataProject.id", userId = "#runnerId", operation = "startExperiment")
+    fun startExperiment(experiment: Experiment, token: String, runnerId: UUID): Experiment {
         val secret = pipelineService.createSecret()
 
         val finalTargetBranch = getTargetBranchForExperiment(experiment)

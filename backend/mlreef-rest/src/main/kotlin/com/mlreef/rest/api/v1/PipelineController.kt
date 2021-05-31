@@ -102,6 +102,7 @@ class PipelineController(
                 tokenDetails.accessToken,
                 pipelineConfig.dataProject!!.id,
                 pipeline,
+                tokenDetails.personId,
                 secret = pipelineService.createSecret()
             )
             "archive" -> pipelineService.archivePipeline(pipeline)

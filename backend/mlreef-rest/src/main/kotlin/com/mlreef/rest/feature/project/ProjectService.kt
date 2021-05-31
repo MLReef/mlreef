@@ -11,6 +11,7 @@ import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
+import com.mlreef.rest.annotations.SaveRecentProject
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.Account
@@ -443,6 +444,7 @@ open class ProjectServiceImpl<T : Project>(
         return gitlabRestClient.getNamespaces(userToken)
     }
 
+    @SaveRecentProject(projectId = "#result.id", userId = "#ownerId", operation = "createProject")
     @RefreshUserInformation(userId = "#ownerId")
     @RefreshProject
     override fun createProject(
@@ -548,6 +550,7 @@ open class ProjectServiceImpl<T : Project>(
      * https://gitlab.com/mlreef/mlreef/-/blob/master/docs/content/99-development/1-Projects.md
      *
      */
+    @SaveRecentProject(projectId = "#result.id", userId = "#creatorId", operation = "forkProject")
     @RefreshUserInformation(userId = "#creatorId")
     override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?, namespaceIdOrName: String?): T {
         val original = repository.findByIdOrNull(originalId)
@@ -612,6 +615,7 @@ open class ProjectServiceImpl<T : Project>(
         return repository.save(project)
     }
 
+    @SaveRecentProject(projectId = "#projectUUID", userId = "#ownerId", operation = "updateProject")
     @RefreshProject(projectId = "#projectUUID")
     override fun updateProject(
         userToken: String,
