@@ -60,6 +60,7 @@ deploy_review:
     name: review/$CI_BUILD_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review
+    auto_stop_in: 2 weeks
   script:
     - bin/k8s-review-deploy
   artifacts:
