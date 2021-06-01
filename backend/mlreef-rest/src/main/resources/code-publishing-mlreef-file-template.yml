@@ -24,8 +24,8 @@ job:
     - local-docker
   # Any package dependency for the job should be added in the following base image
   image: registry.gitlab.com/mlreef/devops/k8s-images/publishing-base-docker:latest
-  #only:
-  #  - #{#PUBLISH_BRANCH}
+  only:
+    - #{#PUBLISH_BRANCH}
   when: on_success
   before_script:
     # Inform backend about publish start
