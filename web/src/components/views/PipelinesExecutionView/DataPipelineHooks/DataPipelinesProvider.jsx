@@ -1,5 +1,5 @@
 import React, { createContext, useReducer } from 'react';
-import DataPipelinesReducer, { initialState } from './DataPipelinesReducer';
+import DataPipelinesReducer, { initialState } from './DataPipelinesReducerAndFunctions';
 
 export const DataPipelinesContext = createContext();
 

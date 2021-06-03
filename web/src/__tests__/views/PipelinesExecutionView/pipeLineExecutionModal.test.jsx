@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { ALGORITHM, OPERATION } from 'dataTypes';
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
-import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import { storeFactory } from 'functions/testUtils';
 import { projectsArrayMock } from 'testData';
 import ExecutePipeLineModal from '../../../components/views/PipelinesExecutionView/ExecutePipelineModal/ExecutePipeLineModal';

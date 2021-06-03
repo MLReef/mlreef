@@ -1,4 +1,6 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useState,
+} from 'react';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import cx from 'classnames';
@@ -8,8 +10,6 @@ import { string, shape } from 'prop-types';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import hooks from 'customHooks/useSelectedProject';
 import useLoading from 'customHooks/useLoading';
-import DataPiplineApi from 'apis/DataPipelineApi';
-import ExperimentsApi from 'apis/experimentApi';
 import ExecutePipelineModal from './ExecutePipelineModal';
 import SelectDataPipelineModal from './SelectDataPipelineModal';
 import Navbar from '../../navbar/navbar';
@@ -23,53 +23,11 @@ import {
   experimentInstructionData,
   dataVisualizationInstuctionData,
 } from './dataModel';
-import Provider, { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
+import Provider from './DataPipelineHooks/DataPipelinesProvider';
 import DragDropZone from './DragNDropZone';
-import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from './DataPipelineHooks/actions';
-import { addInformationToProcessors } from './DataPipelineHooks/DataPipelinesReducer';
 import ProcessorFilters from './ProcessorFilters';
-
-const dataPipelineApi = new DataPiplineApi();
-
-const experimentsApi = new ExperimentsApi();
-
-const ExecuteButton = () => {
-  const [{
-    isFormValid,
-    filesSelectedInModal,
-    processorsSelected,
-  }, dispatch] = useContext(DataPipelinesContext);
-  const [isDisabled, setIsDisabled] = useState(isFormValid);
-  useEffect(() => {
-    setIsDisabled(!isFormValid);
-  }, [isFormValid]);
-  return (
-    <button
-      id="execute-button"
-      style={isDisabled ? { backgroundColor: '#F6F6F6', border: '1px solid #b2b2b2', color: '#2dbe91' } : {}}
-      key="pipeline-execute"
-      type="button"
-      onClick={() => {
-        if (isDisabled) {
-          if (filesSelectedInModal.length === 0) {
-            toastr.info('Error in files', 'Select first the input files in the Select data modal');
-          }
-          if (processorsSelected.length === 0) {
-            toastr.info('Error in operators', 'Select operators in order to execute on your input files');
-          }
-          return;
-        }
-        dispatch({
-          type: SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL,
-          isShowingExecutePipelineModal: true,
-        });
-      }}
-      className="btn btn-primary btn-sm border-none"
-    >
-      Execute
-    </button>
-  );
-};
+import { fetchInitialInfo } from './DataPipelineHooks/DataPipelinesReducerAndFunctions';
+import ExecuteButton from './ExecuteButton';
 
 const FunctionalExecutionPipelinesView = (props) => {
   const {
@@ -111,26 +69,13 @@ const FunctionalExecutionPipelinesView = (props) => {
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
   const [initialInformation, setInitialInformation] = useState({ initialFiles: [] });
 
-  const endpointCall = useCallback(() => isExperiment
-    ? experimentsApi.getExperimentDetails(selectedProject.id, dataId)
-    : dataPipelineApi.getBackendPipelineById(dataId), [isExperiment, selectedProject.id, dataId]);
+  const fetchInitialInfoCB = useCallback(() => fetchInitialInfo(
+    selectedProject.id, dataId, isExperiment,
+  ).then(setInitialInformation)
+    .catch((err) => toastr.error('Error', err.message)),
+  [selectedProject.id, dataId, isExperiment]);
 
-  const fetchInitialInfo = useCallback(() => endpointCall().then((res) => {
-    const pipeJobInfo = isExperiment
-      ? res.pipeline_job_info
-      : res.instances[0]?.pipeline_job_info;
-
-    setInitialInformation({
-      initialFiles: res?.input_files,
-      initialBranch: pipeJobInfo?.ref,
-      initialCommit: pipeJobInfo?.commit_sha,
-      dataOperatorsExecuted: addInformationToProcessors(
-        isExperiment ? [res.processing] : res.data_operations,
-      ),
-    });
-  }).catch((err) => toastr.error('Error', err.message)), [endpointCall]);
-
-  const customCrumbs = useMemo(() => [
+  const customCrumbs = [
     {
       name: 'Data',
       href: `/${namespace}/${slug}`,
@@ -142,13 +87,13 @@ const FunctionalExecutionPipelinesView = (props) => {
     {
       name: 'New',
     },
-  ], [namespace, slug, breadCrumbPerPipeline]);
+  ];
 
-  const [isFetchingInitialInfo, executeFetchInitInfo] = useLoading(fetchInitialInfo);
+  const [isFetchingInitialInfo, executeFetchInitInfo] = useLoading(fetchInitialInfoCB);
 
   useEffect(() => {
     if (dataId && selectedProject.id) executeFetchInitInfo();
-  }, [selectedProject.id]);
+  }, [dataId, selectedProject.id]);
 
   if (isFetching || isFetchingInitialInfo) {
     return (

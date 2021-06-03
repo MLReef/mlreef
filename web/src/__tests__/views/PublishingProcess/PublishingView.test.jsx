@@ -3,10 +3,12 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import PublishingView from 'components/views/PublishingView/PublishingView';
+import actions from 'components/views/PublishingView/publishingActions';
 import { storeFactory } from 'functions/testUtils';
 import { branchesMock, projectsArrayMock } from 'testData';
 import { ALGORITHM, OPERATION } from 'dataTypes';
 import hooks from 'customHooks/useSelectedProject';
+import testData from './testData.json';
 
 global.ResizeObserver = () => ({ observe: () => {} });
 
@@ -14,7 +16,9 @@ const setup = (processorType) => {
   const match = {
     params: { namespace: 'namespace', slug: 'some-slug' },
   };
-  hooks.useSelectedProject = () => ([{ ...projectsArrayMock.projects.selectedProject, processorType }]);
+  hooks.useSelectedProject = () => ([{
+    ...projectsArrayMock.projects.selectedProject, processorType,
+  }]);
   return mount(
     <Provider store={storeFactory({ branches: branchesMock })}>
       <MemoryRouter>
@@ -23,9 +27,17 @@ const setup = (processorType) => {
           history={{ push: () => {} }}
         />
       </MemoryRouter>
-    </Provider>
+    </Provider>,
   );
 };
+
+describe('test functions', () => {
+  test('assert that getNextVersion returns the next version for the processor', () => {
+    expect(actions.getNextVersion(testData.processors, 'master')).toBe(4);
+    expect(actions.getNextVersion([], 'master')).toBe(1);
+    expect(actions.getNextVersion(testData.processors, 'master-1')).toBe(1);
+  });
+});
 
 describe('PublishingView tests', () => {
   let wrapper;

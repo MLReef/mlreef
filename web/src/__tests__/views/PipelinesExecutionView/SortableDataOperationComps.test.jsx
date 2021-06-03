@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { dataPipeLines } from 'testData';
 import SelectComp from 'components/views/PipelinesExecutionView/SelectComp/SelectComp';
-import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
 
 const dataOp = dataPipeLines[0];

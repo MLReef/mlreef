@@ -1,4 +1,7 @@
+import DataPiplineApi from 'apis/DataPipelineApi';
+import ExperimentsApi from 'apis/experimentApi';
 import MLSearchApi from 'apis/MLSearchApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { validateForm } from 'functions/validations';
 import {
@@ -15,9 +18,16 @@ import {
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
   UPDATE_CURRENT_PROCESSORS_ARRAY,
+  UPDATE_OPERATOR_SELECTED,
 } from './actions';
 
 const mlSearchApi = new MLSearchApi();
+
+const projectAPi = new ProjectGeneralInfoApi();
+
+const dataPipelineApi = new DataPiplineApi();
+
+const experimentsApi = new ExperimentsApi();
 
 const updateOperators = (
   newParamValue,
@@ -27,9 +37,10 @@ const updateOperators = (
   isValid,
 ) => processorsSelected.map((ps) => {
   if (ps.id === procSelectedId) {
-    return {
-      ...ps,
-      parameters: ps.parameters.map((p) => {
+    const proc = ps.processors[ps.processorSelected];
+    const newProc = {
+      ...proc,
+      parameters: proc.parameters.map((p) => {
         if (p.name === paramName) {
           return {
             ...p,
@@ -39,6 +50,13 @@ const updateOperators = (
         }
         return p;
       }),
+    };
+    const newProcessors = ps.processors;
+    newProcessors[ps.processorSelected] = newProc;
+
+    return {
+      ...ps,
+      processors: newProcessors,
     };
   }
   return ps;
@@ -118,6 +136,19 @@ const DataPipelinesReducer = (state, action) => {
           action.isValid,
         ),
       };
+    case UPDATE_OPERATOR_SELECTED:
+      return {
+        ...state,
+        processorsSelected: state.processorsSelected.map((ps) => {
+          if (ps.id === action.processorId) {
+            return {
+              ...ps,
+              processorSelected: action.newProcessorSelected,
+            };
+          }
+          return ps;
+        }),
+      };
     case UPDATE_CURRENT_PROCESSORS_ARRAY:
       return {
         ...state,
@@ -128,39 +159,77 @@ const DataPipelinesReducer = (state, action) => {
   }
 };
 
-export const fetchProcessorsPaginatedByType = (operationTypeToExecute, body) => mlSearchApi
-  .searchPaginated(operationTypeToExecute, body, 0, 20)
+export const mapProcessorFields = (projects) => projects.map((proj) => {
+  const {
+    id,
+    name,
+    gitlab_id: gid,
+    gitlab_namespace: nameSpace,
+    slug: projSlug,
+    input_data_types: inputDataTypes,
+    stars_count: stars,
+    processors,
+  } = proj;
+  return {
+    id,
+    gid,
+    name,
+    nameSpace,
+    slug: projSlug,
+    inputDataTypes,
+    stars,
+    processors,
+  };
+});
+
+export const fetchProcessorsPaginatedByType = (
+  operationTypeToExecute, body, page = 0, size = 20,
+) => mlSearchApi
+  .searchPaginated(operationTypeToExecute, body, page, size)
   .then((res) => res.content)
-  .then((projects) => projects.map((proj) => {
-    const {
-      gitlab_namespace: nameSpace,
-      slug: projSlug,
-      input_data_types: inputDataTypes,
-      stars_count: stars,
-      processors,
-    } = proj;
-    const filteredProcessors = processors?.filter(({ branch }) => branch === 'master');
-    const processor = (filteredProcessors.length > 0 ? filteredProcessors : processors)
-      ?.sort((proc1, proc2) => {
-        if (new Date(proc2.publish_finished_at) > new Date(proc1.publish_finished_at)) {
-          return 1;
-        }
+  .then(mapProcessorFields);
 
-        if (new Date(proc2.publish_finished_at) < new Date(proc1.publish_finished_at)) {
-          return -1;
-        }
+export const mergeWithCodeProjectInfo = (dataOperation) => projectAPi
+  .getCodeProjectById(dataOperation.project_id)
+  .then((project) => {
+    const proc = project.processors
+      .filter((pr) => pr.branch === dataOperation.branch
+      && pr.version === dataOperation.version)[0];
 
-        return 0;
-      })[0];
-
+    const processorSelected = project.processors.indexOf(proc);
     return {
-      ...processor,
-      parameters: processor.parameters,
-      nameSpace,
-      slug: projSlug,
-      inputDataTypes,
-      stars,
+      ...project,
+      gid: project.gitlab_id,
+      processorSelected,
+      processors: project
+        .processors
+        .map(parseToCamelCase)
+        .map((proce, ind) => ind === processorSelected
+          ? { ...proce, parameters: dataOperation.parameters } : proce),
     };
-  }));
+  });
+
+const endpointCall = (projectId, dataId, isExperiment) => isExperiment
+  ? experimentsApi.getExperimentDetails(projectId, dataId)
+  : dataPipelineApi.getBackendPipelineById(dataId);
+
+export const fetchInitialInfo = (
+  projectId, dataId, isExperiment
+) => endpointCall(projectId, dataId, isExperiment).then(async (res) => {
+  const pipeJobInfo = isExperiment
+    ? res.pipeline_job_info
+    : res.instances[0]?.pipeline_job_info;
+
+  const dops = isExperiment ? [res.processing] : res.data_operations;
+
+  const dataOperatorsExecuted = await Promise.all(dops.map(mergeWithCodeProjectInfo));
+
+  return {
+    initialFiles: res?.input_files,
+    initialBranch: pipeJobInfo?.ref,
+    initialCommit: pipeJobInfo?.commit_sha,
+    dataOperatorsExecuted,
+  };
+});
 
 export default DataPipelinesReducer;

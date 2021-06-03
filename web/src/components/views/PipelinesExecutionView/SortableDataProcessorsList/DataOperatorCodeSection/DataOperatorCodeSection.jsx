@@ -10,19 +10,30 @@ import actions from './actionsAndFunction';
 const DataOperatorCodeSection = (props) => {
   const {
     processor,
+    commitSha,
+    gid,
+    entryPointPath,
   } = props;
 
-  const { codeProjectId, nameSpace, slug } = processor;
+  const { nameSpace, slug } = processor;
 
   const [isCodeVisible, setIsCodeVisible] = useState(false);
   const [fileInfo, setFileInfo] = useState({});
 
-  const apiCallBack = useCallback(() => actions
-    .getEntryPointFileInfo(codeProjectId)
-    .then((fi) => {
-      setFileInfo(fi);
-    })
-    .catch((err) => toastr.error('Error', err?.message)), [codeProjectId]);
+  const apiCallBack = useCallback(() => {
+    if (typeof gid !== 'undefined' 
+      && typeof commitSha !== 'undefined' 
+      && typeof entryPointPath !== 'undefined'
+    ) {
+      return actions
+        .getEntryPointFileInfo(gid, commitSha, entryPointPath)
+        .then((fi) => {
+          setFileInfo(fi);
+        })
+        .catch((err) => toastr.error('Error', err?.message));
+    }
+    return new Promise((resolve) => resolve({}));
+  }, [gid, commitSha, entryPointPath]);
 
   const [isLoading, executeCall] = useLoading(apiCallBack);
 
@@ -45,7 +56,7 @@ const DataOperatorCodeSection = (props) => {
           code
         </button>
         {nameSpace && (
-          <a style={{ color: 'var(--info)', fontWeight: 'bold' }} href={`/${nameSpace}/${slug}`} target="_blank" rel="noopener noreferrer">View Repository</a>
+        <a style={{ color: 'var(--info)', fontWeight: 'bold' }} href={`/${nameSpace}/${slug}`} target="_blank" rel="noopener noreferrer">View Repository</a>
         )}
       </div>
       {isCodeVisible && (

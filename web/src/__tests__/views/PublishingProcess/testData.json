@@ -1,0 +1,134 @@
+{
+  "processors": [
+  {
+    "id": "6dd914e1-f7ff-417a-b58a-cfffdd085621",
+    "slug": "commons-add-noise",
+    "name": "Add noise",
+    "input_data_type": [
+      "IMAGE"
+    ],
+    "output_data_type": [
+      "IMAGE"
+    ],
+    "type": "OPERATION",
+    "visibility_scope": "PUBLIC",
+    "description": "Transforms images with lots of magic",
+    "code_project_id": "fe956934-d0cf-11ea-87d0-0242ac130003",
+    "author_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+    "branch": "master",
+    "version": "3",
+    "publish_started_at": "2021-05-28T18:00:27.615Z",
+    "publish_finished_at": "2021-05-28T18:02:19.838Z",
+    "status": "PUBLISHED",
+    "model_type": null,
+    "ml_category": null,
+    "environment": {
+      "id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+      "title": "Base environment tensorflow/tensorflow:2.1.0-gpu-py3",
+      "docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+      "description": "GPU nvidia drivers and TF 2.1, compatible python 3.6-3.8",
+      "requirements": "                                Ubuntu 20.04\n                                python 3.6.9\n                                tensorflow-gpu 2.1.0\n                                CUDA 10.1\n                                CUDNN 7",
+      "machine_type": "GPU",
+      "sdk_version": "3.6.9"
+    },
+    "parameters": [
+      {
+        "id": "b2870a0e-806d-438c-9e32-e2f21e9f4843",
+        "name": "cropFactor",
+        "type": "FLOAT",
+        "order": 1,
+        "default_value": "1",
+        "required": true,
+        "group": "",
+        "description": ""
+      },
+      {
+        "id": "fadc027c-409c-4631-b76c-a62c5c5b613b",
+        "name": "imageFiles",
+        "type": "LIST",
+        "order": 2,
+        "default_value": "[]",
+        "required": true,
+        "group": "",
+        "description": ""
+      },
+      {
+        "id": "5aa8cde6-bfb7-4767-a196-0886874ff95c",
+        "name": "optionalFilterParam",
+        "type": "INTEGER",
+        "order": 3,
+        "default_value": "1",
+        "required": true,
+        "group": "",
+        "description": ""
+      }
+    ],
+    "metrics_schema": null
+  },
+  {
+    "id": "e3629aa6-56b3-47e7-b031-8cf15fcd90a8",
+    "slug": "commons-add-noise",
+    "name": "Add noise",
+    "input_data_type": [
+      "IMAGE"
+    ],
+    "output_data_type": [
+      "IMAGE"
+    ],
+    "type": "OPERATION",
+    "visibility_scope": "PUBLIC",
+    "description": "Transforms images with lots of magic",
+    "code_project_id": "fe956934-d0cf-11ea-87d0-0242ac130003",
+    "author_id": "aaaa0000-0001-0000-0000-cccccccccccc",
+    "branch": "master",
+    "version": "2",
+    "publish_started_at": "2021-05-28T17:09:47.401Z",
+    "publish_finished_at": "2021-05-28T17:11:37.923Z",
+    "status": "PUBLISHED",
+    "model_type": null,
+    "ml_category": null,
+    "environment": {
+      "id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+      "title": "Base environment tensorflow/tensorflow:2.1.0-gpu-py3",
+      "docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+      "description": "GPU nvidia drivers and TF 2.1, compatible python 3.6-3.8",
+      "requirements": "                                Ubuntu 20.04\n                                python 3.6.9\n                                tensorflow-gpu 2.1.0\n                                CUDA 10.1\n                                CUDNN 7",
+      "machine_type": "GPU",
+      "sdk_version": "3.6.9"
+    },
+    "parameters": [
+      {
+        "id": "d3a6ac64-9e96-403c-8039-e126cdc49dc4",
+        "name": "cropFactor",
+        "type": "FLOAT",
+        "order": 1,
+        "default_value": "1",
+        "required": true,
+        "group": "",
+        "description": ""
+      },
+      {
+        "id": "a881e3f2-23b6-453b-9d1a-80950047334e",
+        "name": "optionalFilterParam",
+        "type": "INTEGER",
+        "order": 3,
+        "default_value": "1",
+        "required": true,
+        "group": "",
+        "description": ""
+      },
+      {
+        "id": "ec17deab-97a4-40b6-bb06-087a0ddccf03",
+        "name": "imageFiles",
+        "type": "LIST",
+        "order": 2,
+        "default_value": "[]",
+        "required": true,
+        "group": "",
+        "description": ""
+      }
+    ],
+    "metrics_schema": null
+  }
+  ]
+}

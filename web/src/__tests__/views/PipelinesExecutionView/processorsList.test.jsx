@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { dataPipeLines } from 'testData';
 import ProcessorsList, { Processor } from 'components/views/PipelinesExecutionView/processorsList';
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
-import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 
 const dispatchMock = jest.fn();
 
