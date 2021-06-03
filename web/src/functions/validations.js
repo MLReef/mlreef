@@ -67,11 +67,11 @@ export function isJson(item) {
 /**
  * 
  * @param {*} files: files selected as input for data ops.
- * @param {*} dataProcessors: operators which will process files.
+ * @param {*} codeProjects: operators which will process files.
  */
 
-export const validateForm = (files, dataProcessors) => {
-  if (!dataProcessors || dataProcessors?.length === 0) {
+export const validateForm = (files, codeProjects) => {
+  if (!codeProjects || codeProjects?.length === 0) {
     return false;
   }
 
@@ -79,7 +79,9 @@ export const validateForm = (files, dataProcessors) => {
     return false;
   }
 
-  const invalidParamsCount = dataProcessors
+  const invalidParamsCount = codeProjects?.map(
+    (cp, ind) => cp.processors[codeProjects[ind].processorSelected],
+  )
     .map((dp) => dp.parameters.filter((param) => !param.isValid).length)
     .reduce((a, b) => a + b);
   return invalidParamsCount === 0;

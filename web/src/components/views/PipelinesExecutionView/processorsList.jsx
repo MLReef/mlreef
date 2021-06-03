@@ -12,7 +12,6 @@ const ProcessorsList = ({ operationTypeToExecute }) => {
   const [{ currentProcessors }, dispatch] = useContext(DataPipelinesContext);
   const operationClassification = projectClassificationsProps
     .filter((cl) => cl.typeOfProcessor === operationTypeToExecute.toUpperCase())[0]?.classification;
-
   return (
     <div className="data-operations-list scroll-styled">
       {useMemo(() => currentProcessors.length > 0 ? currentProcessors.map((processor) => (

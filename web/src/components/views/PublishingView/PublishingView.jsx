@@ -36,7 +36,7 @@ export const UnconnectedPublishingView = (props) => {
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const {
-    gid, id, published, processorType,
+    gid, id, processorType, processors,
   } = selectedProject;
 
   const [{
@@ -205,15 +205,20 @@ export const UnconnectedPublishingView = (props) => {
                                 dispatch({ type: 'SET_IS_PUBLISHING', payload: true });
                                 publishingActions.publish(
                                   id, {
-                                    branch: selectedBranch,
-                                    version: 1,
+                                    slug,
                                     path: entryPointFile.path,
+                                    requirements_file: files
+                                      .filter((f) => f.name?.toLowerCase() === 'requirements.txt')[0].path,
                                     environment: selectedEnv.id,
+                                    branch: selectedBranch,
+                                    version: publishingActions.getNextVersion(
+                                      processors,
+                                      selectedBranch,
+                                    ),
                                     model_type: model?.label,
                                     ml_category: mlCategory?.label,
                                     accepted_publishing_terms: areTermsAccepted,
                                   },
-                                  published,
                                 )
                                   .then(() => {
                                     setTimeout(async () => {
@@ -242,7 +247,7 @@ export const UnconnectedPublishingView = (props) => {
                             dataProcessorType={processorType}
                             selectedBranch={selectedBranch}
                             entryPointFile={entryPointFile}
-                            selectedEnvironment={selectedEnv?.name}
+                            selectedEnvironment={selectedEnv?.title}
                             isRequirementsFileExisting={isRequirementsFileExisting}
                             areTermsAccepted={areTermsAccepted}
                             model={model}

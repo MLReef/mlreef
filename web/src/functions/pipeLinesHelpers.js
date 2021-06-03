@@ -31,13 +31,15 @@ export const createPipelineInProject = (
   filesSelectedInModal,
   dataOperationsSelected,
 ) => {
-  const dataOperations = dataOperationsSelected?.map(({ id, codeProjectId, slug, parameters }) => ({
-    id,
-    project_id: codeProjectId,
-    branch: 'master',
-    version: 1,
+  const dataOperations = dataOperationsSelected?.map(({
+    id, slug, processors, processorSelected,
+  }) => ({
+    id: processors[processorSelected].id,
+    project_id: id,
+    branch: processors[processorSelected].branch,
+    version: processors[processorSelected].version,
     slug,
-    parameters: parameters?.map(({
+    parameters: processors[processorSelected].parameters?.map(({
       name, value, default_value: defaultValue,
     }) => ({
       name,
@@ -73,7 +75,7 @@ export const createExperimentInProject = (
   branchSelected,
   filesSelectedInModal,
 ) => dataOperationsSelected
-  .map(({ parameters, slug, id }, index) => expApi
+  .map(({ processorSelected, processors, slug, id }, index) => expApi
     .createExperiment(
       backendId, {
         slug: `${branchName}-${index}`, // slug is NOT the branch name, it needs replacement
@@ -82,10 +84,12 @@ export const createExperimentInProject = (
         target_branch: `${branchName}-${index}`,
         input_files: createFieldsForDB(filesSelectedInModal),
         processing: {
-          id,
+          id: processors[processorSelected].id,
+          project_id: id,
           slug,
-          branch: 'master',
-          parameters: parameters.map(({
+          version: processors[processorSelected].version,
+          branch: processors[processorSelected].branch,
+          parameters: processors[processorSelected].parameters.map(({
             name, value, type, required, description, default_value: defaultValue,
           }) => ({
             name,

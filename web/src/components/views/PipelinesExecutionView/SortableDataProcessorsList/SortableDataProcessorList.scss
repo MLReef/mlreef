@@ -25,11 +25,14 @@
           display: flex;
           padding: 1rem;
 
-          div {
+          &-main {
+            display: flex;
             height: min-content;
+            width: max-content;
             border: 1px solid var(--almostWhite);
             padding: 0.1rem;
             border-radius: 0.25rem;
+            margin-left: 1rem;
 
             button {
               width: 3rem;
@@ -54,6 +57,20 @@
           }
         }
       }
+
+      &-user-info {
+        padding: 0 1rem;
+        font-style: italic;
+        font-size: small;
+        p {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          max-height: 1.5rem;
+          margin: 0;
+          overflow-wrap: break-word;
+        }
+      }
+
       &-form {
         .advice-1 {
           color: var(--lessWhite);

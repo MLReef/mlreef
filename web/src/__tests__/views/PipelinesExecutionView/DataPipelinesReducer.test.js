@@ -9,9 +9,11 @@ import {
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
 } from 'components/views/PipelinesExecutionView/DataPipelineHooks/actions';
-import DataPipelinesReducer, { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
-import { dataPipeLines, filesMock } from 'testData';
+import DataPipelinesReducer, { addInformationToProcessors, initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
+import { filesMock } from 'testData';
+import { dataProcessors as dataPipeLines } from './testData';
 import { validateForm } from '../../../functions/validations';
+import { parseToCamelCase } from 'functions/dataParserHelpers';
 
 test('assert that reducer updates the processorsSelected', () => {
   expect(initialState.processorsSelected).toHaveLength(0);
@@ -86,33 +88,40 @@ test('assert that validateForm function validates the form correctly', () => {
   const isSecondFormValid = validateForm(
     filesMock,
     dataPipeLines.map((dp) => ({
-      ...dp,
-      parameters: dp.parameters.map((param) => ({ ...param, isValid: true })),
+      ...dp, 
+      processors: dp.processors.map((p) => ({
+        ...p,
+        parameters: p.parameters.map((param) => ({ ...param, isValid: true })),
+      }))
     })),
   );
   expect(isSecondFormValid).toBe(true);
 
   const isThirdFormValid = validateForm(
     null,
-    dataPipeLines.map((dp) => ({ ...dp, isValid: true })),
+    dataPipeLines,
   );
   expect(isThirdFormValid).toBe(false);
 
-  const isForthFormValid = validateForm(
+  const isFourthFormValid = validateForm(
     filesMock,
     null,
   );
-  expect(isForthFormValid).toBe(false);
+  expect(isFourthFormValid).toBe(false);
 });
 
 test('assert that form validation function is called', () => {
   const { isFormValid } = DataPipelinesReducer({
     ...initialState,
     filesSelectedInModal: filesMock,
-    processorsSelected: dataPipeLines.map((dp) => ({
-      ...dp,
-      parameters: dp.parameters.map((param) => ({ ...param, isValid: true })),
-    })),
+    processorsSelected: dataPipeLines.map((pr) => ({ 
+      ...pr,
+      processorSelected: 0,
+      processors: pr.processors.map((cP) => parseToCamelCase({
+        ...cP,
+        parameters: cP.parameters.map((param) => ({ ...param, isValid: true })),
+      })),
+    }))
   }, { type: VALIDATE_FORM });
   expect(isFormValid).toBe(true);
 });
@@ -121,13 +130,19 @@ test('assert that parameter is updated correctly', () => {
   const newParamValue = 'some-path';
   const { processorsSelected } = DataPipelinesReducer({
     ...initialState,
-    processorsSelected: dataPipeLines,
+    processorsSelected: dataPipeLines.map((pr) => ({ 
+      ...pr,
+      processorSelected: 0,
+      processors: addInformationToProcessors(pr.processors),
+    })),
   }, {
     type: UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
     newParamValue,
     paramName: 'input-path',
-    procSelectedId: '01000000-0000-0001-0002-000000000000',
+    procSelectedId: 'bc65cfbf-c09c-40ec-8bd5-d984ceb0e8b1',
     isValid: true,
   });
-  expect(processorsSelected[0].parameters[0].value).toBe(newParamValue);
+  expect(processorsSelected[0].processors[0].parameters[0].value).not.toBeDefined();
+  expect(processorsSelected[0].processors[0].parameters[1].value).toBe(newParamValue);
+  expect(processorsSelected[0].processors[0].parameters[2].value).not.toBeDefined();
 });

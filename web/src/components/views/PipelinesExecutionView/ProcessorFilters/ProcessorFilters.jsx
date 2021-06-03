@@ -13,7 +13,7 @@ import MCheckBoxGroup from 'components/ui/MCheckBoxGroup';
 import { projectClassificationsProps } from 'dataTypes';
 import { string } from 'prop-types';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
-import { addInformationToProcessors, fetchProcessorsPaginatedByType } from '../DataPipelineHooks/DataPipelinesReducer';
+import { addInformationToProcessors, fetchProcessorsPaginatedByType } from '../DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import { UPDATE_CURRENT_PROCESSORS_ARRAY } from '../DataPipelineHooks/actions';
 import { buildBody, dtypes } from './functionsAndConstants';
 
@@ -40,7 +40,11 @@ const DataOperationFilters = (props) => {
       dtypesSelected.map((ind) => dtypes[ind]),
     ),
   )
-    .then(addInformationToProcessors)
+    .then((projects) => projects.map((pr) => ({ 
+      ...pr,
+      processorSelected: 0,
+      processors: addInformationToProcessors(pr.processors),
+    })))
     .then((currentProcessors) => dispatch({
       type: UPDATE_CURRENT_PROCESSORS_ARRAY,
       currentProcessors,

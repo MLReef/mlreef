@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { UnconnectedSelectDataPipelineModal } from 'components/views/PipelinesExecutionView/SelectDataPipelineModal/SelectDataPipelineModal';
 import { projectsArrayMock, branchesMock, filesMock } from 'testData';
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
-import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import actions from 'components/views/PipelinesExecutionView/SelectDataPipelineModal/actions';
 
 const isVisibleSelectFilesModal = true;

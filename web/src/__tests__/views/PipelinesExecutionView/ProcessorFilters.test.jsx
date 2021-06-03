@@ -1,7 +1,7 @@
 import React, { useReducer } from 'react';
 import { mount } from 'enzyme';
 import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
-import DataPipelinesReducer, { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducer';
+import DataPipelinesReducer, { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import DataOperationFilters from 'components/views/PipelinesExecutionView/ProcessorFilters';
 import { OPERATION } from 'dataTypes';
 import { mockedOperations } from 'testData';

@@ -69,7 +69,6 @@ const NewMergeRequest = (props) => {
     brApi.compare(gid, branchSelected, branch)
       .then(async (res) => {
         setCommits(res.commits);
-        console.log(res.commits);
         setDiffs(res.diffs);
       }).catch((err) => {
         toastr.error('Error', err.message);
