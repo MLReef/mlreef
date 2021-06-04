@@ -9,10 +9,11 @@ import { Link, useParams } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { ALGORITHM } from 'dataTypes';
-import MLSearchApi from 'apis/MLSearchApi';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
 const Plot = React.lazy(() => import('customImports/ReactPlotly'));
+const api = new ProjectGeneralInfoApi();
 
 const config = {
   modeBarButtonsToRemove: [
@@ -28,8 +29,6 @@ const config = {
   responsive: true,
 };
 
-const mlSearchApi = new MLSearchApi();
-
 const ExperimentTableRowPanel = (props) => {
   const {
     className,
@@ -39,22 +38,35 @@ const ExperimentTableRowPanel = (props) => {
 
   const urlParams = useParams();
 
-  const [model, setModel] = useState();
+  const [model, setModel] = useState({});
+  const [executedProcessorInfo, setExecutedProcessorInfo] = useState({});
+  console.log(executedProcessorInfo);
 
   const currentExperiment = useMemo(
     () => experiments.find((exp) => exp.id === currentId),
     [experiments, currentId],
   );
 
-  const commitSha = useMemo(
-    () => currentExperiment.pipelineJobInfo?.commitSha,
-    [currentExperiment],
-  );
+  useEffectNoFirstRender(() => {
+    const {
+      branch,
+      version,
+    } = currentExperiment.processing;
 
-  const parameters = useMemo(
-    () => currentExperiment?.processing?.parameters,
-    [currentExperiment],
-  );
+    const {
+      id,
+    } = model;
+
+    if (id && branch && version) {
+      api.getVersionDataByBranchAndVId(id, branch, version)
+        .then(setExecutedProcessorInfo)
+        .catch((err) => toastr.error('Error', err?.message));
+    }
+  }, [currentExperiment, model]);
+
+  console.log(model);
+  const { commitSha } = currentExperiment?.pipelineJobInfo;
+  const { parameters } = currentExperiment?.processing;
 
   const currentChart = useMemo(
     () => {
@@ -102,20 +114,15 @@ const ExperimentTableRowPanel = (props) => {
     [currentExperiment],
   );
 
-  const modelPath = useMemo(
-    () => model && `/${model.gitlab_namespace}/${model.slug}`,
-    [model],
-  );
+  const modelEntryFilePath = `/${model.gitlab_namespace}/${model.slug}`
+    + `/-/blob/commit/${executedProcessorInfo.commit_sha}/path/${executedProcessorInfo.entry_file}`;
 
-  const basePath = useMemo(
-    () => `/${urlParams.namespace}/${urlParams.slug}`,
-    [urlParams],
-  );
+  const modelBranch = `/${model?.gitlab_namespace}/${model?.slug}/-/`
+    + `repository/tree/-/commit/${executedProcessorInfo.commit_sha}`;
 
-  const sourcePath = useMemo(
-    () => `${basePath}/-/repository/tree/-/commit/${commitSha}`,
-    [commitSha, basePath],
-  );
+  const basePath = `/${urlParams.namespace}/${urlParams.slug}`;
+
+  const sourcePath = `${basePath}/-/repository/tree/-/commit/${commitSha}`;
 
   const copyParameters = () => {
     if (navigator?.clipboard) {
@@ -135,6 +142,15 @@ const ExperimentTableRowPanel = (props) => {
     }
   };
 
+  const copyModelCommitSha = () => {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(executedProcessorInfo.commit_sha)
+        .then(null, (/* err */) => {
+
+        });
+    }
+  };
+
   const getFilePath = useCallback(
     (file) => {
       if (file.location_type === 'PATH_FILE') {
@@ -148,13 +164,12 @@ const ExperimentTableRowPanel = (props) => {
 
   useEffect(
     () => {
-      const slug = currentExperiment.processing?.slug;
-
-      mlSearchApi.searchPaginated(ALGORITHM, { slug }, 0, 1)
-        .then((res) => res.content)
-        .then((projects) => projects.length > 0 ? projects[0] : {})
-        .then(setModel)
-        .catch((err) => toastr.error('Error', err.message));
+      api
+        .getCodeProjectById(currentExperiment.processing?.project_id)
+        .then((m) => {
+          setModel(m);
+        })
+        .catch((err) => toastr.error('Error', err?.message));
     },
     [currentExperiment],
   );
@@ -215,7 +230,6 @@ const ExperimentTableRowPanel = (props) => {
                 <Link className="link-append-link border-rounded-left" to={`${basePath}/-/commits/${currentExperiment.pipelineJobInfo.commitSha}`}>
                   {currentExperiment.pipelineJobInfo?.commitSha?.substring(0, 8)}
                 </Link>
-                {/* eslint-disable-next-line */}
                 <i
                   onClick={copyCommitSha}
                   className="link-append-copy border-rounded-right fa fa-copy t-dark"
@@ -234,9 +248,47 @@ const ExperimentTableRowPanel = (props) => {
                 Model used (repository)
               </p>
               <p className="file-list-item">
-                <a href={modelPath} target="_blank" rel="noopener noreferrer">
+                <a href={modelEntryFilePath} target="_blank" rel="noopener noreferrer">
                   {currentExperiment.processing?.name}
                 </a>
+              </p>
+              <p className="ml-2 m-2">
+                Branch published
+              </p>
+              <p className="file-list-item">
+                <a href={modelBranch} target="_blank" rel="noopener noreferrer">
+                  {currentExperiment.processing?.branch}
+                </a>
+              </p>
+              <p className="ml-2 m-2">
+                Relevant publication
+              </p>
+              <p className="file-list-item">
+                <a 
+                  href={`/${model?.gitlab_namespace}/${model?.slug}/-/publications/${executedProcessorInfo?.gitlab_pipeline_id}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                 {executedProcessorInfo.slug}
+                </a>
+              </p>
+              <p className="ml-2 m-2 flex">
+                <span className="">
+                  Latest commit:
+                </span>
+                <span className="link-append">
+                  <a 
+                    className="link-append-link border-rounded-left" 
+                    href={`/${model?.gitlab_namespace}/${model?.slug}/-/commits/${executedProcessorInfo.commit_sha}`}
+                    target="_blank"
+                  >
+                    {executedProcessorInfo?.commit_sha?.substring(0, 8)}
+                  </a>
+                  <i
+                    onClick={copyModelCommitSha}
+                    className="link-append-copy border-rounded-right fa fa-copy t-dark"
+                  />
+                </span>
               </p>
             </div>
           )}
@@ -257,7 +309,7 @@ const ExperimentTableRowPanel = (props) => {
               />
             </div>
             <ul className="parameter-list">
-              {parameters.map((p) => (
+              {parameters?.map((p) => (
                 <li className="parameter-list-item" key={`param-${p.name}`}>
                   <span className="parameter-list-item-name" title={`[${p.type}] ${p.description}`}>
                     {p.name}
