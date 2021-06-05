@@ -25,8 +25,20 @@ import JobIdLink from './JobIdLink';
 import DataintanceFiles from './DatainstanceFiles';
 import MTimer from 'components/ui/MTimer/MTimer';
 import ACCESS_LEVEL from 'domain/accessLevels';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 
 const timeout = 30000;
+
+const projectApi = new ProjectGeneralInfoApi();
+
+const mergeWithCodeProject = async (dop) => {
+  const codeProject = await projectApi.getCodeProjectById(dop.project_id);
+  return {
+    ...dop,
+    codeProject,
+  }
+}
+
 
 const DataInstanceDetails = (props) => {
   const {
@@ -83,6 +95,10 @@ const DataInstanceDetails = (props) => {
     }
   
     actions.getDataInstanceAndAllItsInformation(gid, dataId)
+    .then(async (ins) => {
+      const newDataOps = await Promise.all(ins.dataOperations.map(mergeWithCodeProject));
+      return { ...ins, dataOperations: newDataOps }
+    })
     .then((ins) => {
       setDataInstance(ins);
       timesPipelineWasFetched.current += 1;
@@ -279,7 +295,7 @@ const DataInstanceDetails = (props) => {
                           ?.map((op, opInd) => ({
                             text: `*Op. ${opInd} - ${op.name}`,
                             isLink: true,
-                            href: `/${namespace}/${op.slug}`
+                            href: `/${op.codeProject.gitlab_namespace}/${op.codeProject.slug}`
                           }))
                       }
                     />
