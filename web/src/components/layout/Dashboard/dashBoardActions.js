@@ -1,5 +1,4 @@
 import MLSearchApi from 'apis/MLSearchApi';
-import store from 'store';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { mergeGitlabResource } from 'store/actions/projectInfoActions';
 import { dataTypes, sortingOPtions } from './constants';
@@ -61,7 +60,7 @@ const getValuesStateOptions = (publishedStateOption) => {
  * @returns: body containing request filters.
  */
 
-const buildProjectsRequestBodyV2 = (
+export const buildProjectsRequestBodyV2 = (
   classifcation1, dTypes = [], repoName, minimumStars, publishStatus
 ) => {
   let body = {};

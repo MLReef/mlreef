@@ -69,7 +69,11 @@ const SortableProcessor = SortableElement(({
   };
 
   return (
-    <li key={`item-selected-${selectedDataProcessor.id}`} style={{ listStyle: 'none' }}>
+    <li
+      id={`sortable ${selectedDataProcessor.id}`}
+      key={`item-selected-${selectedDataProcessor.id}`}
+      style={{ listStyle: 'none' }}
+    >
       <span
         className="sortable-data-operation-list-item"
       >
