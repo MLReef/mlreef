@@ -48,6 +48,8 @@ export const Processor = ({ processorData, operationTypeToExecute, dispatch }) =
 
   return (
     <div
+      data-testid={processorData.id}
+      id={processorData.id}
       draggable
       onDragStart={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData })}
       onDragEnd={() => dispatch({ type: SET_PROCESSOR_SELECTED, processorData: null })}

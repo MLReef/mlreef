@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
   shape, number, string, arrayOf,
 } from 'prop-types';
@@ -17,6 +17,7 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import {
   SET_BRANCH_SELECTED, SET_IS_VISIBLE_FILES_MODAL, UPDATE_FILES_SELECTED_IN_MODAL, VALIDATE_FORM,
 } from '../DataPipelineHooks/actions';
+import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
 const folderIcon = '/images/svg/folder_01.svg';
 const fileIcon = '/images/svg/file_01.svg';
@@ -69,14 +70,16 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   }
 
   useEffect(() => {
-    if (gid && branchSelected) {
-      updateFiles('');
+    updateFiles('');
+  }, []);
 
+  useEffectNoFirstRender(() => {
+    if (gid && branchSelected) {
       jobsApi.getPerProject(gid)
         .then((jobList) => { if (!unmounted) setJobs(jobList); })
         .catch((err) => err);
     }
-  }, [branchSelected, gid, initialCommit, branchSelected]);
+  }, [branchSelected, gid, branchSelected, unmounted]);
 
   function getBack() {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
@@ -98,8 +101,8 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   const handleClickOnCheckbox = (checkboxFile, checkedValue) => {
     setfiles(files.map((file) => ({
       ...file,
-      checked: (file === checkboxFile) && checkedValue,
-      disabled: file !== checkboxFile && checkedValue,
+      checked: (file.id === checkboxFile.id) && checkedValue,
+      disabled: file.id !== checkboxFile.id && checkedValue,
     })));
   };
 
@@ -112,12 +115,12 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     setShowReturnOption(false);
   }
 
-  function handleModalAccept(filesSelectedInModal) {
+  const handleModalAccept = (filesSelectedInModal) => {
     dispatch({ type: SET_IS_VISIBLE_FILES_MODAL, isVisibleSelectFilesModal: false });
     dispatch({ type: UPDATE_FILES_SELECTED_IN_MODAL, filesSelectedInModal });
     dispatch({ type: SET_BRANCH_SELECTED, branchSelected });
     dispatch({ type: VALIDATE_FORM });
-  }
+  };
 
   function displayAvailablePipelines(branch) {
     const pipelineName = branch.name;
@@ -259,7 +262,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                     {showReturnOption && (
                       <ReturnLink getBack={onGetBackBtnClick} />
                     )}
-                    {files && files.map((file, index) => (
+                    {useMemo(() => files && files.map((file, index) => (
                       <tr key={index.toString()} id={`tr-file-${index}`} className="files-row" style={{ justifyContent: 'unset' }}>
                         <td className="icon-container-column" style={{ width: '2rem' }}>
                           <MCheckBox
@@ -293,7 +296,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                           </p>
                         </td>
                       </tr>
-                    ))}
+                    )), [files])}
                   </tbody>
                 </table>
               </div>

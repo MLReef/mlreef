@@ -13,7 +13,7 @@ const SortableProcessorsList = SortableContainer(({
   prefix,
   items,
 }) => (
-  <ul className={`${items.length > 0 ? 'p-2' : ''}`}>
+  <ul id="sortable-data-processors-list" className={`${items.length > 0 ? 'p-2' : ''}`}>
     {items.map((value, index) => (
       <SortableProcessor
         addInfo={{

@@ -4,8 +4,8 @@ import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/Da
 import DataPipelinesReducer, { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import DataOperationFilters from 'components/views/PipelinesExecutionView/ProcessorFilters';
 import { OPERATION } from 'dataTypes';
-import { mockedOperations } from 'testData';
 import { sleep } from 'functions/testUtils';
+import { dataProcessors } from './testData';
 
 const MockProvider = (props = {}) => {
   const contextValue = useReducer(
@@ -34,7 +34,7 @@ describe('test initial loading of HTML elements', () => {
       resolve({
         status: 200,
         ok: true,
-        json: () => Promise.resolve(mockedOperations),
+        json: () => Promise.resolve(dataProcessors),
       });
     }));
     wrapper = setup();
@@ -61,7 +61,7 @@ describe('test functionality', () => {
       resolve({
         status: 200,
         ok: true,
-        json: () => Promise.resolve(mockedOperations),
+        json: () => Promise.resolve(dataProcessors),
       });
     }));
     wrapper = setup();
