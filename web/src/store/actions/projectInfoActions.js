@@ -109,52 +109,6 @@ export function removeProject(id) {
 
 /**
  *
- * @param {*} page: page number
- * @param {*} size: number of projects contained in the content array
- * @returns
-  {
-   content: [
-     { DataProjectInfo }
-    ],
-    pageable: {
-      sort: {
-        sorted: false, unsorted: true, empty: true,
-      },
-      page_number: 0,
-      page_size: 10,
-      offset: 0,
-      unpaged: false,
-      paged: true,
-    },
-    total_pages: 2,
-    total_elements: 18,
-    last: false,
-    sort: { sorted: false, unsorted: true, empty: true },
-    number_of_elements: 10,
-    first: true,
-    size: 10,
-    number: 0,
-    empty: false,
-  };
-*/
-
-export function setDataProjects({ pagination, projects }) {
-  return { type: types.SET_DATA_PROJECTS, pagination, projects };
-}
-
-export function getDataProjects(page, size) {
-  return (dispatch) => projectApi.getProjectsList(`/public?page=${page}&size=${size}`)
-    .then((payload) => ({
-      projects: mergeGitlabResource(payload?.content?.map(parseToCamelCase)),
-      pagination: createPagination(payload),
-    }))
-    .then((dataSet) => {
-      dispatch(setDataProjects(dataSet));
-    });
-}
-
-/**
- *
  * @param {*} searchableType: There can be several types of code projects:
  * ALGORITHM, OPERATION AND VISUALIZATION
  * @param {*} param2: object with pagination information: the page which is
