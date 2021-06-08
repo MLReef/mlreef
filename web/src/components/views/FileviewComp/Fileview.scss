@@ -121,6 +121,14 @@
         flex: 1 1 auto !important;
         padding-right: 16px !important;
         height: 3em;
+
+        p {
+          max-width: 40vw;
+          text-overflow: ellipsis;
+          overflow-x: hidden;
+          height: 1.5rem;
+          overflow-wrap: break-word;
+        }
       }
 
       &-wrapper {

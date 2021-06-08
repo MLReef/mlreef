@@ -67,7 +67,13 @@ const FilesSelector = (props) => {
                   {branch}
                 </b>
               </p>
-              <p>
+              <p style={{
+                maxWidth: '20vw',
+                textOverflow: 'ellipsis',
+                overflowX: 'hidden',
+                height: '1.5rem',
+                overflowWrap: 'break-word',
+              }}>
                 Path:
                 {'  '}
                 <b>
