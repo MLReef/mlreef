@@ -23,8 +23,6 @@ const NewDirectoryPartial = (props) => {
 
   const [message, setMessage] = useState('Create new directory');
   const [directory, setDirectory] = useState('');
-  // const [targetBranch, setTagetBranch] = useState(`${branch}-create-new-directory`);
-  // const [action, setAction] = useState(2);
   const [waiting, setWaiting] = useState(false);
 
   const isValid = useMemo(
@@ -49,7 +47,7 @@ const NewDirectoryPartial = (props) => {
     setWaiting(true);
 
     return commitsApi.performCommitForMultipleActions(gid, JSON.stringify(payload))
-      .then(onSuccess)
+      .then(() => onSuccess(directory))
       .catch((err) => {
         toastr.error('Could not create directory', err.message);
       })

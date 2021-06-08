@@ -45,8 +45,14 @@ export class RepoFeatures extends Component {
 
   showCreateDirectoryModal() {
     const {
+      projects: {
+        selectedProject: {
+          namespace,
+          slug,
+          gid,
+        },
+      },
       actions,
-      projectId,
       branch,
       path,
       history,
@@ -61,13 +67,13 @@ export class RepoFeatures extends Component {
       onPositive: () => {},
       content: (
         <NewDirectoryPartial
-          gid={projectId}
+          gid={gid}
           branch={branch}
           targetDir={path}
           onCancel={() => actions.closeModal({ reset: true })}
-          onSuccess={() => {
+          onSuccess={(dir) => {
             actions.closeModal();
-            history.push('/redirect/back');
+            history.push(`/${namespace}/${slug}/-/tree/${branch}/${dir}`);
           }}
         />
       ),
