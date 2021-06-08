@@ -44,6 +44,11 @@
               color: white;
             }
 
+            .copy:hover {
+              background-color: var(--info);
+              color: white;
+            }
+
             button.render-form-button {
               background-color: transparent;
               border: none;

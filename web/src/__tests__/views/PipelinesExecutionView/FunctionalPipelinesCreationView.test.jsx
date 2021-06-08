@@ -74,6 +74,6 @@ describe('test the overall pipelines view behavior', () => {
       doubleClickEvent.initEvent('dblclick', true, true);
       processor.dispatchEvent(doubleClickEvent);
     });
-    expect(document.getElementById('sortable 110dce76-d28d-4350-988a-af7b40e550b0')).not.toBe(null);
+    expect(document.getElementById('sortable 110dce76-d28d-4350-988a-af7b40e550b0 0')).not.toBe(null);
   });
 });

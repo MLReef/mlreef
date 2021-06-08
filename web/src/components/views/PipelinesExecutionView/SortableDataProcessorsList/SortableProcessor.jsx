@@ -12,7 +12,7 @@ import MSelect from 'components/ui/MSelect';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import InputParam from './InputParam';
 import { SelectComp } from '../SelectComp/SelectComp';
-import { REMOVE_DATA_PROCESSOR_BY_ID, UPDATE_OPERATOR_SELECTED, VALIDATE_FORM } from '../DataPipelineHooks/actions';
+import { COPY_DATA_PROCESSOR_BY_INDEX, REMOVE_DATA_PROCESSOR_BY_INDEX, UPDATE_OPERATOR_SELECTED, VALIDATE_FORM } from '../DataPipelineHooks/actions';
 import DataOperatorCodeSection from './DataOperatorCodeSection/DataOperatorCodeSection';
 
 const projectApi = new ProjectGeneralInfoApi();
@@ -60,7 +60,12 @@ const SortableProcessor = SortableElement(({
   const advancedParameters = filterOperation(false);
 
   function deleteProcessor() {
-    dispatch({ type: REMOVE_DATA_PROCESSOR_BY_ID, id: value.id });
+    dispatch({ type: REMOVE_DATA_PROCESSOR_BY_INDEX, index });
+    dispatch({ type: VALIDATE_FORM });
+  }
+
+  function copyProcessor() {
+    dispatch({ type: COPY_DATA_PROCESSOR_BY_INDEX, index });
     dispatch({ type: VALIDATE_FORM });
   }
 
@@ -70,8 +75,8 @@ const SortableProcessor = SortableElement(({
 
   return (
     <li
-      id={`sortable ${selectedDataProcessor.id}`}
-      key={`item-selected-${selectedDataProcessor.id}`}
+      id={`sortable ${selectedDataProcessor.id} ${index}`}
+      key={`item-selected-${selectedDataProcessor.id} ${index}`}
       style={{ listStyle: 'none' }}
     >
       <span
@@ -128,7 +133,13 @@ const SortableProcessor = SortableElement(({
                 <button
                   type="button"
                   label="close"
-                  onClick={() => deleteProcessor(index)}
+                  onClick={copyProcessor}
+                  className="btn btn-icon btn-hidden p-1 mr-1 fas fa-copy copy"
+                />
+                <button
+                  type="button"
+                  label="close"
+                  onClick={deleteProcessor}
                   className="btn btn-icon btn-hidden p-1 mr-1 fa fa-times close"
                 />
                 <ArrowButton initialIsOpened className="render-form-button" callback={() => setIsFormdivVisible(!isFormdivVisible)} />

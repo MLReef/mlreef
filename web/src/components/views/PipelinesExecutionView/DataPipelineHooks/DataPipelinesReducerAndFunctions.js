@@ -19,6 +19,8 @@ import {
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
   UPDATE_CURRENT_PROCESSORS_ARRAY,
   UPDATE_OPERATOR_SELECTED,
+  REMOVE_DATA_PROCESSOR_BY_INDEX,
+  COPY_DATA_PROCESSOR_BY_INDEX,
 } from './actions';
 
 const mlSearchApi = new MLSearchApi();
@@ -95,13 +97,18 @@ const DataPipelinesReducer = (state, action) => {
         };
     case UPDATE_PROCESSORS_SELECTED:
       return { ...state, processorsSelected: action.processorsSelected };
-    case REMOVE_DATA_PROCESSOR_BY_ID:
+    case REMOVE_DATA_PROCESSOR_BY_INDEX:
       return {
         ...state,
         processorsSelected: state
           .processorsSelected
-          .filter((pS) => pS.id !== action.id),
+          .filter((_, ind) => ind !== action.index),
       };
+    case COPY_DATA_PROCESSOR_BY_INDEX:
+      return {
+        ...state,
+        processorsSelected: [...state.processorsSelected, state.processorsSelected[action.index]]
+      }
     case UPDATE_INITIAL_INFORMATION:
       return { ...state, initialInformation: action.initialInformation };
     case SET_IS_VISIBLE_FILES_MODAL:
