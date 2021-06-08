@@ -169,7 +169,7 @@ if [ "$INSTANCE_HOST" != "localhost" ]; then
     --tag-list "k8s-gpu-runner"                                   \
     --run-untagged="true"                                         \
     --locked="false"                                              \
-    --limit="1"                                                   
+    --limit="5"                                                   
 
   docker exec gitlab-runner gitlab-runner register                \
     --non-interactive                                             \

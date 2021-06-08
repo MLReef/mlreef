@@ -1,4 +1,4 @@
-concurrent = 2
+concurrent = 6
 check_interval = 10
 
 [session_server]
