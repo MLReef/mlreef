@@ -8,6 +8,7 @@ import {
   UPDATE_PROCESSORS_SELECTED,
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
+  REMOVE_DATA_PROCESSOR_BY_INDEX,
 } from 'components/views/PipelinesExecutionView/DataPipelineHooks/actions';
 import DataPipelinesReducer, { addInformationToProcessors, initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import { filesMock } from 'testData';
@@ -24,13 +25,13 @@ test('assert that reducer updates the processorsSelected', () => {
   expect(processorsSelected).toStrictEqual(dataPipeLines);
 });
 
-test('assert that reducer removes processor from state', () => {
-  const id = dataPipeLines[0].internalProcessorId;
+test('assert that reducer removes processor from state based on Ind', () => {
   const { processorsSelected } = DataPipelinesReducer(
-    { ...initialState, processorsSelected: dataPipeLines },
-    { type: REMOVE_DATA_PROCESSOR_BY_ID, id },
+    { ...initialState, processorsSelected: [dataPipeLines[0], {...dataPipeLines[0], slug: 'ocr-with-tesseract-jaja-1' }] },
+    { type: REMOVE_DATA_PROCESSOR_BY_INDEX, index: 0 },
   );
-  expect(processorsSelected.filter((ps) => ps.id === id)).toHaveLength(0);
+  expect(processorsSelected).toHaveLength(1);
+  expect(processorsSelected[0].slug).toBe('ocr-with-tesseract-jaja-1');
 });
 
 test('assert that files modal visibility can be changed', () => {
