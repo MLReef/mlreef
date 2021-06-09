@@ -20,7 +20,7 @@ const FilesContainer = ({
   const [ahead, setAhead] = useState(0);
   const [behind, setBehind] = useState(0);
   const [files, setFiles] = useState([]);
-  const finalBranch = urlBranch && urlBranch !== 'null' && urlBranch !== 'null' ? urlBranch : defaultBranch;
+  const finalBranch = urlBranch && urlBranch !== 'null' ? urlBranch : defaultBranch;
 
   useEffect(() => {
     if (projectId) {
@@ -94,7 +94,7 @@ const FilesContainer = ({
         headers={['Name']}
         waiting={waiting}
         onClick={(e) => {
-          const target = e.currentTarget;
+          const target = e?.currentTarget;
           const targetDataKey = target.getAttribute('data-key');
           const targetId = target.id;
           const file = files.filter((f) => `${f.id} ${f.name}` === targetId)[0];

@@ -53,6 +53,7 @@ const DetailedProjectView = (props) => {
   const [isForking, setIsForking] = useState(false);
 
   useEffect(() => {
+    actions.setIsLoading(true);
     (auth ? projActions.fetchIfAuthenticated(
       namespace,
       slug,
@@ -63,8 +64,7 @@ const DetailedProjectView = (props) => {
       actions,
     ))
       .finally(() => actions.setIsLoading(false));
-    actions.setIsLoading(true);
-  }, []);
+  }, [namespace, slug]);
 
   const customCrumbs = [
     {

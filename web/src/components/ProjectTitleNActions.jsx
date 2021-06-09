@@ -7,6 +7,7 @@ import {
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import { plainToClass } from 'class-transformer';
+import ACCESS_LEVEL from 'domain/accessLevels';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MCloneDropdown from 'components/ui/MCloneDropdown';
@@ -18,11 +19,9 @@ import SEO from 'components/commons/SEO';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CodeProject from 'domain/project/CodeProject';
 import * as projectActions from 'store/actions/projectInfoActions';
-// import { fixHostname } from 'functions/helpers';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import MLoadingSpinner from './ui/MLoadingSpinner';
 import AuthWrapper from './AuthWrapper';
-import ACCESS_LEVEL from 'domain/accessLevels';
 
 const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 
@@ -42,7 +41,7 @@ const ProjectTitleNActions = (props) => {
 
   const isOwner = useGetOwned();
   const hasMinRole = useGetHasRole(10, { type: 'project' });
-  const forkable = !isOwner && !hasMinRole && true;
+  const forkable = userGid && !isOwner && !hasMinRole && true;
   const classProject = isDataProject
     ? plainToClass(DataProject, project)
     : plainToClass(CodeProject, project);
@@ -148,16 +147,13 @@ const ProjectTitleNActions = (props) => {
 
         {classProject.defaultBranch !== null && forkable && (
           <div className="options d-flex mr-2">
-            <AuthWrapper minRole={ACCESS_LEVEL.GUEST}>
-              <Link
-                to={`/${project.namespace}/${project.slug}/-/fork`}
-                className="option-name btn btn-hidden border-rounded-left border-rounded-right py-2 px-3 my-0"
-              >
-                <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />
-                <span className="my-auto d-none d-lg-block">Fork</span>
-              </Link>
-            </AuthWrapper>
-
+            <Link
+              to={`/${project.namespace}/${project.slug}/-/fork`}
+              className="option-name btn btn-hidden border-rounded-left border-rounded-right py-2 px-3 my-0"
+            >
+              <img className="mr-0 mr-lg-1 repo-actions-image" src="/images/svg/fork_01.svg" alt="" />
+              <span className="my-auto d-none d-lg-block">Fork</span>
+            </Link>
             <MWrapper norender title="Hidding the counter until the feature is ready in the API">
               <div className="counter border-rounded-right h-100">
                 <span>{classProject.forksCount}</span>
