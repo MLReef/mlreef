@@ -110,8 +110,8 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   const handleClickOnCheckbox = (checkboxFile, checkedValue) => {
     setfiles(files.map((file) => ({
       ...file,
-      checked: (file.id === checkboxFile.id) && checkedValue,
-      disabled: file.id !== checkboxFile.id && checkedValue,
+      checked: (file === checkboxFile) && checkedValue, // Compare the whole object
+      disabled: file !== checkboxFile && checkedValue, //  because id can be repeated
     })));
   };
 
