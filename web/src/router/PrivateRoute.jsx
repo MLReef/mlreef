@@ -7,13 +7,8 @@ import {
   useGetHasRole,
   useGetHasAccountType,
 } from 'customHooks/permissions';
-
-import { NO_AUTH_REDIRECT } from 'apiConfig';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import hooks from 'customHooks/useSelectedProject';
-
-// if external we need to redirect with window.location
-const isExternal = /^https?/.test(NO_AUTH_REDIRECT);
 
 /**
  * PrivateRoute.
@@ -72,11 +67,7 @@ const PrivateRoute = (routeProps) => {
   const redirectUrl = useMemo(
     () => {
       if (!auth) {
-        if (isExternal) {
-          window.location.assign(NO_AUTH_REDIRECT);
-          return '/login';
-        }
-        return NO_AUTH_REDIRECT;
+        return '/login';
       }
       if (!permissions) return '/error-page';
       return null;
@@ -108,10 +99,6 @@ const PrivateRoute = (routeProps) => {
           return (
             <Component {...props} />
           );
-        }
-
-        if (isExternal) {
-          return null;
         }
 
         return (
