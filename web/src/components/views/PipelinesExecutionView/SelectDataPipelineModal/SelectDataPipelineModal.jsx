@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   shape, number, string, arrayOf,
 } from 'prop-types';
@@ -9,6 +9,7 @@ import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
 import dayjs from 'dayjs';
 import { CANCELED, FAILED, SUCCESS } from 'dataTypes';
+import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import useMount from 'customHooks/useMount';
 import JobsApi from 'apis/JobsApi';
@@ -17,7 +18,6 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import {
   SET_BRANCH_SELECTED, SET_IS_VISIBLE_FILES_MODAL, UPDATE_FILES_SELECTED_IN_MODAL, VALIDATE_FORM,
 } from '../DataPipelineHooks/actions';
-import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
 const folderIcon = '/images/svg/folder_01.svg';
 const fileIcon = '/images/svg/file_01.svg';
@@ -47,10 +47,10 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   const [files, setfiles] = useState(null);
   const unmounted = useMount();
 
-  function updateFiles(path) {
+  const updateFiles = useCallback(() => {
     actions.getAndClassifyFiles(
       gid,
-      path,
+      filePath,
       initialCommit,
       initialBranch || branchSelected,
       initialFiles,
@@ -67,11 +67,20 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
         }
       })
       .catch((err) => toastr.error('Error', err.message));
-  }
+  },
+  [
+    gid,
+    filePath,
+    initialCommit,
+    initialBranch,
+    branchSelected,
+    initialFiles,
+    unmounted,
+  ]);
 
   useEffect(() => {
-    updateFiles('');
-  }, []);
+    updateFiles();
+  }, [updateFiles]);
 
   useEffectNoFirstRender(() => {
     if (gid && branchSelected) {
@@ -84,8 +93,8 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
   function getBack() {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
     const newFilePath = !filePath.includes('/') ? '' : path;
-    updateFiles(newFilePath);
     setFilepath(newFilePath);
+    updateFiles();
     setShowReturnOption(!(newFilePath === ''));
   }
 
@@ -286,7 +295,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                                   onClick={() => {
                                     setFilepath(file.path);
                                     setShowReturnOption(true);
-                                    updateFiles(file.path);
+                                    updateFiles();
                                   }}
                                   className="btn btn-hidden"
                                 >
