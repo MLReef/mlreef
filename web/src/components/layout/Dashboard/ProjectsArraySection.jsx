@@ -16,6 +16,7 @@ import MProjectCard from 'components/ui/MProjectCard';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
 import dashboardActions from './dashBoardActions';
 import { DashboardContext } from './DashboardContext';
+import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
 const comparingFunctions = {
   0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase() ? 1 : -1), // All
@@ -37,7 +38,7 @@ const ProjectsArraySection = (props) => {
     selectedDataTypes, minimumStars, publishState, sorting,
   }, dispatch] = useContext(DashboardContext);
 
-  useEffect(() => {
+  useEffectNoFirstRender(() => {
     if (classification2 === 'data_project') {
       dispatch({ type: 'SET_PUBLISH_STATE', payload: -1 });
     }
