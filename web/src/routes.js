@@ -398,6 +398,12 @@ export default [
   },
 
   {
+    name: 'visualizationsRebuild',
+    path: '/:namespace/:slug/-/visualizations/:dataId/rebuild',
+    exact: true,
+    component: FunctionalExecutionPipelinesView,
+  },
+  {
     name: 'visualizations',
     path: '/:namespace/:slug/-/visualizations',
     component: VisualizationsView,

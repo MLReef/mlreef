@@ -147,7 +147,7 @@ const DataVisualizationDetails = (props) => {
                           id,
                           instances[0].id,
                         ).then(() => toastr.success('Success', 'The data instace was deleted'))
-                          .then(() => history.push(`/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}/-/datasets`))
+                          .then(() => history.push(`/${selectedProject?.gitlabNamespace}/${selectedProject?.slug}/-/visualizations`))
                           .catch((err) => toastr.error('Error', err?.message))
                         : actions.abortDataInstance(
                           gid,
@@ -279,7 +279,7 @@ const DataVisualizationDetails = (props) => {
               <button
                 type="button"
                 className="btn btn-outline-dark ml-2 mb-auto"
-                onClick={() => history.push(`/${namespace}/${slug}/-/datasets/${dataInstance?.id}/rebuild`)}
+                onClick={() => history.push(`/${namespace}/${slug}/-/visualizations/${dataInstance?.id}/rebuild`)}
               >
                 View Pipeline
               </button>
