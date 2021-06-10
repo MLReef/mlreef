@@ -36,9 +36,10 @@ const updateOperators = (
   paramName,
   procSelectedId,
   processorsSelected,
+  index,
   isValid,
-) => processorsSelected.map((ps) => {
-  if (ps.id === procSelectedId) {
+) => processorsSelected.map((ps, ind) => {
+  if (ps.id === procSelectedId && index === ind) {
     const proc = ps.processors[ps.processorSelected];
     const newProc = {
       ...proc,
@@ -140,14 +141,15 @@ const DataPipelinesReducer = (state, action) => {
           action.paramName,
           action.procSelectedId,
           state.processorsSelected,
+          action.index,
           action.isValid,
         ),
       };
     case UPDATE_OPERATOR_SELECTED:
       return {
         ...state,
-        processorsSelected: state.processorsSelected.map((ps) => {
-          if (ps.id === action.processorId) {
+        processorsSelected: state.processorsSelected.map((ps, ind) => {
+          if (ps.id === action.processorId && action.index === ind) {
             return {
               ...ps,
               processorSelected: action.newProcessorSelected,

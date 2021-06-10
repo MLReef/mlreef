@@ -20,8 +20,7 @@ const SortableProcessorsList = SortableContainer(({
           index,
           prefix,
         }}
-        key={`item-${value.id}`}
-        index={index}
+        key={`item-${value.id}-${index.toString()}`}
         value={value}
       />
     ))}
