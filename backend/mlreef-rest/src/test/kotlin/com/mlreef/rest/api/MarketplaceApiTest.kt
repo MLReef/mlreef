@@ -441,6 +441,47 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     @Rollback
     @Test
     @Tag(TestTags.RESTDOC)
+    fun `Can retrieve recent projects`() {
+        val dataProject1 = createDataProject(slug = "slug1")
+        val dataProject2 = createDataProject(slug = "slug2")
+        val dataProject3 = createDataProject(slug = "slug3")
+
+        val codeProject1 = createDataProject(slug = "slug11")
+        val codeProject2 = createDataProject(slug = "slug12")
+        val codeProject3 = createDataProject(slug = "slug13")
+
+        createRecentProject(dataProject1, mainPerson)
+        createRecentProject(dataProject2, mainPerson)
+        createRecentProject(dataProject3, mainPerson)
+        createRecentProject(codeProject1, mainPerson)
+        createRecentProject(codeProject2, mainPerson)
+        createRecentProject(codeProject3, mainPerson)
+
+        this.mockUserAuthentication(
+            listOf(dataProject1.id, dataProject2.id, dataProject3.id),
+            mainAccount,
+            AccessLevel.GUEST
+        )
+
+        val returnedResult: RestResponsePage<ProjectDto> = this.performGet("$rootUrl/recent", mainToken)
+            .checkStatus(HttpStatus.OK)
+            .document(
+                "marketplace-recent-projects",
+                responseFields(
+                    wrapToPage(
+                        projectResponseFields()
+                    )
+                )
+            )
+            .returns()
+
+        assertThat(returnedResult.content.size).isEqualTo(6)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
     fun `Test pagination for the search - Sync mode`() {
         val codeProjectsCount = Random.nextInt(51, 59)
         val dataProjectsCount = Random.nextInt(52, 55)

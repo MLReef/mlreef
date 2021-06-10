@@ -26,6 +26,8 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import java.util.Properties
 import javax.annotation.PostConstruct
 
+const val DEFAULT_PAGE_SIZE = 2000
+const val MAX_PAGE_SIZE = 2000
 
 @Configuration
 @EnableConfigurationProperties

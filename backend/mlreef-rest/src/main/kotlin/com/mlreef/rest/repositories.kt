@@ -398,6 +398,11 @@ interface BaseEnvironmentsRepository : KtCrudRepository<BaseEnvironments, UUID> 
 @Repository
 interface RecentProjectsRepository : KtCrudRepository<RecentProject, UUID> {
     fun findByUserOrderByUpdateDateDesc(user: Subject): List<RecentProject>
+    fun findByUserOrderByUpdateDateDesc(user: Subject, page: Pageable): Page<RecentProject>
+
+    @Query("SELECT r FROM RecentProject r WHERE r.user=:user AND r.project.type=:projectType ORDER BY r.updateDate DESC")
+    fun findRecentDataProjectsByUserAndType(user: Subject, projectType: ProjectType, page: Pageable): Page<RecentProject>
+
     fun findByProjectOrderByUpdateDateDesc(project: Project): List<RecentProject>
     fun findByProjectAndUser(project: Project, user: Subject): RecentProject?
 }
