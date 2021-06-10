@@ -67,8 +67,6 @@ before_script:
   - nvidia-smi && DOCKER_COMMAND="docker run --rm --gpus=all " || DOCKER_COMMAND="docker run --rm "
 after_script:
   - epf-finish
-  - echo "---The background push output---"
-  - cat background.out || echo "No background push log found"
 
 mlreef-pipeline:
   artifacts:
