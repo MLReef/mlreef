@@ -16,6 +16,7 @@ import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.marketplace.Star
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.system.SessionsService
+import com.mlreef.rest.testcommons.RestResponsePage
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.assertj.core.api.Assertions.assertThat
@@ -2105,12 +2106,26 @@ class ProjectsApiTest : AbstractRestApiTest() {
             AccessLevel.OWNER
         )
 
-        val returnedResult = this.performGet("$rootUrl/recent", mainToken3)
+        val returnedResult: RestResponsePage<ProjectDto> = this.performGet("$rootUrl/recent?size=20", mainToken3)
             .expectOk()
-            .document("project-retrieve-recent-projects", responseFields(projectResponseFields("[].")))
-            .returnsList(ProjectDto::class.java)
+            .document(
+                "project-retrieve-recent-projects",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("page").optional().description("The page to retrieve"),
+                    RequestDocumentation.parameterWithName("size").optional().description("Number of results to retrieve"),
+                    RequestDocumentation.parameterWithName("sort").optional().description("Sort per a named field"),
+                    RequestDocumentation.parameterWithName("name.dir").optional().description("Example, sort \$field.dir with direction 'desc' or 'asc'")
+                ),
+                responseFields(
+                    wrapToPage(
+                        projectResponseFields()
+                    )
+                )
+            )
+            .returns()
 
-        assertThat(returnedResult.size).isEqualTo(5)
+
+        assertThat(returnedResult.content.size).isEqualTo(5)
     }
 
 }

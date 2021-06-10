@@ -724,6 +724,12 @@ operation::marketplace-entries-retrieve-all[snippets='curl-request,response-body
 * Can be used by Visitors (unauthenticated users) and regular Users
 * Visitors will just find public data, Users will see accessbible data as well
 
+=== GET /explore/recent
+
+Returns user's last used projects
+
+operation::marketplace-recent-projects[snippets='curl-request,response-body,response-fields']
+
 ==== Request
 
 Request supports a Filter, paging info and sorting info

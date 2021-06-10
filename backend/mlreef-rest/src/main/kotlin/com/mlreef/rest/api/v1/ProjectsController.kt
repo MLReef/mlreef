@@ -12,6 +12,8 @@ import com.mlreef.rest.api.v1.dto.ProjectShortDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.api.v1.dto.toShortDto
+import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
+import com.mlreef.rest.config.MAX_PAGE_SIZE
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.Account
@@ -70,14 +72,10 @@ class ProjectsController(
     private val marketplaceService: MarketplaceService,
     private val recentProjectService: RecentProjectService,
 ) {
-    companion object {
-        private const val MAX_PAGE_SIZE = 20
-    }
-
     @GetMapping
     fun getAllAccessibleProjects(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectDto> {
         val isDataProjectRequest = request.requestURI.contains("data-projects")
@@ -95,7 +93,7 @@ class ProjectsController(
     @GetMapping("/short")
     fun getAllAccessibleProjectsShort(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectShortDto> {
         val isDataProjectRequest = request.requestURI.contains("data-projects")
@@ -113,23 +111,25 @@ class ProjectsController(
     @GetMapping("/recent")
     fun getRecentProjects(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectDto> {
         val isDataProjectRequest = request.requestURI.contains("data-projects")
         val isCodeProjectRequest = request.requestURI.contains("code-projects")
 
-        val projects = recentProjectService
-            .getRecentProjectsForUser(profile.personId)
-            .filter {
-                if (isDataProjectRequest) {
-                    it.project is DataProject
-                } else if (isCodeProjectRequest) {
-                    it.project is CodeProject
-                } else true
-            }
+        val type = if (isDataProjectRequest) {
+            ProjectType.DATA_PROJECT
+        } else if (isCodeProjectRequest) {
+            ProjectType.CODE_PROJECT
+        } else null
 
-        return projects.map { it.project.toDto() }
+        val projectsPage = recentProjectService.getRecentProjectsForUser(profile.personId, pageable, type)
+
+        return if (pageable.pageSize == MAX_PAGE_SIZE) {
+            projectsPage.content.map { it.project.toDto() }
+        } else {
+            projectsPage.map { it.project.toDto() }
+        }
     }
 
     private fun getAccessibleProjectsPage(profile: TokenDetails, pageable: Pageable, isDataProject: Boolean, isCodeProject: Boolean): Page<out Project> {
@@ -143,7 +143,7 @@ class ProjectsController(
     @GetMapping("/starred")
     fun getAllAccessibleStarredProjects(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
     ): Iterable<ProjectDto> {
         val projectsPage = projectService.getAllProjectsStarredByUser(profile, pageable)
 
@@ -157,7 +157,7 @@ class ProjectsController(
     @GetMapping("/own")
     fun getOwnProjects(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectDto> {
         val isDataProject = request.requestURI.contains("data-projects")
@@ -180,7 +180,7 @@ class ProjectsController(
     @GetMapping("/my")
     fun getMyProjects(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectDto> {
         val isDataProject = request.requestURI.contains("data-projects")
@@ -206,7 +206,7 @@ class ProjectsController(
     @GetMapping("/public")
     fun getPublicProjectsPaged(
         profile: TokenDetails,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         request: HttpServletRequest,
     ): Iterable<ProjectDto> {
         val isDataProject = request.requestURI.contains("data-projects")

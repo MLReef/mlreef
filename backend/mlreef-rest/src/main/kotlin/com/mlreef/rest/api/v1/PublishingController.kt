@@ -1,11 +1,11 @@
 package com.mlreef.rest.api.v1
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.mlreef.rest.api.v1.MarketplaceController.Companion.MAX_PAGE_SIZE
 import com.mlreef.rest.api.v1.dto.BaseEnvironmentsDto
 import com.mlreef.rest.api.v1.dto.CodeProjectPublishingDto
 import com.mlreef.rest.api.v1.dto.toBaseEnvironmentsDto
 import com.mlreef.rest.api.v1.dto.toPublishingPipelineDto
+import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.PublishingMachineType
 import com.mlreef.rest.exceptions.BadRequestException
@@ -114,7 +114,7 @@ internal class CodeProjectPublishingController(
         @PathVariable id: UUID,
         @RequestParam(required = false) branch: String?,
         @RequestParam(required = false) version: String?,
-        @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         token: TokenDetails
     ): Page<CodeProjectPublishingDto> {
         val result = publishingService.getPublishingInfo(

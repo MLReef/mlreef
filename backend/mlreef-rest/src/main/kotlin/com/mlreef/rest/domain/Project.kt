@@ -4,6 +4,7 @@ import com.mlreef.rest.domain.helpers.ProjectOfUser
 import com.mlreef.rest.domain.marketplace.Searchable
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.marketplace.Star
+import com.mlreef.rest.exceptions.ParsingException
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
@@ -28,7 +29,25 @@ import javax.persistence.Table
 
 enum class ProjectType {
     DATA_PROJECT,
-    CODE_PROJECT
+    CODE_PROJECT;
+
+    companion object {
+        fun valueOf(typeStr: String): ProjectType {
+            return when (typeStr.trim().toUpperCase()) {
+                "DATA", "DATA-PROJECT", "DATAPROJECT", "DATA_PROJECT" -> DATA_PROJECT
+                "CODE", "CODE-PROJECT", "CODEPROJECT", "CODE_PROJECT" -> CODE_PROJECT
+                else -> throw ParsingException("Cannot parse project type $typeStr")
+            }
+        }
+
+        fun valueOfOrNull(typeStr: String?): ProjectType? {
+            return when (typeStr?.trim()?.toUpperCase()) {
+                "DATA", "DATA-PROJECT", "DATAPROJECT", "DATA_PROJECT" -> DATA_PROJECT
+                "CODE", "CODE-PROJECT", "CODEPROJECT", "CODE_PROJECT" -> CODE_PROJECT
+                else -> null
+            }
+        }
+    }
 }
 
 @Table(name = "mlreef_project")

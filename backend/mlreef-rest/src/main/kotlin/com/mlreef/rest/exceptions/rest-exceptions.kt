@@ -13,6 +13,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     Conflict(1409, "Entity already exists"),
     AccessDenied(1410, "Access denied exception"),
     ValidationFailed(1400, "ValidationFailed"),
+    ParsingError(1401, "Parsing cannot be performed"),
 
     // MAJOR general Gitlab errors: 15xx
     GitlabBadGateway(1500, "Gitlab server is unavailable"),
@@ -126,24 +127,24 @@ class BadRequestException(errorCode: ErrorCode, detailMessage: String) : RestExc
 }
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized for the request")
-class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
-    ?: "Access denied")
+class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
 
 @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Bad credentials")
-class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message
-    ?: "Access denied")
+class IncorrectCredentialsException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
+
+@ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE, reason = "Parsing exception")
+class ParsingException(message: String? = null) : RestException(ErrorCode.ParsingError, message ?: "Parsing error")
 
 @ResponseStatus(
     code = HttpStatus.INTERNAL_SERVER_ERROR,
     reason = "Operation cannot be executed due to malformed input or invalid states."
 )
-class InternalException(message: String? = null) : RestException(ErrorCode.ValidationFailed, message
-    ?: "Internal server error")
+class InternalException(message: String? = null) : RestException(ErrorCode.ValidationFailed, message ?: "Internal server error")
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Entity not found")
 open class NotFoundException(errorCode: ErrorCode, message: String) : RestException(errorCode, message) {
-    constructor(message: String): this(ErrorCode.NotFound, message)
-    constructor(): this(ErrorCode.NotFound, "Not found")
+    constructor(message: String) : this(ErrorCode.NotFound, message)
+    constructor() : this(ErrorCode.NotFound, "Not found")
 }
 
 @ResponseStatus(code = HttpStatus.METHOD_NOT_ALLOWED, reason = "Method not allowed or supported")
@@ -186,12 +187,10 @@ class IncorrectProjectType(message: String? = null) : RestException(
 class PublicationCommonException(errorCode: ErrorCode = ErrorCode.PublicationProcessError, message: String = "Publish/Unpublish error") : RestException(errorCode, message)
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "User not found")
-open class UnknownUserException(message: String? = null)
-    : NotFoundException(ErrorCode.UserNotExisting, message ?: "User is unknown and does not exist")
+open class UnknownUserException(message: String? = null) : NotFoundException(ErrorCode.UserNotExisting, message ?: "User is unknown and does not exist")
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Group not found")
-open class UnknownGroupException(message: String? = null)
-    : NotFoundException(ErrorCode.GroupNotExisting, message ?: "Group is unknown and does not exist")
+open class UnknownGroupException(message: String? = null) : NotFoundException(ErrorCode.GroupNotExisting, message ?: "Group is unknown and does not exist")
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Project not found")
 open class UnknownProjectException(message: String? = null) :
@@ -268,8 +267,10 @@ class GitlabAuthenticationFailedException(statusCode: Int, error: ErrorCode, res
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab answered incorrectly")
 class GitlabIncorrectAnswerException(message: String) : RestException(500, message)
 
-private fun generateUserNotFoundMessage(userId: UUID?, userName: String?, email: String?,
-                                        personId: UUID?, gitlabId: Long?, subjectId: UUID?) = listOf(
+private fun generateUserNotFoundMessage(
+    userId: UUID?, userName: String?, email: String?,
+    personId: UUID?, gitlabId: Long?, subjectId: UUID?
+) = listOf(
     "User id" to userId,
     "Username" to userName,
     "Email Address" to email,
@@ -283,8 +284,10 @@ private fun generateUserNotFoundMessage(userId: UUID?, userName: String?, email:
     }
 
 
-private fun generateGroupNotFoundMessage(groupId: UUID?, groupName: String?,
-                                         subjectId: UUID?, gitlabId: Long?, path: String?) = listOf(
+private fun generateGroupNotFoundMessage(
+    groupId: UUID?, groupName: String?,
+    subjectId: UUID?, gitlabId: Long?, path: String?
+) = listOf(
     "Group id" to groupId,
     "Group name" to groupName,
     "Path" to path,
@@ -297,8 +300,10 @@ private fun generateGroupNotFoundMessage(groupId: UUID?, groupName: String?,
     }
 
 
-private fun generateProjectNotFoundMessage(projectId: UUID?, projectName: String?,
-                                           gitlabId: Long?, path: String?) = listOf(
+private fun generateProjectNotFoundMessage(
+    projectId: UUID?, projectName: String?,
+    gitlabId: Long?, path: String?
+) = listOf(
     "Project id" to projectId,
     "Project name" to projectName,
     "Path" to path,

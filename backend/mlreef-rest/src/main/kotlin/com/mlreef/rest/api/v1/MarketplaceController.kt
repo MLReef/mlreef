@@ -5,6 +5,8 @@ import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.ProjectDto
 import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
+import com.mlreef.rest.config.MAX_PAGE_SIZE
 import com.mlreef.rest.domain.ProjectType
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.marketplace.SearchableType
@@ -13,6 +15,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.marketplace.MarketplaceService
+import com.mlreef.rest.feature.project.RecentProjectService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/api/v1/explore")
@@ -32,11 +36,8 @@ class MarketplaceController(
     val searchableTagRepository: SearchableTagRepository,
     val currentUserService: CurrentUserService,
     val publicProjectsCacheService: PublicProjectsCacheService,
+    private val recentProjectService: RecentProjectService,
 ) {
-    companion object {
-        const val MAX_PAGE_SIZE = 2000
-    }
-
     @PostMapping("/entries/search")
     fun searchEntries(
         @RequestBody filter: SearchRequest?,
@@ -191,6 +192,20 @@ class MarketplaceController(
             .keys.toList()
             .let { searchableTagRepository.findAllByPublicTrueOrOwnerIdIn(it) }
             .map { it.toDto() }
+
+    @GetMapping("/recent")
+    fun getRecentProjects(
+        profile: TokenDetails,
+        @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
+        @RequestParam("type", required = false) projectType: String?,
+        request: HttpServletRequest,
+    ): Page<ProjectDto> {
+        val projectTypeParsed = projectType?.let { ProjectType.valueOf(it) }
+
+        val projects = recentProjectService.getRecentProjectsForUser(profile.personId, pageable, projectTypeParsed)
+
+        return projects.map { it.project.toDto() }
+    }
 }
 
 data class SearchByTextRequest(
