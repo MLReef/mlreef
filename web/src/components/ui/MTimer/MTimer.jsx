@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { suscribeRT } from 'functions/apiCalls';
 import moment from 'moment';
 import { number, string } from 'prop-types';
@@ -9,11 +9,11 @@ const MTimer = (props) => {
 
   const [duration, setDuration] = useState();
 
-  const updateDuration = () => {
+  const updateDuration = useCallback(() => {
     setDuration(new Date() - startTimeParsed);
-  };
+  }, [startTimeParsed]);
 
-  useEffect(() => suscribeRT({ timeout })(updateDuration), []);
+  useEffect(() => suscribeRT({ timeout })(updateDuration), [timeout, updateDuration]);
 
   return (
     <div>

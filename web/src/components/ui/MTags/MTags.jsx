@@ -1,4 +1,4 @@
-import { arrayOf, string } from 'prop-types';
+import { arrayOf, func, shape } from 'prop-types';
 import React from 'react';
 import './MTags.scss';
 
@@ -11,6 +11,7 @@ const MTags = (props) => {
     <div className="m-tags">
       {tags.map((t) => (
         <button
+          key={t}
           type="button"
           className="m-tags-item"
           onClick={() => onClick(t)}
@@ -25,7 +26,8 @@ const MTags = (props) => {
 };
 
 MTags.propTypes = {
-  tags: arrayOf(string),
+  tags: arrayOf(shape({})),
+  onClick: func.isRequired,
 };
 
 MTags.defaultProps = {

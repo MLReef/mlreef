@@ -5,7 +5,7 @@ import ImageDiffSection from 'components/imageDiffSection/imageDiffSection';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import useMount from 'customHooks/useMount';
 import useLoading from 'customHooks/useLoading';
-import CodeDiffSection from '../code-diff-section/codeDiffSection';
+import CodeDiffSection from '../CodeDiffSection/codeDiffSection';
 import { fetchFileDiffInfo } from './functions';
 
 const ChangesMrSection = (props) => {

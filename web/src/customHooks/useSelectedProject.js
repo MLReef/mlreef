@@ -33,7 +33,7 @@ export const useSelectedProject = (namespace, slug) => {
           });
       }
     }
-  }, []);
+  }, [namespace, slug, selectedProject, dispatch]);
   return [finalSelectedProject, isFetching];
 };
 

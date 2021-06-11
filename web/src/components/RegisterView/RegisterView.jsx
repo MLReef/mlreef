@@ -15,7 +15,7 @@ const RegisterView = (props) => {
   const { auth } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  useEffect(() => { if (auth) dispatch(logout()); }, []);
+  useEffect(() => { if (auth) dispatch(logout()); }, [auth, dispatch]);
 
   const onRegistrySuccess = () => {
     setTimeout(() => setRegistryStatus(1), 200);

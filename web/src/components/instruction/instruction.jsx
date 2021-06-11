@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import PropTypes, { func, shape, string } from 'prop-types';
+import { func, node, shape, string } from 'prop-types';
 import { updateUserClosedInstructions } from 'store/actions/userActions';
 import advice01 from '../../images/advice-01.png';
 import './instruction.css';
@@ -57,15 +57,16 @@ const mapDispatchToProps = (dispatch) => ({
 Instruction.propTypes = {
   id: string.isRequired,
   titleText: string.isRequired,
-  paragraph: string.isRequired,
+  paragraph: string,
   closedInstructions: shape({}).isRequired,
   actions: shape({
     updateUserClosedInstructions: func.isRequired,
   }).isRequired,
-  htmlParagraph: string,
+  htmlParagraph: node,
 };
 
 Instruction.defaultProps = {
+  paragraph: '',
   htmlParagraph: null,
 };
 

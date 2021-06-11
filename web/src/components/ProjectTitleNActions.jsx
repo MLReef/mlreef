@@ -7,7 +7,6 @@ import {
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
 import { plainToClass } from 'class-transformer';
-import ACCESS_LEVEL from 'domain/accessLevels';
 import DataProject from 'domain/project/DataProject';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
 import MCloneDropdown from 'components/ui/MCloneDropdown';
@@ -21,7 +20,6 @@ import CodeProject from 'domain/project/CodeProject';
 import * as projectActions from 'store/actions/projectInfoActions';
 import ProjectGeneralInfoApi from '../apis/ProjectGeneralInfoApi.ts';
 import MLoadingSpinner from './ui/MLoadingSpinner';
-import AuthWrapper from './AuthWrapper';
 
 const projectGeneralInfoApi = new ProjectGeneralInfoApi();
 

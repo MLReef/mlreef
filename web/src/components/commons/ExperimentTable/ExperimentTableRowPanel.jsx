@@ -281,6 +281,7 @@ const ExperimentTableRowPanel = (props) => {
                     className="link-append-link border-rounded-left" 
                     href={`/${model?.gitlab_namespace}/${model?.slug}/-/commits/${executedProcessorInfo.commit_sha}`}
                     target="_blank"
+                    rel="noopener noreferrer"
                   >
                     {executedProcessorInfo?.commit_sha?.substring(0, 8)}
                   </a>
