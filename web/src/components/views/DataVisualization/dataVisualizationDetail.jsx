@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
 import { connect } from 'react-redux';
@@ -6,6 +6,7 @@ import {
   shape, string, arrayOf, func,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { RUNNING, PENDING, PIPELINE_VIEWS_FORMAT } from 'dataTypes';
 import moment from 'moment';
 import DataCard from 'components/layout/DataCard';
@@ -27,6 +28,16 @@ import MTimer from 'components/ui/MTimer/MTimer';
 
 const timeout = 30000;
 
+const projectApi = new ProjectGeneralInfoApi();
+
+const mergeWithCodeProject = async (dop) => {
+  const codeProject = await projectApi.getCodeProjectById(dop.project_id);
+  return {
+    ...dop,
+    codeProject,
+  }
+}
+
 const DataVisualizationDetails = (props) => {
   const {
     branches,
@@ -41,6 +52,7 @@ const DataVisualizationDetails = (props) => {
   } = props;
   const [dataInstance, setDataInstance] = useState({});
   const selectedPipeline = branches.filter((item) => item.name.includes(dataInstance?.name))[0];
+  const timesPipelineWasFetched = useRef(0);
 
   const [selectedProject, isFetching] = hooks.useSelectedProject(namespace, slug);
 
@@ -72,10 +84,23 @@ const DataVisualizationDetails = (props) => {
 
   const { statusColor: statusParagraphColor } = getInfoFromStatus(diStatus);
 
-  const fetchPipelineInfo = useCallback(() => actions.getDataInstanceAndAllItsInformation(gid, visId)
-    .then(setDataInstance), 
-    [gid, visId],
-  );
+  const fetchPipelineInfo = useCallback(() => {
+    const complete = !(diStatus === RUNNING || diStatus === PENDING);
+    if(!gid || (complete && timesPipelineWasFetched.current > 0)) {
+      return;
+    }
+  
+    actions.getDataInstanceAndAllItsInformation(gid, visId)
+    .then(async (ins) => {
+      const newDataOps = await Promise.all(ins.dataOperations.map(mergeWithCodeProject));
+      return { ...ins, dataOperations: newDataOps }
+    })
+    .then((ins) => {
+      setDataInstance(ins);
+      timesPipelineWasFetched.current += 1;
+    })
+    .catch((err) => toastr.error('Error', err?.message));
+  }, [gid, visId, diStatus]);
 
   useEffect(() => suscribeRT({ timeout })(fetchPipelineInfo), [fetchPipelineInfo]);
 
@@ -270,7 +295,7 @@ const DataVisualizationDetails = (props) => {
                           ?.map((op, opInd) => ({
                             text: `*Op. ${opInd} - ${op.name}`,
                             isLink: true,
-                            href: `/${namespace}/${op.slug}`
+                            href: `/${op.codeProject.gitlab_namespace}/${op.codeProject.slug}`
                           }))
                       }
                     />

@@ -2,7 +2,7 @@ import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import MLSearchApi from 'apis/MLSearchApi';
-import { handlePaginationWithAdditionalInfo, createPagination } from 'functions/apiCalls';
+import { createPagination } from 'functions/apiCalls';
 import store from 'store';
 import * as types from '../actionTypes';
 
