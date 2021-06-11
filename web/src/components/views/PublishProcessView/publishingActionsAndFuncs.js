@@ -1,6 +1,5 @@
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import JobsApi from 'apis/JobsApi';
-import { handleResponse } from 'functions/helpers';
 
 const gitlabPipelinesApi = new GitlabPipelinesApi();
 

@@ -22,7 +22,10 @@ export const SwitchBase = (props) => {
       {routes.map((route) => {
         if (route.path === '/' || route.path?.length === 0) {
           return (
-            <Redirect to="/dashboard/public/data_project" />
+            <Redirect
+              key={`route-${route.name}-path-${route.path}`}
+              to="/dashboard/public/data_project"
+            />
           );
         }
         const isPrivate = route?.meta?.authRequired;

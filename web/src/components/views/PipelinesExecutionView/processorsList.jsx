@@ -31,7 +31,7 @@ const ProcessorsList = ({ operationTypeToExecute }) => {
             to execute
           </h4>
         ),
-      [currentProcessors, operationClassification],
+      [currentProcessors, operationClassification, operationTypeToExecute, dispatch],
       )}
     </div>
   );

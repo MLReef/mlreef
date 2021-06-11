@@ -31,7 +31,7 @@ const CodeDiffSection = (props) => {
       setOriginalCode(original);
       setModifiedCode(modified);
     }
-  }, [original, modified, fileName]);
+  }, [original, modified, fileName, unmounted]);
 
   const ext = fileName.split('.').pop();
 

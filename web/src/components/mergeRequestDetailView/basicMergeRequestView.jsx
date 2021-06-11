@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ReactMarkdown from 'react-markdown';
 import { MergeRequestEditWithActions } from 'components/layout/MergeRequests';
+import ACCESS_LEVEL from 'domain/accessLevels';
 import * as mergeRequestActions from 'store/actions/mergeActions';
 import { pluralize as plu } from 'functions/dataParserHelpers';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
@@ -20,13 +21,12 @@ import CommitsList from 'components/layout/CommitsList/CommitList';
 import MButton from 'components/ui/MButton';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MWrapper from 'components/ui/MWrapper';
-import ChangesMrSection from 'components/changes-mr-section/ChangesMrSection';
+import ChangesMrSection from 'components/ChangesMRSection/ChangesMrSection';
 import Navbar from '../navbar/navbar';
 import MergeRequestAPI from '../../apis/MergeRequestApi.ts';
 import BranchesApi from '../../apis/BranchesApi.ts';
 import ProjectContainer from '../projectContainer';
 import './basicMR.css';
-import ACCESS_LEVEL from 'domain/accessLevels';
 
 dayjs.extend(relativeTime);
 
@@ -47,7 +47,6 @@ const BasicMergeRequestView = (props) => {
     gid,
   } = selectedProject;
 
-  let status;
   let mergerName;
   let mergerAvatar;
   let mergedAt;
@@ -91,7 +90,9 @@ const BasicMergeRequestView = (props) => {
   };
 
   const fetchMergeRequestInfo = useCallback(
-    () => actions.getMergeRequest(gid, iid), [actions, gid, iid],
+    () => {
+      if (gid) actions.getMergeRequest(gid, iid);
+    }, [actions, gid, iid],
   );
 
   const acceptMergeRequest = () => {
@@ -108,21 +109,17 @@ const BasicMergeRequestView = (props) => {
       .finally(() => { setWaiting(false); });
   };
 
-  if (state === 'opened') {
-    status = <span className="state-config opened">OPEN</span>;
-  } else if (state === 'closed') {
+  if (state === 'closed') {
     closeName = mrInfo.closed_by.name;
     closeAvatar = mrInfo.closed_by.avatar_url;
     closedAt = mrInfo.closed_at;
-    status = <span className="state-config closed">CLOSED</span>;
   } else if (state === 'merged') {
     mergerName = mrInfo.merged_by.name;
     mergerAvatar = mrInfo.merged_by.avatar_url;
     mergedAt = mrInfo.merged_at;
-    status = <span className="state-config merged">MERGED</span>;
   }
 
-  useEffect(() => { if (gid) fetchMergeRequestInfo(); }, [fetchMergeRequestInfo]);
+  useEffect(() => { fetchMergeRequestInfo(); }, [fetchMergeRequestInfo]);
 
   // fetch changes
   useEffect(() => {
@@ -207,7 +204,7 @@ const BasicMergeRequestView = (props) => {
         <div style={{ display: 'flex', marginTop: '1em' }}>
           <div style={{ flex: '1' }}>
             <p style={{ marginBottom: '0' }}>
-              {status}
+              <span className={`state-config ${state}`}>OPEN</span>
               <span style={{ fontWeight: '600' }}>{title}</span>
             </p>
             <div style={{ display: 'flex' }}>

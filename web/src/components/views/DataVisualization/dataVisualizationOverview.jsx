@@ -32,13 +32,11 @@ export const DataVisualizationOverview = (props) => {
   const [visualizations, setVisualizations] = useState([]);
   const [all, setAll] = useState(vis);
 
-  const fetchVisualizations = useCallback(() => getProjectVisualizations(id, gid, 'VISUALIZATION'), [id, gid]);
+  const fetchVisualizations = useCallback(() => gid && getProjectVisualizations(id, gid, 'VISUALIZATION'), [id, gid, getProjectVisualizations]);
 
   useEffect(() => {
-    if (gid) {
-      fetchVisualizations();
-    }
-  }, [selectedProject]);
+    fetchVisualizations();
+  }, [fetchVisualizations]);
 
   useEffect(() => {
     setVisualizations(vis);

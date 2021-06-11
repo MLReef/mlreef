@@ -21,14 +21,14 @@ const DataintanceFiles = (props) => {
   useEffect(() => {
     if (branchName) {
       filesApi.getFilesPerProject(
-        selectedProject?.gid,
+        selectedProject.gid,
         path || '',
         false,
         branchName,
       ).then(setFiles)
         .catch((err) => toastr.error('Error', err?.message));
     }
-  }, [selectedProject?.gid, path, branchName]);
+  }, [selectedProject.gid, path, branchName]);
   return (
     <FilesTable
       isReturnOptVisible={!!path}

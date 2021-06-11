@@ -104,7 +104,7 @@ const DataInstanceDetails = (props) => {
       timesPipelineWasFetched.current += 1;
     })
     .catch((err) => toastr.error('Error', err?.message));
-  }, [gid, dataId, diStatus, gitlabPipelineId]);
+  }, [gid, dataId, diStatus]);
 
   useEffect(() => suscribeRT({ timeout })(fetchPipelineInfo), [fetchPipelineInfo]);
   
@@ -112,7 +112,7 @@ const DataInstanceDetails = (props) => {
     if(gid) {
       getBranchesList(gid);
     }
-  }, [gid, path, branchName]);
+  }, [gid, path, branchName, getBranchesList]);
   
   const customCrumbs = [
     {
