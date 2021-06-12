@@ -141,9 +141,8 @@ const DetailedProjectView = (props) => {
                   {showReadMe && (
                   <ReadMeComponent
                     projectId={gid}
-                    namespace={namespace}
-                    slug={slug}
                     branch={decodedBranch}
+                    readmeUrl={showReadMe}
                   />
                   )}
                 </>

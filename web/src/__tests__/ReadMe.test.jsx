@@ -9,6 +9,7 @@ const setup = () => mount(
   <Readme
     projectId={1}
     branch="master"
+    readmeUrl="https://gitlab.com/mlreef/mlreef-demo/blob/master/README.md"
   />,
 );
 

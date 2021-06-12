@@ -12,13 +12,15 @@ const Readme = (props) => {
   const {
     projectId,
     branch,
+    readmeUrl,
   } = props;
 
   const [textContent, setTextContent] = useState('');
   useEffect(() => {
+    const splittedReadmeFileName = readmeUrl.split('/');
     filesApi.getFileData(
       projectId,
-      'README.md',
+      splittedReadmeFileName[splittedReadmeFileName.length - 1],
       branch,
     )
       .then((res) => setTextContent(Base64.decode(res.content)))
