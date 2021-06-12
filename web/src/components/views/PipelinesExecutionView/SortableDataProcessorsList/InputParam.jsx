@@ -7,7 +7,7 @@ import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider
 import ErrorsDiv from './ErrorsDiv';
 import { VALIDATE_FORM } from '../DataPipelineHooks/actions';
 
-const InputParam = ({ param, dataProcessorId }) => {
+const InputParam = ({ param, dataProcessorId, index }) => {
   const [{ filesSelectedInModal }, dispatch] = useContext(DataPipelinesContext);
   const [hasErrors, setHasErrors] = useState(false);
   useEffect(() => {
@@ -18,6 +18,7 @@ const InputParam = ({ param, dataProcessorId }) => {
         newParamValue: newValue,
         paramName: param.name,
         procSelectedId: dataProcessorId,
+        index,
         isValid: validateInput(newValue, param.type, param.required),
       });
     } else if (param.value) {
@@ -26,6 +27,7 @@ const InputParam = ({ param, dataProcessorId }) => {
         newParamValue: param.value,
         paramName: param.name,
         procSelectedId: dataProcessorId,
+        index,
         isValid: validateInput(param.value, param.type, param.required),
       });
     }
@@ -37,6 +39,7 @@ const InputParam = ({ param, dataProcessorId }) => {
     param.required,
     param.type,
     param.value,
+    index,
     filesSelectedInModal,
   ]);
 
@@ -48,6 +51,7 @@ const InputParam = ({ param, dataProcessorId }) => {
       newParamValue: e.currentTarget.value,
       paramName: param.name,
       procSelectedId: dataProcessorId,
+      index,
       isValid,
     });
     dispatch({ type: VALIDATE_FORM });

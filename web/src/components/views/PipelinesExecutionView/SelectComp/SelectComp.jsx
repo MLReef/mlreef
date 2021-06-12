@@ -13,6 +13,7 @@ export const SelectComp = ({
   param,
   isBoolean,
   dataProcessorId,
+  index,
 }) => {
   let options;
   let defaultValue;
@@ -44,6 +45,7 @@ export const SelectComp = ({
       newParamValue: opt.value,
       paramName: param.name,
       procSelectedId: dataProcessorId,
+      index,
       isValid,
     });
     dispatch({ type: VALIDATE_FORM });

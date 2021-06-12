@@ -124,6 +124,7 @@ const SortableProcessor = SortableElement(({
                 onSelect={(ind) => {
                   dispatch({
                     type: UPDATE_OPERATOR_SELECTED,
+                    index: ind,
                     processorId: value.id,
                     newProcessorSelected: ind,
                   });
@@ -177,6 +178,7 @@ const SortableProcessor = SortableElement(({
               <ParametersSection
                 parameters={standardParameters}
                 value={value}
+                index={index}
               />
             </div>
 
@@ -197,10 +199,14 @@ const SortableProcessor = SortableElement(({
                 Advanced arameters are optional and always have a different value
               </p>
               {isAdvancedSectionVisible && (
-              <div className="sortable-data-operation-list-item-container-form-advanced-params" style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}>
+              <div
+                className="sortable-data-operation-list-item-container-form-advanced-params"
+                style={{ width: 'max-content', margin: 'auto', marginLeft: '1rem' }}
+              >
                 <ParametersSection
                   parameters={advancedParameters}
                   value={value}
+                  index={index}
                 />
               </div>
               )}
@@ -225,7 +231,7 @@ const SortableProcessor = SortableElement(({
 export default SortableProcessor;
 
 const ParametersSection = ({
-  parameters, value,
+  parameters, value, index
 }) => parameters.map((parameter) => {
   const isSelectable = parameter.type === BOOLEAN
       || (parameter.type === STRING && isJson(parameter.default_value));
@@ -235,6 +241,7 @@ const ParametersSection = ({
         key={`${value.id} ${parameter.name}`}
         param={parameter}
         dataProcessorId={value.id}
+        index={index}
         isBoolean={!isJson(parameter.default_value)}
       />
     );
@@ -243,6 +250,7 @@ const ParametersSection = ({
     <InputParam
       key={`${value.id} ${parameter.name}`}
       param={parameter}
+      index={index}
       dataProcessorId={value.id}
     />
   );

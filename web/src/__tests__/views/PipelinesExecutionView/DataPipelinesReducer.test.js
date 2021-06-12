@@ -141,6 +141,7 @@ test('assert that parameter is updated correctly', () => {
     newParamValue,
     paramName: 'input-path',
     procSelectedId: 'bc65cfbf-c09c-40ec-8bd5-d984ceb0e8b1',
+    index: 0,
     isValid: true,
   });
   expect(processorsSelected[0].processors[0].parameters[0].value).not.toBeDefined();
