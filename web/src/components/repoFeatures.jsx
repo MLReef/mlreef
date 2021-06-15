@@ -194,7 +194,7 @@ export class RepoFeatures extends Component {
         {isCodeProject && (
 
           <AuthWrapper
-            owneronly
+            minRole={ACCESS_LEVEL.MAINTAINER}
             norender
             className="ml-2 mr-auto mt-3"
           >
