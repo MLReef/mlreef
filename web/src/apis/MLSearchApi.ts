@@ -52,6 +52,17 @@ export default class MLSearchApi extends ApiDirector {
       .then(handleResponse);
   }
 
+  searchRecentProjects() {
+    const BLbuilder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      '/api/v1/explore/recent',
+    );
+
+    return fetch(BLbuilder.build())
+      .then(handleResponse);
+  }
+
   getUsers(q: string) {
     const builder = new BodyLessApiRequestCallBuilder(
       METHODS.GET,

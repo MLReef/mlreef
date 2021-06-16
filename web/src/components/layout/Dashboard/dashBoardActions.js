@@ -51,17 +51,17 @@ const getValuesStateOptions = (publishedStateOption) => {
 };
 
 /**
- * 
+ *
  * @param {*} classifcation1: string to sort project into: my own, starred or public
  * @param {*} dataTypes: input data types: Text, video, image, etc.
  * @param {*} minimumStars: minimum threshold of stars to request
- * @param {*} publishStatus: published or not, maybe null to not discriminate 
+ * @param {*} publishStatus: published or not, maybe null to not discriminate
  * and include projects of both states.
  * @returns: body containing request filters.
  */
 
 export const buildProjectsRequestBodyV2 = (
-  classifcation1, dTypes = [], repoName, minimumStars, publishStatus
+  classifcation1, dTypes = [], repoName, minimumStars, publishStatus,
 ) => {
   let body = {};
   if (classifcation1 === 'my-repositories') {
@@ -83,44 +83,46 @@ export const buildProjectsRequestBodyV2 = (
   }
 
   if (repoName) {
-    body = { ...body, name: decodeURIComponent(repoName) }
+    body = { ...body, name: decodeURIComponent(repoName) };
   }
 
-  body = { ...body, input_data_types_or: [...dTypes]}
+  body = { ...body, input_data_types_or: [...dTypes] };
 
   if (minimumStars > 0) {
     body = { ...body, min_stars: minimumStars };
   }
 
-  if ( publishStatus !== null) {
-    body = { ...body, published: publishStatus }
+  if (publishStatus !== null) {
+    body = { ...body, published: publishStatus };
   }
 
   return body;
 };
 
-const getProjects = (
-  searchableType, 
-  classification1, 
-  selectedDataTypes, 
-  minimumStars, 
-  publishState, 
+export const getProjects = (
+  searchableType,
+  classification1,
+  selectedDataTypes,
+  minimumStars,
+  publishState,
   repoName,
-  page, 
+  page,
   size,
-) => mlSearchApi
-  .searchPaginated(
-    searchableType.toUpperCase(),
-    buildProjectsRequestBodyV2(
-      classification1,
-      getDataTypeNames(dataTypes, selectedDataTypes),
-      repoName,
-      minimumStars,
-      getValuesStateOptions(searchableType === 'data_project' ? null : publishState),
-    ),
-    page, 
-    size,
-  )
+) => (classification1 === 'recent'
+  ? mlSearchApi.searchRecentProjects()
+  : mlSearchApi
+    .searchPaginated(
+      searchableType.toUpperCase(),
+      buildProjectsRequestBodyV2(
+        classification1,
+        getDataTypeNames(dataTypes, selectedDataTypes),
+        repoName,
+        minimumStars,
+        getValuesStateOptions(searchableType === 'data_project' ? null : publishState),
+      ),
+      page,
+      size,
+    ))
   .then((projsPag) => ({
     ...projsPag,
     projects: mergeGitlabResource(projsPag.content.map(parseToCamelCase)),
