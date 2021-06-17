@@ -61,7 +61,7 @@ const getValuesStateOptions = (publishedStateOption) => {
  */
 
 export const buildProjectsRequestBodyV2 = (
-  classifcation1, dTypes = [], repoName, minimumStars, publishStatus,
+  classifcation1, dTypes, repoName, minimumStars, publishStatus,
 ) => {
   let body = {};
   if (classifcation1 === 'my-repositories') {
@@ -106,6 +106,7 @@ export const getProjects = (
   minimumStars,
   publishState,
   repoName,
+  sorting,
   page,
   size,
 ) => (classification1 === 'recent'
@@ -113,6 +114,7 @@ export const getProjects = (
   : mlSearchApi
     .searchPaginated(
       searchableType.toUpperCase(),
+      sorting,
       buildProjectsRequestBodyV2(
         classification1,
         getDataTypeNames(dataTypes, selectedDataTypes),

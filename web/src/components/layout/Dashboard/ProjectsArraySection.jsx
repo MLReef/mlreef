@@ -18,11 +18,6 @@ import dashboardActions from './dashBoardActions';
 import { DashboardContext } from './DashboardContext';
 import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
-const comparingFunctions = {
-  0: (PA, PB) => (PA.name.toLowerCase() > PB.name.toLowerCase() ? 1 : -1), // All
-  1: (PA, PB) => PB.starsCount > PA.starsCount ? 1 : -1, // Popular
-};
-
 const ProjectsArraySection = (props) => {
   const {
     actions, isLoading,
@@ -51,6 +46,7 @@ const ProjectsArraySection = (props) => {
     minimumStars,
     publishState,
     repoName,
+    sorting,
     p,
     10,
   ).then((res) => {
@@ -79,6 +75,7 @@ const ProjectsArraySection = (props) => {
     repoName,
     minimumStars,
     publishState,
+    sorting,
   ]);
 
   useEffect(() => {
@@ -94,22 +91,22 @@ const ProjectsArraySection = (props) => {
     fetch(page.current);
   };
 
-  const sortedProjects = useMemo(
+/*   const sortedProjects = useMemo(
     () => projects.sort(comparingFunctions[sorting]),
     [projects, sorting],
-  );
+  ); */
 
   return (
     <div className="dashboard-v2-content-projects">
       <div className="dashboard-v2-content-projects-margin-div">
-        {sortedProjects.length > 0 && !isLoading ? (
+        {projects.length > 0 && !isLoading ? (
           <MScrollableSection
             className="w-100"
             handleOnScrollDown={handleOnScrollDown}
           >
             <MBricksWall
               animated
-              bricks={sortedProjects.map((proj) => (
+              bricks={projects.map((proj) => (
                 <MProjectCard
                   key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
                   slug={proj.slug}
@@ -120,7 +117,7 @@ const ProjectsArraySection = (props) => {
                   forkCount={proj.forksCount || 0}
                   namespace={proj.gitlabNamespace}
                   updatedAt={proj.lastActivityat}
-                  projects={sortedProjects}
+                  projects={projects}
                   dataProcessor={proj.dataProcessor}
                   inputDataTypes={proj.inputDataTypes}
                   outputDataTypes={proj.inputDataTypes}

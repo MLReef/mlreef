@@ -36,10 +36,13 @@ export default class MLSearchApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  searchPaginated(searchableType: String, body: any, page: number, size: number) {
+  searchPaginated(searchableType: String, sorting: number,  body: any, page: number, size: number) {
     let url = `/api/v1/explore/entries/search?searchable_type=${searchableType}`;
     if (page !== undefined && size !== undefined) {
       url = `${url}&page=${page}&size=${size}`;
+    }
+    if(sorting === 1){
+      url = `${url}&sort=_starsCount,DESC`;
     }
     const BLbuilder = new ApiRequestCallBuilder(
       METHODS.POST,
