@@ -144,6 +144,8 @@
         font-size: 1em;
         padding: 1% 2% 1% 2%;
         overflow-y: hidden;
+        display: flex;
+        justify-content: center;
 
         div {
           .file-img {

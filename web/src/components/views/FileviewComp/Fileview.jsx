@@ -25,6 +25,7 @@ import ProjectContainer from '../../projectContainer';
 import Navbar from '../../navbar/navbar';
 import DeleteFileModal from '../../DeleteFileModal/DeleteFileModal';
 import ContributorsSection from './ContributorsSection';
+import MPDFFilesReader from 'components/layout/MPdfReader/MPDFFilesReader';
 
 dayjs.extend(relativeTime);
 
@@ -286,28 +287,34 @@ const FileSection = ({
 }) => {
   const fileContent = rawFileContent && Base64.decode(rawFileContent);
   const extension = fileName?.split('.')?.pop()?.toLowerCase();
+  function renderTheCorrectComponent() {
+    if(isImageFormat(fileName)) {
+      return (
+        <div className="d-flex">
+          <img
+            className="file-img mx-auto"
+            src={`data:image/${extension};base64,${rawFileContent}`}
+            alt={fileName}
+          />
+        </div>
+      )
+    } else if(extension === 'pdf') {
+      return <MPDFFilesReader data={atob(rawFileContent)} />
+    }
+    return (
+      <MCodeRenderer
+        code={fileContent}
+        fileExtension={extension}
+      />
+    )
+  }
   return (
     <div
       itemProp="text"
       className="fileview-file-container-content"
     >
       <div className="fileview-file-container-content-blob">
-        {isImageFormat(fileName) ? (
-          <div className="d-flex">
-            <img
-              className="file-img mx-auto"
-              src={`data:image/${extension};base64,${rawFileContent}`}
-              alt={fileName}
-            />
-          </div>
-        ) : (
-          fileContent && (
-          <MCodeRenderer
-            code={fileContent}
-            fileExtension={extension}
-          />
-          )
-        )}
+        {rawFileContent && renderTheCorrectComponent()}
       </div>
     </div>
   );
