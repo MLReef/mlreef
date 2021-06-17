@@ -27,6 +27,7 @@
     "js-base64": "^2.5.2",
     "monaco-editor": "^0.20.0",
     "node-fetch": "^2.6.1",
+    "pdfjs-dist": "2.3.200",
     "plotly.js": "^1.57.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",

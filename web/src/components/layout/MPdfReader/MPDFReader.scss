@@ -1,0 +1,32 @@
+.pdf-reader {
+  color: var(--dark);
+  &-canvas {
+
+  }
+  &-pages-setting-options {
+    display: flex;
+    justify-content: center;
+
+    input {
+      max-width: max-content;
+      margin: 0 0.5rem;
+    }
+
+    p {
+      margin: 0 0.5rem;
+    }
+
+    button {
+      font-weight: bolder;
+      background-color: transparent;
+      border: 1px solid transparent;
+      padding: 0.5rem;
+    }
+
+    button:hover {
+      border: 1px solid var(--dark);
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+  }
+}
