@@ -193,7 +193,7 @@ export const mapProcessorFields = (projects) => projects.map((proj) => {
 export const fetchProcessorsPaginatedByType = (
   operationTypeToExecute, body, page = 0, size = 20,
 ) => mlSearchApi
-  .searchPaginated(operationTypeToExecute, body, page, size)
+  .searchPaginated(operationTypeToExecute, 0, body, page, size)
   .then((res) => res.content)
   .then(mapProcessorFields);
 
