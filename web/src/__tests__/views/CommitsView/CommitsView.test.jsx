@@ -48,7 +48,7 @@ describe('test basic rendering', () => {
 
   test('assert that commit view comp is displayed correclty', () => {
     wrapper.setProps({});
-    expect(wrapper.find('div.search-branch').at(0).childAt(0).find('li')).toHaveLength(branchesMock.length);
+    expect(wrapper.find('div.search-branch').at(0).childAt(0).find('li')).toHaveLength(4);
     expect(wrapper.find('input#commits-filter-input')).toHaveLength(1);
     expect(wrapper.find('CommitDiv')).toHaveLength(commits.length);
   });

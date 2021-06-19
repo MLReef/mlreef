@@ -1,15 +1,30 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { UnconnectedSelectDataPipelineModal } from 'components/views/PipelinesExecutionView/SelectDataPipelineModal/SelectDataPipelineModal';
+import { 
+  UnconnectedSelectDataPipelineModal 
+} from 'components/views/PipelinesExecutionView/SelectDataPipelineModal/SelectDataPipelineModal';
 import { projectsArrayMock, branchesMock, filesMock } from 'testData';
-import { DataPipelinesContext } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
-import { initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
-import actions from 'components/views/PipelinesExecutionView/SelectDataPipelineModal/actions';
+import { 
+  DataPipelinesContext 
+} from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
+import { 
+  initialState 
+} from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
+import { generatePromiseResponse, sleep } from 'functions/testUtils';
+import { jobs } from './testData';
+import { SUCCESS } from 'dataTypes';
 
 const isVisibleSelectFilesModal = true;
 let dispatchMock;
 const setup = (initialFiles = []) => {
   dispatchMock = jest.fn();
+  jest.spyOn(global, 'fetch').mockImplementation((req) => {
+    if(req.url.includes('/repository/tree')) {
+      return generatePromiseResponse(200, true, filesMock, 10);
+    }
+
+    return generatePromiseResponse(200, true, jobs, 10);
+  });
   const mockUseReducer = [
     {
       ...initialState,
@@ -20,7 +35,6 @@ const setup = (initialFiles = []) => {
     },
     dispatchMock,
   ];
-  actions.getAndClassifyFiles = jest.fn(() => new Promise((resolve) => resolve(filesMock)));
   return mount(
     <DataPipelinesContext.Provider value={mockUseReducer}>
       <UnconnectedSelectDataPipelineModal
@@ -37,12 +51,30 @@ describe('html elements presence', () => {
     wrapper = setup();
   });
 
-  test('assert that wrapper contains and renders elements as well as some events', () => {
-    expect(wrapper.find('MDropdown')).toHaveLength(1);
+  test('assert that jobs api is called', () => {
+    expect(global.fetch.mock.calls.length).toBeGreaterThan(1);
+    expect(global.fetch.mock.calls[1][0].url).toBe('/api/v4/projects/12395599/jobs');
+  });
+
+  test('assert that wrapper contains and renders elements as well as some events', async () => {
+    await sleep(50);
+    wrapper.setProps({});
+    const dropDown = wrapper.find('MDropdown')
+    expect(dropDown).toHaveLength(1);
     const acceptBtn = wrapper.find('#accept');
     expect(acceptBtn).toHaveLength(1);
     expect(acceptBtn.text()).toBe('Accept');
     expect(wrapper.find('table#file-tree')).toHaveLength(1);
+
+    const dataSetOptions = dropDown.find('.datasets').find('ul');
+    expect(dataSetOptions.children()).toHaveLength(2);
+
+    dataSetOptions.children().forEach((liNode, ind) => {
+      // the function to get index is required because array is reversed
+      const currentJob = jobs[jobs.length - ind - 1]; 
+      expect(liNode.childAt(0).text().includes(currentJob.name)).toBe(true);
+      expect(liNode.childAt(0).props().disabled).toBe(currentJob.status !== SUCCESS);
+    });
 
     wrapper.find('.modal-container-close').childAt(0).simulate('click');
     expect(dispatchMock)
@@ -67,7 +99,8 @@ describe('pass initial files', () => {
       }],
     );
   });
-  test('assert that checkboxes show files selected', () => {
+  test('assert that checkboxes show files selected', async () => {
+    await sleep(50);
     wrapper.setProps({});
     const checkBoxesProps = wrapper.find('MCheckBox').map((node) => node.props());
     const disabledFiles = checkBoxesProps.filter((prop) => prop.disabled);
@@ -90,7 +123,8 @@ describe('test events in files table and correct submit', () => {
     wrapper = setup();
   });
 
-  test('assert that selecting and disabling works', () => {
+  test('assert that selecting and disabling works', async () => {
+    await sleep(50);
     wrapper.setProps({});
     wrapper.find('div.m-checkbox')
       .at(0)
@@ -102,7 +136,8 @@ describe('test events in files table and correct submit', () => {
     expect(checkedFiles).toBe(1);
   });
 
-  test('assert that handleAccept is called with the right arguments', () => {
+  test('assert that handleAccept is called with the right arguments', async () => {
+    await sleep(50);
     wrapper.setProps({});
     wrapper.find('MDropdown').find('li').at(0).simulate('click');
     wrapper.find('div.m-checkbox')
@@ -135,7 +170,8 @@ describe('test functionality of files table', () => {
     wrapper = setup();
   });
 
-  test('assert that return button is rendered and works', () => {
+  test('assert that return button is rendered and works', async () => {
+    await sleep(50);
     wrapper.setProps({});
     wrapper.find('#button-for-0').simulate('click');
     const returnBtnTd = wrapper.find('td.return-button');

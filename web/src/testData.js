@@ -517,6 +517,52 @@ export const branchesMock = [
     can_push: true,
     default: false,
   },
+  {
+    "name": "data-pipeline/alive-eel-5052021164311-1",
+    "commit": {
+      "id": "1ad2ab832334c999085c5a189c542bd63794badc",
+      "short_id": "1ad2ab83",
+      "created_at": "2021-05-05T16:43:12.000+00:00",
+      "parent_ids": null,
+      "title": "[skip ci] create .mlreef.yml",
+      "message": "[skip ci] create .mlreef.yml",
+      "author_name": "mlreef",
+      "author_email": "mlreef@example.org",
+      "authored_date": "2021-05-05T16:43:12.000+00:00",
+      "committer_name": "mlreef",
+      "committer_email": "mlreef@example.org",
+      "committed_date": "2021-05-05T16:43:12.000+00:00"
+    },
+    "merged": false,
+    "protected": false,
+    "developers_can_push": false,
+    "developers_can_merge": false,
+    "can_push": true,
+    "default": false
+  },
+  {
+    "name": "data-pipeline/alive-eel-5052021164311-2",
+    "commit": {
+      "id": "1ad2ab832334c999085c5a189c542bd63794badc",
+      "short_id": "1ad2ab83",
+      "created_at": "2021-05-05T16:43:12.000+00:00",
+      "parent_ids": null,
+      "title": "[skip ci] create .mlreef.yml",
+      "message": "[skip ci] create .mlreef.yml",
+      "author_name": "mlreef",
+      "author_email": "mlreef@example.org",
+      "authored_date": "2021-05-05T16:43:12.000+00:00",
+      "committer_name": "mlreef",
+      "committer_email": "mlreef@example.org",
+      "committed_date": "2021-05-05T16:43:12.000+00:00"
+    },
+    "merged": false,
+    "protected": false,
+    "developers_can_push": false,
+    "developers_can_merge": false,
+    "can_push": true,
+    "default": false
+  }
 ];
 
 export const jobMock = {
