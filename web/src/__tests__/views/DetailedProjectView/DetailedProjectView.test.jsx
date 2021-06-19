@@ -64,7 +64,7 @@ describe('test basic rendering for data projects', () => {
     expect(repoInfoLinks.at(3).props().to).toBe('/mlreef/sign-language-classifier/-/visualizations');
     expect(repoInfoLinks.at(4).props().to).toBe('/mlreef/sign-language-classifier/-/datasets');
 
-    expect(wrapper.find('RepoInfo').find('.stat-no').at(1).text()).toBe('4');
+    expect(wrapper.find('RepoInfo').find('.stat-no').at(1).text()).toBe('6');
     expect(wrapper.find('FilesTable').find('tr').length).toBeGreaterThan(0);
   });
 

@@ -54,36 +54,3 @@ describe('Dropdown appears on button click', () => {
   });
 });
 
-describe('The branches list should be displayed when dropdown button is clicked', () => {
-  it('dropdown of branches appear', () => {
-    const store = storeFactory({
-      projects: projectsArrayMock.projects,
-      branches: branchesMock,
-      user: {
-        auth: true,
-        username: 'mlreef',
-      },
-    });
-
-    const component = renderer
-      .create(
-        <Provider store={store}>
-          <MemoryRouter key="rerere">
-            <RepoFeatures
-              store={store}
-              projects={projectsArrayMock.projects}
-              branch="master"
-              branches={branchesMock}
-              path="src"
-              projectId={projectsArrayMock.projects.selectedProject.gid}
-              searchableType={projectsArrayMock.projects.selectedProject.searchableType}
-              updateLastCommit={() => {}}
-            />
-          </MemoryRouter>
-        </Provider>,
-      )
-      .toJSON();
-
-    expect(component).toMatchSnapshot();
-  });
-});

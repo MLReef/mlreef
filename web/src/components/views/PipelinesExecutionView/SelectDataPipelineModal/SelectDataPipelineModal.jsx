@@ -9,7 +9,6 @@ import MDropdown from 'components/ui/MDropdown';
 import ReturnLink from 'components/returnLink';
 import dayjs from 'dayjs';
 import { CANCELED, FAILED, SUCCESS } from 'dataTypes';
-import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import useMount from 'customHooks/useMount';
 import JobsApi from 'apis/JobsApi';
@@ -82,7 +81,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     updateFiles();
   }, [updateFiles]);
 
-  useEffectNoFirstRender(() => {
+  useEffect(() => {
     if (gid && branchSelected) {
       jobsApi.getPerProject(gid)
         .then((jobList) => { if (!unmounted) setJobs(jobList); })
@@ -137,14 +136,14 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     const datasetWithStatus = jobs?.filter((job) => job.ref === pipelineName);
     const pipeStatus = datasetWithStatus[0]?.status;
 
-    let statusIcon = 'var(--warning)';
-    if (pipeStatus === SUCCESS) statusIcon = 'var(--primary)';
-    else if (pipeStatus === FAILED || pipeStatus === CANCELED) statusIcon = 'var(--danger)';
+    let statusIcon = 'warning';
+    if (pipeStatus === SUCCESS) statusIcon = 'primary';
+    else if (pipeStatus === FAILED || pipeStatus === CANCELED) statusIcon = 'danger';
 
     return (
       <li
         key={`display-branch-${branch.name}`}
-        style={{ color: statusIcon }}
+        style={{ color: `var(--${statusIcon})` }}
         className="pipeline-btn pt-1"
       >
         <button
