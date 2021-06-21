@@ -1,19 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
-import { bindActionCreators } from 'redux';
 import Navbar from 'components/navbar/navbar';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import MLoadingSpinner from 'components/ui/MLoadingSpinner';
+import { shape, string } from 'prop-types';
 import hooks from 'customHooks/useSelectedProject';
 import './Publications.scss';
 import iconGrey from 'images/icon_grey-01.png';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import MTabs from 'components/ui/MTabs';
-import * as projectActions from 'store/actions/projectInfoActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import actionsAndFunctions from './PublicationActionsAndFunctions';
 import PublicationInfoRow from './PublicationInfoRow';
+import { sortTypedPipelines } from 'domain/Publications/metaData';
+import useLoading from 'customHooks/useLoading';
+import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
 const Publications = (props) => {
   const {
@@ -23,19 +23,19 @@ const Publications = (props) => {
         slug,
       },
     },
-    actions,
     user: { globalColorMarker },
   } = props;
 
   const [{
     gid,
+    id,
     name: projectName,
   }, isFetching] = hooks.useSelectedProject(namespace, slug);
 
   const [selectedStatus, setStatus] = useState('all');
   const [pipes, setPipes] = useState([]);
   const sortedPipes = useMemo(
-    () => actionsAndFunctions.sortPipelines(pipes),
+    () => sortTypedPipelines(pipes),
     [pipes],
   );
 
@@ -44,14 +44,18 @@ const Publications = (props) => {
     : sortedPipes.filter((sP) => sP.status === selectedStatus)[0].items;
   const hasPublicationPipes = selectedPipes.length > 0;
 
+  const getPubsCallback = useCallback(() => actionsAndFunctions.getPiblicationsList(id, gid)
+    .then(setPipes)
+    .catch((err) => toastr.error('Error', err?.message))
+  , [id, gid]);
+
+  const [isLoading, executeCall] = useLoading(getPubsCallback);
+
   useEffect(() => {
-    if (gid) {
-      actions.getProjectPipelines(gid)
-        .then((pipelines) => actionsAndFunctions.getPipelinesAdditionalInformation(gid, pipelines))
-        .then((pipesAddInfo) => setPipes(pipesAddInfo))
-        .catch((err) => toastr.error('Error', err?.message));
+    if(!isFetching){
+      executeCall();
     }
-  }, [gid]);
+  }, [isFetching]);
 
   const customCrumbs = [
     {
@@ -107,30 +111,35 @@ const Publications = (props) => {
               </div>
             </div>
             <br />
-            <div className="d-flex publications-content-bottom">
-              <table className="publications-content-bottom-table">
-                <thead>
-                  <tr className="publications-content-bottom-table-heading">
-                    <th className="first"><p>Status</p></th>
-                    <th><p>Method</p></th>
-                    <th><p>Usable</p></th>
-                    <th><p>Branch</p></th>
-                    <th><p>Job</p></th>
-                    <th className="last"><p>Timing</p></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {hasPublicationPipes && selectedPipes.map((pipe) => (
-                    <PublicationInfoRow
-                      key={pipe.id}
-                      namespace={namespace}
-                      slug={slug}
-                      pipe={pipe}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {<MLoadingSpinnerContainer active={isLoading}>
+                <div className="d-flex publications-content-bottom">
+                
+                <table className="publications-content-bottom-table">
+                  <thead>
+                    <tr className="publications-content-bottom-table-heading">
+                      <th className="first"><p>Status</p></th>
+                      <th><p>Version</p></th>
+                      <th><p>Usable</p></th>
+                      <th><p>Branch</p></th>
+                      <th><p>Job</p></th>
+                      <th className="last"><p>Timing</p></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hasPublicationPipes && selectedPipes.map((publication) => (
+                      <PublicationInfoRow
+                        key={publication.id}
+                        gid={gid}
+                        namespace={namespace}
+                        slug={slug}
+                        publication={publication}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+                </div>
+              </MLoadingSpinnerContainer>
+            }
             {!hasPublicationPipes && (
             <div className="d-flex w-100 mt-3 publications-content-bottom-not-found">
               <img src={iconGrey} alt="no-publication-found" height="50" />
@@ -150,33 +159,23 @@ const Publications = (props) => {
   );
 };
 
-function mapStateToProps(state) {
+function mapStateToProps({ user, projects: { selectedProject } }) {
   return {
-    user: state.user,
-    project: state.projects.selectedProject,
+    user,
+    project: selectedProject,
   };
 }
 
 Publications.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      namespace: PropTypes.string,
-      slug: PropTypes.string,
+  match: shape({
+    params: shape({
+      namespace: string,
+      slug: string,
     }).isRequired,
   }).isRequired,
-  project: PropTypes.shape({
-    name: PropTypes.string,
-    gid: PropTypes.number,
-    pipelines: PropTypes.arrayOf(PropTypes.shape({})),
+  user: shape({
+    globalColorMarker: string,
   }).isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators({
-      ...projectActions,
-    }, dispatch),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Publications);
+export default connect(mapStateToProps)(Publications);

@@ -209,6 +209,20 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
+  getPublications(
+    projectId: string,
+  ) {
+    const baseUrl = `/api/v1/code-projects/${projectId}/publish`;
+    const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const builder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET, headers, baseUrl,
+    );
+
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+
   getProjectPublishStatus(projectId: string) {
     const url = `/api/v1/code-projects/${projectId}/publish`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);

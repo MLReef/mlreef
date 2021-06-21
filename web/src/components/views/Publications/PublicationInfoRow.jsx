@@ -1,39 +1,51 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import PropTypes from 'prop-types';
+import { number, shape, string } from 'prop-types';
 import { Link } from 'router';
+import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import clock from 'images/clock.png';
+import { getColorForStatus } from 'domain/Publications/metaData';
 import calender from 'images/calender.png';
-import actionsAndFunctions from './PublicationActionsAndFunctions';
+import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 
-const PublicationInfoRow = ({ namespace, slug, pipe }) => {
-  const link = `/${namespace}/${slug}/-/publications/${pipe.id}`;
+
+
+const PublicationInfoRow = ({
+  gid, namespace, slug, publication,
+}) => {
+  const link = `/${namespace}/${slug}/-/publications/${publication?.pipeline?.id}`;
   return (
-    <tr key={pipe.id} className="publications-content-bottom-table-content">
+    <tr key={publication.id} className="publications-content-bottom-table-content">
       <td>
         <Link className="publications-content-bottom-table-content-link-to-publication" to={link}>
           <p style={{
-            color: actionsAndFunctions.getColor(pipe.status),
+            color: `var(--${getColorForStatus(publication.status)})`,
           }}
           >
-            <b>{pipe.status}</b>
+            <b>{publication.status}</b>
           </p>
         </Link>
       </td>
-      <td><Link className="publications-content-bottom-table-content-link-to-publication" to={link}><p>Latest</p></Link></td>
+      <td>
+        <p>{publication.version}</p>
+      </td>
       <td><Link className="publications-content-bottom-table-content-link-to-publication" to={link}><p>Yes</p></Link></td>
-      <td><Link className="publications-content-bottom-table-content-link-to-publication" to={link}><p>{pipe.ref}</p></Link></td>
+      <td><Link className="publications-content-bottom-table-content-link-to-publication" to={link}><p>{publication.branch}</p></Link></td>
       <td>
         <div className="d-flex" style={{ alignItems: 'center' }}>
-          <p className="mr-2">{`#${pipe.id} by `}</p>
-          <Link className="publications-content-bottom-table-content-link-to-user" to={`/${pipe?.user?.username}`}>
-            <img
-              src={pipe?.user?.avatarUrl}
-              title={pipe?.user?.name}
-              alt={`${pipe?.user?.name}`}
-              className="project-card-avatar"
-            />
+          <p className="mr-2">{publication?.pipeline?.id ? `#${publication?.pipeline?.id} by` : '---'}</p>
+          <Link className="publications-content-bottom-table-content-link-to-user" to={`/${publication?.pipeline?.user?.username}`}>
+            {publication?.pipeline?.user ? (
+              <img
+                src={publication?.pipeline?.user?.avatar_url}
+                title={publication?.pipeline?.user?.name}
+                alt={`${publication?.pipeline?.user?.name}`}
+                className="project-card-avatar"
+              />
+            ) : (
+              <MEmptyAvatar />
+            )}
           </Link>
         </div>
       </td>
@@ -41,13 +53,13 @@ const PublicationInfoRow = ({ namespace, slug, pipe }) => {
         <div className="d-flex" style={{ alignItems: 'center' }}>
           <img src={clock} alt="clock" height="15" />
           <p className="ml-1">
-            {dayjs(pipe.createdAt).format('HH:mm:ss')}
+            {dayjs(publication.jobStartedAt).format('HH:mm:ss')}
           </p>
         </div>
         <div className="d-flex" style={{ alignItems: 'center' }}>
           <img src={calender} alt="calender" height="15" />
           <p className="ml-1">
-            {getTimeCreatedAgo(pipe.createdAt)}
+            {getTimeCreatedAgo(publication.jobStartedAt)}
           </p>
         </div>
       </td>
@@ -56,18 +68,23 @@ const PublicationInfoRow = ({ namespace, slug, pipe }) => {
 };
 
 PublicationInfoRow.propTypes = {
-  namespace: PropTypes.string.isRequired,
-  slug: PropTypes.string.isRequired,
-  pipe: PropTypes.shape({
-    id: PropTypes.number,
-    status: PropTypes.string,
-    ref: PropTypes.string,
-    createdAt: PropTypes.string,
-    user: PropTypes.shape({
-      username: PropTypes.string,
-      avatarUrl: PropTypes.string,
-      name: PropTypes.string,
-    })
+  namespace: string.isRequired,
+  slug: string.isRequired,
+  publication: shape({
+    id: string,
+    status: string,
+    branch: string,
+    createdAt: string,
+    version: string.isRequired,
+    jobStartedAt: string.isRequired,
+    pipeline: shape({
+      id: number.isRequired,
+    }),
+    user: shape({
+      username: string,
+      avatarUrl: string,
+      name: string,
+    }),
   }).isRequired,
 };
 

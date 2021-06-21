@@ -18,13 +18,13 @@ export const getTimeCreatedAgo = (timeAgoCreatedAt, today = new Date()) => {
   if (diff > 2678400e3) {
     timediff = `${Math.floor(diff / 2678400e3)} month(s)`;
   } else if (diff > 604800e3) {
-    timediff = `${Math.floor(diff / 604800e3)} weeks`;
+    timediff = `${Math.floor(diff / 604800e3)} week(s)`;
   } else if (diff > 86400e3) {
-    timediff = `${Math.floor(diff / 86400e3)} days`;
+    timediff = `${Math.floor(diff / 86400e3)} day(s)`;
   } else if (diff > 3600e3) {
     timediff = `${Math.floor(diff / 3600e3)} hour(s)`;
   } else if (diff > 60e3) {
-    timediff = `${Math.floor(diff / 60e3)} minutes`;
+    timediff = `${Math.floor(diff / 60e3)} minute(s)`;
   } else {
     timediff = 'just now';
   }

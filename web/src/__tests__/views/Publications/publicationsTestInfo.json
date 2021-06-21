@@ -1,0 +1,124 @@
+{
+  "publicationBEResponse": {
+    "content": [
+      {
+        "id": "34a19eb5-41f1-4916-b5df-74ba4f898d7f",
+        "project_id": "e6452744-0edb-11eb-adc1-0242ac120002",
+        "branch": "master",
+        "version": "1",
+        "script_path": "data_processor.py",
+        "environment": {
+          "id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+          "title": "Base environment tensorflow/tensorflow:2.1.0-gpu-py3",
+          "docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+          "description": "GPU nvidia drivers and TF 2.1, compatible python 3.6-3.8",
+          "requirements": "                                Ubuntu 20.04\n                                python 3.6.9\n                                tensorflow-gpu 2.1.0\n                                CUDA 10.1\n                                CUDNN 7",
+          "machine_type": "GPU",
+          "sdk_version": "3.6.9"
+        },
+        "model_type": "Clustering",
+        "name": "Bert Sentiment classification",
+        "slug": "commons-bertsent-processor-master-1",
+        "description": "Transforms images with lots of magic",
+        "commit_sha": "16161879e3604794c50412948980e4f3d32ce252",
+        "published_at": "2021-06-01T22:09:52.564Z",
+        "job_started_at": "2021-06-01T22:10:37.071Z",
+        "job_finished_at": "2021-06-01T22:11:55.806Z",
+        "published_by": "aaaa0000-0001-0000-0000-cccccccccccc",
+        "status": "PUBLISHED",
+        "gitlab_pipeline_id": 691,
+        "entry_file": "data_processor.py"
+      },
+      {
+        "id": "18a6b86f-cf2f-43a1-9898-22a5e4cf4df3",
+        "project_id": "e6452744-0edb-11eb-adc1-0242ac120002",
+        "branch": "jaja-branch",
+        "version": "1",
+        "script_path": "data_processor.py",
+        "requirements_file": "requirements.txt",
+        "environment": {
+          "id": "870a0b67-f36b-40c8-9e76-560c32d5f3e8",
+          "title": "Base environment tensorflow/tensorflow:2.1.0-gpu-py3",
+          "docker_image": "tensorflow/tensorflow:2.1.0-gpu-py3",
+          "description": "GPU nvidia drivers and TF 2.1, compatible python 3.6-3.8",
+          "requirements": "                                Ubuntu 20.04\n                                python 3.6.9\n                                tensorflow-gpu 2.1.0\n                                CUDA 10.1\n                                CUDNN 7",
+          "machine_type": "GPU",
+          "sdk_version": "3.6.9"
+        },
+        "model_type": "Clustering",
+        "name": "Bert Sentiment classification",
+        "slug": "commons-bertsent-processor-jaja-branch-1",
+        "description": "Transforms images with lots of magic",
+        "commit_sha": "44d3f8ee3407895d3ae5f9f8e063dc91b147b9b2",
+        "published_at": "2021-06-10T14:05:55.358Z",
+        "job_started_at": "2021-06-10T14:06:40.481Z",
+        "job_finished_at": "2021-06-10T14:07:49.612Z",
+        "published_by": "aaaa0000-0001-0000-0000-cccccccccccc",
+        "status": "PUBLISHED",
+        "gitlab_pipeline_id": 722,
+        "entry_file": "data_processor.py"
+      }
+    ],
+    "pageable": {
+      "sort": {
+        "unsorted": true,
+        "sorted": false,
+        "empty": true
+      },
+      "page_number": 0,
+      "page_size": 2000,
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+    },
+    "last": true,
+    "total_pages": 1,
+    "total_elements": 2,
+    "sort": {
+      "unsorted": true,
+      "sorted": false,
+      "empty": true
+    },
+    "first": true,
+    "number_of_elements": 2,
+    "size": 2000,
+    "number": 0,
+    "empty": false
+  },
+  "pipelineGitlabResponse": {
+    "id": 691,
+    "sha": "16161879e3604794c50412948980e4f3d32ce252",
+    "ref": "master",
+    "status": "success",
+    "created_at": "2021-06-01T22:09:53.785Z",
+    "updated_at": "2021-06-01T22:11:56.969Z",
+    "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef/commons-bertsent/pipelines/691",
+    "before_sha": "32d174dbb4e8a67b5f93b4610f52c1513ed285cf",
+    "tag": false,
+    "yaml_errors": null,
+    "user": {
+      "id": 2,
+      "name": "mlreef",
+      "username": "mlreef",
+      "state": "active",
+      "avatar_url": "https://www.gravatar.com/avatar/d64636c9c4cf15dd5c9e1ed6ab529100?s=80\u0026d=identicon",
+      "web_url": "http://gitlab.review-master-8dyme2.35.246.253.255.nip.io/mlreef"
+    },
+    "started_at": "2021-06-01T22:09:59.560Z",
+    "finished_at": "2021-06-01T22:11:56.966Z",
+    "committed_at": null,
+    "duration": 117,
+    "coverage": null,
+    "detailed_status": {
+      "icon": "status_success",
+      "text": "passed",
+      "label": "passed",
+      "group": "success",
+      "tooltip": "passed",
+      "has_details": true,
+      "details_path": "/mlreef/commons-bertsent/pipelines/691",
+      "illustration": null,
+      "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png"
+    }
+  }
+}
