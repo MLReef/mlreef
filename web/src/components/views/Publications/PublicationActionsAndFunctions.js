@@ -3,31 +3,29 @@ import { parseToCamelCase } from 'functions/dataParserHelpers';
 import {
   CANCELED, FAILED, PENDING, RUNNING, SUCCESS,
 } from 'dataTypes';
+import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
+import { plainToClassFromExist } from 'class-transformer';
+import Publication from 'domain/Publications/Publication';
 
 const gitlabPipelinesApi = new GitlabPipelinesApi();
 
-const getPipelinesAdditionalInformation = (gid, pipes) => Promise.all(
-  pipes?.map((pipe) => gitlabPipelinesApi.getPipesById(gid, pipe?.id)),
-).then((pipesAddInfo) => pipesAddInfo
-  .map(parseToCamelCase)
-  .map((parsed) => ({ ...parsed, user: parseToCamelCase(parsed.user) })));
+const projectApi = new ProjectGeneralInfoApi();
 
-const getColor = (status) => {
-  switch (status) {
-    case PENDING:
-      return 'var(--warning)';
-    case RUNNING:
-      return 'var(--success)';
-    case SUCCESS:
-      return 'var(--success)';
-    case CANCELED:
-      return 'var(--dark)';
-    case FAILED:
-      return 'var(--danger)';
-    default:
-      return 'var(--info)';
-  }
-};
+const mergeWithPromise = (gid, pubs = []) => pubs.map(async (p) => ({
+  ...p,
+  pipeline: await gitlabPipelinesApi.getPipesById(gid, p?.gitlabPipelineId)
+}));
+
+
+const getPiblicationsList = (projectId, gid) => projectApi.getPublications(projectId)
+  .then((pub) => pub.content)
+  .then((pipesAddInfo) => pipesAddInfo.map(parseToCamelCase))
+  .then(async (publications) => {
+    const resolvedArray = await Promise.all(mergeWithPromise(gid, publications));
+    return plainToClassFromExist(
+    Publication, resolvedArray, { excludeExtraneousValues: true }
+  )});
+
 
 const sortPipelines = (pipes) => [
   {
@@ -51,7 +49,6 @@ const sortPipelines = (pipes) => [
 ];
 
 export default {
-  getPipelinesAdditionalInformation,
-  getColor,
+  getPiblicationsList,
   sortPipelines,
 };

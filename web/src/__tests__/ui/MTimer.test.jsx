@@ -10,5 +10,5 @@ test('assert that timer renders', () => {
   const dt = new Date();
   dt.setHours(dt.getHours() - 1);
   const wrapper = setup(dt.toString());
-  expect(wrapper.find('p').text()).toBe('01:00:00');
+  expect(wrapper.find('p').text().includes('01:00:0')).toBe(true);
 });
