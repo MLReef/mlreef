@@ -20,6 +20,7 @@ interface CurrentUserService {
     fun personOrNull(): Person?
     fun account(): Account
     fun accountOrNull(): Account?
+    fun visitorAccount(): Account
     fun accessToken(): String
     fun accessTokenOrNull(): String?
     fun anyValidToken(): String?
@@ -81,6 +82,17 @@ class SimpleCurrentUserService(
         return tokenDetails?.let {
             accountRepository.findByIdOrNull(tokenDetails.accountId)
         }
+    }
+
+    override fun visitorAccount(): Account {
+        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
+        return Account(
+            tokenDetails.accountId,
+            "Visitor",
+            "",
+            "",
+            Person(tokenDetails.personId, "", "Visitor", null)
+        )
     }
 
     override fun projectsMap(): Map<UUID, AccessLevel?> {

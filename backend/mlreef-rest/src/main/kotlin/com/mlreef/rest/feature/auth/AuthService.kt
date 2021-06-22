@@ -1,11 +1,15 @@
 package com.mlreef.rest.feature.auth
 
+import com.mlreef.rest.AccountExternalRepository
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.config.censor
+import com.mlreef.rest.config.security.oauth.OAuthClientSettingsStorage
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.AccountExternal
+import com.mlreef.rest.domain.AccountToken
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.DataProject
 import com.mlreef.rest.domain.I18N
@@ -17,6 +21,7 @@ import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabConnectException
 import com.mlreef.rest.exceptions.IncorrectCredentialsException
+import com.mlreef.rest.exceptions.InternalException
 import com.mlreef.rest.exceptions.NotConsistentInternalDb
 import com.mlreef.rest.exceptions.RestException
 import com.mlreef.rest.exceptions.UnknownUserException
@@ -35,6 +40,7 @@ import com.mlreef.rest.feature.groups.GroupsService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.utils.RandomUtils
+import com.mlreef.rest.utils.toInstant
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
@@ -43,7 +49,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -61,6 +67,9 @@ class AuthService(
     private val codeProjectsService: ProjectService<CodeProject>,
     private val emailService: EmailService,
     private val reservedNamesService: ReservedNamesService,
+    private val userResolverService: UserResolverService,
+    private val accountExternalRepository: AccountExternalRepository,
+    private val oAuthClientSettingsStorage: OAuthClientSettingsStorage,
 ) {
 
     @Value("\${mlreef.bot-management.epf-bot-email-domain:\"\"}")
@@ -124,12 +133,75 @@ class AuthService(
         return Pair(loggedAccount, oauthToken)
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    fun loginOAuthUser(
+        externalAccountId: UUID,
+        accessToken: String?,
+        accessTokenExpiration: Instant?,
+        refreshToken: String?,
+        refreshTokenExpiration: Instant?,
+    ): AccountToken? {
+        val externalAccount = accountExternalRepository.findByIdOrNull(externalAccountId)
+            ?: throw UserNotFoundException(userId = externalAccountId)
+
+        val currentTokens = accountTokenRepository.findByAccountIdAndExpiresAtAfter(
+            externalAccount.account.id,
+            Instant.now().minusSeconds(60)
+        ) + accountTokenRepository.findByAccountIdAndExpiresAtNull(externalAccount.account.id)
+
+        accountExternalRepository.save(
+            externalAccount.copy(
+                accessToken = accessToken,
+                accessTokenExpiresAt = accessTokenExpiration,
+                refreshToken = refreshToken,
+                refreshTokenExpiresAt = refreshTokenExpiration,
+            )
+        )
+
+        return if (currentTokens.isNotEmpty()) {
+            currentTokens.sortedByDescending { it.expiresAt }.first()
+        } else {
+            val clientSettings = oAuthClientSettingsStorage.getOAuthClientSettings(externalAccount.oauthClient)
+
+            clientSettings?.let {
+                val defaultTokenExpiration = Instant.now().plusSeconds(it.impersonateTokenLifetimeSec)
+                val tokenLifeTime = accessTokenExpiration?.let {
+                    if (it.isAfter(defaultTokenExpiration)) {
+                        it
+                    } else {
+                        defaultTokenExpiration
+                    }
+                } ?: defaultTokenExpiration
+
+                val gitlabToken = createGitlabToken(
+                    externalAccount.account.person.gitlabId ?: throw InternalException("User ${externalAccount.account.person.id} is not connected to gitlab"),
+                    externalAccount.account.username,
+                    "${externalAccount.oauthClient}-${randomUUID()}",
+                    tokenLifeTime,
+                )
+
+                accountTokenRepository.save(
+                    AccountToken(
+                        randomUUID(),
+                        externalAccount.account.id,
+                        gitlabToken.token ?: throw InternalException("Incorrect gitlab token created"),
+                        gitlabToken.id,
+                        gitlabToken.active,
+                        gitlabToken.revoked,
+                        gitlabToken.expiresAt?.toInstant(),
+                    )
+                )
+            }
+        }
+    }
+
     @Transactional
     fun registerUser(
-        plainPassword: String, username: String, email: String
+        plainPassword: String, username: String, email: String, name: String,
     ): Pair<Account, OAuthToken?> {
-        val finalUserName = username.trim().toLowerCase()
-        val finalEmail = email.trim()
+        val finalUserName = username.trim().toLowerCase().takeIf { it.isNotEmpty() } ?: throw BadParametersException("Username cannot be blank")
+        val finalEmail = email.trim().takeIf { it.isNotEmpty() } ?: throw BadParametersException("Email cannot be blank")
+        val finalName = name.trim()
 
         val byUsername: Account? = accountRepository.findByUsernameIgnoreCase(finalUserName)
         val byEmail: Account? = accountRepository.findByEmailIgnoreCase(finalEmail)
@@ -152,7 +224,7 @@ class AuthService(
             Person(
                 id = randomUUID(),
                 slug = personSlug,
-                name = finalUserName,
+                name = finalName,
                 gitlabId = newGitlabUser.id
             )
         )
@@ -175,13 +247,91 @@ class AuthService(
     }
 
     @Transactional
-    fun userProfileUpdate(accountId: UUID,
-                          tokenDetails: TokenDetails,
-                          username: String? = null,
-                          email: String? = null,
-                          userRole: UserRole? = null,
-                          hasNewsletters: Boolean? = null,
-                          termsAcceptedAt: ZonedDateTime? = null
+    fun registerOAuthUser(
+        oAuthClient: String,
+        username: String?,
+        email: String?,
+        name: String?,
+        externalId: String?,
+        reposUrl: String? = null,
+        avatarUrl:String? = null,
+    ): AccountExternal {
+        val finalUserName = username?.trim()?.toLowerCase()?.takeIf { it.isNotEmpty() }
+        val finalEmail = email?.trim()?.takeIf { it.isNotEmpty() }
+        val finalExternalId = externalId?.trim()?.takeIf { it.isNotEmpty() }
+        val finalName = name?.trim()?.toLowerCase()?.takeIf { it.isNotEmpty() }
+
+        finalExternalId ?: finalEmail ?: finalUserName ?: throw BadRequestException("Cannot register external user for $oAuthClient. No unique id is provided")
+
+        val existAccountByUsername = userResolverService.resolveExternalAccount(oAuthClient, username = finalUserName)
+        val existAccountByEmail = userResolverService.resolveExternalAccount(oAuthClient, email = finalEmail)
+        val existAccountByExternalId = userResolverService.resolveExternalAccount(oAuthClient, externalId = finalExternalId)
+
+        existAccountByUsername?.let { throw UserAlreadyExistsException(username = username) }
+        existAccountByEmail?.let { throw UserAlreadyExistsException(email = email) }
+        existAccountByExternalId?.let { throw UserAlreadyExistsException(message = "User is already registered by $oAuthClient") }
+
+        val internalId = randomUUID()
+        val internalUserName = "$oAuthClient-${finalUserName ?: finalExternalId ?: randomUUID()}-$internalId"
+        val internalEmail = "$internalId@mlreef.com"
+        val internalPassword = RandomUtils.generateRandomPassword(30, true)
+
+        val personSlug = checkAvailability(internalUserName)
+
+        val newGitlabUser = createGitlabUser(username = internalUserName, email = internalEmail, password = internalPassword)
+
+        val person = personRepository.save(
+            Person(
+                id = randomUUID(),
+                slug = personSlug,
+                name = finalName ?: internalUserName,
+                gitlabId = newGitlabUser.id
+            )
+        )
+
+        val encryptedPassword = passwordEncoder.encode(internalPassword)
+
+        val newUser = accountRepository.save(
+            Account(
+                id = internalId,
+                username = internalUserName,
+                email = internalEmail,
+                passwordEncrypted = encryptedPassword,
+                person = person
+            )
+        )
+
+        val externalAccount = accountExternalRepository.save(
+            AccountExternal(
+                id = randomUUID(),
+                oauthClient = oAuthClient,
+                account = newUser,
+                username = finalUserName,
+                email = finalEmail,
+                externalId = finalExternalId,
+                reposUrl = reposUrl,
+                accessToken = null,
+                refreshToken = null,
+                avatarUrl = avatarUrl,
+            )
+        )
+
+        if (finalEmail != null) {
+            sendWelcomeMessage(newUser.id, externalAccount.username ?: finalName ?: "user", finalEmail)
+        }
+
+        return externalAccount
+    }
+
+    @Transactional
+    fun userProfileUpdate(
+        accountId: UUID,
+        tokenDetails: TokenDetails,
+        username: String? = null,
+        email: String? = null,
+        userRole: UserRole? = null,
+        hasNewsletters: Boolean? = null,
+        termsAcceptedAt: Instant? = null
     ): Account {
         val user = accountRepository.findByIdOrNull(accountId)
             ?: accountRepository.findAccountByPersonId(accountId)
@@ -209,11 +359,13 @@ class AuthService(
             email = finalEmail ?: user.email
         )
 
-        personRepository.save(user.person.copy(
-            userRole = userRole ?: user.person.userRole,
-            hasNewsletters = hasNewsletters ?: user.person.hasNewsletters,
-            termsAcceptedAt = termsAcceptedAt ?: user.person.termsAcceptedAt,
-        ))
+        personRepository.save(
+            user.person.copy(
+                userRole = userRole ?: user.person.userRole,
+                hasNewsletters = hasNewsletters ?: user.person.hasNewsletters,
+                termsAcceptedAt = termsAcceptedAt ?: user.person.termsAcceptedAt,
+            )
+        )
         updatedUserInDb = accountRepository.save(updatedUserInDb)
 
         if (updatedUserInDb.username != user.username) {
@@ -225,12 +377,16 @@ class AuthService(
     }
 
     private fun sendWelcomeMessage(account: Account) {
+        sendWelcomeMessage(account.id, account.username, account.email)
+    }
+
+    private fun sendWelcomeMessage(accountId: UUID, username: String, email: String) {
         val variables = mapOf(
-            EmailVariables.USER_NAME to account.username,
-            EmailVariables.RECIPIENT_EMAIL to account.email,
+            EmailVariables.USER_NAME to username,
+            EmailVariables.RECIPIENT_EMAIL to email,
             EmailVariables.SUBJECT to WELCOME_MESSAGE_SUBJECT
         )
-        emailService.sendAsync(account.id, EmailMessageType.HTML, TemplateType.WELCOME_MESSAGE_TEMPLATE, variables)
+        emailService.sendAsync(accountId, EmailMessageType.HTML, TemplateType.WELCOME_MESSAGE_TEMPLATE, variables)
     }
 
     fun checkUserInGitlab(token: String): GitlabUser {
@@ -248,7 +404,8 @@ class AuthService(
     fun changePasswordForUser(account: Account, newPassword: String): Boolean {
         gitlabRestClient.adminResetUserPassword(
             account.person.gitlabId ?: throw UnknownUserException("User is not connected to Gitlab"),
-            newPassword)
+            newPassword
+        )
 
         val passwordEncrypted = passwordEncoder.encode(newPassword)
 
@@ -325,6 +482,15 @@ class AuthService(
         val gitlabUserId = gitlabUser.id
         log.info("Create new Token for user ${gitlabUser.username}")
         return gitlabRestClient.adminCreateUserToken(gitlabUserId = gitlabUserId, tokenName = GITLAB_TOKEN_BOT)
+    }
+
+    private fun createGitlabToken(gitlabUserId: Long, username: String, tokenName: String? = null, expiresAt: Instant? = null): GitlabUserToken {
+        log.info("Create new Token ${tokenName ?: GITLAB_TOKEN_BOT} for user $username")
+        return gitlabRestClient.adminCreateUserToken(
+            gitlabUserId = gitlabUserId,
+            tokenName = tokenName ?: GITLAB_TOKEN_BOT,
+            expiresAt = expiresAt
+        )
     }
 
     private fun ensureGitlabToken(account: Account, gitlabUser: GitlabUser): GitlabUserToken? {
@@ -425,7 +591,8 @@ class AuthService(
             gitlabId = gitlabUser.id,
             userRole = UserRole.UNDEFINED,
             termsAcceptedAt = null,
-            hasNewsletters = false)
+            hasNewsletters = false
+        )
 
         account = Account(
             id = accountUuid,
@@ -452,14 +619,17 @@ class AuthService(
 
         var person = personRepository.findByName(gitlabUser.username)
         if (person == null) {
-            person = personRepository.save(Person(
-                id = randomUUID(),
-                slug = gitlabUser.username,
-                name = gitlabUser.username,
-                gitlabId = gitlabUser.id,
-                userRole = UserRole.UNDEFINED,
-                termsAcceptedAt = null,
-                hasNewsletters = false))
+            person = personRepository.save(
+                Person(
+                    id = randomUUID(),
+                    slug = gitlabUser.username,
+                    name = gitlabUser.username,
+                    gitlabId = gitlabUser.id,
+                    userRole = UserRole.UNDEFINED,
+                    termsAcceptedAt = null,
+                    hasNewsletters = false
+                )
+            )
         }
 
         val accountUuid = randomUUID()

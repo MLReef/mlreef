@@ -13,7 +13,7 @@ import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -145,7 +145,7 @@ class YamlFileGeneratorTest {
         val publisher = Person(
             randomUUID(), "subject", "name", 1, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now()
+            termsAcceptedAt = Instant.now()
         )
 
         val processor = Processor(

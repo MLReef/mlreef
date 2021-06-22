@@ -10,33 +10,39 @@ import com.mlreef.rest.domain.helpers.DataClassWithId
 import com.mlreef.rest.domain.helpers.UserInGroup
 import com.mlreef.rest.domain.helpers.UserInProject
 import java.time.Instant
-import java.time.ZonedDateTime
 import java.util.UUID
 
 // FIXME: Coverage says: missing tests
 data class UserDto(
     override val id: UUID,
     val username: String,
+    val name:String,
     val email: String,
     val gitlabId: Long?,
     val userRole: UserRole? = null,
-    val termsAcceptedAt: ZonedDateTime? = null,
+    val termsAcceptedAt: Instant? = null,
     val hasNewsletters: Boolean? = null,
+    val external: Boolean = false,
+    val externalFrom: String? = null,
 ) : DataClassWithId
 
 fun Account.toUserDto() = UserDto(
     id = this.id,
-    username = this.username,
-    email = this.email,
+    username = this.externalAccount?.let { it.username ?: "" } ?: this.username,
+    name = this.person.name,
+    email = this.externalAccount?.let { it.email ?: "" } ?: this.email,
     gitlabId = this.person.gitlabId,
     userRole = this.person.userRole,
     termsAcceptedAt = this.person.termsAcceptedAt,
     hasNewsletters = this.person.hasNewsletters,
+    external = this.externalAccount != null,
+    externalFrom = this.externalAccount?.oauthClient,
 )
 
 data class SecretUserDto(
     override val id: UUID,
     val username: String,
+    val name: String,
     val email: String,
     val gitlabId: Long?,
     @Deprecated("This shall be removed in favour of the Oauth Token")
@@ -44,17 +50,19 @@ data class SecretUserDto(
     val accessToken: String? = null,
     val refreshToken: String? = null,
     val userRole: UserRole? = null,
-    val termsAcceptedAt: ZonedDateTime? = null,
+    val termsAcceptedAt: Instant? = null,
     val hasNewsletters: Boolean? = null,
-
-    ): DataClassWithId {
+    val external: Boolean = false,
+    val externalFrom: String? = null,
+) : DataClassWithId {
     fun censor(): SecretUserDto = this.copy(token = token?.censor())
 }
 
 fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? = null) = SecretUserDto(
     id = this.id,
-    username = this.username,
-    email = this.email,
+    username = this.externalAccount?.let { it.username ?: "" } ?: this.username,
+    name = this.person.name,
+    email = this.externalAccount?.let { it.email ?: "" } ?: this.email,
     gitlabId = this.person.gitlabId,
     token = accessToken,
     accessToken = accessToken,
@@ -62,6 +70,8 @@ fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? =
     userRole = this.person.userRole,
     termsAcceptedAt = this.person.termsAcceptedAt,
     hasNewsletters = this.person.hasNewsletters,
+    external = this.externalAccount != null,
+    externalFrom = this.externalAccount?.oauthClient,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

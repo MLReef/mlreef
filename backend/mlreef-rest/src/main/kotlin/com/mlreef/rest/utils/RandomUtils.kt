@@ -24,6 +24,14 @@ object RandomUtils {
             .toLowerCase()
     }
 
+    fun generateRandomAlphaNumeric(length: Int): String {
+        return (1..if (length <= 0) DEFAULT_USERNAME_LENGTH else length)
+            .map { _ -> kotlin.random.Random.nextInt(0, charNumberPool.size) }
+            .map(charNumberPool::get)
+            .joinToString("")
+            .toLowerCase()
+    }
+
     fun randomGitlabId() = kotlin.random.Random.nextInt(1, 10000000).toLong()
 
 }

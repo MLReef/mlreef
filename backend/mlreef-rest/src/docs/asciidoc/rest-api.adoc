@@ -137,8 +137,31 @@ To obtain this token, a login is necessary with valid credentials.
 
 Registering creates a new MLReef user which has a new gitlab user and Person.
 
+[[call-social-authorization-list]]
+=== GET /api/v1/social/authorize/:social_id
 
-operation::register-success[snippets='curl-request,request-fields,http-response,response-fields']
+Register user by oauth/social network.
+The social_id can be:
+
+* github
+* google
+* facebook
+* gitlab
+* linkedin
+* twitter
+* live
+* freelancer
+* azure
+* stackexchange
+
+____
+- live = microsoft live service
+- freelancer = freelancer.com
+- azure = microsoft azure
+- stackexchange = stackoverflow.com
+____
+
+operation::call-social-authorization-list[snippets='curl-request,http-response']
 
 [[authentication-login]]
 === POST /auth/login

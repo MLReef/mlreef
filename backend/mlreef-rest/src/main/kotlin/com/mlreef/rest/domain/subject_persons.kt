@@ -4,6 +4,7 @@ import com.mlreef.rest.domain.converters.AccessLevelConverter
 import com.mlreef.rest.domain.helpers.GroupOfUser
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
+import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.CascadeType
@@ -75,7 +76,7 @@ class Person(
     @Column(name = "user_role")
     val userRole: UserRole = UserRole.UNDEFINED,
     @Column(name = "terms_accepted_at")
-    val termsAcceptedAt: ZonedDateTime? = null,
+    val termsAcceptedAt: Instant? = null,
     @Column(name = "has_newsletters")
     val hasNewsletters: Boolean = false,
     version: Long? = null,
@@ -87,7 +88,7 @@ class Person(
         name: String? = null,
         memberships: List<Membership>? = null,
         userRole: UserRole? = null,
-        termsAcceptedAt: ZonedDateTime? = null,
+        termsAcceptedAt: Instant? = null,
         hasNewsletters: Boolean? = null,
         account: Account? = null,
     ): Person = Person(

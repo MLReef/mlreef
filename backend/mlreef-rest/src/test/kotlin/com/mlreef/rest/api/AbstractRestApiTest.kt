@@ -74,7 +74,6 @@ import org.springframework.util.Base64Utils
 import org.springframework.web.context.WebApplicationContext
 import java.io.InputStream
 import java.time.Instant
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.regex.Pattern
 import javax.transaction.Transactional
@@ -98,7 +97,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     @MockkBean(relaxed = true, relaxUnitFun = true)
     protected lateinit var restClient: GitlabRestClient
 
-    @MockkBean(relaxed = true, relaxUnitFun = true)
+    @MockkBean(relaxed = true, relaxUnitFun = false)
     protected lateinit var currentUserService: CurrentUserService
 
     @MockkBean(relaxed = true, relaxUnitFun = true)
@@ -264,6 +263,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { restClient.commitFiles(any(), any(), any(), any(), any(), any()) } returns Commit("branch")
         every { currentUserService.person() } answers { personRepository.findAll().first() }
         every { currentUserService.account() } answers { accountRepository.findAll().first() }
+        every { currentUserService.accountOrNull() } answers { accountRepository.findAll().first() }
         every { currentUserService.accessToken() } answers { testPrivateUserTokenMock1 }
 
         every {
@@ -525,7 +525,7 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             Person(
                 UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 10L, hasNewsletters = true,
                 userRole = UserRole.DEVELOPER,
-                termsAcceptedAt = ZonedDateTime.now()
+                termsAcceptedAt = Instant.now()
             )
         )
         val account = accountRepository.save(

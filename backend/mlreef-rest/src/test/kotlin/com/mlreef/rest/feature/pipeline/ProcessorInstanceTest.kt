@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID.randomUUID
 
 open class ProcessorInstanceTest {
@@ -28,7 +28,7 @@ open class ProcessorInstanceTest {
     fun prepare() {
         val author = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = Instant.now())
 
         parameterType = ParameterType(randomUUID(), "Parameter type")
 

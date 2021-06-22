@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/info", produces = ["application/json"], consumes = ["application/json"])
+@RequestMapping("/api/v1/info") //, produces = ["application/json"], consumes = ["application/json"])
 class SystemController(
     val gitlabRestClient: GitlabRestClient,
     val currentUserService: CurrentUserService

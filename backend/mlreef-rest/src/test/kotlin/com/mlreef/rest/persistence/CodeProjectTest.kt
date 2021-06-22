@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import java.util.UUID.randomUUID
 
@@ -26,7 +26,7 @@ class CodeProjectTest : AbstractRepositoryTest() {
         val id = randomUUID()
         val person = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = Instant.now())
         val entity = CodeProject(id = id, slug = "code-project-augment", name = "CodeProject Augment", ownerId = person.id, url = "url",
             gitlabNamespace = "", gitlabId = 0, gitlabPath = "", description = "", processorType = ProcessorType(
                 randomUUID(), "Type"))

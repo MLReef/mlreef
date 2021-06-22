@@ -1,7 +1,9 @@
 package com.mlreef.rest.feature.auth
 
+import com.mlreef.rest.AccountExternalRepository
 import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.AccountExternal
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import org.slf4j.LoggerFactory
@@ -14,6 +16,7 @@ import java.util.UUID
 class UserResolverService(
     private val accountRepository: AccountRepository,
     private val gitlabRestClient: GitlabRestClient,
+    private val accountExternalRepository: AccountExternalRepository,
 ) {
     companion object {
         val log = LoggerFactory.getLogger(this::class.java)
@@ -33,6 +36,12 @@ class UserResolverService(
         ?: findAccountByPersonId(personId)
         ?: findAccountByEmail(email)
 
+    fun resolveExternalAccount(oauthClient: String, username: String? = null, email: String? = null, externalId: String? = null): AccountExternal? =
+        findExternalAccountByExternalId(externalId, oauthClient)
+            ?: findExternalAccountByUsername(username, oauthClient)
+            ?: findExternalAccountByEmail(email, oauthClient)
+
+
     private fun findAccountByUserName(userName: String?) = userName?.let { accountRepository.findOneByUsername(it) }
     private fun findAccountByUserId(userId: UUID?) = userId?.let { accountRepository.findByIdOrNull(it) }
     private fun findAccountByGitlabId(gitlabId: Long?) = gitlabId?.let { accountRepository.findAccountByGitlabId(it) }
@@ -51,4 +60,14 @@ class UserResolverService(
             null
         }
     }
+
+    private fun findExternalAccountByUsername(username: String?, oauthClient: String) =
+        username?.takeIf { it.isNotBlank() }?.let { accountExternalRepository.findByUsernameAndOauthClient(it, oauthClient) }
+
+    private fun findExternalAccountByEmail(email: String?, oauthClient: String) =
+        email?.takeIf { it.isNotBlank() }?.let { accountExternalRepository.findByEmailAndOauthClient(it, oauthClient) }
+
+    private fun findExternalAccountByExternalId(externalId: String?, oauthClient: String) =
+        externalId?.takeIf { it.isNotBlank() }?.let { accountExternalRepository.findByExternalIdAndOauthClient(it, oauthClient) }
+
 }

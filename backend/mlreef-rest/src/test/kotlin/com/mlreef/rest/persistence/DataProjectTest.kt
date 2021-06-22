@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -23,7 +23,7 @@ class DataProjectTest : AbstractRepositoryTest() {
         val id = randomUUID()
         val author = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = Instant.now())
         val entity = DataProject(
             id = id, slug = "test-data-project", name = "CodeProject Augment", ownerId = author.id,
             url = "https://gitlab.com/mlreef/sign-language-classifier",

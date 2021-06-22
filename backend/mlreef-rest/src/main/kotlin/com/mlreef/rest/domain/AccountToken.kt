@@ -1,6 +1,6 @@
 package com.mlreef.rest.domain
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -19,9 +19,9 @@ data class AccountToken(
     @Column()
     val token: String,
     @Column(name = "gitlab_id")
-    val gitlabId: Int? = null,
+    val gitlabId: Long? = null,
     val active: Boolean = true,
     val revoked: Boolean = false,
     @Column(name = "expires_at")
-    val expiresAt: LocalDateTime? = null
+    val expiresAt: Instant? = null
 )
