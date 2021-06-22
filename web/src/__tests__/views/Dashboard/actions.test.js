@@ -32,3 +32,11 @@ describe('test  functions', () => {
     });
   });
 });
+
+test('assert that body generation works changing the name', () => {
+  expect(buildProjectsRequestBodyV2(
+    'all', [], 'jaja project', 0, true,
+  )).toStrictEqual(
+    { visibility: 'PUBLIC', input_data_types_or: [], name: 'jaja project', published: true },
+  );
+});
