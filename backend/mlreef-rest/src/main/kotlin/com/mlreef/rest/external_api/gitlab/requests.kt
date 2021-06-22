@@ -3,6 +3,7 @@ package com.mlreef.rest.external_api.gitlab
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
 import java.io.Serializable
+import java.time.Instant
 
 
 // https://docs.gitlab.com/ee/api/users.html#user-creation
@@ -38,7 +39,7 @@ internal class GitlabGetUserTokensRequest(
 internal class GitlabCreateUserTokenRequest(
     val name: String = "mlreef-token",
     val scopes: List<String> = listOf("api", "read_user", "read_repository", "write_repository"),
-    val expiresAt: String? = null,
+    val expiresAt: Instant? = null,
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/users.html#get-an-impersonation-token-of-a-user

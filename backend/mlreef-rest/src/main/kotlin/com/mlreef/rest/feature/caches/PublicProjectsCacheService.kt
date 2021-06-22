@@ -2,7 +2,6 @@ package com.mlreef.rest.feature.caches
 
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.AuditEntity
-import com.mlreef.rest.domain.Project
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
@@ -122,7 +121,7 @@ class RedisPublicProjectsCacheService(
             return
         }
 
-        val projectInDb = projectAny as Project
+        val projectInDb = projectAny
         val projectWithId = projectAny as AuditEntity
 
         var projectInGitlab: GitlabProject?

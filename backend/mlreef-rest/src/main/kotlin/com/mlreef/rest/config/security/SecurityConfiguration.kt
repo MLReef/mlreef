@@ -26,7 +26,9 @@ import org.springframework.session.Session
 
 @Configuration
 @EnableWebSecurity//(debug = true)
-class SecurityConfiguration(private val provider: AuthenticationProvider) : WebSecurityConfigurerAdapter() {
+class SecurityConfiguration(
+    private val provider: AuthenticationProvider,
+) : WebSecurityConfigurerAdapter() {
 
     @Autowired
     lateinit var sessionRepo: FindByIndexNameSessionRepository<out Session>
@@ -59,7 +61,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             .exceptionHandling().and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .anonymous().and()
-            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, EPF_BOT_URL, INFO_URL).permitAll()
+            .authorizeRequests().antMatchers("/docs", "/docs/*", AUTH_LOGIN_URL, AUTH_REGISTER_URL, SOCIAL_SIGNIN_URL, EPF_BOT_URL, INFO_URL).permitAll()
             .antMatchers(*visitorsUrls).hasAnyAuthority("USER", "VISITOR")
             .and()
             .authorizeRequests().anyRequest().fullyAuthenticated()
@@ -108,6 +110,8 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
         private const val PROJECTS_URL = "/api/v1/projects/**"
         private const val DATA_PROJECTS_URL = "/api/v1/data-projects/**"
         private const val CODE_PROJECTS_URL = "/api/v1/code-projects/**"
+        private const val WHOAMI_URL = "/api/v1/auth/whoami"
+        private const val SOCIAL_SIGNIN_URL = "/api/v1/social/**"
 
         private val visitorsUrls = arrayOf(
             MARKETPLACE_PUBLIC_URL,
@@ -117,6 +121,7 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             DATA_PROJECTS_URL,
             CODE_PROJECTS_URL,
             EXPLORE_URL,
+            WHOAMI_URL,
         )
 
         private val PROTECTED_MATCHER = AndRequestMatcher(
@@ -125,7 +130,8 @@ class SecurityConfiguration(private val provider: AuthenticationProvider) : WebS
             NegatedRequestMatcher(AntPathRequestMatcher(AUTH_REGISTER_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(EPF_BOT_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(INFO_URL)),
-            NegatedRequestMatcher(AntPathRequestMatcher(PING_URL))
+            NegatedRequestMatcher(AntPathRequestMatcher(PING_URL)),
         )
     }
 }
+

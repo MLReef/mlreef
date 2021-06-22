@@ -150,6 +150,7 @@ pages:
       - /usr/local/lib/node_modules
       - docs/node_modules
   script: docs/bin/ci-pages
+  allow_failure: true
   artifacts:
     paths:
       - public

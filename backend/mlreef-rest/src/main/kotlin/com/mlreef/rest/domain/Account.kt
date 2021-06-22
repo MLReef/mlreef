@@ -3,6 +3,7 @@ package com.mlreef.rest.domain
 import com.mlreef.rest.domain.helpers.UserInGroup
 import java.time.ZonedDateTime
 import java.util.UUID
+import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.JoinColumn
@@ -28,10 +29,11 @@ class Account(
     val passwordEncrypted: String,
 
     @OneToOne(fetch = FetchType.LAZY) //, cascade = [CascadeType.ALL])
-//    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-//    @JoinColumn(name = "person_id", foreignKey = ForeignKey(name = "account_subject_person_id_fkey"))
     @JoinColumn(name = "person_id")
     val person: Person,
+
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var externalAccount: AccountExternal? = null,
 
     val lastLogin: ZonedDateTime? = null,
     // Token for changing account (change password, etc)
@@ -62,7 +64,8 @@ class Account(
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         changeAccountToken = this.changeAccountToken,
-        changeAccountTokenCreatedAt = this.changeAccountTokenCreatedAt
+        changeAccountTokenCreatedAt = this.changeAccountTokenCreatedAt,
+        externalAccount = this.externalAccount,
     )
 
     fun copyWithToken(
@@ -79,13 +82,14 @@ class Account(
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         changeAccountToken = changeAccountToken,
-        changeAccountTokenCreatedAt = changeAccountTokenCreatedAt
+        changeAccountTokenCreatedAt = changeAccountTokenCreatedAt,
+        externalAccount = this.externalAccount,
     )
 
     fun toUserInGroup(accessLevel: AccessLevel?) = UserInGroup(
         id = this.id,
-        userName = this.username,
-        email = this.email,
+        userName = this.externalAccount?.username ?: this.username,
+        email = this.externalAccount?.email ?: this.email,
         gitlabId = this.person.gitlabId,
         accessLevel = accessLevel
     )

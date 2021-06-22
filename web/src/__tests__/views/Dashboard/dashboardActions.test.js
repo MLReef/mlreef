@@ -16,6 +16,7 @@ describe('test  functions', () => {
 
     const requestBody1 = buildProjectsRequestBodyV2('all', [dts[0], dts[1], dts[3]], '', 5, false);
 
+    
     expect(requestBody1).toStrictEqual({
       visibility: 'PUBLIC',
       input_data_types_or: ['TEXT', 'IMAGE', 'VIDEO'],

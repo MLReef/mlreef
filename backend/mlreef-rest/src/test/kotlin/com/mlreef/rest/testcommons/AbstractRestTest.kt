@@ -164,6 +164,10 @@ abstract class AbstractRestTest: BaseTest() {
         return this.andExpect(MockMvcResultMatchers.status().isConflict)
     }
 
+    fun ResultActions.expectFound(): ResultActions {
+        return this.andExpect(MockMvcResultMatchers.status().isFound)
+    }
+
     fun ResultActions.isUnavailableForLegalReasons(): ResultActions {
         return this.andExpect(MockMvcResultMatchers.status().isUnavailableForLegalReasons)
     }

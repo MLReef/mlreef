@@ -12,6 +12,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     NotAllowed(1405, "Method NotAllowed "),
     Conflict(1409, "Entity already exists"),
     AccessDenied(1410, "Access denied exception"),
+    AuthenticationError(1411, "Authentication error"),
     ValidationFailed(1400, "ValidationFailed"),
     ParsingError(1401, "Parsing cannot be performed"),
 
@@ -95,6 +96,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     //Internal errors
     InternalError(5000, "Internal application exception"),
     IncorrectConfiguration(5001, "Not correct configuration"),
+    FeatureNotSupported(5002, "The feature is not supported yet")
 
 }
 
@@ -159,6 +161,9 @@ class GitlabConnectException(message: String) : RestException(ErrorCode.NotFound
 @ResponseStatus(code = HttpStatus.BAD_GATEWAY, reason = "Gitlab is unavailable")
 class GitlabBadGatewayException(responseBodyAsString: String) : GitlabCommonException(502, ErrorCode.GitlabBadGateway, responseBodyAsString)
 
+@ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Cannot authentication user")
+class AuthenticationException(message: String) : RestException(ErrorCode.AuthenticationError, message)
+
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Cannot create entity due to a duplicate conflict:")
 class ConflictException(errorCode: ErrorCode, message: String) : RestException(errorCode, message) {
     constructor(message: String) : this(ErrorCode.Conflict, message)
@@ -172,9 +177,9 @@ class NotConsistentInternalDb(message: String) : RestException(ErrorCode.Validat
 class InconsistentStateOfObject(message: String) : RestException(ErrorCode.ValidationFailed, message)
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
-class UserAlreadyExistsException(username: String? = null, email: String? = null) : RestException(
+class UserAlreadyExistsException(username: String? = null, email: String? = null, id: String? = null, message: String? = null) : RestException(
     ErrorCode.UserCreationFailedEmailOrUsernameUsed,
-    "'${username ?: ""}' or '${email ?: ""}' is already in use!"
+    message ?: "'${username ?: email ?: id ?: ""} is already in use!"
 )
 
 @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Bad credentials")
@@ -266,6 +271,10 @@ class GitlabAuthenticationFailedException(statusCode: Int, error: ErrorCode, res
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Gitlab answered incorrectly")
 class GitlabIncorrectAnswerException(message: String) : RestException(500, message)
+
+@ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Feature is not implemented")
+class FeatureNotSupported(message: String) : RestException(500, message)
+
 
 private fun generateUserNotFoundMessage(
     userId: UUID?, userName: String?, email: String?,

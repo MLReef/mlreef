@@ -703,7 +703,14 @@ open class ProjectServiceImpl<T : Project>(
                         val zonedDateTime = of(LocalDateTime.of(localDate, LocalTime.MIN), ZoneId.systemDefault())
                         Instant.from(zonedDateTime)
                     } else null
-                    UserInProject(account.id, it.username, account.email, it.id, it.accessLevel.toAccessLevel(), expiration)
+                    UserInProject(
+                        account.id,
+                        account.externalAccount?.let { it.username ?: "" } ?: it.username,
+                        account.externalAccount?.let { it.email ?: "" } ?: account.email,
+                        it.id,
+                        it.accessLevel.toAccessLevel(),
+                        expiration
+                    )
                 } else null //possible it is a bot or admin
             }
     }

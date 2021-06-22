@@ -30,7 +30,7 @@ class ReservedNamesService {
         "create-start-instance", "instances", "instance",
         "create-requests", "update-requests", "request", "requests",
         "info", "status", "health", "ping",
-        "wikis", "namespace", "namespaces",
+        "wikis", "namespace", "namespaces", "visitor", "visitors"
     )
 
     val projectNames = listOf(

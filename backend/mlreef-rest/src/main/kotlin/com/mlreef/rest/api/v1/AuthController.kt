@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 
 @RestController
-@RequestMapping("/api/v1/auth", produces = ["application/json"], consumes = ["application/json"])
+@RequestMapping("/api/v1/auth") //, produces = ["application/json"], consumes = ["application/json"])
 class AuthController(
     val authService: AuthService,
     val currentUserService: CurrentUserService
@@ -50,7 +50,8 @@ class AuthController(
         .registerUser(
             plainPassword = registerRequest.password,
             username = registerRequest.username,
-            email = registerRequest.email
+            email = registerRequest.email,
+            name = registerRequest.name,
         )
         .let { (newUser: Account, oauthToken: OAuthToken?) ->
             newUser.toSecretUserDto(
@@ -58,6 +59,7 @@ class AuthController(
                 refreshToken = oauthToken?.refreshToken
             )
         }
+
 
     @Deprecated("maybe we need an admin endpoint, but actually deprecated", ReplaceWith("updateOwnProfile"))
     @PutMapping("/update/{userId}")
@@ -94,7 +96,10 @@ class AuthController(
         ).toUserDto()
 
     @GetMapping("/whoami")
-    fun whoami(): UserDto = currentUserService.account().toUserDto()
+    fun whoami(): UserDto = (
+        currentUserService.accountOrNull()
+            ?: currentUserService.visitorAccount()
+        ).toUserDto()
 
     // FIXME: Coverage says: missing tests
     @GetMapping("/check/token")
@@ -121,6 +126,6 @@ data class UpdateRequest(
     @get:Email @get:NotEmpty val email: String? = null,
     val name: String? = null,
     val userRole: UserRole? = null,
-    val termsAcceptedAt: ZonedDateTime? = null,
+    val termsAcceptedAt: Instant? = null,
     val hasNewsletters: Boolean? = null
 )

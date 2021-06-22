@@ -16,6 +16,8 @@ import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+const val PRIVATE_TOKEN_NAME = "PRIVATE-TOKEN"
+
 class GitlabTokenAuthenticationFilter(requestMatcher: RequestMatcher) : AbstractAuthenticationProcessingFilter(requestMatcher) {
 
     companion object {
@@ -24,9 +26,11 @@ class GitlabTokenAuthenticationFilter(requestMatcher: RequestMatcher) : Abstract
 
     @Throws(AuthenticationException::class)
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
+        val token = (
+            request?.getHeader(PRIVATE_TOKEN_NAME)
+                ?: request?.cookies?.find { it.name.equals(PRIVATE_TOKEN_NAME, true) }?.value
+            )?.removePrefix("Bearer")?.trim()
 
-        val tokenHeader = request?.getHeader("PRIVATE-TOKEN")
-        val token = tokenHeader?.removePrefix("Bearer")?.trim()
         val springToken = UsernamePasswordAuthenticationToken(token, token, listOf(SimpleGrantedAuthority("USER")))
 
         val authentication = authenticationManager.authenticate(springToken)

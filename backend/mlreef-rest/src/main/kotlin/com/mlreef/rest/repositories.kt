@@ -3,6 +3,7 @@
 package com.mlreef.rest
 
 import com.mlreef.rest.domain.Account
+import com.mlreef.rest.domain.AccountExternal
 import com.mlreef.rest.domain.AccountToken
 import com.mlreef.rest.domain.BaseEnvironments
 import com.mlreef.rest.domain.CodeProject
@@ -35,6 +36,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import java.util.UUID
 import javax.persistence.EntityManager
 import javax.persistence.EntityManagerFactory
@@ -83,9 +85,22 @@ interface AccountRepository : KtCrudRepository<Account, UUID> {
 }
 
 @Repository
+interface AccountExternalRepository : KtCrudRepository<AccountExternal, UUID> {
+    fun findByUsername(username: String): List<AccountExternal>
+    fun findByUsernameAndOauthClient(username: String, oauthClient: String): AccountExternal?
+    fun findByEmail(email: String): List<AccountExternal>
+    fun findByEmailAndOauthClient(email: String, oauthClient: String): AccountExternal?
+    fun findByAccessToken(token: String): AccountExternal?
+    fun findByAccount(account: Account): AccountExternal?
+    fun findByExternalIdAndOauthClient(externalId: String, oauthClient: String): AccountExternal?
+}
+
+@Repository
 interface AccountTokenRepository : ReadOnlyRepository<AccountToken, UUID> {
     fun findAllByAccountId(id: UUID): List<AccountToken>
     fun findOneByToken(token: String): AccountToken?
+    fun findByAccountIdAndExpiresAtAfter(id: UUID, expiresAt: Instant): List<AccountToken>
+    fun findByAccountIdAndExpiresAtNull(id: UUID): List<AccountToken>
 }
 
 @Repository

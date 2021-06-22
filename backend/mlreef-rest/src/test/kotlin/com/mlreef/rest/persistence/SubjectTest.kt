@@ -6,11 +6,12 @@ import com.mlreef.rest.domain.Subject
 import com.mlreef.rest.domain.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -28,7 +29,7 @@ class SubjectTest : AbstractRepositoryTest() {
         val id = randomUUID()
         val entity = Person(id, slug, name, gitlabId, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = Instant.now())
         return Pair(id, entity)
     }
 
@@ -73,6 +74,7 @@ class SubjectTest : AbstractRepositoryTest() {
     @Transactional
     @Rollback
     @Test
+    @Disabled("The constraint is not actual anymore")
     fun `must not save duplicate username`() {
         commitAndFail {
             repository.save(createEntity("slug1", "username1", 101).second)

@@ -27,7 +27,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.annotation.Rollback
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
@@ -214,7 +214,7 @@ class AuthApiTest : AbstractRestApiTest() {
             "$authUrl/user",
             token = "new-token-${UUID.randomUUID()}",
             body = UpdateRequest(
-                termsAcceptedAt = ZonedDateTime.now(),
+                termsAcceptedAt = Instant.now(),
                 hasNewsletters = true,
                 userRole = UserRole.DEVELOPER,
                 email = email,
@@ -288,6 +288,9 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description("UserRole describes the main usage type of this user"),
             fieldWithPath("terms_accepted_at").optional().type(JsonFieldType.STRING).description("Timestamp, when the terms & conditions have been accepted."),
             fieldWithPath("has_newsletters").optional().type(JsonFieldType.BOOLEAN).description("Indicates that the user wants to retrieve newsletters, or not"),
+            fieldWithPath("name").optional().type(JsonFieldType.STRING).description("Person name"),
+            fieldWithPath("external").optional().type(JsonFieldType.BOOLEAN).description("The mark showing that user comes from social network registration"),
+            fieldWithPath("external_from").optional().type(JsonFieldType.STRING).description("Social network name the user registered with"),
         )
     }
 
@@ -300,7 +303,10 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description("UserRole describes the main usage type of this user"),
             fieldWithPath("terms_accepted_at").optional().type(JsonFieldType.STRING).description("Timestamp, when the terms & conditions have been accepted."),
             fieldWithPath("has_newsletters").optional().type(JsonFieldType.BOOLEAN).description("Indicates that the user wants to retrieve newsletters, or not"),
-        )
+            fieldWithPath("name").optional().type(JsonFieldType.STRING).description("Person name"),
+            fieldWithPath("external").optional().type(JsonFieldType.BOOLEAN).description("The mark showing that user comes from social network registration"),
+            fieldWithPath("external_from").optional().type(JsonFieldType.STRING).description("Social network name the user registered with"),
+            )
     }
 
     private fun registerRequestFields(): List<FieldDescriptor> {

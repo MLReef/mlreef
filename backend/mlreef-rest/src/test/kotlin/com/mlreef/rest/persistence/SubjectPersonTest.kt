@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
@@ -22,7 +22,7 @@ class SubjectPersonTest : AbstractRepositoryTest() {
         val id = randomUUID()
         val entity = Person(id, "slug", "name", 1L, hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = ZonedDateTime.now())
+            termsAcceptedAt = Instant.now())
         return Pair(id, entity)
     }
 

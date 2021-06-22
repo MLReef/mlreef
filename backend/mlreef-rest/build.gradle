@@ -34,6 +34,7 @@ dependencies {
     // Security
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.session:spring-session-data-redis"
+//    implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
 
     // spring data, JPA, Repositories and DB migration
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -42,6 +43,10 @@ dependencies {
     runtimeOnly 'redis.clients:jedis:3.3.0'
     runtimeOnly 'com.h2database:h2'
 
+    //Social
+    implementation 'com.github.scribejava:scribejava-core:8.3.1'
+    implementation 'com.github.scribejava:scribejava-apis:8.3.1'
+
     // parsing python files with ANTLR
     antlr 'org.antlr:antlr4:4.7.2'
     implementation 'org.antlr:antlr4-runtime:4.7.2'
@@ -49,6 +54,10 @@ dependencies {
     //Email
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    //WebFlux
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("io.projectreactor.netty:reactor-netty")
 
     def jupiter = "5.6.2"
     def mockkVersion = "1.10.2"

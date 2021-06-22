@@ -1211,14 +1211,10 @@ class GitlabRestClient(
     }
 
 
-    fun adminCreateUserToken(gitlabUserId: Long, tokenName: String): GitlabUserToken {
-        return GitlabCreateUserTokenRequest(name = tokenName)
+    fun adminCreateUserToken(gitlabUserId: Long, tokenName: String, expiresAt: Instant? = null): GitlabUserToken {
+        return GitlabCreateUserTokenRequest(name = tokenName, expiresAt = expiresAt)
             .let { GitlabHttpEntity(it, createAdminHeaders()) }
-            .addErrorDescription(
-                409,
-                ErrorCode.GitlabUserTokenCreationFailed,
-                "Cannot create token $tokenName for user in gitlab. Token with the name already exists"
-            )
+            .addErrorDescription(409, ErrorCode.GitlabUserTokenCreationFailed, "Cannot create token $tokenName for user in gitlab. Token with the name already exists")
             .addErrorDescription(ErrorCode.GitlabUserTokenCreationFailed, "Cannot create token for user in gitlab")
             .makeRequest {
                 restTemplate(builder).exchange(

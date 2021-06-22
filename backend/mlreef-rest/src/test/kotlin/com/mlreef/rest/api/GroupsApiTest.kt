@@ -320,10 +320,10 @@ class GroupsApiTest : AbstractRestApiTest() {
 
     private fun groupsOfUserResponseFields(prefix: String = ""): List<FieldDescriptor> {
         return listOf(
-            fieldWithPath(prefix + "id").type(JsonFieldType.STRING).description("Group id"),
-            fieldWithPath(prefix + "gitlab_id").type(JsonFieldType.NUMBER).description("Gitlab group id"),
-            fieldWithPath(prefix + "name").type(JsonFieldType.STRING).description("Group name"),
-            fieldWithPath(prefix + "access_level").type(JsonFieldType.STRING).description("Access level")
+            fieldWithPath(prefix + "id").optional().type(JsonFieldType.STRING).description("Group id"),
+            fieldWithPath(prefix + "gitlab_id").optional().type(JsonFieldType.NUMBER).description("Gitlab group id"),
+            fieldWithPath(prefix + "name").optional().type(JsonFieldType.STRING).description("Group name"),
+            fieldWithPath(prefix + "access_level").optional().type(JsonFieldType.STRING).description("Access level")
         )
     }
 

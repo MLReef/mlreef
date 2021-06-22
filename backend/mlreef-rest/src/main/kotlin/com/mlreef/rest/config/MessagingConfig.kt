@@ -19,6 +19,7 @@ class MessagingConfig(
     private val connectionFactory: RedisConnectionFactory,
     private val publicProjectsCacheService: PublicProjectsCacheService,
     private val recentProjectService: RecentProjectService,
+    private val redisMessageListenerContainer: RedisMessageListenerContainer,
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(MessagingConfig::class.java)
@@ -33,6 +34,11 @@ class MessagingConfig(
     @PostConstruct
     fun create() {
         log.debug("Messaging configuration is being created...")
+
+        redisMessageListenerContainer.addMessageListener(userInformationMessageListenerAdapter(), refreshUserTopic())
+        redisMessageListenerContainer.addMessageListener(userInformationMessageListenerAdapter(), refreshGroupTopic())
+        redisMessageListenerContainer.addMessageListener(projectMessageListenerAdapter(), refreshProjectTopic())
+        redisMessageListenerContainer.addMessageListener(recentProjectMessageListenerAdapter(), saveRecentProjectTopic())
     }
 
     @Bean
@@ -75,14 +81,15 @@ class MessagingConfig(
         return ChannelTopic(RECENT_PROJECT_TOPIC)
     }
 
-    @Bean
-    fun redisContainer(): RedisMessageListenerContainer {
-        val container = RedisMessageListenerContainer()
-        container.connectionFactory = connectionFactory
-        container.addMessageListener(userInformationMessageListenerAdapter(), refreshUserTopic())
-        container.addMessageListener(userInformationMessageListenerAdapter(), refreshGroupTopic())
-        container.addMessageListener(projectMessageListenerAdapter(), refreshProjectTopic())
-        container.addMessageListener(recentProjectMessageListenerAdapter(), saveRecentProjectTopic())
-        return container
-    }
+//    @Bean
+//    @ConditionalOnMissingBean
+//    fun redisContainer(): RedisMessageListenerContainer {
+//        val container = RedisMessageListenerContainer()
+//        container.connectionFactory = connectionFactory
+//        container.addMessageListener(userInformationMessageListenerAdapter(), refreshUserTopic())
+//        container.addMessageListener(userInformationMessageListenerAdapter(), refreshGroupTopic())
+//        container.addMessageListener(projectMessageListenerAdapter(), refreshProjectTopic())
+//        container.addMessageListener(recentProjectMessageListenerAdapter(), saveRecentProjectTopic())
+//        return container
+//    }
 }

@@ -53,6 +53,7 @@ fun GitlabUser.toSecretUserDto(id: UUID, token: String? = null, accessToken: Str
     SecretUserDto(
         id = id,
         username = this.username,
+        name = this.name,
         email = this.email,
         gitlabId = this.id,
         token = token,
@@ -64,6 +65,7 @@ fun GitlabUser.toUserDto(id: UUID) =
     UserDto(
         id = id,
         username = this.username,
+        name = this.name,
         email = this.email,
         gitlabId = this.id
     )
