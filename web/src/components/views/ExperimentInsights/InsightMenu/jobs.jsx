@@ -123,7 +123,9 @@ const Jobs = (props) => {
                 const selectedPipe = backendPipes
                   ?.filter((pipe) => job?.ref.includes(pipe.name))[0];
                 const jobClass = selectedPipe?.pipeline_type;
-                const timeDuration = job.duration !== null && moment({}).startOf('day').seconds(job.duration).format('HH:mm:ss');
+                const timeDuration = job.duration !== null 
+                  ? moment({}).startOf('day').seconds(job.duration).format('HH:mm:ss')
+                  : '---';
                 return (
                   <tr className="p-3" key={index.toString()}>
                     <td className="job-status p-3">
@@ -151,16 +153,12 @@ const Jobs = (props) => {
                     </td>
                     <td className="duration">
                       <p className="p-0 m-0">
-                        {job.duration !== null && (
-                        <>
-                          <img src="https://gitlab.com/mlreef/frontend/uploads/d0bd85ce84f0a8754dbf852871a04a15/clock.png" width="12" alt="" />
-                          {timeDuration}
-                        </>
-                        )}
+                        <img src="https://gitlab.com/mlreef/frontend/uploads/d0bd85ce84f0a8754dbf852871a04a15/clock.png" width="12" alt="" />
+                        {timeDuration}
                       </p>
                       <p className="p-0 m-0">
                         <img src="https://gitlab.com/mlreef/frontend/uploads/24a7b38a430ed0e01c381ba037613d1d/Calender.png" width="12" alt="" />
-                        {`${getTimeCreatedAgo(job.created_at, new Date())} ago`}
+                        {job.created_at ? `${getTimeCreatedAgo(job.created_at, new Date())} ago` : '---'}
                       </p>
                     </td>
                   </tr>
