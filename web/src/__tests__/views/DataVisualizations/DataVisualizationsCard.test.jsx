@@ -11,25 +11,6 @@ const fireModal = jest.fn();
 
 const fetchVisualizations = jest.fn();
 
-test('assert that snapshot matches', () => {
-  const store = storeFactory({});
-  const snapShot = renderer.create(
-    <Provider store={store}>
-      <Router>
-        <DataVisualizationCard
-          classification={classifiedMockedVisualizations[0]}
-          namespace="mlreef"
-          slug="project-slug"
-          key={classifiedMockedVisualizations[0].status}
-          fireModal={fireModal}
-          callback={fetchVisualizations}
-        />
-      </Router>
-    </Provider>,
-  ).toJSON();
-  expect(snapShot).toMatchSnapshot();
-});
-
 const setup = (index = 0) => {
   const store = storeFactory({});
   const testWrapper = mount(
