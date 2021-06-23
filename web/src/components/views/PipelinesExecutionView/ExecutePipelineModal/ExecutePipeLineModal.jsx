@@ -13,7 +13,7 @@ import { SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL } from '../DataPipelineHooks/acti
 
 const fakeMachinesToShow = [
   {
-    label: 'Medium CPU - (4 vCPUs, 62 GB memory, 100GB SSD)',
+    label: 'Medium GPU - (4 vCPUs, 64 GB memory, 1 x NVIDIA T4, 100GB SSD)',
     value: 1,
   },
 ];
