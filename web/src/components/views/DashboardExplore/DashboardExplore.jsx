@@ -61,11 +61,11 @@ const DashboardExplore = (props) => {
             </p>
             <p className="m-0">
               <b>- Models, Data Ops</b>
-              and
+               and
               {' '}
               <b>Data visualizations</b>
               {' '}
-              are code repos.
+              are code repos. 
               When published the hosted scripts within
               are containerized and accessible in the ML pipelines.
             </p>
