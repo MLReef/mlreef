@@ -85,7 +85,9 @@ export function registerUser(data) {
     .register(data)
     .then((user) => {
       // if success login and continue
-      dispatch(registerUserSuccessfully(user));
+      setTimeout(() => {
+        dispatch(registerUserSuccessfully(user));
+      }, 1000);
       return user;
     });
 }

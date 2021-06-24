@@ -1,4 +1,4 @@
-import { generatePromiseResponse, storeFactory } from 'functions/testUtils';
+import { generatePromiseResponse, sleep, storeFactory } from 'functions/testUtils';
 import * as userActions from 'store/actions/userActions';
 
 const user = {
@@ -75,6 +75,7 @@ describe('test auth functions', () => {
   });
   test('assert that user can register', async () => {
     await store.dispatch(userActions.registerUser({}));
+    await sleep(1050);
     expect(store.getState().user).toStrictEqual(registeredUserInfo);
   });
 });
