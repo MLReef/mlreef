@@ -9,22 +9,26 @@ import { initialFields } from './formInformation';
 import icon from '../../images/ml_reef_icon_01.svg';
 import RegisterViewForm from './RegisterViewForm';
 import RegisterViewRoleForm from './RegisterViewRoleForm';
+import { Redirect } from 'react-router-dom';
 
 const RegisterView = (props) => {
   const [registryStatus, setRegistryStatus] = useState(0);
   const { auth } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-
-  useEffect(() => { if (auth) dispatch(logout()); }, [auth, dispatch]);
 
   const onRegistrySuccess = () => {
-    setTimeout(() => setRegistryStatus(1), 200);
+    setRegistryStatus(1);
   };
 
   const onUpdatedRoleSuccess = () => {
     const { history } = props;
     history.push('/welcome');
   };
+
+  if(auth && registryStatus === 0) {
+    return (
+      <Redirect to="/dashboard" />
+    );
+  }
 
   return (
     <div className="register-view">
