@@ -30,6 +30,7 @@ class SocialController(
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
+        private const val USER_ID_TOKEN_NAME = "user-id"
     }
 
     @GetMapping("/authorize/{clientId}")
@@ -53,11 +54,19 @@ class SocialController(
 
         accountToken?.takeIf { !it.revoked }?.let {
             if (putTokenToCookie) {
+                val cookieLifeTime = ChronoUnit.SECONDS.between(Instant.now(), it.expiresAt).absoluteValue.toInt()
+
                 val tokenCookie = Cookie(PRIVATE_TOKEN_NAME, it.token)
                 tokenCookie.path = "/"
-                tokenCookie.isHttpOnly = true
-                tokenCookie.maxAge = ChronoUnit.SECONDS.between(Instant.now(), it.expiresAt).absoluteValue.toInt()
+                tokenCookie.isHttpOnly = false
+                tokenCookie.maxAge = cookieLifeTime
                 response.addCookie(tokenCookie)
+
+                val userIdCookie = Cookie(USER_ID_TOKEN_NAME, it.accountId.toString())
+                userIdCookie.path = "/"
+                userIdCookie.isHttpOnly = false
+                userIdCookie.maxAge = cookieLifeTime
+                response.addCookie(userIdCookie)
             }
             if (putTokenToHeader) {
                 response.addHeader(PRIVATE_TOKEN_NAME, it.token)
