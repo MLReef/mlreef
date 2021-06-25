@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { convertToSlug } from 'functions/dataParserHelpers';
 import { storeFactory } from 'functions/testUtils';
-import NewGroup from '../components/views/create-group/createGroup';
+import NewGroup from 'components/views/CreateGroup/createGroup';
 
 const setup = () => {
   const store = storeFactory({});

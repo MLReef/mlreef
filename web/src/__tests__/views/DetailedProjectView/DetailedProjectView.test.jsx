@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
-import DetailedProjectView from 'components/DetailedProjectView/DetailedProjectView';
+import DetailedProjectView from 'components/views/DetailedProjectView/DetailedProjectView';
 import { generatePromiseResponse, sleep, storeFactory } from 'functions/testUtils';
 import { branchesMock, commitMockObject, filesMock, usersArrayMock } from 'testData';
 import testData from './projectTestData.json';

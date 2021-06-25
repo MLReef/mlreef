@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import Input from 'components/input/input';
+import Input from 'components/ui/input/input';
 import MTooltip from 'components/ui/MTooltip';
 import validateInput from 'functions/validations';
 import { bool, shape, string } from 'prop-types';

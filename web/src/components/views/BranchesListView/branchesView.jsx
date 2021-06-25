@@ -13,12 +13,12 @@ import AuthWrapper from 'components/AuthWrapper';
 import * as branchesActions from 'store/actions/branchesActions';
 import * as projectActions from 'store/actions/projectInfoActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
-import { getTimeCreatedAgo } from '../../functions/dataParserHelpers';
+import Navbar from 'components/navbar/navbar';
+import ProjectContainer from 'components/projectContainer';
+import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 import './branchesView.css';
 import DeleteBranchModal from './deleteBranchModal';
-import BranchesApi from '../../apis/BranchesApi.ts';
+import BranchesApi from 'apis/BranchesApi.ts';
 import ACCESS_LEVEL from 'domain/accessLevels';
 
 const branchesApi = new BranchesApi();

@@ -9,7 +9,7 @@ import MergeRequestEdit from 'components/layout/MergeRequests/MergeRequestEdit';
 import MBranchSelector from 'components/ui/MBranchSelector';
 import hooks from 'customHooks/useSelectedProject';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
-import commitDetailActions from 'components/commits-details/actionsAndFunctions';
+import commitDetailActions from 'components/views/CommitsDetails/actionsAndFunctions';
 import CommitsList from 'components/layout/CommitsList/CommitList';
 import actions from './mergeReqActions';
 import ProjectContainer from '../../projectContainer';

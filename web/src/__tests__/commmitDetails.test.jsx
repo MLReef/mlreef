@@ -3,8 +3,8 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { mount } from 'enzyme';
 import { storeFactory } from 'functions/testUtils';
-import CommitDetails from '../components/commits-details/commitDetails';
-import actions from '../components/commits-details/actionsAndFunctions';
+import CommitDetails from '../components/views/CommitsDetails/commitDetails';
+import actions from '../components/views/CommitsDetails/actionsAndFunctions';
 import { commitMockObject, imagesToRender, usersArrayMock } from '../testData';
 
 const setup = () => {

@@ -18,10 +18,10 @@ import ExperimentsApi from 'apis/experimentApi';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi.ts';
 import ACCESS_LEVEL from 'domain/accessLevels';
 import ExperimentTable from 'components/commons/ExperimentTable';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
-import './experimentsOverview.css';
-import emptyLogo from '../../images/experiments_empty-01.png';
+import Navbar from 'components/navbar/navbar';
+import ProjectContainer from 'components/projectContainer';
+import './ExperimentsView.css';
+import emptyLogo from 'images/experiments_empty-01.png';
 import experimentActions from './ExperimentActions';
 import { projectClassificationsProps } from 'dataTypes';
 

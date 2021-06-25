@@ -22,11 +22,11 @@ import MButton from 'components/ui/MButton';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import MWrapper from 'components/ui/MWrapper';
 import ChangesMrSection from 'components/ChangesMRSection/ChangesMrSection';
-import Navbar from '../navbar/navbar';
-import MergeRequestAPI from '../../apis/MergeRequestApi.ts';
-import BranchesApi from '../../apis/BranchesApi.ts';
-import ProjectContainer from '../projectContainer';
-import './basicMR.css';
+import Navbar from 'components/navbar/navbar';
+import MergeRequestAPI from 'apis/MergeRequestApi.ts';
+import BranchesApi from 'apis/BranchesApi.ts';
+import ProjectContainer from 'components/projectContainer';
+import './basicMR.css'; 
 
 dayjs.extend(relativeTime);
 

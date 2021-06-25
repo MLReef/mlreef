@@ -81,7 +81,6 @@ class CreateProject extends Component {
     };
 
     this.handleDTCallback = this.handleDTCallback.bind(this);
-    this.handleCheckName = this.handleCheckName.bind(this);
   }
 
   componentDidMount() {
@@ -124,21 +123,6 @@ class CreateProject extends Component {
       slug: convertToSlug(projectName),
       nameErrors: nameTooLong || dangerousName,
     });
-  }
-
-  // deprecated, candidate to be removed.
-  handleCheckName = () => {
-    const { projectName, slug } = this.state;
-
-    if (projectName.length < 3) return;
-
-    SearchApi.searchProjectByName(projectName)
-      .then((results) => {
-        const nameTaken = results.some(({ path }) => path === slug)
-          ? 'This name is not available.' : '';
-
-        if (nameTaken) this.setState({ nameErrors: nameTaken });
-      });
   }
 
   handleValidateName = () => {
@@ -387,7 +371,7 @@ class CreateProject extends Component {
                />
              </label>
              {/* ------ Data-types radio buttons ------ */}
-             <label className="label-name mb-4" htmlFor="free-tags">
+            {/*  <label className="label-name mb-4" htmlFor="free-tags">
                <span className="heading mb-2">Free tags (optional)</span>
                <input
                  className="text-input"
@@ -395,7 +379,7 @@ class CreateProject extends Component {
                  type="text"
                  placeholder={'Enter free tags separated by ","'}
                />
-             </label>
+             </label> */}
              <span className="heading d-block mb-2">Data types</span>
              <div className="my-2">
                <span
