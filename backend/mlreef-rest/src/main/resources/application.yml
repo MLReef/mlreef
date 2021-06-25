@@ -66,7 +66,7 @@ mlreef:
     pause-fork-finished-polling-sec: 2
     max-recent-projects-history-size: 10
   oauth2:
-    redirect-on-success: ${OAUTH_REDIRECT_ON_SUCCESS:/dashboard}
+    redirect-on-success: ${OAUTH_REDIRECT_ON_SUCCESS:/user/oauth-reroute}
     redirect-on-failure: ${OAUTH_REDIRECT_ON_FAILURE:/login}
     default-impersonate-token-lifetime-sec: 86400
     put-token-to-cookie: true
