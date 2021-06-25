@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { bool, func, number, string } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import BranchesApi from '../../apis/BranchesApi.ts';
+import BranchesApi from 'apis/BranchesApi.ts';
 
 const brApi = new BranchesApi();
 

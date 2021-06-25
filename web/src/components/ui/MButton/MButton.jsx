@@ -17,22 +17,12 @@ const MButton = (props) => {
     cypressTag,
   } = props;
 
-  // const displayedLabel = useMemo(
-  //   () => {
-  //     const currentLabel = label || children;
-  //
-  //     return waiting ? spinner : currentLabel;
-  //   },
-  //   [label, children, waiting],
-  // );
-
   const computedClasses = useMemo(
     () => waiting ? `${className} waiting` : className,
     [waiting, className],
   );
 
   return (
-    // eslint-disable-next-line
     <button
       type={type}
       data-cy={cypressTag}

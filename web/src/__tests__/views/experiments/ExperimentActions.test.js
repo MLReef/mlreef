@@ -1,5 +1,5 @@
 import { parseLine } from 'components/views/ExperimentDetails/actions';
-import experimentActions from 'components/experiments-overview/ExperimentActions';
+import experimentActions from 'components/views/ExperimentsView/ExperimentActions';
 import { backendExperiments, jobLogMock } from 'testData';
 
 describe('test functions', () => {

@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { getProfile } from 'store/actions/userActions';
-import Navbar from '../navbar/navbar';
+import Navbar from '../../navbar/navbar';
 import './userProfile.scss';
 
 const UserProfile = (props) => {

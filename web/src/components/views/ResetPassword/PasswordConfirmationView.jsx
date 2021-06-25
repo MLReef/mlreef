@@ -5,7 +5,7 @@ import MInput from 'components/ui/MInput';
 import MButton from 'components/ui/MButton';
 import PasswordManagementApi from 'apis/PasswordManagementApi';
 import PropTypes from 'prop-types';
-import { validationSchema } from '../../RegisterView/formInformation';
+import { validationSchema } from '../RegisterView/formInformation';
 import icon from '../../../images/MLReef_Icon_POS_BETA-01.svg';
 
 const passwordApi = new PasswordManagementApi();

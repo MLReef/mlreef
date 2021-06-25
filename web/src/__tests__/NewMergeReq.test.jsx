@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 import NewMergeRequestView from 'components/views/MergeRequests/NewMergeReq';
 import actions from 'components/views/MergeRequests/mergeReqActions';
-import commitDetailActions from 'components/commits-details/actionsAndFunctions';
+import commitDetailActions from 'components/views/CommitsDetails/actionsAndFunctions';
 import { projectsArrayMock, imagesToRender, branchesMock } from '../testData';
 import { storeFactory } from '../functions/testUtils';
 

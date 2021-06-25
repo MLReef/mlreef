@@ -13,10 +13,10 @@ import hooks from 'customHooks/useSelectedProject';
 import { getTimeCreatedAgo, getCommentFromCommit } from 'functions/dataParserHelpers';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar';
 import MScrollableSection from 'components/ui/MScrollableSection/MScrollableSection';
-import Navbar from '../navbar/navbar';
-import ProjectContainer from '../projectContainer';
+import Navbar from '../../navbar/navbar';
+import ProjectContainer from '../../projectContainer';
 import './commitDetails.css';
-import ImageDiffSection from '../imageDiffSection/imageDiffSection';
+import ImageDiffSection from '../../imageDiffSection/imageDiffSection';
 import actions from './actionsAndFunctions';
 
 const CommitDetails = (props) => {

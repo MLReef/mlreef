@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import './RegisterView.scss';
 import { registerUser, updateUserInfo, logout } from 'store/actions/userActions';
 import { initialFields } from './formInformation';
-import icon from '../../images/ml_reef_icon_01.svg';
+import icon from 'images/ml_reef_icon_01.svg';
 import RegisterViewForm from './RegisterViewForm';
 import RegisterViewRoleForm from './RegisterViewRoleForm';
 import { Redirect } from 'react-router-dom';

@@ -2,7 +2,7 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
-import RegisterLandingView from 'components/RegisterView/RegisterLandingView';
+import RegisterLandingView from 'components/views/RegisterView/RegisterLandingView';
 import { storeFactory } from '../functions/testUtils';
 import { userProfileMock } from '../testData';
 

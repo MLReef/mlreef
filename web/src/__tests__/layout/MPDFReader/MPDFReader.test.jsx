@@ -14,7 +14,7 @@ fs.readFile('src/__tests__/layout/MPDFReader/base64.txt', (err, data) => {
   base64Data = data.toString();
 });
 
-describe('', () => {
+describe('basic UI testing', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -23,7 +23,7 @@ describe('', () => {
     document.body.removeChild(container);
     container = null;
   });
-  test('', async () => {
+  test('assert that basic rendering works', async () => {
     expect.assertions(3);
     await sleep(250);
     act(() => {
