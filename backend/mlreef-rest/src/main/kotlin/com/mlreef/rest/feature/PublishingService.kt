@@ -189,9 +189,9 @@ class PublishingService(
         slug: String? = null,
         republishingProcessor: Processor? = null,
     ): Processor {
-        val project = republishingProcessor?.codeProject
-            ?: projectResolverService.resolveCodeProject(projectId = (projectId ?: throw BadRequestException("Project id can not be null")))
-            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
+         val project = republishingProcessor?.codeProject
+             ?: projectResolverService.resolveCodeProject(projectId = (projectId ?: throw BadRequestException("Project id can not be null")))
+             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
         val processor = prepareProcessorForPublishing(
             mainFilePath,
@@ -285,7 +285,7 @@ class PublishingService(
             ?: baseEnvironmentsRepository.findByIdOrNull(environmentId ?: throw BadRequestException("Base environment id can not be null"))
             ?: throw NotFoundException(ErrorCode.NotFound, "Environment $environmentId not found")
 
-        val parsedProcessor = pythonParserService.findAndParseDataProcessorInProject(finalScriptPath, project)
+        val parsedProcessor = pythonParserService.findAndParseDataProcessorInProject(finalBranch, finalScriptPath, project)
 
         if (modelType != null) {
             if (project.modelType != null && !project.modelType.equals(modelType.trim(), true)) {

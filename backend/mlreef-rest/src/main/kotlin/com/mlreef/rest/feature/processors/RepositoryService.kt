@@ -15,6 +15,7 @@ class RepositoryService(
         val processingExtensions = setOf("py")
         val log = LoggerFactory.getLogger(this::class.java)
         private const val GITLAB_PATH_SEPARATOR = "/"
+        private val DEFAULT_BRANCH = "master"
     }
 
     data class RepositoryFileContent(
@@ -51,10 +52,10 @@ class RepositoryService(
 
             filesList.content?.find { it.name == splitedFolderAndFile?.second }?.let {
                 if (it.type == RepositoryTreeType.TREE) {
-                    allFiles.addAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
+                    allFiles.addAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false, branch))
                 } else {
                     it.let {
-                        allFiles.add(getFileContent(gitlabId, it.path))
+                        allFiles.add(getFileContent(gitlabId, it.path, branch ?: DEFAULT_BRANCH))
                     }
                 }
             }
@@ -66,10 +67,10 @@ class RepositoryService(
             filesList.content
                 ?.forEach {
                     if (it.type == RepositoryTreeType.TREE) {
-                        allFiles.addAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false))
+                        allFiles.addAll(getFilesContentOfRepository(gitlabId, it.path, filterByExt, false, branch))
                     } else {
                         if (!filterByExt || processingExtensions.contains(getFilenameExtension(it.name))) {
-                            allFiles.add(getFileContent(gitlabId, it.path))
+                            allFiles.add(getFileContent(gitlabId, it.path, branch ?: DEFAULT_BRANCH))
                         }
                     }
                 }
@@ -82,8 +83,8 @@ class RepositoryService(
         return allFiles.filterNotNull()
     }
 
-    private fun getFileContent(gitlabId: Long, filePath: String): RepositoryFileContent? {
-        val file = gitlabRestClient.adminGetRepositoryFileContentAndInformation(gitlabId, filePath)
+    private fun getFileContent(gitlabId: Long, filePath: String, branch: String): RepositoryFileContent? {
+        val file = gitlabRestClient.adminGetRepositoryFileContentAndInformation(gitlabId, filePath, branch)
         return try {
             RepositoryFileContent(
                 path = filePath,

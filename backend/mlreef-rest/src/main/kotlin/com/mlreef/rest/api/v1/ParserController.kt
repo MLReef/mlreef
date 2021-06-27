@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -15,6 +16,10 @@ import java.util.UUID
 class ParserController(
     private val pythonParserService: PythonParserService,
 ) {
+    companion object {
+        private val DEFAULT_BRANCH_FOR_PARSING = "master"
+    }
+
     @RequestMapping(value = ["/parse/code"], method = [RequestMethod.POST])
     fun parseCode(
         @RequestBody request: String,
@@ -27,9 +32,10 @@ class ParserController(
     fun parseFile(
         @PathVariable projectId: UUID,
         @RequestBody(required = false) request: PublishingRequest?,
+        @RequestParam(required = false) branch: String? = null,
         tokenDetails: TokenDetails,
     ): Processor? {
-        return pythonParserService.findAndParseDataProcessorInProject(request?.path, projectId = projectId)
+        return pythonParserService.findAndParseDataProcessorInProject(branch ?: DEFAULT_BRANCH_FOR_PARSING, request?.path, projectId = projectId)
     }
 }
 

@@ -33,13 +33,13 @@ class PythonParserService(
 ) {
     val log = LoggerFactory.getLogger(this::class.java)
 
-    fun findAndParseDataProcessorInProject(mainFilePath: String?, project: CodeProject? = null, projectId: UUID?=null): Processor {
+    fun findAndParseDataProcessorInProject(branch: String, mainFilePath: String?, project: CodeProject? = null, projectId: UUID? = null): Processor {
         val currentProject = project ?: projectResolverService.resolveProject(projectId = projectId)
-            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
+        ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
         if (currentProject !is CodeProject) throw IncorrectProjectType("Code project is accepted only")
 
-        val files = repositoryService.getFilesContentOfRepository(currentProject.gitlabId, mainFilePath, mainFilePath == null)
+        val files = repositoryService.getFilesContentOfRepository(currentProject.gitlabId, mainFilePath, mainFilePath == null, branch = branch)
 
         val errorMessagesMap = ConcurrentHashMap<String, List<String>>()
 
