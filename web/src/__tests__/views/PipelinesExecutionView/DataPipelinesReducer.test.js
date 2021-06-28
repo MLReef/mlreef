@@ -1,5 +1,4 @@
 import {
-  REMOVE_DATA_PROCESSOR_BY_ID,
   SET_BRANCH_SELECTED,
   SET_IS_SHOWING_EXECUTE_PIPELINE_MODAL,
   SET_IS_VISIBLE_FILES_MODAL,
@@ -8,6 +7,7 @@ import {
   UPDATE_PROCESSORS_SELECTED,
   VALIDATE_FORM,
   UPDATE_PARAM_VALUE_IN_DATA_OPERATOR,
+  UPDATE_OPERATOR_SELECTED,
   REMOVE_DATA_PROCESSOR_BY_INDEX,
 } from 'components/views/PipelinesExecutionView/DataPipelineHooks/actions';
 import DataPipelinesReducer, { addInformationToProcessors, initialState } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
@@ -147,4 +147,22 @@ test('assert that parameter is updated correctly', () => {
   expect(processorsSelected[0].processors[0].parameters[0].value).not.toBeDefined();
   expect(processorsSelected[0].processors[0].parameters[1].value).toBe(newParamValue);
   expect(processorsSelected[0].processors[0].parameters[2].value).not.toBeDefined();
+});
+
+test('assert that the processor selected is updated correctly', () => {
+  const { processorsSelected } = DataPipelinesReducer({
+    ...initialState,
+    processorsSelected: dataPipeLines.map((pr) => ({ 
+      ...pr,
+      processorSelected: 0,
+      processors: addInformationToProcessors(pr.processors),
+    })),
+  }, {
+    type: UPDATE_OPERATOR_SELECTED,
+    index: 0,
+    processorId: 'bc65cfbf-c09c-40ec-8bd5-d984ceb0e8b1',
+    newProcessorSelected: 1,
+  });
+
+  expect(processorsSelected[0].processorSelected).toBe(1);
 });
