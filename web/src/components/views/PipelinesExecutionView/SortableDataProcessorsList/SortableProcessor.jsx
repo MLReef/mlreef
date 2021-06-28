@@ -119,12 +119,12 @@ const SortableProcessor = SortableElement(({
                  value
                    .processors
                    .map((p, ind) => ({ label: `${p.branch} - V.${p.version}`, value: ind }))
-              }
+                  }
                 value={value.processorSelected}
                 onSelect={(ind) => {
                   dispatch({
                     type: UPDATE_OPERATOR_SELECTED,
-                    index: ind,
+                    index,
                     processorId: value.id,
                     newProcessorSelected: ind,
                   });
