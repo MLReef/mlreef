@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
 import { useHistory } from 'react-router-dom';
-import FilesTable from 'components/files-table/filesTable';
+import FilesTable from 'components/FilesTable/filesTable';
 import FilesApi from 'apis/FilesApi';
 
 const filesApi = new FilesApi();

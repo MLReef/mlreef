@@ -7,7 +7,7 @@ import { arrayOf, shape } from 'prop-types';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import CommitsApi from 'apis/CommitsApi';
 import { isJson } from 'functions/validations';
-import ArrowButton from 'components/arrow-button/arrowButton';
+import ArrowButton from 'components/ui/MArrowButton/arrowButton';
 import MSelect from 'components/ui/MSelect';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import InputParam from './InputParam';

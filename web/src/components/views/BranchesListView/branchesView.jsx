@@ -182,12 +182,9 @@ class BranchesView extends Component {
               className=""
               placeholder="Filter by branch name"
               id="filter-input"
-              onChange={(e) => {
-                const currentValue = e.currentTarget.value;
-                this.setState({
-                  nameToFilterBy: currentValue,
-                });
-              }}
+              onChange={(e) => this.setState({
+                nameToFilterBy: e.target.value,
+              })}
             />
             <AuthWrapper minRole={ACCESS_LEVEL.DEVELOPER} norender>
               <button

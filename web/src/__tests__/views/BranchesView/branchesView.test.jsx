@@ -1,8 +1,10 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import BranchesView from '../components/views/BranchesListView/branchesView';
-import { storeFactory } from '../functions/testUtils';
-import { projectsArrayMock, branchesMock } from '../testData';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+import { mount } from 'enzyme';
+import BranchesView from 'components/views/BranchesListView/branchesView';
+import { storeFactory } from 'functions/testUtils';
+import { projectsArrayMock, branchesMock } from 'testData';
 
 const setup = () => {
   const store = storeFactory({
@@ -10,11 +12,17 @@ const setup = () => {
     branches: branchesMock,
   });
   const location = { pathname: '/my-namespace/the-project-name/-/branches' };
-  const wrapper = shallow(
-    <BranchesView location={location} store={store} match={{params: { namespace: 'some-namespace', slug: 'some-slug' }}} />,
+
+  return mount(
+    <Provider store={store}>
+      <MemoryRouter>
+        <BranchesView 
+          location={location} 
+          match={{params: { namespace: 'some-namespace', slug: 'some-slug' }}} 
+        />
+      </MemoryRouter>
+    </Provider>
   );
-  const afterDive = wrapper.dive().dive();
-  return afterDive;
 };
 
 describe('test the frontend features', () => {
@@ -39,9 +47,8 @@ describe('test functionality', () => {
     wrapper = setup();
   });
   test('assert that branches are filtered after input value is changed', () => {
-    const input = wrapper.find('#filter-input');
-    input.value = 'master';
-    const event = { currentTarget: input };
+    const input = wrapper.find('#filter-input').find('input');
+    const event = { target: { value: 'master' }};
     input.simulate('change', event);
     expect(wrapper.find('.branch-row')).toHaveLength(1);
   });

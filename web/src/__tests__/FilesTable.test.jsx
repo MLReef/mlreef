@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { filesMock } from 'testData';
-import FilesTable from '../components/files-table/filesTable';
+import FilesTable from '../components/FilesTable/filesTable';
 
 const setup = (files = filesMock) => shallow(
   <FilesTable files={files} headers={['Name']} onCLick={() => {}} isReturnOptVisible={false} />,

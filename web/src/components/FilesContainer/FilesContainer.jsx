@@ -5,7 +5,7 @@ import {
   string, number,
 } from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import FilesTable from '../files-table/filesTable';
+import FilesTable from '../FilesTable/filesTable';
 import filesContainerActions from './filesContainerActions';
 import FilesApi from '../../apis/FilesApi.ts';
 import ACCESS_LEVEL from 'domain/accessLevels';
