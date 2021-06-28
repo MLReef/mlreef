@@ -3,7 +3,7 @@ import { bool, shape, string } from 'prop-types';
 import useDropdown from 'customHooks/useDropdown';
 import validateInput from 'functions/validations';
 import MTooltip from 'components/ui/MTooltip';
-import ArrowButton from 'components/arrow-button/arrowButton';
+import ArrowButton from 'components/ui/MArrowButton/arrowButton';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import ErrorsDiv from '../SortableDataProcessorsList/ErrorsDiv';
 import { VALIDATE_FORM } from '../DataPipelineHooks/actions';

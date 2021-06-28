@@ -5,7 +5,7 @@ import './DetailedRepositoryView.scss';
 import Navbar from 'components/navbar/navbar';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import ProjectLastCommitSect from 'components/views/DetailedProjectView/LastCommitSect';
-import FilesTable from 'components/files-table/filesTable';
+import FilesTable from 'components/FilesTable/filesTable';
 import FilesApi from 'apis/FilesApi';
 import {
   arrayOf, shape, number, string, func,

@@ -4,7 +4,7 @@ import {
 } from 'prop-types';
 import { projectClassificationsProps } from 'dataTypes';
 import MProjectCardTypes from '../../ui/MProjectCard/MProjectCardTypes';
-import ArrowButton from '../../arrow-button/arrowButton';
+import ArrowButton from '../../ui/MArrowButton/arrowButton';
 import { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import { ADD_NEW_PROCESSOR, SET_PROCESSOR_SELECTED } from './DataPipelineHooks/actions';
 

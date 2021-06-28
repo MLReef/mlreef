@@ -9,7 +9,7 @@ import './groupsOverview.scss';
 import Navbar from 'components/navbar/navbar';
 import MTabs from 'components/ui/MTabs';
 import { Link } from 'react-router-dom';
-import ArrowButton from 'components/arrow-button/arrowButton';
+import ArrowButton from 'components/ui/MArrowButton/arrowButton';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import * as groupsActions from 'store/actions/groupsActions';
 import * as projectActions from 'store/actions/projectInfoActions';

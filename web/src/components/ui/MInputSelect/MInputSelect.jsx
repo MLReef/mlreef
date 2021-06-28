@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ArrowButton from 'components/arrow-button/arrowButton';
+import ArrowButton from 'components/ui/MArrowButton/arrowButton';
 import { arrayOf, func, string } from 'prop-types';
 import './MInputSelect.scss';
 import useDropdown from 'customHooks/useDropdown';

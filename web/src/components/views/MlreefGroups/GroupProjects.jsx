@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import MBricksWall from 'components/ui/MBricksWall';
-import ArrowButton from 'components/arrow-button/arrowButton';
+import ArrowButton from 'components/ui/MArrowButton/arrowButton';
 import MWrapper from 'components/ui/MWrapper';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import iconGrey from '../../../images/icon_grey-01.png';

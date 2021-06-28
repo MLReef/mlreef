@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import {
   number, shape, string, arrayOf,
 } from 'prop-types';
+import { toastr } from 'react-redux-toastr';
 import { FAILED, SUCCESS } from 'dataTypes';
 import FileSaver from 'file-saver';
 import { INFORMATION_UNITS } from 'domain/informationUnits';
-import { toastr } from 'react-redux-toastr';
 import iconGrey from 'images/icon_grey-01.png';
-import FilesTable from 'components/files-table/filesTable';
+import FilesTable from 'components/FilesTable/filesTable';
 import JobsApi from 'apis/JobsApi.ts';
+
+const jobsApi = new JobsApi();
 
 /**
  * @param {*} numberOfUnits: number of bytes to transform
@@ -21,8 +23,6 @@ const parseUnitsInformation = (
 ) => (!numberOfUnits || !outputUnitType)
   ? 0
   : Number(((numberOfUnits * incomeUnitType) / outputUnitType).toFixed(1));
-
-const jobsApi = new JobsApi();
 
 const Files = ({ projectId, job }) => {
   const [isDownloadingArtifacts, setIsDownloadingArtifacts] = useState(false);
