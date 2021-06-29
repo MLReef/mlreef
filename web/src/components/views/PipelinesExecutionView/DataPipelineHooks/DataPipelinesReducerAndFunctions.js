@@ -176,6 +176,7 @@ export const mapProcessorFields = (projects) => projects.map((proj) => {
     slug: projSlug,
     input_data_types: inputDataTypes,
     stars_count: stars,
+    visibility_scope,
     processors,
   } = proj;
   return {
@@ -187,6 +188,7 @@ export const mapProcessorFields = (projects) => projects.map((proj) => {
     inputDataTypes,
     stars,
     processors,
+    visibilityScope: visibility_scope,
   };
 });
 

@@ -2,37 +2,72 @@ import React, { useState, useContext, useMemo } from 'react';
 import {
   shape, string,
 } from 'prop-types';
-import { projectClassificationsProps } from 'dataTypes';
+import { projectClassificationsProps, PUBLIC } from 'dataTypes';
 import MProjectCardTypes from '../../ui/MProjectCard/MProjectCardTypes';
 import ArrowButton from '../../ui/MArrowButton/arrowButton';
 import { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import { ADD_NEW_PROCESSOR, SET_PROCESSOR_SELECTED } from './DataPipelineHooks/actions';
 
-const ProcessorsList = ({ operationTypeToExecute }) => {
+const NoProjectsSign = ({ operationClassification }) => (
+  <h4 style={{ textAlign: 'center' }}>
+    No
+    {' '}
+    {operationClassification}
+    {' '}
+    to execute
+  </h4>
+);
+
+const DataProcessorsList = ({
+  processors,
+  operationClassification, 
+  operationTypeToExecute, 
+  dispatch,
+}) => useMemo(() => processors.length > 0 ? processors.map((processor) => (
+  <Processor
+    key={`processors-available-${processor.id}`}
+    processorData={processor}
+    operationTypeToExecute={operationTypeToExecute}
+    dispatch={dispatch}
+  />
+))
+  : <NoProjectsSign operationClassification={operationClassification} />,
+[processors, operationClassification, operationTypeToExecute, dispatch],
+)
+
+const ProcessorsList = ({ operationTypeToExecute, namespace }) => {
   const [{ currentProcessors }, dispatch] = useContext(DataPipelinesContext);
   const operationClassification = projectClassificationsProps
     .filter((cl) => cl.typeOfProcessor === operationTypeToExecute.toUpperCase())[0]?.classification;
+
+  const publicProcessors = currentProcessors.filter((cp) => cp.visibilityScope === PUBLIC && cp.nameSpace !== namespace);
+  const privateProcessors = currentProcessors.filter((cp) => cp.nameSpace === namespace);
+
   return (
     <div className="data-operations-list scroll-styled">
-      {useMemo(() => currentProcessors.length > 0 ? currentProcessors.map((processor) => (
-        <Processor
-          key={`processors-available-${processor.id}`}
-          processorData={processor}
-          operationTypeToExecute={operationTypeToExecute}
-          dispatch={dispatch}
-        />
-      ))
-        : (
-          <h4 style={{ textAlign: 'center' }}>
-            No
-            {' '}
-            {operationClassification}
-            {' '}
-            to execute
-          </h4>
-        ),
-      [currentProcessors, operationClassification, operationTypeToExecute, dispatch],
-      )}
+      <div className="data-operations-list-separation">
+        <p>
+          my models
+        </p>
+      </div>
+      <DataProcessorsList 
+        processors={privateProcessors}
+        operationClassification={operationClassification}
+        operationTypeToExecute={operationTypeToExecute} 
+        dispatch={dispatch}
+      />
+      <div className="data-operations-list-separation">
+        <hr />
+        <p>
+          public models
+        </p>
+      </div>
+      <DataProcessorsList 
+        processors={publicProcessors}
+        operationClassification={operationClassification}
+        operationTypeToExecute={operationTypeToExecute} 
+        dispatch={dispatch}
+      />
     </div>
   );
 };

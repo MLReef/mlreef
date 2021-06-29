@@ -50,6 +50,15 @@ $border-size: 0 0 1px 1.5px;
     margin-top: 8px;
     padding: 0 0.5rem;
 
+    &-separation {
+      p {
+        text-align: center;
+        color: var(--lessWhite); 
+        font-size: small;
+        margin: 0.5rem 0rem;
+      }
+    }
+
     &-item {
       border: 1px solid #e5e5e5;
       background-color: white;

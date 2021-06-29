@@ -161,6 +161,7 @@ const FunctionalExecutionPipelinesView = (props) => {
                 operationTypeToExecute={operationTypeToExecute?.toLowerCase()}
               />
               <ProcessorsList
+                namespace={namespace}
                 operationTypeToExecute={operationTypeToExecute?.toLowerCase()}
               />
             </div>
