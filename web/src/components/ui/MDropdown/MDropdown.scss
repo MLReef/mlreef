@@ -2,6 +2,7 @@ $m-dropdown-min-width: 300px;
 
 .m-dropdown {
   position: relative;
+  width: fit-content;
 
   &-list {
     list-style: none;
