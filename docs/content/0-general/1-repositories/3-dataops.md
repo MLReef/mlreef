@@ -1,13 +1,24 @@
 # DataOps
 
-Sorry, this page does not exist yet. 
+The python script that transforms the data and creates a new data branch is call DataOps in MLReef. This code repository has hyperparameters, input type, output type and visibility.
 
+All these attributes can be set when you create a new dataOps.
+
+## How to create a new DataOps:
+
+1. In the dashboard in the right side there is a dropdown list, click the button New Project and choose *New Data Operation*.
+
+2. Write the name, description, data types and privacy level (public, private).
+
+3. Upload the python code using Git or manually in the site. You can clone the project, copy the code in the folder that you cloned and in the terminal:
+
+```shell
+git add --all
+git commit -m "your commit message"
+git push origin master
 ```
-o           //        +
- o        //////    ++
-  .    @))))))))))+++
-   .}:<<)))))))))))++
-       <<\\)))))) +++
-          \\   \\   ++
-                      +
-```
+Git is going to ask you for the username and password, use the ones that you set up in MLReef.
+
+
+
+

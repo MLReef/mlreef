@@ -1,13 +1,3 @@
 # Insights
 
-Sorry, this page does not exist yet. 
-
-```
-O     O           ,       
-  o o          .:/    
-    o      ,,///;,   ,;/ 
-      o   o)::::::;;///
-         >::::::::;;\\\ 
-           ''\\\\\'" ';\ 
-              ';\
-```
+In this tabs you can see in real time the terminal output during the pipeline execution.

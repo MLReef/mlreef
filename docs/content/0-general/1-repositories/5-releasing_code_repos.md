@@ -1,13 +1,5 @@
 # Releasing code repositories
 
-Sorry, this page does not exist yet. 
+The code repositories can be updated through the publishing process. You can have up to 10 published versions of your code repositories in MLReef.
 
-```
-     |\    o
-    |  \    o
-|\ /    .\ o
-| |       (
-|/ \     /
-    |  /
-     |/
-```
+Please check publishing process link.
