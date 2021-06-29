@@ -67,19 +67,19 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
       })
       .catch((err) => toastr.error('Error', err.message));
   },
-  [
-    gid,
-    filePath,
-    initialCommit,
-    initialBranch,
-    branchSelected,
-    initialFiles,
-    unmounted,
-  ]);
+    [
+      gid,
+      filePath,
+      initialCommit,
+      initialBranch,
+      branchSelected,
+      initialFiles,
+      unmounted,
+    ]);
 
   useEffect(() => {
     updateFiles();
-  }, [updateFiles]);
+  }, [updateFiles, filePath]);
 
   useEffect(() => {
     if (gid && branchSelected) {
@@ -93,7 +93,6 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
     const newFilePath = !filePath.includes('/') ? '' : path;
     setFilepath(newFilePath);
-    updateFiles();
     setShowReturnOption(!(newFilePath === ''));
   }
 
@@ -160,7 +159,9 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
     );
   }
 
-  const filesSelected = files ? files.filter((f) => f.checked) : 0;
+  const filesSelected = files?.filter((f) => f.checked) ?? 0;
+  const dataSets = branches?.filter((branch) => branch.name.startsWith('data-pipeline')).reverse() ?? [];
+
   return (
     <div id="select-data-modal-div" className={`modal modal-primary modal-lg dark-cover ${isVisibleSelectFilesModal ? 'show' : ''}`}>
       <div className="modal-cover" onClick={handleCloseButton} />
@@ -194,7 +195,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                         <p className="m-0">Branches</p>
                         <ul className="pl-2">
                           {branches.filter((branch) => !branch.name.startsWith('data-pipeline')
-                                && !branch.name.startsWith('experiment'))
+                            && !branch.name.startsWith('experiment'))
                             .map((branch, index) => (
                               <li key={`branches-${branch.name}`}>
                                 <button
@@ -214,16 +215,20 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                         </ul>
                       </div>
                     </div>
-                    <hr />
-                    <div className="search-branch">
-                      <div className="datasets">
-                        <p className="m-0">Datasets</p>
-                        <ul>
-                          {branches.filter((branch) => branch.name.startsWith('data-pipeline')).reverse()
-                            .map((branch) => displayAvailablePipelines(branch))}
-                        </ul>
-                      </div>
-                    </div>
+                    {
+                      dataSets.length ? <>
+                        <hr />
+                        <div className="search-branch">
+                          <div className="datasets">
+                            <p className="m-0">Datasets</p>
+                            <ul>
+                              {branches.filter((branch) => branch.name.startsWith('data-pipeline')).reverse()
+                                .map((branch) => displayAvailablePipelines(branch))}
+                            </ul>
+                          </div>
+                        </div>
+                      </> : ''
+                    }
                   </div>
                 )}
               />

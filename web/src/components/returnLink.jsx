@@ -4,17 +4,15 @@ const folderIcon = '/images/svg/folder_01.svg';
 
 export default ({ getBack }) => (
   <tr className="files-row">
-    <td className="return-button">
+    <td className="return-button" onClick={getBack}>
       <button
-        type="button"
-        onClick={getBack}
+        type="text"
         style={{ padding: '0' }}
       >
         <img src={folderIcon} alt="" />
       </button>
       <button
-        type="button"
-        onClick={getBack}
+        type="text"
       >
         ..
       </button>
