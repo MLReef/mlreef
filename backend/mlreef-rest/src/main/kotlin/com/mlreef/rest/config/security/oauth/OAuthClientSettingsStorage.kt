@@ -1,9 +1,13 @@
 package com.mlreef.rest.config.security.oauth
 
+import com.mlreef.rest.config.maskSecret
+import com.mlreef.rest.config.security.SecurityConfiguration
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
 
 interface OAuthClientSettingsStorage {
     fun getOAuthClientSettings(client: String): OAuthClientSettings?
@@ -36,6 +40,23 @@ class OAuthClientSettingsStorageImpl(
 ) : OAuthClientSettingsStorage {
     private val CLIENT_PROPERTY_KEY = "social."
     private val oauthClientsMap = mutableMapOf<String, OAuthClientSettings>()
+
+    companion object {
+        private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
+    }
+
+    @PostConstruct
+    fun init() {
+        log.debug("OAuth client initialization...")
+        oauthClients.forEach {
+            getOAuthClientSettings(it)?.takeIf { it.enabled }?.let {
+                log.debug("====== Client ${it.name}")
+                log.debug("CLIENT ID: ${it.clientId.maskSecret(3, 3)}")
+                log.debug("CLIENT SECRET: ${it.clientSecret.maskSecret(3, 3)}")
+                it.clientKey?.let { log.debug("CLIENT KEY: ${it.maskSecret(3, 3)}") }
+            } ?: log.debug("====== No settings for client $it or it is disabled")
+        }
+    }
 
     override fun getOAuthClientSettings(client: String): OAuthClientSettings? {
         val finalClient = client.trim().toLowerCase()
