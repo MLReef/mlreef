@@ -19,13 +19,6 @@ export default function projectReducer(state = initialState.projects, action) {
           projectStarrers: action.projectStarrers,
         },
       };
-    case types.SET_PAGINATION_INFO:
-      return {
-        ...state,
-        paginationInfo: {
-          ...action.pagination,
-        },
-      };
     case types.SET_PROJECT_PIPES:
       return {
         ...state,
@@ -36,11 +29,6 @@ export default function projectReducer(state = initialState.projects, action) {
           ],
         },
       };
-    case types.SET_SORTING:
-      return {
-        ...state,
-        sorting: action.sorting,
-      }
     default:
       return state;
   }

@@ -2,14 +2,14 @@ import React, {
   useContext,
 } from 'react';
 import { string } from 'prop-types';
-import { SortableContainer } from 'react-sortable-hoc';
+import { sortableContainer } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 import './SortableDataProcessorList.scss';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
 import SortableProcessor from './SortableProcessor';
 import { UPDATE_PROCESSORS_SELECTED } from '../DataPipelineHooks/actions';
 
-const SortableProcessorsList = SortableContainer(({
+const SortableProcessorsList = sortableContainer(({
   prefix,
   items,
 }) => (
@@ -22,6 +22,7 @@ const SortableProcessorsList = SortableContainer(({
         }}
         key={`item-${value.id}-${index.toString()}`}
         value={value}
+        index={index} // DO NOT REMOVE THE INDEX ELSE SORTING WON'T WORK
       />
     ))}
   </ul>

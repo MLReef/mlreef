@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { toastr } from 'react-redux-toastr';
-import { SortableElement } from 'react-sortable-hoc';
+import { sortableElement } from 'react-sortable-hoc';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import { BOOLEAN, STRING } from 'dataTypes';
 import { arrayOf, shape } from 'prop-types';
@@ -18,7 +18,7 @@ import DataOperatorCodeSection from './DataOperatorCodeSection/DataOperatorCodeS
 const projectApi = new ProjectGeneralInfoApi();
 const commitApi = new CommitsApi();
 
-const SortableProcessor = SortableElement(({
+export const SelectedProcessor = ({
   value,
   addInfo: {
     index,
@@ -35,11 +35,11 @@ const SortableProcessor = SortableElement(({
       selectedDataProcessor.branch,
       selectedDataProcessor.version,
     )
-      .then((res) => {
+      .then(async (res) => {
         setVersionInfo(res);
-        return commitApi.getCommitDetails(value.gid, res.commit_sha);
+        const commInfo = await commitApi.getCommitDetails(value.gid, res.commit_sha);
+        setCommitInfo(commInfo);
       })
-      .then(setCommitInfo)
       .catch((err) => toastr.error('Error', err?.message));
   }, [selectedDataProcessor.branch, selectedDataProcessor.version, value.id]);
 
@@ -226,9 +226,9 @@ const SortableProcessor = SortableElement(({
       </span>
     </li>
   );
-});
+}
 
-export default SortableProcessor;
+export default sortableElement(SelectedProcessor);
 
 const ParametersSection = ({
   parameters, value, index

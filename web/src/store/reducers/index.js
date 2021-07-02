@@ -2,7 +2,6 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 import { persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux';
 import projects from './projectReducer';
-import marketplace from './marketplaceReducer';
 import branches from './branchesReducer';
 import jobs from './jobsReducer';
 import users from './usersReducer';
@@ -29,7 +28,6 @@ const rootReducer = combineReducers({
   branches,
   jobs,
   projects,
-  marketplace,
   users,
   mergeRequests,
   user: persistReducer(userPersitConfig, userReducer),
