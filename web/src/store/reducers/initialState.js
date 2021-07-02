@@ -3,27 +3,6 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 export default {
   branches: [],
   jobs: [],
-  marketplace: {
-    dataProjects: {
-      projects: [],
-      pagination: {},
-    },
-    codeProjects: {
-      [PROJECT_TYPES.ALGORITHM]: {
-        projects: [],
-        pagination: {},
-      },
-      [PROJECT_TYPES.OPERATION]: {
-        projects: [],
-        pagination: {},
-
-      },
-      [PROJECT_TYPES.VISUALIZATION]: {
-        projects: [],
-        pagination: {},
-      },
-    },
-  },
   projects: {
     all: [],
     userProjects: [],

@@ -40,7 +40,6 @@ const ExperimentTableRowPanel = (props) => {
 
   const [model, setModel] = useState({});
   const [executedProcessorInfo, setExecutedProcessorInfo] = useState({});
-  console.log(executedProcessorInfo);
 
   const currentExperiment = useMemo(
     () => experiments.find((exp) => exp.id === currentId),

@@ -6,7 +6,6 @@ import cx from 'classnames';
 import RepositoryFileExplorer from 'components/commons/RepositoryFileExplorer';
 import FilesApi from 'apis/FilesApi.ts';
 import { fireModal, closeModal } from 'store/actions/actionModalActions';
-import { inspect } from 'functions/apiCalls';
 import { cvsToArray, jsonToArray, arrayToRichData } from './functions';
 
 const filesApi = new FilesApi();
@@ -32,7 +31,6 @@ const TabularDataFeeder = (props) => {
     dispatch(closeModal({ reset: true }));
 
     return filesApi.getBlobRaw(gid, file.id)
-      .then(inspect)
       .then((res) => res.ok ? res.text() : res)
       .then((rawContent) => {
         setRaw(rawContent);

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import SortableProcessorsList from './SortableDataProcessorsList/SortableDataProcessorsList';
+import SortableListContainer from './SortableDataProcessorsList/SortableDataProcessorsList';
 import { DataPipelinesContext } from './DataPipelineHooks/DataPipelinesProvider';
 import { ADD_NEW_PROCESSOR } from './DataPipelineHooks/actions';
 
@@ -27,7 +27,7 @@ const DragDropZone = (prop) => {
 
   return (
     <>
-      <SortableProcessorsList prefix={prefix} />
+      <SortableListContainer prefix={prefix} />
       <div
         id="drop-zone"
         className={`drop-zone d-flex ml-1 ${processorDataSelected ? 'moving' : ''}`}

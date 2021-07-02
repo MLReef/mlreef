@@ -2,7 +2,6 @@ import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
 import MLSearchApi from 'apis/MLSearchApi';
-import { createPagination } from 'functions/apiCalls';
 import store from 'store';
 import * as types from '../actionTypes';
 
@@ -106,40 +105,6 @@ export function removeProject(id) {
       setTimeout(() => dispatch({ type: types.SET_SELECTED_PROJECT, project: {}}), 0);
     });
 }
-
-/**
- *
- * @param {*} searchableType: There can be several types of code projects:
- * ALGORITHM, OPERATION AND VISUALIZATION
- * @param {*} param2: object with pagination information: the page which is
- * the next page of projects that we will fetch,
- * size which is the number of projects that the page will contain
- * @param {*} body: additional searching information.
- *
- * @returns same file structure as getDataProjects function,
- * but content is filled with Code projects
- */
-
-export function setCodeProjects(codeProjectType, { pagination, projects }) {
-  return {
-    type: types.SET_CODE_PROJECTS,
-    codeProjectType,
-    pagination,
-    projects,
-  };
-}
-
-export const getCodeProjects = (
-  searchableType, 
-  { page, size }, 
-  body = {}
-) => (dispatch) => mlSearchApi
-  .search(searchableType, body, `&page=${page}&size=${size}`)
-  .then((payload) => ({
-    projects: mergeGitlabResource(payload?.content?.map(parseToCamelCase)),
-    pagination: createPagination(payload),
-  }))
-  .then((codeSet) => dispatch(setCodeProjects(searchableType, codeSet)));
 
 /**
  * @param {*} gid: id in Gitlab of the project,

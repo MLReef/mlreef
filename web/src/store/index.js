@@ -12,7 +12,6 @@ const persistConfig = {
     'actionModal',
     'errors',
     'projects',
-    'marketplace',
     'user',
     'mergeRequests',
     'datainstances',
