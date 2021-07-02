@@ -164,11 +164,11 @@ social:
       - r_emailaddress
     client-name: LinkedIn
   twitter: #https://developer.twitter.com/en
-    client-id: ${TWITTER_CLIENT_ID}
-    client-secret: ${TWITTER_CLIENT_SECRET}
-#    scope:
-#      - profile
-#      - email
+    client-id: ${TWITTER_CLIENT_ID:}
+    client-secret: ${TWITTER_CLIENT_SECRET:}
+    #    scope:
+    #      - profile
+    #      - email
     client-name: Twitter
   live: #https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
     client-id: ${LIVE_CLIENT_ID:4a96897b-71e0-4dde-a637-2aaa79ec8975}
