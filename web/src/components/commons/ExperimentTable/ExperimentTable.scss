@@ -83,8 +83,8 @@
       // height: 300px;
       &-cards {
         display: flex;
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
       }
 
       &-card {
@@ -101,7 +101,7 @@
           margin-left: 1rem;
         }
          &:not(:last-child) {
-          margin-right: 1rem;
+          margin-right: 0rem;
         }
 
         &-title {
