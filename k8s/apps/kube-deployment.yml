@@ -335,6 +335,43 @@ spec:
           value: redis
         - name: STARTUP_DELAY
           value: "30"
+        - name: GITHUB_CLIENT_ID
+          value: "@GITHUB_CLIENT_ID@"
+        - name: GITHUB_CLIENT_SECRET
+          value: "@GITHUB_CLIENT_SECRET@"
+        - name: FACEBOOK_CLIENT_ID
+          value: "@FACEBOOK_CLIENT_ID@"
+        - name: FACEBOOK_CLIENT_SECRET
+          value: "@FACEBOOK_CLIENT_SECRET@"
+        - name: LINKEDIN_CLIENT_ID
+          value: "@LINKEDIN_CLIENT_ID@"
+        - name: LINKEDIN_CLIENT_SECRET
+          value: "@LINKEDIN_CLIENT_SECRET@"
+        - name: GITLAB_CLIENT_ID
+          value: "@GITLAB_CLIENT_ID@"
+        - name: GITLAB_CLIENT_SECRET
+          value: "@GITLAB_CLIENT_SECRET@"
+        - name: FREELANCER_CLIENT_ID
+          value: "@FREELANCER_CLIENT_ID@"
+        - name: FREELANCER_CLIENT_SECRET
+          value: "@FREELANCER_CLIENT_SECRET@"
+        - name: LIVE_CLIENT_ID
+          value: "@LIVE_CLIENT_ID@"
+        - name: LIVE_CLIENT_SECRET
+          value: "@LIVE_CLIENT_SECRET@"
+        - name: AZURE_CLIENT_ID
+          value: "@AZURE_CLIENT_ID@"
+        - name: AZURE_CLIENT_SECRET
+          value: "@AZURE_CLIENT_SECRET@"
+        - name: STACKEXCHANGE_CLIENT_ID
+          value: "@STACKEXCHANGE_CLIENT_ID@"
+        - name: STACKEXCHANGE_CLIENT_SECRET
+          value: "@STACKEXCHANGE_CLIENT_SECRET@"
+        - name: STACKEXCHANGE_CLIENT_KEY
+          value: "@STACKEXCHANGE_CLIENT_KEY@"
+        - name: DEBUG_MODE
+          value: "@DEBUG_MODE@"
+
         envFrom:
         - configMapRef:
             name: local-config

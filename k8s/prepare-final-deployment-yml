@@ -68,6 +68,25 @@ function sed_files() {
       sed -i "s/@BACKEND_RESOURCES_LIMITS_CPU@/500m/" $file_name
       sed -i "s/@BACKEND_RESOURCES_REQUESTS_MEMORY@/800Mi/" $file_name
       sed -i "s/@BACKEND_RESOURCES_REQUESTS_CPU@/300m/" $file_name
+      sed -i "s/@GITHUB_CLIENT_ID@/${GITHUB_CLIENT_ID}/" $file_name
+      sed -i "s/@GITHUB_CLIENT_SECRET@/${GITHUB_CLIENT_SECRET}/" $file_name
+      sed -i "s/@FACEBOOK_CLIENT_ID@/${FACEBOOK_CLIENT_ID}/" $file_name
+      sed -i "s/@FACEBOOK_CLIENT_SECRET@/${FACEBOOK_CLIENT_SECRET}/" $file_name
+      sed -i "s/@LINKEDIN_CLIENT_ID@/${LINKEDIN_CLIENT_ID}/" $file_name
+      sed -i "s/@LINKEDIN_CLIENT_SECRET@/${LINKEDIN_CLIENT_SECRET}/" $file_name
+      sed -i "s/@GITLAB_CLIENT_ID@/${GITLAB_CLIENT_ID}/" $file_name
+      sed -i "s/@GITLAB_CLIENT_SECRET@/${GITLAB_CLIENT_SECRET}/" $file_name
+      sed -i "s/@FREELANCER_CLIENT_ID@/${FREELANCER_CLIENT_ID}/" $file_name
+      sed -i "s/@FREELANCER_CLIENT_SECRET@/${FREELANCER_CLIENT_SECRET}/" $file_name
+      sed -i "s/@LIVE_CLIENT_ID@/${LIVE_CLIENT_ID}/" $file_name
+      sed -i "s/@LIVE_CLIENT_SECRET@/${LIVE_CLIENT_SECRET}/" $file_name
+      sed -i "s/@AZURE_CLIENT_ID@/${AZURE_CLIENT_ID}/" $file_name
+      sed -i "s/@AZURE_CLIENT_SECRET@/${AZURE_CLIENT_SECRET}/" $file_name
+      sed -i "s/@STACKEXCHANGE_CLIENT_ID@/${STACKEXCHANGE_CLIENT_ID}/" $file_name
+      sed -i "s/@STACKEXCHANGE_CLIENT_SECRET@/${STACKEXCHANGE_CLIENT_SECRET}/" $file_name
+      sed -i "s/@STACKEXCHANGE_CLIENT_KEY@/${STACKEXCHANGE_CLIENT_KEY}/" $file_name
+      sed -i "s/@DEBUG_MODE@/${DEBUG_MODE}/" $file_name
+
       #gitlab-runner
       sed -i "s/@GITLAB_RUNNER_LIMITS_MEMORY@/52G/" $file_name
       sed -i "s/@GITLAB_RUNNER_LIMITS_CPU@/1.9/" $file_name
@@ -109,6 +128,24 @@ function sed_files() {
       sed -i "s/@BACKEND_RESOURCES_LIMITS_CPU@/400m/" $file_name
       sed -i "s/@BACKEND_RESOURCES_REQUESTS_MEMORY@/800Mi/" $file_name
       sed -i "s/@BACKEND_RESOURCES_REQUESTS_CPU@/200m/" $file_name
+      sed -i "s/@GITHUB_CLIENT_ID@/${GITHUB_CLIENT_ID}/" $file_name
+      sed -i "s/@GITHUB_CLIENT_SECRET@/${GITHUB_CLIENT_SECRET}/" $file_name
+      sed -i "s/@FACEBOOK_CLIENT_ID@/${FACEBOOK_CLIENT_ID}/" $file_name
+      sed -i "s/@FACEBOOK_CLIENT_SECRET@/${FACEBOOK_CLIENT_SECRET}/" $file_name
+      sed -i "s/@LINKEDIN_CLIENT_ID@/${LINKEDIN_CLIENT_ID}/" $file_name
+      sed -i "s/@LINKEDIN_CLIENT_SECRET@/${LINKEDIN_CLIENT_SECRET}/" $file_name
+      sed -i "s/@GITLAB_CLIENT_ID@/${GITLAB_CLIENT_ID}/" $file_name
+      sed -i "s/@GITLAB_CLIENT_SECRET@/${GITLAB_CLIENT_SECRET}/" $file_name
+      sed -i "s/@FREELANCER_CLIENT_ID@/${FREELANCER_CLIENT_ID}/" $file_name
+      sed -i "s/@FREELANCER_CLIENT_SECRET@/${FREELANCER_CLIENT_SECRET}/" $file_name
+      sed -i "s/@LIVE_CLIENT_ID@/${LIVE_CLIENT_ID}/" $file_name
+      sed -i "s/@LIVE_CLIENT_SECRET@/${LIVE_CLIENT_SECRET}/" $file_name
+      sed -i "s/@AZURE_CLIENT_ID@/${AZURE_CLIENT_ID}/" $file_name
+      sed -i "s/@AZURE_CLIENT_SECRET@/${AZURE_CLIENT_SECRET}/" $file_name
+      sed -i "s/@STACKEXCHANGE_CLIENT_ID@/${STACKEXCHANGE_CLIENT_ID}/" $file_name
+      sed -i "s/@STACKEXCHANGE_CLIENT_SECRET@/${STACKEXCHANGE_CLIENT_SECRET}/" $file_name
+      sed -i "s/@STACKEXCHANGE_CLIENT_KEY@/${STACKEXCHANGE_CLIENT_KEY}/" $file_name
+      sed -i "s/@DEBUG_MODE@/${DEBUG_MODE}/" $file_name
       #gitlab-runner
       sed -i "s/@GITLAB_RUNNER_LIMITS_MEMORY@/52G/" $file_name
       sed -i "s/@GITLAB_RUNNER_LIMITS_CPU@/1.9/" $file_name
