@@ -57,7 +57,7 @@ const ProjectLastCommitSect = ({
     }
   }, [projectId, urlBranch, projectDefaultBranch]);
 
-  const avatarName = userInfo.name;
+  const avatarName = userInfo.name || '';
   const today = new Date();
   const timediff = getTimeCreatedAgo(lastCommit?.authoredDate, today);
 
@@ -71,7 +71,7 @@ const ProjectLastCommitSect = ({
             </span>
           </Link>
         ) : (
-          <MEmptyAvatar styleClass="avatar-sm" projectName={avatarName} />
+          <MEmptyAvatar styleClass="avatar-sm" projectName={lastCommit?.authorName || ''} />
         )}
         <div className="last-commit-name">
           <p>
@@ -81,9 +81,13 @@ const ProjectLastCommitSect = ({
             by
             {' '}
             <b>
-              <Link to={`/${avatarName}`}>
-                {lastCommit?.authorName}
-              </Link>
+              {avatarName ? (
+                <Link to={`/${avatarName}`}>
+                  {lastCommit?.authorName}
+                </Link>
+              ) : (
+                lastCommit?.authorName
+              )}
             </b>
             {' '}
             authored
