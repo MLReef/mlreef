@@ -159,6 +159,7 @@ const FunctionalExecutionPipelinesView = (props) => {
               <ProcessorFilters
                 namespace={namespace}
                 operationTypeToExecute={operationTypeToExecute?.toLowerCase()}
+                inputDataTypes={selectedProject.inputDataTypes}
               />
               <ProcessorsList
                 namespace={namespace}

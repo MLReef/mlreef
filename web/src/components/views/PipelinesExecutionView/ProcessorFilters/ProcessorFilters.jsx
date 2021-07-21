@@ -10,6 +10,7 @@ import useLoading from 'customHooks/useLoading';
 import MTooltip from 'components/ui/MTooltip';
 import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MCheckBoxGroup from 'components/ui/MCheckBoxGroup';
+import MTags from 'components/ui/MTags';
 import { projectClassificationsProps } from 'dataTypes';
 import { string } from 'prop-types';
 import { DataPipelinesContext } from '../DataPipelineHooks/DataPipelinesProvider';
@@ -18,11 +19,13 @@ import { UPDATE_CURRENT_PROCESSORS_ARRAY } from '../DataPipelineHooks/actions';
 import { buildBody, dtypes } from './functionsAndConstants';
 
 const DataOperationFilters = (props) => {
-  const { namespace, operationTypeToExecute } = props;
+  const { namespace, operationTypeToExecute, inputDataTypes } = props;
   const [, dispatch] = useContext(DataPipelinesContext);
   const operationClassification = projectClassificationsProps
     .filter((cl) => cl.typeOfProcessor === operationTypeToExecute.toUpperCase())[0]?.classification;
-  const [dtypesSelected, setDtypesSelected] = useState([]);
+  const [dtypesSelected, setDtypesSelected] = useState(
+    inputDataTypes.map(inputDataType => dtypes.findIndex(item => item === inputDataType))
+  );
   const [starredOpsOnly, setStarredeOpsOnly] = useState(false);
   const [ownDataOpsOnly, setOwnDataOpsOnly] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
@@ -40,7 +43,7 @@ const DataOperationFilters = (props) => {
       dtypesSelected.map((ind) => dtypes[ind]),
     ),
   )
-    .then((projects) => projects.map((pr) => ({ 
+    .then((projects) => projects.map((pr) => ({
       ...pr,
       processorSelected: 0,
       processors: addInformationToProcessors(pr.processors),
@@ -165,6 +168,10 @@ const DataOperationFilters = (props) => {
           />
         </div>
       </div>
+      <MTags
+        tags={dtypesSelected.map((sdInd) => ({ label: dtypes[sdInd], id: sdInd }))}
+        onClick={(tag) => setDtypesSelected(dtypesSelected.filter((dtype) => dtype !== tag.id))}
+      />
     </div>
   );
 };
