@@ -31,12 +31,13 @@ To find out more about how MLReef can streamline your Machine Learning Developme
 
 ## Data Management
 
-<a href="https://mlreef.com"><img src="https://about.mlreef.com/images/dive/MLReef_repository.png" width="50%"></a>
+<a href="https://mlreef.com"><img src="Dashboard_MLReef.gif" width="75%"></a>
 
 * Host your data using git / git LFS repositories.
     * Work concurrently on data 
     * Fully versioned or LFS version control
     * Full view on data processing and visualization history
+* Connect your external storage to MLReef and use your data directly in pipelines
 * Data set management (access, history, pipelines)
 
 ## Publishing Code
