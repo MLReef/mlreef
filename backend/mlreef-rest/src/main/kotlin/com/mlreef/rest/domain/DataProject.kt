@@ -38,6 +38,10 @@ class DataProject(
     gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
     forksCount: Int = 0,
     inputDataTypes: MutableSet<DataType> = hashSetOf(),
+
+    forkParent: Project? = null,
+    forkChildren: MutableSet<Project> = mutableSetOf(),
+
     //searchable
     globalSlug: String? = null,
     tags: MutableSet<SearchableTag> = hashSetOf(),
@@ -47,12 +51,15 @@ class DataProject(
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : Project(id, ProjectType.DATA_PROJECT, slug, url, name, description, ownerId,
+) : Project(
+    id, ProjectType.DATA_PROJECT, slug, url, name, description, ownerId,
     gitlabNamespace, gitlabPath, gitlabPathWithNamespace, gitlabId,
     visibilityScope, forksCount, inputDataTypes,
     //searchable
     globalSlug, tags, starsCount, stars,
-    version, createdAt, updatedAt) {
+    forkParent, forkChildren,
+    version, createdAt, updatedAt
+) {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Project> copy(
@@ -72,7 +79,9 @@ class DataProject(
         version: Long?,
         createdAt: ZonedDateTime?,
         updatedAt: ZonedDateTime?,
-        visibilityScope: VisibilityScope?
+        visibilityScope: VisibilityScope?,
+        forkParent: Project?,
+        forkChildren: MutableSet<Project>?,
     ): T {
         return DataProject(
             id = this.id,
@@ -95,6 +104,8 @@ class DataProject(
             starsCount = stars?.size ?: this.stars.size,
             tags = tags?.toMutableSet() ?: this.tags,
             inputDataTypes = inputDataTypes?.toMutableSet() ?: this.inputDataTypes,
+            forkParent = forkParent ?: this.forkParent,
+            forkChildren = forkChildren ?: this.forkChildren,
         ) as T
     }
 

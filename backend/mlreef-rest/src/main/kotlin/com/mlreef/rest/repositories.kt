@@ -249,6 +249,13 @@ interface ProjectBaseRepository<T : Project> : CrudRepository<T, UUID> {
 
     @Query("SELECT p FROM Project p WHERE p.gitlabNamespace=:namespace AND p.slug=:slug")
     fun findByNamespaceAndSlug(namespace: String, slug: String): T?
+
+    fun findByOwnerIdAndForkParent(ownerId: UUID, parent: Project): T?
+
+    fun findByForkParent(parent: Project, pageable: Pageable?): Page<T>
+
+    @Query("SELECT p.id FROM Project p WHERE p.ownerId=:ownerId AND p.forkParent=:parent")
+    fun getProjectIdByOwnerAndForkedParent(ownerId: UUID, parent: Project): UUID?
 }
 
 @Repository
@@ -294,6 +301,10 @@ interface DataProjectRepository : ProjectBaseRepository<DataProject> {
 
     @Query("SELECT p FROM DataProject p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
     override fun findByNamespaceAndPath(namespace: String, path: String): DataProject?
+
+    override fun findByOwnerIdAndForkParent(ownerId: UUID, parent: Project): DataProject?
+
+    override fun findByForkParent(parent: Project, pageable: Pageable?): Page<DataProject>
 }
 
 @Repository
@@ -306,6 +317,10 @@ interface CodeProjectRepository : ProjectBaseRepository<CodeProject> {
 
     @Query("SELECT p FROM CodeProject p WHERE p.gitlabNamespace LIKE %:namespace% AND (p.gitlabPath LIKE %:path% OR p.slug LIKE %:path%)")
     override fun findByNamespaceAndPath(namespace: String, path: String): CodeProject?
+
+    override fun findByOwnerIdAndForkParent(ownerId: UUID, parent: Project): CodeProject?
+
+    override fun findByForkParent(parent: Project, pageable: Pageable?): Page<CodeProject>
 }
 
 @Repository

@@ -38,6 +38,8 @@ internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescri
         fieldWithPath(prefix + "processor_type").optional().type(JsonFieldType.STRING).description("Processor type (Code project only)"),
         fieldWithPath(prefix + "model_type").optional().type(JsonFieldType.STRING).description("Model type (Code project only)"),
         fieldWithPath(prefix + "ml_category").optional().type(JsonFieldType.STRING).description("ML category (Code project only)"),
+        fieldWithPath(prefix + "forked_from").optional().type(JsonFieldType.STRING).description("Parent project id the project was forked from"),
+        fieldWithPath(prefix + "forked_by_user").optional().type(JsonFieldType.BOOLEAN).description("The sign that the project was already forked by requesting user"),
     ).apply {
         this.add(fieldWithPath(prefix + "processors").optional().type(JsonFieldType.ARRAY).description("DataProcessors array"))
         this.addAll(dataProcessorFields(prefix + "processors[]."))

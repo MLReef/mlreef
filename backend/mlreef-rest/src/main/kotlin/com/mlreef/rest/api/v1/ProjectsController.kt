@@ -12,8 +12,8 @@ import com.mlreef.rest.api.v1.dto.ProjectShortDto
 import com.mlreef.rest.api.v1.dto.UserInProjectDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.api.v1.dto.toShortDto
-import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
 import com.mlreef.rest.config.MAX_PAGE_SIZE
+import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.Account
@@ -84,9 +84,9 @@ class ProjectsController(
         val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProjectRequest, isCodeProjectRequest)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
+            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         } else {
-            projectsPage.map { it.toDto() }
+            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         }
     }
 
@@ -126,9 +126,9 @@ class ProjectsController(
         val projectsPage = recentProjectService.getRecentProjectsForUser(profile.personId, pageable, type)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.project.toDto() }
+            projectsPage.content.map { it.project.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, personId = profile.personId)) }
         } else {
-            projectsPage.map { it.project.toDto() }
+            projectsPage.map { it.project.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, personId = profile.personId)) }
         }
     }
 
@@ -148,9 +148,9 @@ class ProjectsController(
         val projectsPage = projectService.getAllProjectsStarredByUser(profile, pageable)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
+            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         } else {
-            projectsPage.map { it.toDto() }
+            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         }
     }
 
@@ -171,9 +171,9 @@ class ProjectsController(
         val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
+            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         } else {
-            projectsPage.map { it.toDto() }
+            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         }
     }
 
@@ -197,9 +197,9 @@ class ProjectsController(
 //        val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProject, isCodeProject)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
+            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         } else {
-            projectsPage.map { it.toDto() }
+            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         }
     }
 
@@ -220,9 +220,9 @@ class ProjectsController(
         val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto() }
+            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         } else {
-            projectsPage.map { it.toDto() }
+            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
         }
     }
 
@@ -262,7 +262,7 @@ class ProjectsController(
             else -> throw BadRequestException("No id $id was provided")
         } ?: throw ProjectNotFoundException(projectId = uuid, projectName = projectName, gitlabId = gitlabId)
 
-        return project.toDto()
+        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
     }
 
 
@@ -274,7 +274,7 @@ class ProjectsController(
         token: TokenDetails,
     ): ProjectDto {
         val project = projectService.starProject(id, person = person, userToken = token.accessToken)
-        return project.toDto()
+        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
     }
 
     @DeleteMapping("/{id}/star")
@@ -285,7 +285,7 @@ class ProjectsController(
         token: TokenDetails,
     ): ProjectDto {
         val project = projectService.unstarProject(id, person = person, userToken = token.accessToken)
-        return project.toDto()
+        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
     }
 
     @PostMapping
@@ -322,15 +322,18 @@ class ProjectsController(
         @Valid @RequestBody projectForkRequest: ProjectForkRequest,
         token: TokenDetails,
         person: Person,
-    ): T =
-        this.projectService.forkProject(
+    ): T {
+        val forkedProject = this.projectService.forkProject(
             userToken = token.accessToken,
             originalId = id,
-            creatorId = person.id,
+            creator = person,
             name = projectForkRequest.targetName,
             path = projectForkRequest.targetPath,
             namespaceIdOrName = projectForkRequest.targetNamespace,
-        ).toDto() as T
+        )
+
+        return forkedProject.toDto(forkedByUser = projectService.isProjectForkedByUser(forkedProject, token.personId)) as T
+    }
 
     @PostMapping("/data")
     @PreAuthorize("canCreateProject()")
@@ -358,7 +361,7 @@ class ProjectsController(
             inputDataTypes = dataProjectCreateRequest.inputDataTypes,
         )
 
-        return dataProject.toDto()
+        return dataProject.toDto(forkedByUser = projectService.isProjectForkedByUser(dataProject, token.personId))
     }
 
     @PostMapping("/code")
@@ -370,6 +373,7 @@ class ProjectsController(
     ): CodeProjectDto {
         if (request.inputDataTypes.isEmpty())
             throw IllegalArgumentException("A code project needs an InputDataType. request.inputDataType=${request.inputDataTypes}")
+
         val codeProject = codeProjectService.createProject(
             userToken = token.accessToken,
             ownerId = person.id,
@@ -384,7 +388,7 @@ class ProjectsController(
             processorType = request.dataProcessorType
         )
 
-        return codeProject.toDto()
+        return codeProject.toDto(forkedByUser = projectService.isProjectForkedByUser(codeProject, token.personId))
     }
 
     @PutMapping("/{id}")
@@ -395,7 +399,7 @@ class ProjectsController(
         token: TokenDetails,
         person: Person,
     ): ProjectDto {
-        val codeProject = projectService.updateProject(
+        val project = projectService.updateProject(
             userToken = token.accessToken,
             ownerId = person.id,
             projectUUID = id,
@@ -407,7 +411,7 @@ class ProjectsController(
             tags = projectUpdateRequest.tags
         )
 
-        return codeProject.toDto()
+        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
     }
 
     @DeleteMapping("/{id}")
@@ -608,10 +612,14 @@ class ProjectsController(
     //TODO: possible need to add an unique index to database for gitlab_namespace + slug. Currently it is not present
     @GetMapping("/{namespace}/{slug}")
     @PostAuthorize("postCanViewProject()")
-    fun getProjectByNamespaceAndSlug(@PathVariable namespace: String, @PathVariable slug: String): ProjectDto {
+    fun getProjectByNamespaceAndSlug(
+        @PathVariable namespace: String,
+        @PathVariable slug: String,
+        token: TokenDetails,
+    ): ProjectDto {
         val project = projectService.getProjectsByNamespaceAndSlug(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
-        return project.toDto()
+        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
     }
 
     @Deprecated("maybe unused, frontend unclear")

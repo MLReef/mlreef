@@ -12,9 +12,9 @@ data class SearchResultDto(
 )
 
 
-internal fun SearchResult.toDto(): SearchResultDto =
+internal fun SearchResult.toDto(forkedByUser: Boolean? = null): SearchResultDto =
     SearchResultDto(
-        project = this.project.toDto(),
+        project = this.project.toDto(forkedByUser = forkedByUser),
         probability = this.properties?.rank ?: 1.0F
     )
 

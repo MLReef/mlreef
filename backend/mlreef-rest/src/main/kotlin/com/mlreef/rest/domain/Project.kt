@@ -23,6 +23,7 @@ import javax.persistence.InheritanceType
 import javax.persistence.JoinColumn
 import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
+import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
 import javax.persistence.PrePersist
 import javax.persistence.Table
@@ -118,11 +119,17 @@ abstract class Project(
     @Fetch(value = FetchMode.JOIN)
     override val stars: MutableSet<Star> = mutableSetOf(),
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "forked_from_id")
+    var forkParent: Project? = null,
+
+    @OneToMany(mappedBy = "forkParent", fetch = FetchType.LAZY)
+    val forkChildren: MutableSet<Project> = mutableSetOf(),
+
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null,
-
-    ) : AuditEntity(id, version, createdAt, updatedAt), Searchable {
+) : AuditEntity(id, version, createdAt, updatedAt), Searchable {
 
     fun toProjectOfUser(accessLevel: AccessLevel?) = ProjectOfUser(
         id = this.id,
@@ -148,6 +155,8 @@ abstract class Project(
         createdAt: ZonedDateTime? = null,
         updatedAt: ZonedDateTime? = null,
         visibilityScope: VisibilityScope? = null,
+        forkParent: Project? = null,
+        forkChildren: MutableSet<Project>? = null,
     ): T
 
     fun addStar(subject: Person): Project {

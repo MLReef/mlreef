@@ -15,6 +15,8 @@ import com.mlreef.rest.domain.marketplace.SearchableType
 import java.time.Instant
 import java.util.UUID
 
+//TODO: Optimize forked by user field, as it request all forked projects list, but can request a single one
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 open class ProjectDto(
     override val id: UUID,
@@ -36,10 +38,12 @@ open class ProjectDto(
     open val searchableType: SearchableType,
     open val processors: List<ProcessorDto>?,
     open val published: Boolean?,
+    open val forkedByUser: Boolean,
     open val processorType: String? = null,
     open val modelType: String? = null,
     open val mlCategory: String? = null,
     open val experiments: List<ExperimentDto>? = null,
+    open val forkedFrom: UUID? = null,
 ) : DataClassWithId
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -79,14 +83,17 @@ data class DataProjectDto(
     override val forksCount: Int,
     override val inputDataTypes: List<String>,
     override val searchableType: SearchableType,
-    override val experiments: List<ExperimentDto>? = listOf()
+    override val experiments: List<ExperimentDto>? = listOf(),
+    override val forkedFrom: UUID?,
+    override val forkedByUser: Boolean,
 ) : ProjectDto(
     id, slug, url, ownerId, name,
     gitlabNamespace, gitlabPath, gitlabId,
     globalSlug, visibilityScope, description,
     tags, starsCount, forksCount,
-    inputDataTypes, null,
-    searchableType, null, null, null, null, null, experiments
+    inputDataTypes, null, searchableType,
+    null, null, forkedByUser, null, null, null,
+    experiments, forkedFrom,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -113,13 +120,16 @@ data class CodeProjectDto(
     override val processorType: String? = null,
     override val modelType: String? = null,
     override val mlCategory: String? = null,
+    override val forkedFrom: UUID?,
+    override val forkedByUser: Boolean,
 ) : ProjectDto(
     id, slug, url, ownerId, name,
     gitlabNamespace, gitlabPath, gitlabId,
     globalSlug, visibilityScope, description,
     tags, starsCount, forksCount,
     inputDataTypes, outputDataTypes,
-    searchableType, processors, published, processorType, modelType, mlCategory,
+    searchableType, processors, published, forkedByUser, processorType, modelType, mlCategory, null,
+    forkedFrom,
 )
 
 internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
@@ -129,48 +139,49 @@ internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
 )
 
 @Suppress("UNCHECKED_CAST")
-fun Project.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true): ProjectDto {
-    return ProjectDto(
-        id,
-        this.slug,
-        this.url,
-        this.ownerId,
-        this.name,
-        this.gitlabNamespace,
-        this.gitlabPath,
-        this.gitlabId,
-        globalSlug,
-        visibilityScope,
-        description,
-        this.tags.map(SearchableTag::toDto),
-        starsCount,
-        forksCount,
-        this.inputDataTypes.map { it.name },
-        if (this is CodeProject) this.outputDataTypes.map { it.name } else null,
-        searchableType,
-        if (this is CodeProject && ((takeNumberFromList ?: 1) > 0)) {
-            this.processors
-                .filter { if (onlyPublishedProcessors) (it.status == PublishStatus.PUBLISH_FINISHING || it.status == PublishStatus.PUBLISHED) else true }
-                .sortedByDescending { it.publishedAt ?: Instant.now() }
-                .apply {
-                    if (takeNumberFromList != null) this.take(takeNumberFromList)
-                }
-                .map { it.toDto() }
-        } else null,
-        if (this is CodeProject) this.wasPublished() else null,
-        if (this is CodeProject) (this.processorType.name) else null,
-        if (this is CodeProject) (this.modelType) else null,
-        if (this is CodeProject) (this.mlCategory) else null,
-        if (this is DataProject && ((takeNumberFromList ?: 1) > 0)) {
-            this.experiments
-                .sortedByDescending { it.pipelineJobInfo?.startedAt ?: Instant.now() }
-                .apply {
-                    if (takeNumberFromList != null) this.take(takeNumberFromList)
-                }
-                .map { it.toDto() }
-        } else null,
-    )
-}
+fun Project.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true, forkedByUser: Boolean? = null) = ProjectDto(
+    id,
+    this.slug,
+    this.url,
+    this.ownerId,
+    this.name,
+    this.gitlabNamespace,
+    this.gitlabPath,
+    this.gitlabId,
+    globalSlug,
+    visibilityScope,
+    description,
+    this.tags.map(SearchableTag::toDto),
+    starsCount,
+    forksCount,
+    this.inputDataTypes.map { it.name },
+    if (this is CodeProject) this.outputDataTypes.map { it.name } else null,
+    searchableType,
+    if (this is CodeProject && ((takeNumberFromList ?: 1) > 0)) {
+        this.processors
+            .filter { if (onlyPublishedProcessors) (it.status == PublishStatus.PUBLISH_FINISHING || it.status == PublishStatus.PUBLISHED) else true }
+            .sortedByDescending { it.publishedAt ?: Instant.now() }
+            .apply {
+                if (takeNumberFromList != null) this.take(takeNumberFromList)
+            }
+            .map { it.toDto() }
+    } else null,
+    if (this is CodeProject) this.wasPublished() else null,
+    forkedByUser ?: false,
+    if (this is CodeProject) (this.processorType.name) else null,
+    if (this is CodeProject) (this.modelType) else null,
+    if (this is CodeProject) (this.mlCategory) else null,
+    if (this is DataProject && ((takeNumberFromList ?: 1) > 0)) {
+        this.experiments
+            .sortedByDescending { it.pipelineJobInfo?.startedAt ?: Instant.now() }
+            .apply {
+                if (takeNumberFromList != null) this.take(takeNumberFromList)
+            }
+            .map { it.toDto() }
+    } else null,
+    this.forkParent?.id,
+)
+
 
 @Suppress("UNCHECKED_CAST")
 fun Project.toShortDto(requesterId: UUID? = null): ProjectShortDto {
@@ -184,7 +195,7 @@ fun Project.toShortDto(requesterId: UUID? = null): ProjectShortDto {
     )
 }
 
-internal fun DataProject.toDto(takeNumberFromList: Int? = 10): DataProjectDto {
+internal fun DataProject.toDto(takeNumberFromList: Int? = 10, forkedByUser: Boolean? = null): DataProjectDto {
     return DataProjectDto(
         id = this.id,
         slug = this.slug,
@@ -210,10 +221,12 @@ internal fun DataProject.toDto(takeNumberFromList: Int? = 10): DataProjectDto {
                 }
                 .map { it.toDto() }
         } else null,
+        forkedFrom = this.forkParent?.id,
+        forkedByUser = forkedByUser ?: false,
     )
 }
 
-internal fun CodeProject.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true) =
+internal fun CodeProject.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true, forkedByUser: Boolean? = null) =
     CodeProjectDto(
         id = this.id,
         slug = this.slug,
@@ -245,4 +258,6 @@ internal fun CodeProject.toDto(takeNumberFromList: Int? = 10, onlyPublishedProce
         published = this.wasPublished(),
         modelType = this.modelType,
         mlCategory = this.mlCategory,
+        forkedFrom = this.forkParent?.id,
+        forkedByUser = forkedByUser ?: false,
     )
