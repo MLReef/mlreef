@@ -467,6 +467,12 @@ class MarketplaceApiTest : AbstractRestApiTest() {
             .checkStatus(HttpStatus.OK)
             .document(
                 "marketplace-recent-projects",
+                requestParameters(
+                    parameterWithName("page").optional().description("The page to retrieve"),
+                    parameterWithName("size").optional().description("Number of results to retrieve"),
+                    parameterWithName("sort").optional().description("Sort per a named field"),
+                    parameterWithName("type").optional().description("Filter by project type: code or data")
+                ),
                 responseFields(
                     wrapToPage(
                         projectResponseFields()

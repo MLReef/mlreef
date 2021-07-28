@@ -7,6 +7,7 @@ import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
 import com.mlreef.rest.config.MAX_PAGE_SIZE
+import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.ProjectType
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.marketplace.SearchableType
@@ -15,6 +16,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.marketplace.MarketplaceService
+import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.project.RecentProjectService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -37,6 +39,7 @@ class MarketplaceController(
     val currentUserService: CurrentUserService,
     val publicProjectsCacheService: PublicProjectsCacheService,
     private val recentProjectService: RecentProjectService,
+    private val projectService: ProjectService<Project>,
 ) {
     @PostMapping("/entries/search")
     fun searchEntries(
@@ -135,7 +138,9 @@ class MarketplaceController(
             participate = participate,
         )
 
-        return marketplaceService.searchProjects(finalFilter, pageable, profile).map { it.toDto() }
+        return marketplaceService.searchProjects(finalFilter, pageable, profile).map {
+            it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile?.personId))
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -160,7 +165,10 @@ class MarketplaceController(
             pageable,
             finalFilter.query,
             finalFilter.queryAnd,
-            profile).map { it.toDto() } as Iterable<ProjectDto>
+            profile
+        ).map {
+            it.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, profile?.personId))
+        } as Iterable<ProjectDto>
 
         return result
     }
@@ -173,18 +181,24 @@ class MarketplaceController(
         SearchRequest(),
         pageable,
         profile
-    ).map { it.toDto() }
+    ).map {
+        it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile?.personId))
+    }
 
     @GetMapping("/entries/{slug}")
     fun getEntry(
         @PathVariable slug: String,
         pageable: Pageable,
         profile: TokenDetails? = null,
-    ): ProjectDto = marketplaceService.searchProjects(
-        SearchRequest(globalSlugExact = slug),
-        pageable,
-        profile
-    ).firstOrNull()?.toDto() ?: throw NotFoundException(ErrorCode.NotFound, "Project by slug $slug not found")
+    ): ProjectDto {
+        val project = marketplaceService.searchProjects(
+            SearchRequest(globalSlugExact = slug),
+            pageable,
+            profile
+        ).firstOrNull() ?: throw NotFoundException(ErrorCode.NotFound, "Project by slug $slug not found")
+
+        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, profile?.personId))
+    }
 
     @GetMapping("/tags")
     fun getTags(): List<SearchableTagDto> =
@@ -204,7 +218,7 @@ class MarketplaceController(
 
         val projects = recentProjectService.getRecentProjectsForUser(profile.personId, pageable, projectTypeParsed)
 
-        return projects.map { it.project.toDto() }
+        return projects.map { it.project.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, profile.personId)) }
     }
 }
 

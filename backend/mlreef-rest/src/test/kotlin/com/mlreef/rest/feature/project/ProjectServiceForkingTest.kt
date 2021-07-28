@@ -3,6 +3,7 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.ProjectsConfiguration
 import com.mlreef.rest.domain.CodeProject
+import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.ProcessorType
 import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.VisibilityScope
@@ -43,6 +44,7 @@ internal open class ProjectServiceForkingTest {
 
     private val repoMock: CodeProjectRepository = mockk {
         every { this@mockk.findByIdOrNull(originalCodeProject.id) } answers { originalCodeProject }
+        every { this@mockk.findByOwnerIdAndForkParent(any(), any()) } returns null
         //let the save function return the same entity that was saved
         every { this@mockk.save(any()) } answers { this.arg(0) }
     }
@@ -87,8 +89,10 @@ internal open class ProjectServiceForkingTest {
     )
 
 
+    @Transactional
+    @Rollback
     @Test
-    fun `Can fork CodeProject`() = `Can fork project`(originalCodeProject)
+    open fun `Can fork CodeProject`() = `Can fork project`(originalCodeProject)
 
     @Transactional
     @Rollback
@@ -96,8 +100,9 @@ internal open class ProjectServiceForkingTest {
         // Capture what is saved to the repository
         val capture = slot<CodeProject>()
         every { repoMock.save(capture(capture)) } answers { this.arg(0) }
-        val ret = codeProjectService.forkProject(userToken = "test-token", creatorId = UUID.randomUUID(), originalId = original.id)
+        val ret = codeProjectService.forkProject(userToken = "test-token", creator = Person(UUID.randomUUID(), "slug-slug-slug", "Name", 2948492L), originalId = original.id)
         verify {
+            repoMock.findByOwnerIdAndForkParent(ret.ownerId, original)
             repoMock.findById(original.id)
             gitlabRestClientMock.forkProject(
                 token = "test-token",

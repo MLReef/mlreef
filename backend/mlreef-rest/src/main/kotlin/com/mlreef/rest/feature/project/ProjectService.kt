@@ -94,6 +94,8 @@ interface ProjectService<T : Project> {
 
     fun getNamespaces(userToken: String): List<GitlabNamespace>
 
+    fun <T : Project> isProjectForkedByUser(project: T?, personId: UUID?, projectId: UUID? = null): Boolean
+
     fun starProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
     fun unstarProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
 
@@ -112,7 +114,7 @@ interface ProjectService<T : Project> {
         id: UUID? = null,
     ): T
 
-    fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String? = null, path: String? = null, namespaceIdOrName: String? = null): T
+    fun forkProject(userToken: String, originalId: UUID, creator: Person, name: String? = null, path: String? = null, namespaceIdOrName: String? = null): T
 
     fun saveProject(project: T): T
 
@@ -444,6 +446,17 @@ open class ProjectServiceImpl<T : Project>(
         return gitlabRestClient.getNamespaces(userToken)
     }
 
+    override fun <T : Project> isProjectForkedByUser(project: T?, personId: UUID?, projectId: UUID?): Boolean {
+        return personId?.let {
+            repository.getProjectIdByOwnerAndForkedParent(
+                personId,
+                project
+                    ?: projectId?.let { repository.findByIdOrNull(it) }
+                    ?: throw NotFoundException("Project $projectId was not found")
+            ) != null
+        } ?: false
+    }
+
     @SaveRecentProject(projectId = "#result.id", userId = "#ownerId", operation = "createProject")
     @RefreshUserInformation(userId = "#ownerId")
     @RefreshProject
@@ -552,9 +565,15 @@ open class ProjectServiceImpl<T : Project>(
      */
     @SaveRecentProject(projectId = "#result.id", userId = "#creatorId", operation = "forkProject")
     @RefreshUserInformation(userId = "#creatorId")
-    override fun forkProject(userToken: String, originalId: UUID, creatorId: UUID, name: String?, path: String?, namespaceIdOrName: String?): T {
+    override fun forkProject(userToken: String, originalId: UUID, creator: Person, name: String?, path: String?, namespaceIdOrName: String?): T {
         val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
+
+        if (repository.findByOwnerIdAndForkParent(creator.id, original) != null)
+            throw ConflictException("The user '${creator.account?.username}' has already forked the project '${original.name}'")
+
+        if (original.ownerId == creator.id)
+            throw ConflictException("User cannot fork own project")
 
         val namespace = try {
             namespaceIdOrName?.toLongOrNull()?.let {
@@ -584,7 +603,7 @@ open class ProjectServiceImpl<T : Project>(
 
         val fork: T = if (original is CodeProject) {
             createCodeProjectEntity(
-                ownerId = creatorId,
+                ownerId = creator.id,
                 gitlabProject = gitlabFork,
                 processorType = original.processorType,
                 modelType = original.modelType,
@@ -593,10 +612,10 @@ open class ProjectServiceImpl<T : Project>(
                 outputDataTypes = original.outputDataTypes,
             ) as T
         } else {
-            createDataProjectEntity(ownerId = creatorId, gitlabFork) as T
+            createDataProjectEntity(ownerId = creator.id, gitlabFork) as T
         }
 
-        val savedProject = this.saveProject(fork.copy(createdAt = now(), updatedAt = now()))
+        val savedProject = this.saveProject(fork.copy(createdAt = now(), updatedAt = now(), forkParent = original))
 
         if (projectsConfiguration.syncFork) {
             val start = Instant.now()

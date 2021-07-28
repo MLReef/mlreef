@@ -54,6 +54,9 @@ class CodeProject(
     var modelType: String? = null,
     var mlCategory: String? = null,
 
+    forkParent: Project? = null,
+    forkChildren: MutableSet<Project> = mutableSetOf(),
+
     //searchable
     globalSlug: String? = null,
     tags: MutableSet<SearchableTag> = hashSetOf(),
@@ -70,6 +73,7 @@ class CodeProject(
     visibilityScope, forksCount, inputDataTypes,
     //searchable
     globalSlug, tags, starsCount, stars,
+    forkParent, forkChildren,
     version, createdAt, updatedAt
 ), SearchableExtended {
     fun wasPublished(): Boolean {
@@ -94,7 +98,9 @@ class CodeProject(
         version: Long?,
         createdAt: ZonedDateTime?,
         updatedAt: ZonedDateTime?,
-        visibilityScope: VisibilityScope?
+        visibilityScope: VisibilityScope?,
+        forkParent: Project?,
+        forkChildren: MutableSet<Project>?,
     ): T {
         return CodeProject(
             id = id,
@@ -119,6 +125,8 @@ class CodeProject(
             outputDataTypes = this.outputDataTypes,
             processorType = this.processorType,
             processors = this.processors,
+            forkParent = forkParent ?: this.forkParent,
+            forkChildren = forkChildren ?: this.forkChildren,
         ) as T
     }
 

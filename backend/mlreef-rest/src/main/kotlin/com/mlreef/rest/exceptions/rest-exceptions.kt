@@ -10,7 +10,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     // authentication and general errors: 1xxx
     NotFound(1404, "Entity not found"),
     NotAllowed(1405, "Method NotAllowed "),
-    Conflict(1409, "Entity already exists"),
+    Conflict(1409, "Conflict operation"),
     AccessDenied(1410, "Access denied exception"),
     AuthenticationError(1411, "Authentication error"),
     ValidationFailed(1400, "ValidationFailed"),
