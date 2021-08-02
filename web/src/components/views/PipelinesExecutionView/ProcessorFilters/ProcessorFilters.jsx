@@ -19,7 +19,7 @@ import { UPDATE_CURRENT_PROCESSORS_ARRAY } from '../DataPipelineHooks/actions';
 import { buildBody, dtypes } from './functionsAndConstants';
 
 const DataOperationFilters = (props) => {
-  const { namespace, operationTypeToExecute, inputDataTypes } = props;
+  const { namespace, operationTypeToExecute, inputDataTypes = [] } = props;
   const [, dispatch] = useContext(DataPipelinesContext);
   const operationClassification = projectClassificationsProps
     .filter((cl) => cl.typeOfProcessor === operationTypeToExecute.toUpperCase())[0]?.classification;
