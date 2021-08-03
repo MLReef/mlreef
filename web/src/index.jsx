@@ -4,6 +4,7 @@ import 'reflect-metadata';
 import './styles/theme.scss';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import { Worker } from '@react-pdf-viewer/core';
 import MActionModal from 'components/layout/MActionModal';
 import Tutorial from 'components/commons/Tutorial';
 import { persistStore } from 'redux-persist';
@@ -18,6 +19,7 @@ import 'whatwg-fetch';
 const persistor = persistStore(store);
 
 ReactDOM.render(
+<Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.worker.js">
   <Provider store={store}>
     <ErrorHandler>
       <ToastMessage />
@@ -42,6 +44,7 @@ ReactDOM.render(
         </div>
       </PersistGate>
     </ErrorHandler>
-  </Provider>,
+  </Provider>
+  </Worker>,
   document.getElementById('root'),
 );

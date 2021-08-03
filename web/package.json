@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-pdf-viewer/core": "^2.7.1",
+    "@react-pdf-viewer/page-navigation": "^2.7.1",
+    "@react-pdf-viewer/search": "^2.7.1",
     "@types/node-fetch": "^2.5.7",
     "array-move": "^2.2.1",
     "babel-core": "^6.26.3",

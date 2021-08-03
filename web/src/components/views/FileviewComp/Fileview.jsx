@@ -25,7 +25,7 @@ import ProjectContainer from '../../projectContainer';
 import Navbar from '../../navbar/navbar';
 import DeleteFileModal from '../../DeleteFileModal/DeleteFileModal';
 import ContributorsSection from './ContributorsSection';
-import MPDFFilesReader from 'components/layout/MPdfReader/MPDFFilesReader';
+import PDFViewer from 'components/layout/PDFViewer';
 
 dayjs.extend(relativeTime);
 
@@ -299,7 +299,7 @@ const FileSection = ({
         </div>
       )
     } else if(extension === 'pdf') {
-      return <MPDFFilesReader data={atob(rawFileContent)} />
+      return <PDFViewer data={atob(rawFileContent)} />
     }
     return (
       <MCodeRenderer
