@@ -13,7 +13,6 @@ import actionsAndFunctions from './PublicationActionsAndFunctions';
 import PublicationInfoRow from './PublicationInfoRow';
 import { sortTypedPipelines } from 'domain/Publications/metaData';
 import useLoading from 'customHooks/useLoading';
-import useEffectNoFirstRender from 'customHooks/useEffectNoFirstRender';
 
 const Publications = (props) => {
   const {
@@ -52,7 +51,7 @@ const Publications = (props) => {
   const [isLoading, executeCall] = useLoading(getPubsCallback);
 
   useEffect(() => {
-    if(!isFetching){
+    if (!isFetching && id) {
       executeCall();
     }
   }, [isFetching]);
@@ -113,7 +112,7 @@ const Publications = (props) => {
             <br />
             {<MLoadingSpinnerContainer active={isLoading}>
                 <div className="d-flex publications-content-bottom">
-                
+
                 <table className="publications-content-bottom-table">
                   <thead>
                     <tr className="publications-content-bottom-table-heading">

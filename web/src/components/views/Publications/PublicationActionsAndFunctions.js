@@ -11,10 +11,12 @@ const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 const projectApi = new ProjectGeneralInfoApi();
 
-const mergeWithPromise = (gid, pubs = []) => pubs.map(async (p) => ({
-  ...p,
-  pipeline: await gitlabPipelinesApi.getPipesById(gid, p?.gitlabPipelineId)
-}));
+const mergeWithPromise = (gid, pubs = []) => pubs
+  .filter((p) => p.gitlabPipelineId)
+  .map(async (p) => ({
+    ...p,
+    pipeline: await gitlabPipelinesApi.getPipesById(gid, p.gitlabPipelineId)
+  }));
 
 
 const getPiblicationsList = (projectId, gid) => projectApi.getPublications(projectId)
