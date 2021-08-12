@@ -18,7 +18,7 @@
               "layoutType": 1,
               "title": "Your first tutorial!",
               "image": "/tutorials/1/click.png",
-              "instructions": "This is the tutorial helper. It will accompany you in your journey, step by step. Now, click on the above image to make it big.",
+              "instructions": "This is the tutorial helper. It will guide you in your journey, step by step. A small tip, you can click on these images here to expand them.",
               "validators": [
               ]
             },
@@ -26,33 +26,29 @@
               "id": 2,
               "layoutType": 1,
               "title": "This is your dashboard",
-              "image": "/tutorials/1/dashboard.png",
-              "instructions": "In your dashboard you can see your owned projects and explore public projects from the community.",
+              "image": "/tutorials/1/projects.JPG",
+              "instructions": "Here, you can see your project repositories and explore public ones from the community.",
               "validators": [
-                {
-                  "type": "hashChecker",
-                  "regex": "#explore"
-                }
               ]
             },
             {
               "id": 3,
               "layoutType": 1,
-              "title": "ML Projects, Models, Data Operations and Data Visualizations",
-              "image": "/tutorials/1/dashboard.png",
-              "instructions": "In **ML Projects** you will do all the data and ML related work. The tabs **models**, **data operations** and **data visualizations** host your code functions.",
+              "title": "Two types of project repositories",
+              "image": "/tutorials/1/repositories.JPG",
+              "instructions": "In **ML Projects** you will do all the data and ML related work. The other class are to host code functions, such as **models** or **data visualizations**.",
               "validators": []
             },
             {
               "id": 4,
               "layoutType": 1,
-              "title": "Go to the \"Basic tutorials\" ML project",
+              "title": "Now, go to the \"Basic tutorials\" ML project",
               "image": "/tutorials/1/basic_1_card.png",
-              "instructions": "Click this [link](/mlreef/basic-tutorials) or find the project in your dashboard under the **ML projects** / explore tab.",
+              "instructions": "Click this [link](/mlreef_1/basic-tutorials) or type **Basic Tutorial** in the search field under the **ML Projects** tab.",
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "/mlreef/basic-tutorials"
+                  "regex": "mlreef_1/basic-tutorials"
                 }
               ]
             }
@@ -85,7 +81,7 @@
               "layoutType": 1,
               "title": "Wait until fork is completed",
               "image": "/tutorials/1/forking_wait.gif",
-              "instructions": "Forking might take some minutes, please be patient!",
+              "instructions": "In general, the forking might take some time, please be patient!",
               "validators": [
                 {
                   "type": "urlChecker",
@@ -97,8 +93,8 @@
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Now this ML projects is yours!",
-              "instructions": "##### Congratulations! You now own this project.\nIf you want, you can explore the data section and discover the files in it.",
+              "title": "Now you own the Basic Tutorial ML Project!",
+              "instructions": "##### Congratulations! You now own this project.\nFeel free to navigate around to get a first sensation of it.",
               "image": "/tutorials/1/basic_repository.png",
               "validators": []
             }
@@ -121,7 +117,7 @@
               "layoutType": 1,
               "title": "Open the \"Experiments\" tab",
               "image": "/tutorials/1/experiment_tab.png",
-              "instructions": "Click the experiment tab. In this section you can start training your models with your cats and dogs image data.",
+              "instructions": "Click the experiment tab. In this section you can train your models with cats and dogs images.",
               "validators": [
                 {
                   "type": "urlChecker",
@@ -139,7 +135,7 @@
               "layoutType": 1,
               "title": "Create a new experiment",
               "image": "/tutorials/1/new_experiment.png",
-              "instructions": "An experiment is a model training. It is called an experiment, because with neural networks you don´t the exact outcome before you tried.",
+              "instructions": "An experiment is a model training. It is called an experiment, because with neural networks you don´t know the exact outcome before you tried.",
               "validators": [
                 {
                   "type": "clickListener",
@@ -152,7 +148,7 @@
               "layoutType": 1,
               "title": "Choose your training data",
               "image": "/tutorials/1/select_data.gif",
-              "instructions": "Click the select data button and then choose the **train** folder. This will store the path to your dataset - in this case cats and dogs images.",
+              "instructions": "Click the select data button and then choose the **Cats_Dogs_Tutorial** folder. This step will store the path to your dataset for all models (and other operations) you choose.",
               "validators": [
                 {
                   "type": "presence",
@@ -164,14 +160,14 @@
             {
               "id": 5,
               "layoutType": 1,
-              "title": "Choose the \"Resnet50\" model",
-              "image": "/tutorials/1/select_model.gif",
-              "instructions": "Search and *drag and drop* the model named **Resnet50** to your experiment pipeline.",
+              "title": "Choose the \"Basic Tutorial Model\" model",
+              "image": "/tutorials/1/select_model.PNG",
+              "instructions": "Now, search and *drag and drop* the model named **Basic Tutorial Model** to your experiment pipeline.",
               "validators": [
                 {
                   "type": "presence",
                   "preSelector" : "#drop-zone",
-                  "postSelector": ".pipe-line-execution [data-tutorial=Resnet50]"
+                  "postSelector": ".pipe-line-execution [data-tutorial=Basic Tutorial Model]"
                 }
               ]
             },
@@ -179,8 +175,8 @@
               "id": 6,
               "layoutType": 1,
               "title": "Enter basic parameters",
-              "image": "/tutorials/1/parameters.gif",
-              "instructions": "The data-input path should already contain the path **train**. In the output field enter **output** - your model artifacts will be stored here. Fill in others as we did (click the image)!",
+              "image": "/tutorials/1/parameters.PNG",
+              "instructions": "The data-input path should already contain the path as selected before. In the output field enter **output** - your model artifacts will be stored here. Fill in others as we did or experiment with different params.",
               "validators": [
 
               ]
@@ -222,23 +218,13 @@
               "layoutType": 1,
               "title": "Discover your experiment",
               "image": "/tutorials/1/running_experiment.png",
-              "instructions": "You now should be able to see your new experiment (if not, refresh this page!).",
+              "instructions": "You now should be able to see your new running experiment (if not, refresh this page!) with all metrics, version of data and code used. A graph will show up soon with more details.",
               "validators": [
 
               ]
             },
             {
               "id": 2,
-              "layoutType": 1,
-              "title": "Expand an experiment",
-              "image": "/tutorials/1/expand.png",
-              "instructions": "Click the expand button to see more details about your experiment - such as metrics, the hyperparameters, what data you used, etc.",
-              "validators": [
-
-              ]
-            },
-            {
-              "id": 3,
               "layoutType": 1,
               "title": "Go more in depth!",
               "image": "/tutorials/1/details.png",
@@ -278,22 +264,23 @@
             {
               "id": 1,
               "layoutType": 1,
-              "title": "Go to the data tab",
+              "title": "Navigate to the **Data** tab",
               "image": "/tutorials/2/data_tab.png",
-              "instructions": "Open the [Basic tutorial](/mlreef/basic-tutorials) ML project and navigate to the data tab.",
+              "instructions": "Open your **Basic Tutorials** ML project and navigate to the data tab.",
               "validators": [
               ]
             },
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Go to the **Dataops** pipeline",
+              "title": "Go to Data Ops pipeline",
               "image": "/tutorials/2/dataops.png",
-              "instructions": "Open the dataops pipeline. Here you can pre-processa and create new datasets based on your existing files in your repository.",
+              "instructions": "Open the **Data Ops** pipeline. Here you can pre-process and create new datasets based on your existing files in your repository.",
               "validators": [
                 {
                   "type": "urlChecker",
-                  "regex": "http://localhost:3000/mlreef/sign-language-classifier/-/datasets/new"
+                  "regex": "^/:username/basic-tutorials/-/datasets/new",
+                  "placeholders": ["username"]
                 }
               ]
             }
@@ -308,7 +295,7 @@
               "layoutType": 1,
               "title": "Select data to process",
               "image": "/tutorials/2/select_data_basic_2.gif",
-              "instructions": "Click the select data button and then choose the **training** folder by selecting it. You process all files contained in this folder, while keeping the folder structure as it is.",
+              "instructions": "Click the select data button and then choose the **Cats_Dogs_Tutorial** folder by selecting it. The scripts we will use will process all files contained in the path while maintaining the folder structure.",
               "validators": [
                 {
                   "type": "presence",
@@ -320,9 +307,9 @@
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Choose the **Add noise** data operation.",
+              "title": "Choose - Add noise - operation.",
               "image": "/tutorials/2/add_noise.gif",
-              "instructions": "In the dataops list, search the data processing operation named **add noise** and drag it into your pipeline.",
+              "instructions": "In the Data Ops list, search the data processing operation named **add noise** and drag it into your pipeline. This will add speckles to all images.",
               "validators": [
                 {
                   "type": "presence",
@@ -336,7 +323,7 @@
               "layoutType": 1,
               "title": "Enter basic parameters",
               "image": "/tutorials/2/add_noise_params.gif",
-              "instructions": "The data-input path should already contain the path **train**. In the output any directory name for your output images (e.g. output). Choose from the advanced section any mode you want.",
+              "instructions": "The data-input path should already contain the path to your images. Fill in the output path and choose any mode you want. You can hover over the question mark to get more help.",
               "validators": [
                 {
                   "type": "clickListener",
@@ -348,7 +335,7 @@
               "id": 4,
               "layoutType": 1,
               "title": "Start the data processing",
-              "instructions": "If you successfully dragged the datops and filled all parameters, you should be able to execute your dataops pipeline to create a new dataset. Click **execute**.",
+              "instructions": "You now should be able to execute your Data Ops pipeline to create a new dataset. This will create a new entry in **Datasets** and also create a new branch with the output data. Click **execute**.",
               "image": "/tutorials/2/execute.png",
               "validators": [
                 {
@@ -362,7 +349,7 @@
               "layoutType": 1,
               "title": "Choose machine and execute",
               "image": "/tutorials/2/add_noise_execute.gif",
-              "instructions": "Choose the **CPU machine** from the dropdown and execute the pipeline. Your pipeline should start and cerate a new dataset.",
+              "instructions": "Choose the **GPU machine** from the dropdown and execute the pipeline. Your pipeline should start and cerate a new dataset.",
               "validators": [
               ]
             },
@@ -370,7 +357,7 @@
               "id": 6,
               "layoutType": 1,
               "title": "Return to pipeline view",
-              "instructions": "Instead of moving forward, let´s create a more complex pipeline. Return to the **dataops* pipeline view.",
+              "instructions": "Instead of moving forward, let´s create a more complex pipeline. Return to the **Data Ops* pipeline view.",
               "validators": [
               ]
             }
@@ -385,25 +372,25 @@
               "layoutType": 1,
               "title": "Select data to pre-process.",
               "image": "/tutorials/2/select_data_basic_2.gif",
-              "instructions": "If needed, click the select data button and then choose the **training** folder by selecting it.",
+              "instructions": "If needed, click the select data button and then choose the data folder as before.",
               "validators": [
               ]
             },
             {
               "id": 2,
               "layoutType": 1,
-              "title": "Remove **add noise** operation.",
+              "title": "Remove Add noise operation.",
               "image": "/tutorials/2/remove.gif",
-              "instructions": "We will start with another data operations. Remove the **add noise** operation from the pipeline",
+              "instructions": "We will start with another data operation. Remove the **add noise** operation from the pipeline.",
               "validators": [
               ]
             },
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Choose the **Augment** data operation.",
+              "title": "Choose Augment operation.",
               "image": "/tutorials/2/augment.gif",
-              "instructions": "The augment opeartion duplicates and changes your existing data. This is a easy way to create new data from existing data!",
+              "instructions": "The augment operation duplicates and changes your existing data. This is an easy way to create new and more data from existing data!",
               "validators": [
               ]
             },
@@ -412,16 +399,16 @@
               "layoutType": 1,
               "title": "Enter augment parameters",
               "image": "/tutorials/2/augment_params.gif",
-              "instructions": "Enter the following parameters: \n+ **output**: out1 \n+ **iterations**: 3 \n+ **rotation-range**: 0 \n+ **width-shift-range**: 0 \n+ **height-shift-range**: 0 \n+ **shear-range**: 0.1 \n+ **zoom-range**: 0.2 \n+ **horizontal-flip**: true \n+ **vertical-flip**: false.",
+              "instructions": "Enter the following parameters: \n+ **output-path**: out1 \n+ **iterations**: 3 \n+ **rotation-range**: 0 \n+ **width-shift-range**: 0 \n+ **height-shift-range**: 0 \n+ **shear-range**: 0.1 \n+ **zoom-range**: 0.2 \n+ **horizontal-flip**: true \n+ **vertical-flip**: false.",
               "validators": [
               ]
             },
             {
               "id": 5,
               "layoutType": 1,
-              "title": "Choose the **Random Crop** data operation.",
+              "title": "Choose Random Crop operation.",
               "image": "/tutorials/2/random_crop.gif",
-              "instructions": "The next concatenated data opeartion will crop a part of the input images. Drag the operation in position 2 into the pipeline, right after the **augment** operation.",
+              "instructions": "The next concatenated data opeartion will crop a part of the input images. Drag the operation in position 2 into the pipeline, right after the **Augment** operation.",
               "validators": [
               ]
             },
@@ -430,7 +417,7 @@
               "layoutType": 1,
               "title": "Enter random crop parameters",
               "image": "/tutorials/2/random_crop_params.gif",
-              "instructions": "This time, we will use the output generated from the augment opeartion as input for the next. Type in the **input-path**: out1 (or the output-path name you entered in the augment operation). \nEnter in **output-path** a different folder name (e.g. out2). \nIn the advanced section, define the resultion of the croped images (e.g. 100px) for both height and width.",
+              "instructions": "This time, we will use the output generated from the augment opeartion as input for the next. Enter the following parameters: Type in the **input-path**: out1 (or the output-path name you entered in the augment operation). \nEnter in **output-path** a different folder name (e.g. out2). \nDefine the resultion of the croped images (e.g. 100px) for both height and width and enter a random seed value.",
               "validators": [
               ]
             },
@@ -438,7 +425,7 @@
               "id": 7,
               "layoutType": 1,
               "title": "Start the data processing",
-              "instructions": "Now let's create this more complext data processing pipeline. \nInfo: You can create any number of concatenations and chaining logics using the input and output paths!.",
+              "instructions": "Now, let's create this more complex data processing pipeline. \nInfo: You can create any number of concatenations and chaining logics using the input and output paths!",
               "image": "/tutorials/2/execute.png",
               "validators": [
               ]
@@ -447,7 +434,7 @@
               "id": 8,
               "layoutType": 1,
               "title": "Choose machine and execute",
-              "instructions": "Choose the **CPU machine** from the dropdown and execute the pipeline. Your pipeline should start and cerate a new dataset. Press the **show results** button to continue.",
+              "instructions": "Choose the **GPU machine** from the dropdown and execute the pipeline. Your pipeline should start and create a new dataset. Press the **show results** button to continue.",
               "validators": [
               ]
             }
@@ -480,7 +467,7 @@
               "layoutType": 1,
               "title": "Select new dataset",
               "image": "/tutorials/2/select_newdataset.gif",
-              "instructions": "Click the select data button and then select the newly created datset from the dropdown button. \nInfo: all datasets are also stored as git branches.",
+              "instructions": "Click the select data button and then select the newly created datset from the dropdown button. \nInfo: all datasets are also stored as branches in your repository.",
               "validators": [
               ]
             },
