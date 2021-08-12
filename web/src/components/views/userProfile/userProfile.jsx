@@ -44,7 +44,7 @@ const UserProfile = (props) => {
           <div className="user-profile t-dark">
             <img src={avatarImage} alt="avatar" />
             <h3 className="t-dark">
-              {name}
+              {`@${username}`}
             </h3>
 
             {status && status.message_html ? (
