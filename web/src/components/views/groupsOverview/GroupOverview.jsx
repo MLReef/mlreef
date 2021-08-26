@@ -34,7 +34,7 @@ const UnconnectedGroupsOverview = (props) => {
     actions.setIsLoading(true);
     actions.getGroupsList(true);
     actions.getProjectsList(0, 100);
-  }, []);
+  }, [actions]);
 
   useEffect(() => {
     const newGroupArr = grps.map((grp) => {
@@ -50,7 +50,7 @@ const UnconnectedGroupsOverview = (props) => {
     actions.setIsLoading(false);
 
     setGroups(newGroupArr);
-  }, [projects, grps]);
+  }, [projects, grps, actions, setGroups]);
 
   const showProjectsHandler = () => setVisible(!isHasProjectsVisible);
 
