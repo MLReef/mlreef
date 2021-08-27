@@ -108,7 +108,7 @@ const DataVisualizationDetails = (props) => {
     if(gid){
       getBranchesList(gid);
     }
-  }, [gid,getBranchesList]);
+  }, [gid]);
 
   const customCrumbs = [
     {
