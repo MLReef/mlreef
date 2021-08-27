@@ -1,6 +1,6 @@
 import React, {
   useCallback,
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { useParams } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
@@ -39,43 +39,44 @@ const ProjectsArraySection = (props) => {
     }
   }, [classification2]);
 
-  const fetch = useCallback(
-    (p) => {
-      dashboardActions.getProjects(
-        class2,
-        class1,
-        selectedDataTypes,
-        minimumStars,
-        publishState,
-        repoName,
-        sorting,
-        p,
-        10,
-      ).then((res) => {
-        scrolling.current = false;
-        isLast.current = res.last;
-        console.log('re-render');
-        actions.setIsLoading(false);
-        return setProjects(
-          res.first
-            ? res.projects
-            : [...projects, ...res.projects],
-        );
-      })
-      .catch((err) => {
-        return toastr.error('Error', err.message);
-      })
-      .finally(() => actions.setIsLoading(false));
-    },
-    [actions, class1, class2, minimumStars, projects, publishState, repoName, selectedDataTypes, sorting],
-  )
+  const fetch = (p) => dashboardActions.getProjects(
+    class2,
+    class1,
+    selectedDataTypes,
+    minimumStars,
+    publishState,
+    repoName,
+    sorting,
+    p,
+    10,
+  ).then((res) => {
+    scrolling.current = false;
+    isLast.current = res.last;
+    setProjects(
+      res.first
+        ? res.projects
+        : [...projects, ...res.projects],
+    );
+  })
+    .catch((err) => {
+      toastr.error('Error', err.message);
+    })
+    .finally(() => actions.setIsLoading(false));
 
   const executeFetch = useCallback(() => {
     scrolling.current = true;
     page.current = 0;
     fetch(page.current);
   },
-  [fetch]);
+  [
+    classification1,
+    classification2,
+    selectedDataTypes,
+    repoName,
+    minimumStars,
+    publishState,
+    sorting,
+  ]);
 
   useEffect(() => {
     executeFetch();
