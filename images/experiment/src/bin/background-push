@@ -1,11 +1,19 @@
 #!/bin/bash
+#when using sentinelhub
+if pip list | grep -F sentinelhub; 
+then echo "adding credentials"
+     sentinelhub.config --instance_id '871fa19e-46c5-4d56-9882-b4119364fb24'
+     sentinelhub.config --sh_client_id 'c5bfba36-4df7-4af7-b17d-a2faf46cedd9'
+     sentinelhub.config --sh_client_secret 'hVpK:7&>!F4F:Y02<A^gN,uc>ZBjV:Y2Zhtt,VPK'
+     sentinelhub.config --show
+fi
+
 #only continues if it is a model
 if [ $2 != true ]
    then
         echo "Skip background-push"
         exit 0
 fi
-#sentinelhub.config --show
 mkdir -p $1
 echo "LOG: This is a version with Inotifywait." 
 echo "LOG : ISALGORITM:  $2"
