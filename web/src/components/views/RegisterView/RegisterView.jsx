@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, } from 'react';
 import { bindActionCreators } from 'redux';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import './RegisterView.scss';
@@ -21,7 +21,7 @@ const RegisterView = (props) => {
 
   const onUpdatedRoleSuccess = () => {
     const { history } = props;
-    history.push('/welcome');
+    history.push('/tutorial');
   };
 
   if(auth && registryStatus === 0) {

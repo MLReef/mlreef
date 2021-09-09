@@ -1,0 +1,159 @@
+.tutorial-view {
+    &_content {
+        overflow: hidden;
+        -webkit-overflow-scrolling: touch;
+        & img,
+        label {
+            transform: translateX(-50%);
+        }
+
+        &_slides {
+            display: flex;
+            width: 400%;
+            transition: margin-left 1s;
+
+            &.show-page2 {
+                margin-left: -100%;
+            }
+
+            &.show-page3 {
+                margin-left: -200%;
+            }
+
+            &.show-page4 {
+                margin-left: -300%;
+            }
+
+            &_page {
+                padding-top: 6rem;
+                width: 100%;
+
+                & h2.title-lg {
+                    margin: 0 auto;
+                    font-weight: bold;
+                    letter-spacing: -0.5px;
+                }
+
+                & .content {
+                    position: relative;
+                    height: 67.03vh;
+                    margin: 0 auto;
+
+                    & img.image {
+                        position: absolute;
+                    }
+                }
+            }
+
+            & .page1 {
+                & h2.title-lg {
+                    padding-right: 1rem;
+                }
+
+                &_content {
+                    & label {
+                        position: absolute;
+                        font-size: 1.71rem;
+                        font-weight: bold;
+                        line-height: 2.07rem;
+                        text-align: center;
+                        white-space: pre;
+                    }
+
+                    & .image1 {
+                        width: 55%;
+                        top: 24.7%;
+                        left: 50%;
+
+                        &_label1 {
+                            top: 14%;
+                            left: 32.5%;
+                        }
+                        &_label2 {
+                            top: 14%;
+                            left: 64.5%;
+                        }
+                    }
+                }
+                @media screen and (max-width: 1333px) {
+                    &_content {
+                        & label {
+                            position: absolute;
+                            font-size: 1rem;
+                            font-weight: bold;
+                            line-height: 1rem;
+                            text-align: center;
+                            white-space: pre;
+                        }
+                    }
+                }
+            }
+
+            & .page2 {
+                & h2.title-lg {
+                    padding-right: 1rem;
+                }
+
+                &_content {
+                    & .image1 {
+                        width: 30%;
+                        // max-width: 500px;
+                        top: 8.4%;
+                        left: 50%;
+                    }
+                }
+            }
+
+            & .page3 {
+                & h2.title-lg {
+                    padding-right: 1rem;
+                }
+
+                &_content {
+                    & .image1 {
+                        width: 53%;
+                        // max-width: 650px;
+                        top: 8%;
+                        left: 50%;
+                    }
+                }
+            }
+
+            & .page4 {
+                & h2.title-lg {
+                    padding-right: 1rem;
+                }
+
+                &_content {
+                    & .image1 {
+                        width: 65%;
+                        // max-width: 900px;
+                        top: 19%;
+                        left: 50%;
+                    }
+                }
+            }
+        }
+    }
+
+    &_footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 0.8rem;
+        padding-left: 0.6rem;
+
+        & .btn {
+            border-radius: 8px;
+            padding: 0.725rem 8.5rem;
+            letter-spacing: 0.6px;
+            font-size: 1.2rem;
+        }
+
+        & label {
+            font-size: 1.2rem;
+            color: #b2b2b2;
+            margin-top: 0.4rem;
+        }
+    }
+}

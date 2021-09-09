@@ -34,6 +34,7 @@ import PublishingView from "components/views/PublishingView";
 import PublishProcessView from "components/views/PublishProcessView";
 import DashboardV2 from "components/views/DashboardV2";
 import NotFoundView from "components/views/ErrorView/NotFoundView";
+import TutorialView from "components/views/TutorialView/TutorialView";
 
 // this is component for testing layout and should be removed after alpha
 import DemoView from "components/Demo";
@@ -135,6 +136,14 @@ export default [
         name: "passwordConfirmation",
         path: "/login/password-reset/:token",
         component: PasswordConfirmationView,
+    },
+    {
+        name: "tutorial",
+        path: "/tutorial",
+        component: TutorialView,
+        meta: {
+            authRequired: true,
+        },
     },
     {
         name: "welcome",
@@ -492,7 +501,7 @@ export default [
         exact: true,
         meta: {
             authRequired: true,
-            // role: 40
+            // role: 40,
         },
     },
     {

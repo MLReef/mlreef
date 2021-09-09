@@ -30,10 +30,11 @@ export const validationSchema = Yup.object().shape({
     .required('Last name is required.'),
 
   email: Yup.string()
-    .email('Invalid email address')
+    .email('Please provide a valid email address.')
     .required('Email is required.'),
 
   username: Yup.string()
+    .matches(/[a-z0-9]/, 'Please create a username with only alphanumeric characters.')
     .required('Username is required.'),
 
   password: Yup.string()
@@ -42,19 +43,10 @@ export const validationSchema = Yup.object().shape({
     // .matches(/[\d]/, 'At least one number.')
     .required('Password is required.'),
 
-  confirm: Yup.string()
-    .required('Please confirm your password.')
-    .test(
-      'passwords-match',
-      'Passwords must match.',
-      function check(value) {
-        return this.parent.password === value;
-      },
-    ),
   terms: Yup.boolean()
     .test(
       'must-accept-terms',
-      'You must accept the terms.',
+      'Click the box to proceed',
       (value) => value === true,
     ),
 });

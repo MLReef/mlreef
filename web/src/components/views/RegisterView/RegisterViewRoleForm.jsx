@@ -68,8 +68,8 @@ const RegisterViewRoleForm = (props) => {
           <a href="mailto:help@mlreef.com" target="_top" style={{ color: 'var(--info)' }}> help@mlreef.com</a>
         </p>
       </div>
-      <form onSubmit={handleSubmit} className="register-view_form">
-        <div className="register-view_form_content">
+      <form onSubmit={handleSubmit} className="register-view_form register-view_role-form">
+        <div className="register-view_form_content register-view_role-form_content">
           <div className="form-group">
             <MSelect
               footer="This will help us personalize your onboarding experience."
@@ -86,6 +86,7 @@ const RegisterViewRoleForm = (props) => {
               options={userTypes}
               value={userType}
               onChange={handleUserTypeChange}
+              direction={1}
             />
           </div>
           <div className="register-view_submit">

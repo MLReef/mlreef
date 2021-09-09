@@ -5,6 +5,10 @@ import PropTypes from 'prop-types';
 import MButton from 'components/ui/MButton';
 import MInput from 'components/ui/MInput';
 import { validationSchema, placeholders } from './formInformation';
+import gitlabIcon from 'images/gitlab-icon.png';
+import githubIcon from 'images/github-icon.png';
+import googleIcon from 'images/google-icon.png';
+import linkedinIcon from 'images/linkedin-icon.png';
 
 const RegisterForm = (props) => {
   const {
@@ -94,10 +98,11 @@ const RegisterForm = (props) => {
           error={touched.confirm && errors.confirm}
         />
 
-        <div className="">
-          <div className="">
+        <div className="checkboxs">
+          <div className="checkbox-wrapper">
             <input
               id="terms"
+              className="has-error"
               checked={values.terms}
               onChange={handleChangeCheckbox('terms')}
               type="checkbox"
@@ -108,31 +113,59 @@ const RegisterForm = (props) => {
                 Terms of Service and Privacy Policy
               </a>
             </label>
-          </div>
-          <div className="m-input_errors">
             {errors.terms && (
               <div className="m-error">
                 { errors.terms }
               </div>
             )}
           </div>
-        </div>
-        <div className="">
-          <input
-            id="updatesAllowed"
-            checked={values.updatesAllowed}
-            onChange={handleChangeCheckbox('updatesAllowed')}
-            type="checkbox"
-          />
-          <label htmlFor="updatesAllowed">
-            I would like to receive updates via email about MLReef
-          </label>
+          <div className="checkbox-wrapper">
+            <input
+              id="updatesAllowed"
+              checked={values.updatesAllowed}
+              onChange={handleChangeCheckbox('updatesAllowed')}
+              type="checkbox"
+            />
+            <label htmlFor="updatesAllowed">
+              I would like to receive updates via email about MLReef
+            </label>
+          </div>
         </div>
 
         <div className="register-view_submit">
           <MButton type="submit" className="btn btn-primary" waiting={isSubmitting}>
             Register
           </MButton>
+        </div>
+
+        <div className="register-view_links">
+          <div className="register-view_links_header">
+            <div className="register-view_links_header_border" />
+            <label className="register-view_links_header_label">or</label>
+          </div>
+
+          <div className="register-view_links_body">
+            <label>Create an account using:</label>
+
+            <div className="links">
+              <a className="link gitlab" href="#">
+                <img src={gitlabIcon} alt=""/>
+                <label>Gitlab</label>
+              </a>
+              <a className="link github" href="#">
+                <img src={githubIcon} alt=""/>
+                <label>GitHub</label>
+              </a>
+              <a className="link google" href="#">
+                <img src={googleIcon} alt=""/>
+                <label>Google</label>
+              </a>
+              <a className="link linkedin" href="#">
+                <img src={linkedinIcon} alt=""/>
+                <label>Linkedin</label>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </form>
