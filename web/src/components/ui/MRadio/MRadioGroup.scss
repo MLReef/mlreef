@@ -1,8 +1,9 @@
-
 .m-radio-group {
   &_label {
+    font-size: 1.2rem;
     font-weight: bold;
-    margin-bottom: 1rem;
+    line-height: 1.36rem;
+    margin-bottom: 1.14rem;
     display: block;
   }
 
@@ -18,8 +19,11 @@
     background-color: transparent;
     cursor: pointer;
     color: inherit;
+    padding: 0;
 
     &_label {
+      font-size: 1.2rem;
+      line-height: 1.36rem;
       cursor: inherit;
     }
   }
@@ -39,7 +43,6 @@
   }
 
   & .checkmark {
-
   }
 
   @media screen and (max-width: 900px) {

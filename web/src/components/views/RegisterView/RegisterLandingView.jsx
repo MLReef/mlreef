@@ -53,7 +53,7 @@ const RegisterLandingView = (props) => {
             >
               <span
                 className="btn-prepend-icon"
-                style={{ backgroundImage: 'url(/images/Tutorials-01.png)' }}
+                style={{ backgroundImage: 'url(/images/TutorialView-01.png)' }}
               />
               Start tutorial
             </Link>

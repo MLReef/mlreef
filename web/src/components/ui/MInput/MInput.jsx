@@ -9,6 +9,8 @@ const MInput = (props) => {
     onChange,
     onBlur,
     error,
+    success,
+    info,
     label,
     type,
     placeholder,
@@ -21,12 +23,12 @@ const MInput = (props) => {
 
   return (
     <div className={`m-input ${className}`}>
-      <div className="m-input_container">
+      <div className={`m-input_container ${error && 'm-error'} ${success && 'm-success'}`}>
         <label htmlFor={id}>{ label }</label>
         <input
           id={id}
           data-cy={cypressTag}
-          className={`m-input_input ${styleClass}`}
+          className={`m-input_input ${!!value.length ? 'full' : ''} ${styleClass}`}
           type={type}
           value={value}
           placeholder={placeholder}
@@ -35,10 +37,20 @@ const MInput = (props) => {
           readOnly={readOnly}
           min={min}
         />
-        <div className="m-input_errors">
-          {error && (
+        <div className="m-input_footer">
+          {!!error && (
             <div data-cy="m-error" className="m-error">
               { error }
+            </div>
+          )}
+          {!!success && (
+            <div data-cy="m-success" className="m-success">
+              { success }
+            </div>
+          )}
+          {!!info && (
+            <div data-cy="m-info" className="m-info">
+              { info }
             </div>
           )}
         </div>

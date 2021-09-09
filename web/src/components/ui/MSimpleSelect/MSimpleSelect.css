@@ -1,19 +1,23 @@
 .m-select label {
+  font-size: 1.2rem;
   font-weight: bold;
+  line-height: 1.36rem;
   margin-bottom: 0.5rem;
   display: block;
 }
 
 .m-select_input {
   width: 100%;
-  padding: 0.5rem;
-  border-radius: 5px;
+  padding: 0.7rem 0.9rem 0.35rem;
+  border-radius: 8px;
   border: solid 2px var(--info);
   background-color: #fff;
   color: var(--dark);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
 }
 
 .m-select_footer {
+  font-size: 1rem;
   color: var(--secondary);
 }

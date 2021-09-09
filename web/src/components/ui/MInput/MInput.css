@@ -1,25 +1,54 @@
 .m-input_container {
-  padding-bottom: 0.25rem;
   display: flex;
   flex-direction: column;
 }
 
+.m-input_container.m-error input {
+  border-color: var(--danger) !important;
+}
+
+.m-input_container.m-success input {
+  border-color: #2db391 !important;
+}
+
 .m-input label {
-  margin-bottom: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.21rem;
+  margin-bottom: 0.35rem;
 }
 
 .m-input_input {
   box-sizing: border-box;
   width: 100%;
-  border: solid 1px var(--secondary);
-  border-radius: 5px;
-  padding: 0.5rem;
+  border: solid 1px var(--secondary) !important;
+  border-radius: 8px !important;
+  padding: 0.46rem 0.5rem !important;
+  font-size: 1.21rem !important;
+  line-height: 1.25 !important;
 }
 
-.m-input_errors {
-  min-height: 1.25rem;
+.m-input_input.full {
+  border-color: #32afc3 !important;
 }
 
-.m-input_errors .m-error {
+.m-input_footer {
+  min-height: 1.2rem;
+}
+
+.m-input_footer .m-error {
+  font-size: 1rem;
+  margin-top: 0.38rem;
   color: var(--danger);
+}
+
+.m-input_footer .m-success {
+  font-size: 1rem;
+  margin-top: 0.38rem;
+  color: #2db391;
+}
+
+.m-input_footer .m-info {
+  font-size: 1rem;
+  margin-top: 0.38rem;
+  color: var(--secondary);
 }

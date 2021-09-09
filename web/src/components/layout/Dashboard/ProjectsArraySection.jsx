@@ -1,6 +1,6 @@
 import React, {
   useCallback,
-  useContext, useEffect, useMemo, useRef, useState,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import { useParams } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';

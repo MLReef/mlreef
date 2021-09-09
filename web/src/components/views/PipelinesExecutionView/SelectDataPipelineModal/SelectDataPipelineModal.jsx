@@ -87,7 +87,7 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
         .then((jobList) => { if (!unmounted) setJobs(jobList); })
         .catch((err) => err);
     }
-  }, [branchSelected, gid, branchSelected, unmounted]);
+  }, [branchSelected, gid, unmounted]);
 
   function getBack() {
     const path = filePath.substring(0, filePath.lastIndexOf('/'));
