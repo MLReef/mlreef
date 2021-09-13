@@ -1,23 +1,9 @@
 package com.mlreef.rest.utils
 
 import org.hibernate.query.criteria.internal.CriteriaQueryImpl
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.*
 import javax.persistence.EntityManager
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Expression
-import javax.persistence.criteria.Join
-import javax.persistence.criteria.JoinType
-import javax.persistence.criteria.Order
-import javax.persistence.criteria.Path
-import javax.persistence.criteria.Predicate
-import javax.persistence.criteria.Root
-import javax.persistence.criteria.Selection
-import javax.persistence.criteria.Subquery
+import javax.persistence.criteria.*
 
 class QueryBuilder<T> private constructor(
     val classOf: Class<T>,
@@ -395,6 +381,28 @@ class QueryBuilder<T> private constructor(
         } else {
             val ex = getExpressionByPath<String>(field, joinedAlias)
             builder.equal(builder.lower(ex), value.toString().toLowerCase())
+        }
+
+        currentPredicatesList.add(
+            PredicateRecord(
+                currentLogicOperator,
+                predicate
+            )
+        )
+
+        currentLogicOperator = null
+        return this
+    }
+
+    fun notEquals(field: String, value: Any, joinedAlias: String? = null, caseSensitive: Boolean = true): QueryBuilder<T> {
+        checkPredicateIsAllowed()
+
+        val predicate = if (caseSensitive) {
+            val ex = getExpressionByPath<Any>(field, joinedAlias)
+            builder.equal(ex, value).not()
+        } else {
+            val ex = getExpressionByPath<String>(field, joinedAlias)
+            builder.equal(builder.lower(ex), value.toString().toLowerCase()).not()
         }
 
         currentPredicatesList.add(

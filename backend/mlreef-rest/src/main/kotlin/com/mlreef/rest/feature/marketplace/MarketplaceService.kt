@@ -5,19 +5,11 @@ import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.ProjectRepository
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.api.v1.SearchRequest
-import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.ProjectType
-import com.mlreef.rest.domain.PublishStatus
-import com.mlreef.rest.domain.Subject
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.marketplace.Searchable
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.marketplace.SearchableType
+import com.mlreef.rest.domain.marketplace.Star
 import com.mlreef.rest.domain.repositories.DataTypesRepository
 import com.mlreef.rest.domain.repositories.ProcessorTypeRepository
 import com.mlreef.rest.exceptions.BadParametersException
@@ -33,7 +25,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.lang.System.currentTimeMillis
-import java.util.UUID
+import java.util.*
 import javax.persistence.EntityManager
 
 /**
@@ -114,7 +106,10 @@ class MarketplaceService(
             returnEmptyResult = true
         }
 
-        val builder = getQueryBuilderForType(finalProjectType)
+        val builder = getQueryBuilderForType(
+            finalProjectType,
+            (request.starredByMe != null && token?.personId != null)
+        )
 
         when (finalVisibility) {
             VisibilityScope.PRIVATE -> {
@@ -160,6 +155,10 @@ class MarketplaceService(
         request.slugExact?.let { builder.and().equals("slug", it, caseSensitive = false) }
         request.maxStars?.let { builder.and().lessOrEqualThan("_starsCount", it) }
         request.minStars?.let { builder.and().greaterOrEqualThan("_starsCount", it) }
+        request.starredByMe?.takeIf { token?.personId != null }?.let {
+            if (it) builder.and().equals("subjectId", token?.personId!!, joinedAlias = "stars")
+            else builder.and().notEquals("subjectId", token?.personId!!, joinedAlias = "stars")
+        }
         finalProcessorType?.let { builder.and().equals("processorType", it) }
         finalInputTypesAnd?.let { builder.and().containsAll("inputDataTypes", it) }
         finalOutputTypesAnd?.let { builder.and().containsAll("outputDataTypes", it) }
@@ -256,27 +255,27 @@ class MarketplaceService(
 
     private fun isCodeProjectSearch(request: SearchRequest): Boolean {
         return request.searchableType == SearchableType.CODE_PROJECT
-            || request.projectType == ProjectType.CODE_PROJECT
-            || request.processorType != null
-            || request.outputDataTypes != null
-            || request.outputDataTypesOr != null
-            || request.modelTypeOr != null
-            || request.mlCategoryOr != null
-            || request.published != null
+                || request.projectType == ProjectType.CODE_PROJECT
+                || request.processorType != null
+                || request.outputDataTypes != null
+                || request.outputDataTypesOr != null
+                || request.modelTypeOr != null
+                || request.mlCategoryOr != null
+                || request.published != null
     }
 
     private fun isDataProjectSearch(request: SearchRequest): Boolean {
         return (request.searchableType == SearchableType.DATA_PROJECT
-            || request.projectType == ProjectType.DATA_PROJECT)
-            && request.processorType == null
-            && request.outputDataTypes == null
-            && request.outputDataTypesOr == null
-            && request.modelTypeOr == null
-            && request.mlCategoryOr == null
-            && request.published == null
+                || request.projectType == ProjectType.DATA_PROJECT)
+                && request.processorType == null
+                && request.outputDataTypes == null
+                && request.outputDataTypesOr == null
+                && request.modelTypeOr == null
+                && request.mlCategoryOr == null
+                && request.published == null
     }
 
-    private fun getQueryBuilderForType(type: ProjectType?): QueryBuilder<out Project> {
+    private fun getQueryBuilderForType(type: ProjectType?, connectStarEntity: Boolean): QueryBuilder<out Project> {
         val result = when (type) {
             ProjectType.CODE_PROJECT -> {
                 val builder = QueryBuilder(entityManager, CodeProject::class.java)
@@ -285,6 +284,10 @@ class MarketplaceService(
             }
             ProjectType.DATA_PROJECT -> QueryBuilder(entityManager, DataProject::class.java)
             else -> QueryBuilder(entityManager, Project::class.java)
+        }
+
+        if (connectStarEntity) {
+            result.joinLeft<Star>("stars", alias = "stars")
         }
 
         return result
@@ -400,7 +403,7 @@ class MarketplaceService(
         token: TokenDetails?
     ): Collection<SearchResult> {
         val time = currentTimeMillis()
-        val builder = getQueryBuilderForType(null)
+        val builder = getQueryBuilderForType(null, false)
 
         builder
             .and()

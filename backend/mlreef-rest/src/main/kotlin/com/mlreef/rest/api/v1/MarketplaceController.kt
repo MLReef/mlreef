@@ -21,14 +21,8 @@ import com.mlreef.rest.feature.project.RecentProjectService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 @RestController
@@ -67,6 +61,7 @@ class MarketplaceController(
         @RequestParam("tags_or") tagsOr: List<String>? = null,
         @RequestParam("max_stars") maxStars: Int? = null,
         @RequestParam("min_stars") minStars: Int? = null,
+        @RequestParam("starred_by_me") starredByMe: Boolean? = null,
         @RequestParam("min_forks") minForksCount: Int? = null,
         @RequestParam("max_forks") maxForksCount: Int? = null,
         @RequestParam("published") published: Boolean? = null,
@@ -107,6 +102,7 @@ class MarketplaceController(
             published = published ?: filter.published,
             own = own ?: filter.own,
             participate = participate ?: filter.participate,
+            starredByMe = starredByMe ?: filter.starredByMe,
         ) ?: SearchRequest(
             searchableType = searchableType,
             projectType = projectType,
@@ -136,6 +132,7 @@ class MarketplaceController(
             published = published,
             own = own,
             participate = participate,
+            starredByMe = starredByMe,
         )
 
         return marketplaceService.searchProjects(finalFilter, pageable, profile).map {
@@ -239,6 +236,7 @@ data class SearchRequest(
     val tagsOr: List<String>? = null,
     val maxStars: Int? = null,
     val minStars: Int? = null,
+    val starredByMe: Boolean? = null,
     val visibility: VisibilityScope? = null,
     val minForksCount: Int? = null,
     val maxForksCount: Int? = null,

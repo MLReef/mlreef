@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
@@ -663,6 +661,8 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 .description("Minimum amount of stars"),
             fieldWithPath(prefix + "max_stars").type(JsonFieldType.NUMBER).optional()
                 .description("Maximum amount of stars"),
+            fieldWithPath(prefix + "starred_by_me").type(JsonFieldType.BOOLEAN).optional()
+                .description("Starred by user"),
             fieldWithPath(prefix + "min_forks_count").type(JsonFieldType.NUMBER).optional()
                 .description("Minimum forks count"),
             fieldWithPath(prefix + "max_forks_count").type(JsonFieldType.NUMBER).optional()
