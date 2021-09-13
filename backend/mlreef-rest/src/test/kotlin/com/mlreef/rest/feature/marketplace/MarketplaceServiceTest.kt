@@ -1,10 +1,7 @@
 package com.mlreef.rest.feature.marketplace
 
 import com.mlreef.rest.api.v1.SearchRequest
-import com.mlreef.rest.domain.AccessLevel.DEVELOPER
-import com.mlreef.rest.domain.AccessLevel.GUEST
-import com.mlreef.rest.domain.AccessLevel.MAINTAINER
-import com.mlreef.rest.domain.AccessLevel.OWNER
+import com.mlreef.rest.domain.AccessLevel.*
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.DataProject
 import com.mlreef.rest.domain.ProjectType.CODE_PROJECT
@@ -24,7 +21,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 
 class MarketplaceServiceTest : AbstractRepositoryTest() {
@@ -193,8 +190,8 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.content.map { it.id }
 
         var expectationIds = getDataProjectIdsByIndex(0, 1, 2, 3, 5, 6, 7, 8, 9) +
-            getCodeProjectIdsByIndex(0, 2, 3, 4, 5, 6, 7, 8, 9) +
-            listOf(codeProjectOperation.id, codeProjectAlgorithm.id, codeProjectVisualization.id, dataProjectImages.id)
+                getCodeProjectIdsByIndex(0, 2, 3, 4, 5, 6, 7, 8, 9) +
+                listOf(codeProjectOperation.id, codeProjectAlgorithm.id, codeProjectVisualization.id, dataProjectImages.id)
 
         assertThat(searchResult).hasSize(22)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -203,8 +200,8 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.content.map { it.id }
 
         expectationIds = getDataProjectIdsByIndex(0, 1, 3, 4, 5, 6, 7, 9) +
-            getCodeProjectIdsByIndex(0, 1, 3, 6, 7, 9) +
-            listOf(codeProjectOperation.id, codeProjectAlgorithm.id, codeProjectVisualization.id, dataProjectImages.id)
+                getCodeProjectIdsByIndex(0, 1, 3, 6, 7, 9) +
+                listOf(codeProjectOperation.id, codeProjectAlgorithm.id, codeProjectVisualization.id, dataProjectImages.id)
 
         assertThat(searchResult).hasSize(18)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -253,7 +250,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.map { it.id }
 
         var expectationIds = getCodeProjectIdsByIndex(0, 2, 3, 4, 5, 6, 7, 8, 9) +
-            listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id)
+                listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id)
 
         assertThat(searchResult).hasSize(12)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -266,7 +263,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.map { it.id }
 
         expectationIds = getCodeProjectIdsByIndex(0, 1, 3, 6, 7, 9) +
-            listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id)
+                listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id)
 
         assertThat(searchResult).hasSize(9)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -285,7 +282,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.map { it.id }
 
         var expectationIds = getCodeProjectIdsByIndex(0, 2, 3, 4, 5, 6, 7, 8, 9) +
-            listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id) //Predefined
+                listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id) //Predefined
 
         assertThat(searchResult).hasSize(12)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -298,7 +295,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.map { it.id }
 
         expectationIds = getCodeProjectIdsByIndex(0, 1, 3, 6, 7, 9) +
-            listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id)
+                listOf(codeProjectOperation.id, codeProjectVisualization.id, codeProjectAlgorithm.id)
 
         assertThat(searchResult).hasSize(9)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -990,6 +987,36 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     @Transactional
     @Rollback
     @Test
+    fun `search project by starred by user`() {
+        createMockedProjects()
+        var searchResult = service.searchProjects(
+            SearchRequest(
+                starredByMe = true,
+            ), page(), token1
+        )
+        var ids = searchResult.map { it.id }
+
+        var expectationIds = getDataProjectIdsByIndex(1, 2) + getCodeProjectIdsByIndex(6)
+
+        assertThat(searchResult).hasSize(3)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+
+        searchResult = service.searchProjects(
+            SearchRequest(
+                starredByMe = true,
+            ), page(), token2
+        )
+        ids = searchResult.map { it.id }
+
+        expectationIds = getDataProjectIdsByIndex(1) + getCodeProjectIdsByIndex(6)
+
+        assertThat(searchResult).hasSize(2)
+        assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
     fun `search project by 1 and 2 stars`() {
         createMockedProjects()
         var searchResult = service.searchProjects(
@@ -1032,13 +1059,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.content.map { it.slug }
 
         var expectationIds = getDataProjectSlugsByIndex(0, 1, 2, 3, 5, 6, 7, 8, 9) +
-            getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 7, 8, 9) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 7, 8, 9) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(22)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1051,13 +1078,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.content.map { it.slug }
 
         expectationIds = getDataProjectSlugsByIndex(0, 1, 3, 4, 5, 6, 7, 9) +
-            getCodeProjectSlugsByIndex(0, 1, 3, 6, 7, 9) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(0, 1, 3, 6, 7, 9) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(18)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1106,7 +1133,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.content.map { it.slug }
 
         var expectationIds = getDataProjectSlugsByIndex(0, 1, 2, 3, 5, 9) +
-            getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 9)
+                getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 9)
 
         assertThat(searchResult).hasSize(12)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1137,11 +1164,11 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.map { it.slug }
 
         var expectationIds = getCodeProjectSlugsByIndex(0, 3, 8) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-            )
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                )
 
         assertThat(searchResult).hasSize(6)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1154,11 +1181,11 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.map { it.slug }
 
         expectationIds = getCodeProjectSlugsByIndex(0, 1, 3) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-            )
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                )
 
         assertThat(searchResult).hasSize(6)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1269,13 +1296,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.map { it.slug }
 
         var expectationIds = getDataProjectSlugsByIndex(1, 7, 9) +
-            getCodeProjectSlugsByIndex(7, 9) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(7, 9) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(9)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1288,13 +1315,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.map { it.slug }
 
         expectationIds = getDataProjectSlugsByIndex(0, 3, 5, 6) +
-            getCodeProjectSlugsByIndex(0, 3, 6, 9) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(0, 3, 6, 9) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(12)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1344,13 +1371,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.map { it.slug }
 
         var expectationIds = getDataProjectSlugsByIndex(0, 2, 3, 5, 6, 7, 8) +
-            getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 7, 8) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(0, 2, 3, 4, 5, 6, 7, 8) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(19)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1363,13 +1390,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.map { it.slug }
 
         expectationIds = getDataProjectSlugsByIndex(1, 3, 4, 5, 7, 9) +
-            getCodeProjectSlugsByIndex(0, 1, 3, 6, 7) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(0, 1, 3, 6, 7) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(15)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1389,13 +1416,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         var ids = searchResult.map { it.slug }
 
         var expectationIds = getDataProjectSlugsByIndex(7) +
-            getCodeProjectSlugsByIndex(7) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(7) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(6)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
@@ -1409,13 +1436,13 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         ids = searchResult.map { it.slug }
 
         expectationIds = getDataProjectSlugsByIndex(3, 5) +
-            getCodeProjectSlugsByIndex(0, 3, 6) +
-            listOf(
-                codeProjectOperation.slug,
-                codeProjectAlgorithm.slug,
-                codeProjectVisualization.slug,
-                dataProjectImages.slug
-            )
+                getCodeProjectSlugsByIndex(0, 3, 6) +
+                listOf(
+                    codeProjectOperation.slug,
+                    codeProjectAlgorithm.slug,
+                    codeProjectVisualization.slug,
+                    dataProjectImages.slug
+                )
 
         assertThat(searchResult).hasSize(9)
         assertThat(ids).containsExactlyInAnyOrderElementsOf(expectationIds)
