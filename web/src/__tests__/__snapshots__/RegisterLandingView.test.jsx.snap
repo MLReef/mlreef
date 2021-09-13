@@ -80,7 +80,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
             className="btn-prepend-icon"
             style={
               Object {
-                "backgroundImage": "url(/images/Tutorials-01.png)",
+                "backgroundImage": "url(/images/TutorialView-01.png)",
               }
             }
           />
