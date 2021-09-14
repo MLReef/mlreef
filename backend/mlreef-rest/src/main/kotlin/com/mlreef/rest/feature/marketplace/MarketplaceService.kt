@@ -108,7 +108,7 @@ class MarketplaceService(
 
         val builder = getQueryBuilderForType(
             finalProjectType,
-            (request.starredByMe != null && token?.personId != null)
+            (request.starredByMe != null && token?.personId != null && !token.isVisitor)
         )
 
         when (finalVisibility) {
@@ -155,7 +155,7 @@ class MarketplaceService(
         request.slugExact?.let { builder.and().equals("slug", it, caseSensitive = false) }
         request.maxStars?.let { builder.and().lessOrEqualThan("_starsCount", it) }
         request.minStars?.let { builder.and().greaterOrEqualThan("_starsCount", it) }
-        request.starredByMe?.takeIf { token?.personId != null }?.let {
+        request.starredByMe?.takeIf { token?.personId != null && !token.isVisitor }?.let {
             if (it) builder.and().equals("subjectId", token?.personId!!, joinedAlias = "stars")
             else builder.and().notEquals("subjectId", token?.personId!!, joinedAlias = "stars")
         }
@@ -164,24 +164,20 @@ class MarketplaceService(
         finalOutputTypesAnd?.let { builder.and().containsAll("outputDataTypes", it) }
         finalInputTypesOr?.let { builder.and().containsAny("inputDataTypes", it) }
         finalOutputTypesOr?.let { builder.and().containsAny("outputDataTypes", it) }
-        request.tags?.let {
-            if (it.size > 0) {
-                val searchableTags = searchableTagRepository.findAllByNameIsInIgnoreCase(it)
-                if (searchableTags.size == it.size) {
-                    builder.and().containsAll("tags", searchableTags)
-                } else {
-                    returnEmptyResult = true
-                }
+        request.tags?.takeIf { it.isNotEmpty() }?.let {
+            val searchableTags = searchableTagRepository.findAllByNameIsInIgnoreCase(it)
+            if (searchableTags.size == it.size) {
+                builder.and().containsAll("tags", searchableTags)
+            } else {
+                returnEmptyResult = true
             }
         }
-        request.tagsOr?.let {
-            if (it.size > 0) {
-                val searchableTags = searchableTagRepository.findAllByNameIsInIgnoreCase(it)
-                if (searchableTags.size == 0) {
-                    returnEmptyResult = true
-                } else {
-                    builder.and().containsAny("tags", searchableTags)
-                }
+        request.tagsOr?.takeIf { it.isNotEmpty() }?.let {
+            val searchableTags = searchableTagRepository.findAllByNameIsInIgnoreCase(it)
+            if (searchableTags.size == 0) {
+                returnEmptyResult = true
+            } else {
+                builder.and().containsAny("tags", searchableTags)
             }
         }
         request.minForksCount?.let { builder.and().greaterOrEqualThan("forksCount", it) }
@@ -210,7 +206,6 @@ class MarketplaceService(
 
         return if (returnEmptyResult) {
             Page.empty()
-//            PageImpl(listOf(), pageable, 0)
         } else {
             if (pageable.sort.isUnsorted) {
                 builder.ascOrderBy("name")
