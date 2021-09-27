@@ -6,6 +6,7 @@ import { toastr } from 'react-redux-toastr';
 import { Link } from 'react-router-dom';
 import MButton from 'components/ui/MButton';
 import { login, getUserInfo } from 'store/actions/userActions';
+import { OAuth } from 'components/OAuth/OAuth';
 import './login.css';
 // import icon from '../../images/ml_reef_icon_01.svg';
 import icon from 'images/MLReef_Icon_POS_BETA-01.svg';
@@ -212,6 +213,7 @@ class Login extends React.Component {
               </div>
             </div>
           </form>
+          <OAuth fromLogin />
         </div>
         <div id="create-account-div" className="border-div paragraph">
           <p>

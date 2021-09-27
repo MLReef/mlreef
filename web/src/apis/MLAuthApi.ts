@@ -6,8 +6,9 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import ApiDirector from './ApiDirector';
 import ApiRequestCallBuilder from './apiBuilders/ApiRequestCallBuilder';
-import { METHODS } from './apiBuilders/requestEnums';
+import { commonHeaderNames, METHODS } from './apiBuilders/requestEnums';
 import { handleResponse } from 'functions/helpers';
+import BLApiRequestCallBuilder from 'apis/apiBuilders/BLApiRequestCallBuilder';
 
 export default class MLRAuthApi extends ApiDirector {
   login(username: string, email: string, password: string) {
@@ -33,6 +34,13 @@ export default class MLRAuthApi extends ApiDirector {
       '/api/v1/auth/register', 
       JSON.stringify(data)
     );
+    return fetch(builder.build())
+      .then(handleResponse);
+  }
+
+  whoAmI() {
+    const url = '/api/v1/auth/whoami';
+    const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(commonHeaderNames.OAUTH_TOKEN), url);
     return fetch(builder.build())
       .then(handleResponse);
   }
