@@ -14,14 +14,10 @@ export default () => {
       >
         New Project
         {' '}
-        <i className={`fa fa-chevron-${isDropdownOpen ? 'up' : 'down'} p-1 my-auto`} />
+        <i className={`fa fa-chevron-${isDropdownOpen ? 'up' : 'down'} my-auto`} />
       </button>
       {isDropdownOpen && (
         <div className="dashboard-v2-content-search-bar-dropdown-content mt-1" style={{ top: `${dropDownRef.current.offsetTop + 42}px` }}>
-          <Link to="/new-project/classification/ml-project">
-            <h5 className="t-primary m-0 mb-1">New ML project</h5>
-            <span>Create a ML project</span>
-          </Link>
           <hr className="m-0" />
           <Link to="/new-project/classification/model">
             <h5 className="t-warning m-0 mb-1">New Model</h5>

@@ -1,22 +1,15 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
+import MWrapper from 'components/ui/MWrapper';
 import { logout } from 'store/actions/userActions';
 import { toggleTutorial } from 'store/actions/tutorialActions';
 import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
 import helpWhite from '../../images/help_white.png';
-import AILibraryW from '../../images/navbar-options/AI_Lib_w.png';
-import AILibraryB from '../../images/navbar-options/AI_Lib_b.png';
-import MLProjectsW from '../../images/navbar-options/ML-Projects_w.png';
-import MLProjectsB from '../../images/navbar-options/ML-Projects_b.png';
-import HomeB from '../../images/navbar-options/Home_b.png';
-import HomeW from '../../images/navbar-options/Home_w.png';
-import { AIPaths, MLPaths } from 'dataTypes';
-
 import './navbar.scss';
 
 class Navbar extends Component {
@@ -24,40 +17,7 @@ class Navbar extends Component {
     super(props);
     this.handleSignOut = this.handleSignOut.bind(this);
     this.toggleTutorial = this.toggleTutorial.bind(this);
-    this.state = {
-      isMLProjects: false,
-      isAILibrary: false,
-      isHome: false
-    };
   }
-
-  activeMLProjects = () => {
-    this.setState({
-      isMLProjects: true,
-      isAILibrary: false,
-      isHome: false
-    });
-  };
-
-  activeAILibrary = () => {
-    this.setState({
-      isMLProjects: false,
-      isAILibrary: true,
-      isHome: false
-    });
-  };
-
-  activeHome = () => {
-    this.setState({
-      isMLProjects: false,
-      isAILibrary: false,
-      isHome: true
-    });
-  };
-
-  getMLProjectsImage = () => this.state.isMLProjects ? MLProjectsB : MLProjectsW
-  getAILibraryImage = () => this.state.isAILibrary ? AILibraryB : AILibraryW
-  getHomeImage = () => this.state.isHome ? HomeB : HomeW
 
   handleSignOut() {
     const { actions } = this.props;
@@ -69,26 +29,8 @@ class Navbar extends Component {
     actions.toggleTutorial();
   }
 
-  componentDidMount(){
-    const currentPath = window.location.pathname;
-    if(MLPaths.includes(currentPath)){
-      return this.activeMLProjects();
-    } else if (AIPaths.includes(currentPath)){
-      return this.activeAILibrary();
-    } else if (currentPath.includes('welcome')){
-      return this.activeHome();
-    }
-  }
-
   render() {
-    const { user, globalMarker } = this.props;
-
-    const MLProjectSrc = this.getMLProjectsImage();
-    const AILibrarySrc = this.getAILibraryImage();
-    const HomeSrc = this.getHomeImage();
-
-    console.log({HomeSrc});
-    
+    const { user, globalMarker, tutorialActive } = this.props;
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     const docuLink = (
@@ -108,55 +50,95 @@ class Navbar extends Component {
         <div className="navbar">
           <div className="w-100 px-3 d-flex">
             <div className="my-auto">
-              <Link to={user.auth ? '/welcome' : '/welcome'} aria-label="Go to home" label="Go to home">
+              <Link to={user.auth ? '/' : '/explore'} aria-label="Go to home" label="Go to home">
                 <img className="logo" src={mlReefIcon01} alt="MLReef brand" />
               </Link>
             </div>
 
-            <div className="ml-3 my-auto d-lg-block" onClick={this.activeHome}>
-              <NavLink
-                className="label"
-                activeClassName="active" 
-                to={user.auth ? '/welcome' : '/welcome'}
-                
-              >
-                <img src={HomeSrc} alt="MLReef Home" />
-                <label >Home</label>
-              </NavLink>
-            </div>
-            <div className="ml-3 my-auto d-lg-block" onClick={this.activeMLProjects}>
-              <NavLink 
-                className="label" 
-                to={{ pathname: user.auth ? ('/dashboard/public/data_project'): '/welcome'}} 
-                activeClassName="active"
-                isActive={(_, location)=>{
-                  return MLPaths.includes(location.pathname);
-                }}
-                
-              >
-                <img src={MLProjectSrc} alt="MLReef ML Projects" />
-                <label>ML Projects</label>
-              </NavLink>
-            </div>
-            <div className="ml-3 my-auto d-lg-block" onClick={this.activeAILibrary}>
-              <NavLink 
-                className="label" 
-                to={{pathname: user.auth ? '/dashboard/public/algorithm' : '/welcome'}} 
-                activeClassName="active"
-                isActive={(_, location)=>{
-                  return AIPaths.includes(location.pathname)
-                }}
-                
-              >
-                <img src={AILibrarySrc} alt="MLReef AI Projects" />
-                <label >AI Projects</label>
-              </NavLink>
-            </div>
+            <MDropdown
+              className="ml-3 my-auto d-none d-lg-block"
+              buttonClasses="btn btn-dark px-1"
+              label="Projects"
+              component={(
+                <div className="project-box">
+                  <div className="user-projects">
+                    {user.auth && (
+                    <>
+                      <Link to="/dashboard/my-repositories/data_project">Your Projects</Link>
+                      <Link to="/dashboard/starred/data_project">Starred Projects</Link>
+                    </>
+                    )}
+                    <Link to="/dashboard/public/data_project">Explore Projects</Link>
+                  </div>
+                  <MWrapper norender>
+                    <div className="project-search">
+                      <input
+                        type="text"
+                        placeholder="Search your projects"
+                      />
+                      <div className="mt-3">
+                        <b>Frequently visited</b>
+                      </div>
+                    </div>
+                  </MWrapper>
+                </div>
+              )}
+            />
+
+            {user.auth && (
+            <MDropdown
+              className="ml-3 my-auto d-none d-lg-block"
+              buttonClasses="btn btn-dark px-1"
+              label="Groups"
+              component={(
+                <div className="project-box">
+                  <div className="user-projects">
+                    <Link to="/groups">Explore Groups</Link>
+                    <Link to="/groups/new">New Group</Link>
+                  </div>
+                  <MWrapper norender>
+                    <div className="project-search">
+                      <input
+                        type="text"
+                        placeholder="Search your groups"
+                      />
+                      <div className="mt-3">
+                        <b>Frequently visited</b>
+                      </div>
+                    </div>
+                  </MWrapper>
+                </div>
+              )}
+            />
+            )}
+
             {user.auth && (
               <>
                 <MDropdown
                   align="right"
-                  className="ml-auto my-auto"
+                  className="m-dropdown ml-auto my-auto"
+                  buttonClasses="btn btn-dark d-flex p-2"
+                  label={(
+                    <img src={helpWhite} alt="" style={{ width: '1.8rem' }} />
+                  )}
+                  component={(
+                    <div className="help-box">
+                      <a target="_blank" rel="noopener noreferrer" href="https://doc.mlreef.com">
+                        Documentation
+                      </a>
+                      <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
+                        Slack Community
+                      </a>
+                      <button onClick={this.toggleTutorial} type="button" className="btn" style={{ borderRadius: 0 }}>
+                        {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
+                      </button>
+                    </div>
+                  )}
+                />
+
+                <MDropdown
+                  align="right"
+                  className="ml-0 my-auto"
                   buttonClasses="btn btn-dark d-flex p-2"
                   label={(
                     <div

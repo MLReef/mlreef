@@ -1,36 +1,12 @@
 .navbar {
-  display: flex;
-  align-items: center;
-  background-color: var(--dark);
-  min-height: 3.2rem;
+    display: flex;
+    align-items: center;
+    background-color: var(--dark);
+    min-height: 3.2rem;
 }
 
 .logo {
-  width: 8em;
-}
-
-.label {
-  font-weight: 500;
-  color: #fff;
-  margin: 0px 10px;
-  padding: 5px 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  img {
-    height: 11px;
-    margin-right: 5px;
-  }
-  label {
-    cursor: pointer;
-  }
-  &:hover {
-    text-decoration: none;
-  }
-}
-
-.active {
-  background-color: #fff;
-  color: #000000;
+    width: 8em;
 }
 
 .profile-pic-circle {
@@ -62,14 +38,15 @@
     margin: 0.75em;
   }
 
-  & p:hover {
+   & p:hover {
     background: var(--secondary);
     cursor: pointer;
   }
+
 }
 
 .project-box {
-  box-shadow: 0 2px 4px var(--secondary) /* rgb(0, 0, 0, 0.1) */;
+  box-shadow: 0 2px 4px var(--secondary)/* rgb(0, 0, 0, 0.1) */;
   padding-top: 0.5em;
   position: absolute;
   z-index: 2;
@@ -85,7 +62,7 @@
     font-weight: 200;
     transition: all 0.4s ease;
   }
-
+  
   & a:hover {
     background: #c5c5c5;
     cursor: pointer;
@@ -103,6 +80,7 @@
   width: 100%;
   display: block;
 }
+
 
 /* -------------------------- documentation dropdown -------------------------- */
 
@@ -131,8 +109,7 @@
   display: flex;
   flex-direction: column;
 
-  & a,
-  button {
+  & a, button {
     padding: 1rem 3.5rem 1rem 1rem;
     text-align: left;
     transition: all 0.4s ease;
@@ -144,4 +121,5 @@
       cursor: pointer;
     }
   }
+
 }

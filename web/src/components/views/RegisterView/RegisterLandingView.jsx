@@ -6,6 +6,7 @@ import TagManager from 'react-gtm-module';
 import MSelect from 'components/ui/MSelect';
 import { tutorials } from 'components/commons/Tutorial/data.json';
 import './RegisterView.scss';
+import Navbar from 'components/navbar/navbar';
 
 const RegisterLandingView = (props) => {
   const { user: { userInfo: { name, id } } } = props;
@@ -27,6 +28,7 @@ const RegisterLandingView = (props) => {
 
   return (
     <div className="landing-container">
+      <Navbar />
       <div className="first-state">
         <h2 className="title-lg">
           Welcome to MLReef

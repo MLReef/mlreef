@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { func, shape } from 'prop-types';
 import Navbar from 'components/navbar/navbar';
-import Instruction from 'components/instruction/instruction';
 import { projectClassificationsProps } from 'dataTypes';
 import * as userActions from 'store/actions/userActions';
 import FiltersSection from 'components/layout/Dashboard/FiltersSections';
@@ -14,6 +13,7 @@ import ProjectsArraySection from 'components/layout/Dashboard/ProjectsArraySecti
 import DashboardProvider from 'components/layout/Dashboard//DashboardContext';
 import ProjectsDropDown from 'components/layout/Dashboard/ProjectsDropDown';
 import { useHistory } from 'router';
+import NewMLProject from 'components/layout/Dashboard/NewMLProject';
 
 const DashboardV2 = (props) => {
   const { actions, isLoading } = props;
@@ -37,9 +37,11 @@ const DashboardV2 = (props) => {
 
   const publicClass = class1 === 'public' ? 'active' : '';
 
+  const isMLProjectsOption = class2 === "data_project";
+
   const changeColorAndSetLoadingStatus = useCallback(() => {
     const color = projectClassificationsProps
-      .filter(({ searchableType }) => searchableType.toLowerCase() === class2)[0]?.color;
+      .filter(({ searchableType }) => searchableType.toLowerCase() === class2)[0]?.color || "#91A945";
     actions.setGlobalMarkerColor(color);
     actions.setIsLoading(true);
   }, [actions, class2]);
@@ -51,33 +53,6 @@ const DashboardV2 = (props) => {
   return (
     <div className="dashboard-v2">
       <Navbar />
-      <Instruction
-        id="dashboard-inst"
-        titleText=""
-        htmlParagraph={(
-          <>
-            <p className="m-0">This is your dashboard. You will find different types of repositories:</p>
-            <p className="m-0">
-              <b>- ML projects:</b>
-              {' '}
-              These host your data and all your ML pipelines,
-              from data pre-processing to creating and tracking experiments.
-            </p>
-            <p className="m-0">
-              <b>- Models, Data Ops</b>
-              and
-              {' '}
-              <b>Data visualizations</b>
-              {' '}
-              are code repos.
-              When published the hosted scripts within
-              are containerized and accessible in the ML pipelines.
-            </p>
-
-            <p>Start by forking a ML project or by creating your own ML work.</p>
-          </>
-        )}
-      />
       <div className="dashboard-v2-content">
         <div className="dashboard-v2-content-search-bar">
           <input
@@ -99,18 +74,13 @@ const DashboardV2 = (props) => {
               }
             }}
           />
-          <ProjectsDropDown />
+          {isMLProjectsOption ?
+            <NewMLProject />
+            :
+            <ProjectsDropDown />
+          }
         </div>
         <div className="dashboard-v2-content-links-section-1">
-          <div className={recentClass}>
-            <Link
-              className={`tab-link ${recentClass}`}
-              to="/dashboard/recent/data_project"
-              onClick={changeColorAndSetLoadingStatus}
-            >
-              Recent
-            </Link>
-          </div>
           <div className={myReposActivClass}>
             <Link
               className={`tab-link ${myReposActivClass}`}
@@ -139,7 +109,7 @@ const DashboardV2 = (props) => {
             </Link>
           </div>
         </div>
-        <div className="dashboard-v2-content-links-section-2">
+        {!isMLProjectsOption && <div className="dashboard-v2-content-links-section-2">
           {projectClassificationsProps.map(({ label, searchableType, color }) => {
             const lowerCaseST = searchableType.toLowerCase();
             const isIsClass2 = class2 === lowerCaseST;
@@ -170,7 +140,7 @@ const DashboardV2 = (props) => {
                 </div>
               );
           })}
-        </div>
+        </div>}
         <DashboardProvider>
           <FiltersSection />
           <TagSection />
