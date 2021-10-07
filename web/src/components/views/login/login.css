@@ -1,58 +1,57 @@
 #login-container {
-    margin: 5rem auto;
-    max-width: 380px;
-    /* width: 100%; */
-    padding: 0 1rem;
-    align-content: center;
-    font-family: "Roboto", sans-serif;
+  margin: 5rem auto;
+  max-width: 380px;
+  padding: 0 1rem;
+  align-content: center;
+  font-family: "Roboto", sans-serif;
 }
 
 .paragraph {
-    color: #404040;
-    font-size: 1.1em;
+  color: #404040;
+  font-size: 1.1em;
 }
 
 .border-div {
-    border: 2px solid #e5e5e5;
-    border-radius: 0.3vw;
+  border: 2px solid #e5e5e5;
+  border-radius: 0.3vw;
 }
 
 #icon-div {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 #icon-div img {
-    max-width: 80px;
+  max-width: 80px;
 }
 
 .login-form .title {
-    background-color: #1c2b40;
-    color: white;
-    font-size: 1.3em;
-    text-align: center;
-    border-radius: 0.3vw 0.3vw 0 0;
-    padding: 3% 0% 3% 0%;
+  background-color: #1c2b40;
+  color: white;
+  font-size: 1.3em;
+  text-align: center;
+  border-radius: 0.3vw 0.3vw 0 0;
+  padding: 3% 0% 3% 0%;
 }
 
 .input-container {
-    margin: 1rem 2rem;
-    display: flex;
-    align-items: flex-start;
-    flex-flow: column;
+  margin: 1rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  flex-flow: column;
 }
 
 .input-container > input {
-    padding: 1%;
-    border-radius: 0.3vw;
-    border: 1px solid #b2b2b2;
-    width: 90%;
-    height: 2em;
-    font-size: 1em;
+  padding: 1%;
+  border-radius: 0.3vw;
+  border: 1px solid #b2b2b2;
+  width: 90%;
+  height: 2em;
+  font-size: 1em;
 }
 
 .input-container > input:focus {
-    border: 1px solid #32afc3;
+  border: 1px solid #32afc3;
 }
 
 /* .input-container button {
@@ -69,46 +68,46 @@
 } */
 
 #sign-in-btn {
-    align-items: center !important;
+  align-items: center !important;
 }
 
 .invisible {
-    display: none !important;
+  display: none !important;
 }
 
 .error {
-    margin: 2% 0% 1% 0%;
-    background-color: #f5544d;
-    color: white;
-    border-radius: 0.3vw;
-    font-size: 1.1em;
-    padding: 1% 2% 1% 4%;
+  margin: 2% 0% 1% 0%;
+  background-color: #f5544d;
+  color: white;
+  border-radius: 0.3vw;
+  font-size: 1.1em;
+  padding: 1% 2% 1% 4%;
 }
 
 #create-account-div {
-    margin-top: 2%;
-    background-color: #f6f6f6;
+  margin-top: 2%;
+  background-color: #f6f6f6;
 }
 
 #create-account-div p {
-    margin-left: 4%;
-    text-align: center;
-    color: #1d2b40;
+  margin-left: 4%;
+  text-align: center;
+  color: #1d2b40;
 }
 
 .error div,
 .error p {
-    display: inline-block;
+  display: inline-block;
 }
 
 .error p {
-    padding-left: 1em;
+  padding-left: 1em;
 }
 
 .error div {
-    /* margin-left: 40%; */
-    width: 100%;
-    text-align: center;
+  /* margin-left: 40%; */
+  width: 100%;
+  text-align: center;
 }
 
 /* .error div button {
@@ -122,18 +121,18 @@
 } */
 
 .pass-reset {
-    display: flex;
-    justify-content: flex-end;
-    margin: 1rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 2rem;
 }
 
 .password-container {
-    position: relative;
-    width: 100%;
+  position: relative;
+  width: 100%;
 }
 
 .password-container .password-show-btn {
-    position: absolute;
-    right: 1em;
-    height: 100%;
+  position: absolute;
+  right: 1em;
+  height: 100%;
 }

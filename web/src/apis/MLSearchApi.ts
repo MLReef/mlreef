@@ -38,6 +38,7 @@ export default class MLSearchApi extends ApiDirector {
 
   searchPaginated(searchableType: String, sorting: number,  body: any, page: number, size: number) {
     let url = `/api/v1/explore/entries/search?searchable_type=${searchableType}`;
+    // let url = `/api/v1/explore/entries/search`;
     if (page !== undefined && size !== undefined) {
       url = `${url}&page=${page}&size=${size}`;
     }
@@ -60,6 +61,17 @@ export default class MLSearchApi extends ApiDirector {
       METHODS.GET,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
       '/api/v1/explore/recent',
+    );
+
+    return fetch(BLbuilder.build())
+      .then(handleResponse);
+  }
+
+  searchPublicProjects() {
+    const BLbuilder = new BodyLessApiRequestCallBuilder(
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.BACKEND),
+      '/api/v1/explore/public',
     );
 
     return fetch(BLbuilder.build())

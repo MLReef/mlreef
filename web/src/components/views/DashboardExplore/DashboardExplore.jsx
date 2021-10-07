@@ -3,7 +3,6 @@ import { Link, useParams, useLocation } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Navbar from 'components/navbar/navbar';
-import Instruction from 'components/instruction/instruction';
 import { projectClassificationsProps } from 'dataTypes';
 import * as userActions from 'store/actions/userActions';
 import { func, shape } from 'prop-types';
@@ -47,33 +46,6 @@ const DashboardExplore = (props) => {
   return (
     <div className="dashboard-v2">
       <Navbar />
-      <Instruction
-        id="dashboard-inst"
-        titleText=""
-        htmlParagraph={(
-          <>
-            <p className="m-0">This is your dashboard. You will find different types of repositories:</p>
-            <p className="m-0">
-              <b>- ML projects:</b>
-              {' '}
-              These host your data and all your ML pipelines,
-              from data pre-processing to creating and tracking experiments.
-            </p>
-            <p className="m-0">
-              <b>- Models, Data Ops</b>
-               and
-              {' '}
-              <b>Data visualizations</b>
-              {' '}
-              are code repos. 
-              When published the hosted scripts within
-              are containerized and accessible in the ML pipelines.
-            </p>
-
-            <p>Start by forking a ML project or by creating your own ML work.</p>
-          </>
-        )}
-      />
       <div className="dashboard-v2-content">
         <div className="dashboard-v2-content-search-bar">
           <input
