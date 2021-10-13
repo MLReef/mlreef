@@ -36,9 +36,9 @@ const CodeDiffSection = (props) => {
   const ext = fileName.split('.').pop();
 
   const checkIntegrity = ({ editor }) => {
-    const models = editor.getModels();
+    const Algorithm = editor.getAlgorithm();
 
-    if (!models.length) {
+    if (!Algorithm.length) {
       setTimeout(() => {
         onReset();
       }, 1000);

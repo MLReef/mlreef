@@ -72,7 +72,7 @@ const UnconnectedGroupsOverview = (props) => {
 
   const projectFilters = [
     { label: 'ML projects' },
-    { label: 'Models' },
+    { label: 'Algorithm' },
     { label: 'Data operations' },
     { label: 'Data visualizations' },
   ].map((pF) => ({ ...pF, name: `${pF.label} dataTypes` }));

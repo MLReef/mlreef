@@ -24,8 +24,8 @@ These are the limitations currently present in MLReef for experiments:
 
 ## Name convention
 
-**Experiment:** represent all functions to train models. The name experiment surged due to the iterative nature of model training.
+**Experiment:** represent all functions to train Algorithm. The name experiment surged due to the iterative nature of model training.
 
-**Algorithm:** Is the architecture of a machine learning script. In MLReef we took the convention to call them models (mostly for simplicity reasons).
+**Algorithm:** Is the architecture of a machine learning script. In MLReef we took the convention to call them Algorithm (mostly for simplicity reasons).
 
 **Model:** In MLReef this is an algorithm before and after training. 

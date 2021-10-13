@@ -36,7 +36,7 @@
               "layoutType": 1,
               "title": "Two types of project repositories",
               "image": "/tutorials/1/repositories.JPG",
-              "instructions": "In **ML Projects** you will do all the data and ML related work. The other class are to host code functions, such as **models** or **data visualizations**.",
+              "instructions": "In **ML Projects** you will do all the data and ML related work. The other class are to host code functions, such as **Algorithm** or **data visualizations**.",
               "validators": []
             },
             {
@@ -117,7 +117,7 @@
               "layoutType": 1,
               "title": "Open the \"Experiments\" tab",
               "image": "/tutorials/1/experiment_tab.png",
-              "instructions": "Click the experiment tab. In this section you can train your models with cats and dogs images.",
+              "instructions": "Click the experiment tab. In this section you can train your Algorithm with cats and dogs images.",
               "validators": [
                 {
                   "type": "urlChecker",
@@ -148,7 +148,7 @@
               "layoutType": 1,
               "title": "Choose your training data",
               "image": "/tutorials/1/select_data.gif",
-              "instructions": "Click the select data button and then choose the **Cats_Dogs_Tutorial** folder. This step will store the path to your dataset for all models (and other operations) you choose.",
+              "instructions": "Click the select data button and then choose the **Cats_Dogs_Tutorial** folder. This step will store the path to your dataset for all Algorithm (and other operations) you choose.",
               "validators": [
                 {
                   "type": "presence",

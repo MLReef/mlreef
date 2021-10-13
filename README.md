@@ -111,7 +111,7 @@ The MLReef ML components within the ML life cycle:
 Why MLReef?
 --------------------
 
-MLReef is our solution to a problem we share with countless other researchers and developers in the machine learning/deep learning universe: Training production-grade deep learning models is a tangled process. MLReef tracks and controls the process by associating code version control, research projects, performance metrics, and model provenance. 
+MLReef is our solution to a problem we share with countless other researchers and developers in the machine learning/deep learning universe: Training production-grade deep learning Algorithm is a tangled process. MLReef tracks and controls the process by associating code version control, research projects, performance metrics, and model provenance. 
 
 We designed MLReef on best data science practices combined with the knowleged gained from DevOps and a deep focus on collaboration. 
 

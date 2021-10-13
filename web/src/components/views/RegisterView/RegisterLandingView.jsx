@@ -100,7 +100,7 @@ const RegisterLandingView = (props) => {
               <p id="new-project-link-text-content" className="state-text mt-0">
                 In MLReef there are ML projects, which host your data and experiments.
                 Furthermore you can create code only projects for data operations, data
-                visualizations and ML models.
+                visualizations and ML Algorithm.
               </p>
             </div>
           </Link>

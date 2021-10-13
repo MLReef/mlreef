@@ -1,6 +1,6 @@
 # Repositories
 
-MLReef is based on Git repositories for ML projects, Models, DataOps and Data Visualizations. Here you will find their main characteristics and differences.
+MLReef is based on Git repositories for ML projects, Algorithm, DataOps and Data Visualizations. Here you will find their main characteristics and differences.
 
 ## Repository types 
 
@@ -10,7 +10,7 @@ There are 4 types of repositories in MLReef accessible via the project overview.
 
 ### ML Projects 
 
-We like to call them data repositories, as in them, you can unload all your data for your ML project. In these repositories you can use the [data pipelines](docs/content/data20%pipelines/README.md) and the execute your  to train your models. 
+We like to call them data repositories, as in them, you can unload all your data for your ML project. In these repositories you can use the [data pipelines](docs/content/data20%pipelines/README.md) and the execute your  to train your Algorithm. 
 
 ### Model 
 

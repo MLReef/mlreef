@@ -29,7 +29,7 @@ Take a look at some of our most popular documentation resources:
 
 | Essential Documentation | Documentation for |
 |---|---|
-| [Parameter settings](0-general/0-concepts/3-parameters.md)  | Setting parameter values on data operations and models. |
+| [Parameter settings](0-general/0-concepts/3-parameters.md)  | Setting parameter values on data operations and Algorithm. |
 | [Repository classes in MLReef](0-general/1-repositories/0-README.md)  | Understand the classes and functions of data and code repositories in MLReef. |
 
 

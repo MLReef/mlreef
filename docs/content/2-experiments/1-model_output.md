@@ -1,5 +1,5 @@
 # Model output
-Models can have several outputs such as:
+Algorithm can have several outputs such as:
 
 1. Log files
 2. Model binary file

@@ -1,4 +1,4 @@
-# Models
+# Algorithm
 
 The python script that trains a model is called a Model in MLReef. This code repository has hyperparameters, input type, output type and visibility.
 

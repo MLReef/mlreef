@@ -1,6 +1,6 @@
 # Code Projects
 
-Code projects (or code repositories) are git based repositories to store your ML function. These are either `Models` or `Data Operations (Data Ops)` or `Data Visualizations`. 
+Code projects (or code repositories) are git based repositories to store your ML function. These are either `Algorithm` or `Data Operations (Data Ops)` or `Data Visualizations`. 
 
 The idea is that each code project hosts a specfic and atomic function. This way, you and your team (or the entire community) can use this script freely and project unbound within the built-in datapipelines within the ML projects (the other tab in the dashboard). 
 

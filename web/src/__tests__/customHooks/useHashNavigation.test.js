@@ -21,7 +21,7 @@ beforeEach(() => {
     },
     {
       store,
-      url: '/explore/#models',
+      url: '/explore/#Algorithm',
     },
   );
 });

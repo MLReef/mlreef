@@ -47,7 +47,7 @@ const ProcessorsList = ({ operationTypeToExecute, namespace }) => {
     <div className="data-operations-list scroll-styled">
       <div className="data-operations-list-separation">
         <p>
-          my models
+          my Algorithm
         </p>
       </div>
       <DataProcessorsList 
@@ -59,7 +59,7 @@ const ProcessorsList = ({ operationTypeToExecute, namespace }) => {
       <div className="data-operations-list-separation">
         <hr />
         <p>
-          public models
+          public Algorithm
         </p>
       </div>
       <DataProcessorsList 

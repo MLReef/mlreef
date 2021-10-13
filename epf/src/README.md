@@ -11,7 +11,7 @@ The presence of speckle noise in Synthetic Aperture Radar (SAR) images makes the
 
 ## Augment
 
-Neural network architectures have a large number of trainable parameters and therefore they require a very large number of images to train on to effectively capture the distrubution of the data and 'learn'. Data augmentation is a strategy that enables us to significantly increase the diversity of data available for training models, without actually collecting new data. 
+Neural network architectures have a large number of trainable parameters and therefore they require a very large number of images to train on to effectively capture the distrubution of the data and 'learn'. Data augmentation is a strategy that enables us to significantly increase the diversity of data available for training Algorithm, without actually collecting new data. 
 
 For example, in the case of images, the data is tweaked by changing angle of rotation, flipping the images, zooming in, etc.
 
@@ -63,7 +63,7 @@ will execute the augmentation file and will create 10 augmeented images for each
 
 > Info: The current code does not have error handling functions for wrong parameter types. This will be updated soon
 
-# Deep Learning Models
+# Deep Learning Algorithm
 
 ## ResNet50
 

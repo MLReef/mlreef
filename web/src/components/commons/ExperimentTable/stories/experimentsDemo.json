@@ -28,7 +28,7 @@
       "value": "output",
       "type": "STRING",
       "required": true,
-      "description": "output path where the models and logs of the training will be saved"
+      "description": "output path where the Algorithm and logs of the training will be saved"
     }, {
       "name": "input-path",
       "value": "train",
@@ -179,7 +179,7 @@
       "value": "output",
       "type": "STRING",
       "required": true,
-      "description": "output path where the models and logs of the training will be saved"
+      "description": "output path where the Algorithm and logs of the training will be saved"
     }, {
       "name": "input-path",
       "value": "train",
@@ -282,7 +282,7 @@
       "value": "output",
       "type": "STRING",
       "required": true,
-      "description": "output path where the models and logs of the training will be saved"
+      "description": "output path where the Algorithm and logs of the training will be saved"
     }, {
       "name": "input-path",
       "value": "train",
@@ -385,7 +385,7 @@
       "value": "output",
       "type": "STRING",
       "required": true,
-      "description": "output path where the models and logs of the training will be saved"
+      "description": "output path where the Algorithm and logs of the training will be saved"
     }, {
       "name": "input-path",
       "value": "train",

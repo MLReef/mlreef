@@ -324,7 +324,7 @@ export const projectClassificationsProps = [
     with data to be a mathematical representation of a real-world process. 
 
     Create a model repository to use it in your experiment pipelines and publishing it. 
-    You can find detailed instructions how to create models in MLReef in the documentation
+    You can find detailed instructions how to create Algorithm in MLReef in the documentation
     `,
   },
   {

@@ -25,7 +25,7 @@ You will find two different types of [git](2-new_to_git.md) repositories:
 
 We like to call them data repositories because
 
- 1. they host the data and data pipelines for creating ML models and 
+ 1. they host the data and data pipelines for creating ML Algorithm and 
  2. because they are as standard based on [git lfs](1-git/0-README.md). 
 
 You can create or access existing ML projects (=data repositories) through the [marketplace](#marketplace).
@@ -51,7 +51,7 @@ You can view more detailed information about each pipeline in the corresponding 
 |---|---|
 | [Data visualization](../../1-data_pipelines/1-data_visualization/0-README.md)  | Pipeline for creating data visualizations. |
 | [DataOps](../../1-data_pipelines/0-dataops/0-README.md)  | Pipeline for automated processing of your data. |
-| [Experiments](../../2-experiments/0-README.md)  | Pipeline for creating ML models. |
+| [Experiments](../../2-experiments/0-README.md)  | Pipeline for creating ML Algorithm. |
 
 ## <a name="publishing"></a> Publishing code repositories
 
@@ -86,7 +86,7 @@ The major differentiations are:
 A repository can either be found in: 
 
 1. ML Projects = data repositories
-2. Models = code repositories
+2. Algorithm = code repositories
 3. Data Ops = code repositories
 4. Data Visualizations = code repositories
 

@@ -148,8 +148,8 @@ class Navbar extends Component {
                 }}
                 
               >
-                <img src={AILibrarySrc} alt="MLReef AI Projects" />
-                <label >AI Projects</label>
+                <img src={AILibrarySrc} alt="MLReef AI Library" />
+                <label >AI Library</label>
               </NavLink>
             </div>
             {user.auth && (

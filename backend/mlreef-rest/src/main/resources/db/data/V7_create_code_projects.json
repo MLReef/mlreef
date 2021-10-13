@@ -244,7 +244,7 @@
     "slug": "commons-multimodel",
     "namespace": "mlreef",
     "name": "CNN Multimodel",
-    "description": "This script allows you to test several CNN models for image classification only adjusting args, you can choose between:resnet, alexnet,vgg, squeezenet, densenet,inception. You can use the pretrained version of those models or you can customizethe behavior retraining with you own data.",
+    "description": "This script allows you to test several CNN Algorithm for image classification only adjusting args, you can choose between:resnet, alexnet,vgg, squeezenet, densenet,inception. You can use the pretrained version of those Algorithm or you can customizethe behavior retraining with you own data.",
     "initialize_with_readme": false,
     "input_data_types": [
       "IMAGE"

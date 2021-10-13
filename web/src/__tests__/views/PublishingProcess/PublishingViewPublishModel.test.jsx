@@ -44,7 +44,7 @@ describe('test UI html elements prensence and funtionality', () => {
     expect(thirdStepMarker.hasClass('done')).toBe(true);
   });
 
-  test('assert that models can be changed', () => {
+  test('assert that Algorithm can be changed', () => {
     wrapper
       .find('MCheckBoxGroup')
       .at(0)

@@ -13,7 +13,7 @@ export const experimentInstructionData = {
   id: 'NewExperiment',
   titleText: 'How to create a new experiment:',
   paragraph: `In an experiment, you can train a model on your data. First, select your data you want to do your experiment on. Do not mind about splitting your data into
-    training / validation set, as these are handled by the models themself. Select a model from the right and drag in into your experiment pipeline. Note, that currently
+    training / validation set, as these are handled by the Algorithm themself. Select a model from the right and drag in into your experiment pipeline. Note, that currently
     we support only one model to be trained at the time. Input or adapt the parameters of a model and execute your experiment. A new entry with all relevant information, 
     metrics and model binaries will be created and are accessible in the experiments section.`,
 };

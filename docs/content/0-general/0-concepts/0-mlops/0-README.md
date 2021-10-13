@@ -20,21 +20,21 @@ MLReef consolidates your ML projects in one [distributed version control system]
 | All create topics  | Documentation for  |
 |---|---|
 | [ML projects](../../1-repositories/1-ml_projects.md)  | Creating and managing ML projects. |
-| [Models](../../1-repositories/2-models.md)  | Creating and managing models. |
+| [Algorithm](../../1-repositories/2-Algorithm.md)  | Creating and managing Algorithm. |
 | [DataOps](../../1-repositories/3-dataops.md)  | Creating and managing dataOps. |
 | [DataVisualization](../../1-repositories/4-data_visualizations.md)  | Creating and managing data visualizations. |
 | [MLReef infrastructure](.../../4-infrastructure/0-README.md)  | Understanding MLRee's core infrastructure. |
 
 ### <a name="develop"></a> Develop
 
-MLreef is built from ground up to offer the highest degree of collaboration, within your team and throughout the entire MLReef community. The marketplace offers you instant access to ML projects, models and data operations. 
+MLreef is built from ground up to offer the highest degree of collaboration, within your team and throughout the entire MLReef community. The marketplace offers you instant access to ML projects, Algorithm and data operations. 
 
 The following documentation relates to the MLOps **develop** stage: 
 
 | All develop topics  | Documentation for  |
 |---|---|
 | [Data pipelines](../../../1-data_pipelines/0-README.md)  | Data sourced pipelines for data preprocessing and visualization. |
-| [Experiments](../../../2-experiments/0-README.md)  | Create experiments based on data with ML models. |
+| [Experiments](../../../2-experiments/0-README.md)  | Create experiments based on data with ML Algorithm. |
 | [Model output](../../../2-experiments/1-model_output.md)  | Metrics and model binary storage and download. |
 | [Reproducibility](../2-reproducibility.md)  | Understanding and reproducing each value-added step. |
 

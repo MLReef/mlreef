@@ -15,7 +15,7 @@ The following topics should provide you with the basic to start with MLReef:
 
 MLReef is a [MLOps](https://en.wikipedia.org/wiki/MLOps) platform for the entire Machine Learning lifecycle. It is based on four major pillars:
 
-*  **Access**: Gain access to community based ML content, from data operations to models.
+*  **Access**: Gain access to community based ML content, from data operations to Algorithm.
 *  **Efficiency**: Fast iteration, clear and structured workflow with full flexibility.
 *  **Reproducibility**: Gain confidence and ownership through full transparency in each step.
 *  **Collaboration**: Promoting collaboration within a team and beyond the entire MLReef community.
@@ -30,7 +30,7 @@ The following content will provide a fast overview of the major concepts in MLRe
 | [ML project repositories](#project_repos)  | Start your project with a Git based repository. |
 | [Processing data](#processing_data)  | Create a data processing pipeline in MLReef. |
 | [Visualizing data](#visualizations)  | Create a data visualization pipeline in MLReef. |
-| [Experiments and models](#experiments)  | Experiment pipelines and their output. |
+| [Experiments and Algorithm](#experiments)  | Experiment pipelines and their output. |
 
 
 ### <a name="maturity"></a> Maturity
@@ -128,7 +128,7 @@ You can access the data visualization pipeline within your `data tab` in your ML
 5.  Execute your data visualization pipeline by pressing the "execute" button. This will create your [data visualization](1-data_pipelines/1-data_visualization/1-data_visualizations.md).
 
 
-### <a name="experiments"></a> Experiments and models
+### <a name="experiments"></a> Experiments and Algorithm
 
 MLReef has a built-in experiment environment accessed through the `experiment tab` in your ML project repository. In here, you can create new ML experiments with full reproducibility on the underlying data and model.
 
@@ -146,7 +146,7 @@ You can access the experiment pipeline within your `experiment tab` in your ML p
 
 3.  Drag and drop the model from the right side into the experiment pipeline on the left.
 
-    Note: In the experiment pipeline the order of models used is NOT relevant. Each model training is executed in parallel and they do not have an effect on each other.
+    Note: In the experiment pipeline the order of Algorithm used is NOT relevant. Each model training is executed in parallel and they do not have an effect on each other.
 
 4.  Change parameters of your model by expanding the allocated model.
 

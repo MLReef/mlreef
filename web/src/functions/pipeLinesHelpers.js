@@ -66,7 +66,7 @@ export const createPipelineInProject = (
  * @param {*} backendId: backend project id is the id that backend assign to a gitlab project
  * @param {*} branchName: new branch name that will contain the output
  * @param {*} branchSelected: gitlab branch in which files will be read
- * @param {*} filesSelectedInModal: files that will be used as input for models or operations
+ * @param {*} filesSelectedInModal: files that will be used as input for Algorithm or operations
  */
 export const createExperimentInProject = (
   dataOperationsSelected,

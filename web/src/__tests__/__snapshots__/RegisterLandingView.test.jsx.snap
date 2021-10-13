@@ -160,7 +160,7 @@ exports[`render basic landing view elements assert that snapshot matches 1`] = `
             className="state-text mt-0"
             id="new-project-link-text-content"
           >
-            In MLReef there are ML projects, which host your data and experiments. Furthermore you can create code only projects for data operations, data visualizations and ML models.
+            In MLReef there are ML projects, which host your data and experiments. Furthermore you can create code only projects for data operations, data visualizations and ML Algorithm.
           </p>
         </div>
       </a>

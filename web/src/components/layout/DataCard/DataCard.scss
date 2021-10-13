@@ -1,6 +1,6 @@
 @import '../../../styles/breakpoints';
 
-$models: #d2519d;
+$Algorithm: #d2519d;
 $visualizations: #735da8;
 
 .data-card {
@@ -18,7 +18,7 @@ $visualizations: #735da8;
   }
 
   > .model {
-    background-color: $models !important;
+    background-color: $Algorithm !important;
   }
 
   > .visualization {
