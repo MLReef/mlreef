@@ -11,6 +11,7 @@ import MCheckBox from 'components/ui/MCheckBox/MCheckBox';
 import MAccordion from 'components/ui/MAccordion';
 import AuthWrapper from 'components/AuthWrapper';
 import ACCESS_LEVEL from 'domain/accessLevels';
+import { compose } from 'functions/helpers';
 import ExperimentTableOverall from './ExperimentTableOverall';
 import ExperimentTableRow from './ExperimentTableRow';
 import ExperimentTableFilters from './ExperimentTableFilters';
@@ -52,7 +53,7 @@ const ExperimentTable = (props) => {
   } = props;
 
   const dataTable = useMemo(
-    () => parseExperiments(experiments),
+    () => compose(sortDesc('timestamp'), parseExperiments)(experiments),
     [experiments],
   );
 
