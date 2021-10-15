@@ -1,39 +1,17 @@
 package com.mlreef.rest
 
-import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.BaseEnvironments
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.DataType
-import com.mlreef.rest.domain.Experiment
-import com.mlreef.rest.domain.FileLocation
-import com.mlreef.rest.domain.Parameter
-import com.mlreef.rest.domain.ParameterInstance
-import com.mlreef.rest.domain.ParameterType
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Pipeline
-import com.mlreef.rest.domain.PipelineConfiguration
-import com.mlreef.rest.domain.PipelineJobInfo
-import com.mlreef.rest.domain.PipelineType
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.PublishStatus
-import com.mlreef.rest.domain.RecentProject
-import com.mlreef.rest.domain.UserRole
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.marketplace.Star
-import com.mlreef.rest.domain.repositories.DataTypesRepository
-import com.mlreef.rest.domain.repositories.MetricTypesRepository
-import com.mlreef.rest.domain.repositories.ParameterTypesRepository
-import com.mlreef.rest.domain.repositories.PipelineTypesRepository
-import com.mlreef.rest.domain.repositories.ProcessorTypeRepository
+import com.mlreef.rest.domain.repositories.*
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.processors.ProcessorsService
+import com.mlreef.rest.feature.system.FilesManagementService
+import com.mlreef.rest.feature.system.FilesManagementService.Companion.PROJECT_COVER_PURPOSE_ID
+import com.mlreef.rest.feature.system.FilesManagementService.Companion.UNDEFINED_PURPOSE_ID
+import com.mlreef.rest.feature.system.FilesManagementService.Companion.USER_AVATAR_PURPOSE_ID
 import com.mlreef.rest.security.MlReefSessionRegistry
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.rest.utils.Slugs
@@ -49,7 +27,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.persistence.EntityManager
 import javax.persistence.EntityManagerFactory
@@ -77,12 +55,6 @@ class BaseTest {
     protected lateinit var sessionRegistry: MlReefSessionRegistry
 
     @Autowired
-    protected lateinit var personRepository: PersonRepository
-
-    @Autowired
-    protected lateinit var subjectRepository: SubjectRepository
-
-    @Autowired
     protected lateinit var accountRepository: AccountRepository
 
     @Autowired
@@ -93,6 +65,9 @@ class BaseTest {
 
     @Autowired
     protected lateinit var codeProjectRepository: CodeProjectRepository
+
+    @Autowired
+    protected lateinit var filesManagementService: FilesManagementService
 
     @Autowired
     protected lateinit var processorsRepository: ProcessorsRepository
@@ -136,6 +111,9 @@ class BaseTest {
     @Autowired
     protected lateinit var processorsService: ProcessorsService
 
+    @Autowired
+    protected lateinit var userResolverService: UserResolverService
+
     //////////////////////////// LISTS
 
     @Autowired
@@ -150,19 +128,28 @@ class BaseTest {
     @Autowired
     protected lateinit var pipelineTypesRepository: PipelineTypesRepository
 
+    @Autowired
+    protected lateinit var filePurposesRepository: FilePurposesRepository
+
+    @Autowired
+    protected lateinit var filesRepository: MlreefFilesRepository
 
     /////////////////////////// ENTITIES
 
-    protected lateinit var mainPerson: Person
+//    protected lateinit var mainPerson: Person
     protected lateinit var mainAccount: Account
-    protected lateinit var mainPerson2: Person
+//    protected lateinit var mainPerson2: Person
     protected lateinit var mainAccount2: Account
-    protected lateinit var mainPerson3: Person
+//    protected lateinit var mainPerson3: Person
     protected lateinit var mainAccount3: Account
 
     protected val mainToken = "main-account-token"
     protected val mainToken2 = "main-account-token-2"
     protected val mainToken3 = "main-account-token-3"
+
+    protected lateinit var userAvatarPurpose: FilePurpose
+    protected lateinit var projectCoverPurpose: FilePurpose
+    protected lateinit var undefinedPurpose: FilePurpose
 
     protected lateinit var operationProcessorType: ProcessorType
     protected lateinit var algorithmProcessorType: ProcessorType
@@ -237,12 +224,13 @@ class BaseTest {
         visibility: VisibilityScope? = null,
         inputTypes: Collection<DataType>? = null,
         tags: Collection<SearchableTag>? = null,
-        stars: Collection<Person>? = null,
+        stars: Collection<Account>? = null,
         persist: Boolean = true,
         inTransaction: Boolean = false,
         url: String? = null,
         pathWithNamespace: String? = null,
         forksCount: Int = 0,
+        cover: MlreefFile? = null,
     ): DataProject {
         var projectInDb: DataProject? = if (name != null) dataProjectRepository.findByNameIgnoreCase(name) else null
         if (projectInDb != null) return projectInDb
@@ -250,7 +238,7 @@ class BaseTest {
         projectInDb = DataProject(
             currentId,
             slug = slug ?: "slug-${RandomUtils.generateRandomUserName(10)}",
-            ownerId = ownerId ?: mainPerson.id,
+            ownerId = ownerId ?: mainAccount.id,
             url = url ?: "www.${RandomUtils.generateRandomUserName(10)}.xyz",
             name = name ?: "Data Project ${RandomUtils.generateRandomUserName(10)}",
             description = RandomUtils.generateRandomUserName(10),
@@ -263,6 +251,7 @@ class BaseTest {
             stars = stars?.map { Star(currentId, it.id) }?.toMutableSet() ?: mutableSetOf(),
             gitlabPathWithNamespace = pathWithNamespace ?: RandomUtils.generateRandomUserName(15),
             forksCount = forksCount,
+            cover = cover,
         )
 
         return if (persist) {
@@ -283,7 +272,7 @@ class BaseTest {
         inputTypes: Collection<DataType>? = null,
         outputTypes: Collection<DataType>? = null,
         tags: Collection<SearchableTag>? = null,
-        stars: Collection<Person>? = null,
+        stars: Collection<Account>? = null,
         persist: Boolean = true,
         inTransaction: Boolean = false,
         url: String? = null,
@@ -291,6 +280,7 @@ class BaseTest {
         modelType: String? = null,
         mlCategory: String? = null,
         forksCount: Int = 0,
+        cover: MlreefFile? = null,
     ): CodeProject {
         var codeProject = if (name != null) codeProjectRepository.findByNameIgnoreCase(name) else null
         if (codeProject != null) return codeProject
@@ -301,7 +291,7 @@ class BaseTest {
             url ?: "www.${RandomUtils.generateRandomUserName(10)}.xyz",
             name ?: "Code Project ${RandomUtils.generateRandomUserName(10)}",
             RandomUtils.generateRandomUserName(10),
-            ownerId ?: mainPerson.id,
+            ownerId ?: mainAccount.id,
             namespace ?: RandomUtils.generateRandomUserName(10),
             path ?: RandomUtils.generateRandomUserName(10),
             gitlabId ?: Random.nextLong(1, Int.MAX_VALUE.toLong()),
@@ -315,6 +305,7 @@ class BaseTest {
             modelType = modelType,
             mlCategory = mlCategory,
             forksCount = forksCount,
+            cover = cover,
         )
 
         return if (persist) {
@@ -327,7 +318,7 @@ class BaseTest {
         name: String? = null,
         slug: String? = null,
         mainScript: String = "main.py",
-        author: Person? = null,
+        author: Account? = null,
         branch: String? = null,
         version: String? = null,
         environment: BaseEnvironments? = null,
@@ -423,13 +414,13 @@ class BaseTest {
 
     protected fun createPipeline(
         pipelineConfiguration: PipelineConfiguration,
-        person: Person,
+        account: Account,
         slug: String? = null,
         number: Int? = null,
         persist: Boolean = true,
         inTransaction: Boolean = false,
     ): Pipeline {
-        val pipeline = pipelineConfiguration.createPipeline(person, number ?: 1, slug = slug)
+        val pipeline = pipelineConfiguration.createPipeline(account, number ?: 1, slug = slug)
 
         return if (persist) {
             saveEntity(pipeline, pipeline.id, pipelineRepository, inTransaction)
@@ -482,73 +473,50 @@ class BaseTest {
 
     protected fun createRecentProject(
         project: Project,
-        person: Person,
+        account: Account,
         persist: Boolean = true,
         inTransaction: Boolean = false,
     ): RecentProject {
-        val recent = RecentProject(UUID.randomUUID(), person, project, Instant.now().minusSeconds(Random.nextInt(1, 999999).toLong()), "operation")
+        val recent = RecentProject(UUID.randomUUID(), account, project, Instant.now().minusSeconds(Random.nextInt(1, 999999).toLong()), "operation")
 
         return if (persist) {
             saveEntity(recent, recent.id, recentProjectsRepository, inTransaction)
         } else recent
     }
 
-    fun createPerson(
-        name: String? = null,
-        slug: String? = null,
-        gitlabId: Long? = null,
-        role: UserRole? = null,
-        persist: Boolean = true,
-        inTransaction: Boolean = false,
-    ): Person {
-        val finalName = name ?: RandomUtils.generateRandomUserName(15)
-        var person = personRepository.findByName(finalName)
-
-        if (person != null) return person
-
-        person = Person(
-            id = UUID.randomUUID(),
-            slug = slug ?: "person-slug-${finalName.toLowerCase()}",
-            name = finalName,
-            gitlabId = gitlabId ?: Random.nextLong().absoluteValue,
-            userRole = role ?: UserRole.DEVELOPER,
-            hasNewsletters = true,
-        )
-
-        return if (persist) {
-            saveEntity(person, person.id, personRepository, inTransaction)
-        } else person
-    }
-
     fun createAccount(
         username: String? = null,
-        person: Person? = null,
         email: String? = null,
         plainPassword: String? = null,
         persist: Boolean = true,
         inTransaction: Boolean = false,
+        gitlabId: Long? = null,
+        name: String? = null,
+        slug:String? = null,
+        role: UserRole? = null,
     ): Account {
         val finalName = username ?: RandomUtils.generateRandomUserName(10)
 
         var account = accountRepository.findOneByUsername(finalName)
+            ?: slug?.let { accountRepository.findBySlug(it) }
+            ?: gitlabId?.let { accountRepository.findAccountByGitlabId(it) }
 
         if (account != null) return account
-
-        val finalPerson = person ?: mainPerson
 
         account = Account(
             id = UUID.randomUUID(),
             username = finalName,
             email = email ?: "$finalName@mlreef.com",
             passwordEncrypted = passwordEncoder.encode(plainPassword ?: "password"),
-            person = finalPerson
+            gitlabId = gitlabId ?: Random.nextInt().absoluteValue.toLong(),
+            name = name ?: "Test account",
+            slug = slug ?: "test-account-slug",
+            userRole = role ?: UserRole.UNDEFINED,
         )
 
         return if (persist) {
-            finalPerson.account = saveEntity(account, account.id, accountRepository, inTransaction)
-            finalPerson.account!!
+            saveEntity(account, account.id, accountRepository, inTransaction)
         } else {
-            finalPerson.account = account
             account
         }
     }
@@ -561,7 +529,7 @@ class BaseTest {
         dataProject: DataProject? = null,
         inputFiles: Collection<FileLocation>? = null,
         testPipelineJobInfo: PipelineJobInfo? = null,
-        creator: Person? = null,
+        creator: Account? = null,
         persist: Boolean = true,
         inTransaction: Boolean = false,
     ): Experiment {
@@ -574,12 +542,12 @@ class BaseTest {
 
         return if (persist) {
             saveEntity(
-                experiment.copy(pipelineJobInfo = testPipelineJobInfo, creator = creator ?: mainPerson),
+                experiment.copy(pipelineJobInfo = testPipelineJobInfo, creator = creator ?: mainAccount),
                 experiment.id,
                 experimentsRepository,
                 inTransaction
             )
-        } else experiment.copy(pipelineJobInfo = testPipelineJobInfo, creator = creator ?: mainPerson)
+        } else experiment.copy(pipelineJobInfo = testPipelineJobInfo, creator = creator ?: mainAccount)
     }
 
     protected fun createTestPipelineInfo() = PipelineJobInfo(
@@ -617,6 +585,23 @@ class BaseTest {
         } else baseEnv
     }
 
+    protected fun createMlreefFile(
+        owner: Account? = null,
+        purpose: FilePurpose? = null,
+        persist: Boolean = true,
+        inTransaction: Boolean = false,
+    ): MlreefFile {
+        val file = MlreefFile(
+            UUID.randomUUID(),
+            owner ?: mainAccount,
+            purpose = purpose ?: userAvatarPurpose,
+        )
+
+        return if (persist) {
+            saveEntity(file, file.id, filesRepository, inTransaction)
+        } else file
+    }
+
     protected fun createTag(
         tag: String,
         persist: Boolean = true,
@@ -628,17 +613,9 @@ class BaseTest {
     //    @Transactional
     fun preparePredefinedEntities() {
 //        insideTransaction {
-        mainPerson = createPerson("Main Person", "main-person-slug", inTransaction = true)
-        mainAccount = createAccount("mainAccount", mainPerson, inTransaction = true)
-//        mainPerson = mainPerson.copy(account = mainAccount)
-
-        mainPerson2 = createPerson("Main Person 2", "main-person-slug-2", inTransaction = true)
-        mainAccount2 = createAccount("mainAccount2", mainPerson2, inTransaction = true)
-//        mainPerson2 = mainPerson2.copy(account = mainAccount2)
-
-        mainPerson3 = createPerson("Main Person 3", "main-person-slug-3", inTransaction = true)
-        mainAccount3 = createAccount("mainAccount3", mainPerson3, inTransaction = true)
-//        mainPerson3 = mainPerson3.copy(account = mainAccount3)
+        mainAccount = createAccount("mainAccount", gitlabId = 1111L, slug = "main-account-slug-1", inTransaction = true)
+        mainAccount2 = createAccount("mainAccount2", gitlabId = 2222L, slug = "main-account-slug-2", inTransaction = true)
+        mainAccount3 = createAccount("mainAccount3", gitlabId = 3333L, slug = "main-account-slug-3", inTransaction = true)
 
         //}
 
@@ -679,6 +656,11 @@ class BaseTest {
         dataPipelineType = createPipelineType("DATA", inTransaction = true)
         experimentPipelineType = createPipelineType("EXPERIMENT", inTransaction = true)
         visualizationPipelineType = createPipelineType("VISUALIZATION", inTransaction = true)
+
+        //File purposes types
+        userAvatarPurpose = createFilePurpose(USER_AVATAR_PURPOSE_ID, "User avatar")
+        projectCoverPurpose = createFilePurpose(PROJECT_COVER_PURPOSE_ID, "Project cover")
+        undefinedPurpose = createFilePurpose(UNDEFINED_PURPOSE_ID, "Undefined")
 
         //Base environments
 
@@ -790,8 +772,7 @@ class BaseTest {
             username = actualAccount.username,
             accessToken = token,
             accountId = actualAccount.id,
-            personId = actualAccount.person.id,
-            gitlabUser = GitlabUser(actualAccount.person.gitlabId!!, "testuser", "Test User", "test@example.com"),
+            gitlabUser = GitlabUser(actualAccount.gitlabId!!, "testuser", "Test User", "test@example.com"),
             valid = true,
             projects = projectIdLevelMap,
             groups = groupIdLevelMap,
@@ -812,7 +793,6 @@ class BaseTest {
         dataProjectRepository.deleteAll()
         codeProjectRepository.deleteAll()
 
-        personRepository.deleteAll()
         accountRepository.deleteAll()
 
         baseEnvironmentsRepository.deleteAll()
@@ -898,6 +878,28 @@ class BaseTest {
             saveEntity(type, type.id, pipelineTypesRepository, inTransaction)
         } else type
     }
+
+    private fun createFilePurpose(
+        id: UUID? = null,
+        name: String? = null,
+        persist: Boolean = true,
+        inTransaction: Boolean = false
+    ): FilePurpose {
+        var type = id?.let { filePurposesRepository.findByIdOrNull(it) }
+            ?: name?.let { filePurposesRepository.findByPurposeName(it) }
+
+        if (type != null) return type
+
+        type = FilePurpose(
+            id ?: UUID.randomUUID(),
+            name ?: RandomUtils.generateRandomUserName(10)
+        )
+
+        return if (persist) {
+            saveEntity(type, type.id, filePurposesRepository, inTransaction)
+        } else type
+    }
+
 
     protected fun <T> saveEntity(
         entity: T,

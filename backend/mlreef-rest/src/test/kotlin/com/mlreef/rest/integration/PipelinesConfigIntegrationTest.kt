@@ -272,7 +272,7 @@ class PipelinesConfigIntegrationTest : AbstractIntegrationTest() {
 
         val (project, _) = createRealDataProject(token2, account2, public = false)
 
-        addRealUserToProject(project.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project.gitlabId, account1.gitlabId!!)
 
         val dataProcessorInstance = createTestProcessorInstance()
         val entity2 = createTestPipelineConfig(dataProcessorInstance, project, "slug")

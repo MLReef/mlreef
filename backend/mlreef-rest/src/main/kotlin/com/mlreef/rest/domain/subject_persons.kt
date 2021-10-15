@@ -6,26 +6,13 @@ import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.Instant
 import java.time.ZonedDateTime
-import java.util.UUID
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.ForeignKey
-import javax.persistence.Id
-import javax.persistence.Inheritance
-import javax.persistence.InheritanceType
-import javax.persistence.JoinColumn
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
-import javax.persistence.Table
+import java.util.*
+import javax.persistence.*
 
 @Table(name = "subject")
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Deprecated("To be deleted", replaceWith = ReplaceWith("Account and Group"))
 abstract class Subject(
     id: UUID,
     val slug: String,
@@ -57,13 +44,14 @@ class Membership(
 }
 
 @Entity
+@Deprecated("To be deleted", replaceWith = ReplaceWith("Account"))
 class Person(
     id: UUID,
     override val slug: String,
     override val name: String,
     override val gitlabId: Long?,
-    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY) //, cascade = [CascadeType.ALL])
-    var account: Account? = null,
+//    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY) //, cascade = [CascadeType.ALL])
+//    var account: Account? = null,
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(
         name = "person_id",
@@ -103,7 +91,6 @@ class Person(
         version = this.version,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
-        account = account ?: this.account
     )
 }
 

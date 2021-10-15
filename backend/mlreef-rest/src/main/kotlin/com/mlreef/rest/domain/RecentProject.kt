@@ -19,7 +19,7 @@ data class RecentProject(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    val user: Subject,
+    val user: Account,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")

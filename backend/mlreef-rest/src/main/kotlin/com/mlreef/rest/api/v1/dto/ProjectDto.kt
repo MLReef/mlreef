@@ -44,6 +44,7 @@ open class ProjectDto(
     open val mlCategory: String? = null,
     open val experiments: List<ExperimentDto>? = null,
     open val forkedFrom: UUID? = null,
+    open val coverUrl: String? = null,
 ) : DataClassWithId
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -54,6 +55,13 @@ open class ProjectShortDto(
     open val name: String,
     open val searchableType: SearchableType,
     open val published: Boolean?,
+    open val coverUrl: String? = null,
+) : DataClassWithId
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+open class ProjectShortestDto(
+    override val id: UUID,
+    open val name: String,
 ) : DataClassWithId
 
 // FIXME: Coverage says: missing tests
@@ -86,6 +94,7 @@ data class DataProjectDto(
     override val experiments: List<ExperimentDto>? = listOf(),
     override val forkedFrom: UUID?,
     override val forkedByUser: Boolean,
+    override val coverUrl: String? = null,
 ) : ProjectDto(
     id, slug, url, ownerId, name,
     gitlabNamespace, gitlabPath, gitlabId,
@@ -93,7 +102,7 @@ data class DataProjectDto(
     tags, starsCount, forksCount,
     inputDataTypes, null, searchableType,
     null, null, forkedByUser, null, null, null,
-    experiments, forkedFrom,
+    experiments, forkedFrom, coverUrl,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -122,6 +131,7 @@ data class CodeProjectDto(
     override val mlCategory: String? = null,
     override val forkedFrom: UUID?,
     override val forkedByUser: Boolean,
+    override val coverUrl: String? = null,
 ) : ProjectDto(
     id, slug, url, ownerId, name,
     gitlabNamespace, gitlabPath, gitlabId,
@@ -129,7 +139,7 @@ data class CodeProjectDto(
     tags, starsCount, forksCount,
     inputDataTypes, outputDataTypes,
     searchableType, processors, published, forkedByUser, processorType, modelType, mlCategory, null,
-    forkedFrom,
+    forkedFrom, coverUrl,
 )
 
 internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
@@ -139,7 +149,7 @@ internal fun ProjectOfUserDto.toDomain() = ProjectOfUser(
 )
 
 @Suppress("UNCHECKED_CAST")
-fun Project.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true, forkedByUser: Boolean? = null) = ProjectDto(
+fun Project.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true, forkedByUser: Boolean? = null, coverUrl:String? = null) = ProjectDto(
     id,
     this.slug,
     this.url,
@@ -180,22 +190,30 @@ fun Project.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolea
             .map { it.toDto() }
     } else null,
     this.forkParent?.id,
+    coverUrl,
 )
 
 
 @Suppress("UNCHECKED_CAST")
-fun Project.toShortDto(requesterId: UUID? = null): ProjectShortDto {
+fun Project.toShortDto(requesterId: UUID? = null, coverUrl:String? = null): ProjectShortDto {
     return ProjectShortDto(
         id,
         this.slug,
         this.ownerId == requesterId,
         this.name,
         searchableType,
-        if (this is CodeProject) this.wasPublished() else null
+        if (this is CodeProject) this.wasPublished() else null,
+        coverUrl,
     )
 }
 
-internal fun DataProject.toDto(takeNumberFromList: Int? = 10, forkedByUser: Boolean? = null): DataProjectDto {
+@Suppress("UNCHECKED_CAST")
+fun Project.toShortestDto() = ProjectShortestDto(
+    id,
+    this.name,
+)
+
+internal fun DataProject.toDto(takeNumberFromList: Int? = 10, forkedByUser: Boolean? = null, coverUrl:String? = null): DataProjectDto {
     return DataProjectDto(
         id = this.id,
         slug = this.slug,
@@ -223,10 +241,11 @@ internal fun DataProject.toDto(takeNumberFromList: Int? = 10, forkedByUser: Bool
         } else null,
         forkedFrom = this.forkParent?.id,
         forkedByUser = forkedByUser ?: false,
+        coverUrl = coverUrl,
     )
 }
 
-internal fun CodeProject.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true, forkedByUser: Boolean? = null) =
+internal fun CodeProject.toDto(takeNumberFromList: Int? = 10, onlyPublishedProcessors: Boolean = true, forkedByUser: Boolean? = null, coverUrl:String? = null) =
     CodeProjectDto(
         id = this.id,
         slug = this.slug,
@@ -260,4 +279,5 @@ internal fun CodeProject.toDto(takeNumberFromList: Int? = 10, onlyPublishedProce
         mlCategory = this.mlCategory,
         forkedFrom = this.forkParent?.id,
         forkedByUser = forkedByUser ?: false,
+        coverUrl = coverUrl,
     )

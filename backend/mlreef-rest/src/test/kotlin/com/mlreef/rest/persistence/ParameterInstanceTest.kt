@@ -36,7 +36,7 @@ class ParameterInstanceTest : AbstractRepositoryTest() {
     fun prepare() {
         codeProject1 = createCodeProject(
             slug = "test-project-1",
-            name = "Test project 1", ownerId = mainPerson.id, url = "url",
+            name = "Test project 1", ownerId = mainAccount.id, url = "url",
             namespace = "namespace1", gitlabId = 1L, path = ""
         )
 

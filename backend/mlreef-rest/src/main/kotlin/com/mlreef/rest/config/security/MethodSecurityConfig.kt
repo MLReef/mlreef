@@ -6,6 +6,8 @@ import com.mlreef.rest.PipelinesRepository
 import com.mlreef.rest.ProcessorsRepository
 import com.mlreef.rest.domain.Project
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.project.ExternalDrivesService
+import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.security.MlReefMethodSecurityExpressionHandler
 import com.mlreef.rest.security.MlReefPermissionEvaluator
@@ -24,6 +26,8 @@ class MethodSecurityConfig(
     private val pipelineRepository: PipelinesRepository,
     private val projectService: ProjectService<Project>,
     private val experimentRepository: ExperimentRepository,
+    private val projectResolverService: ProjectResolverService,
+    private val externalDrivesService: ExternalDrivesService,
 ) : GlobalMethodSecurityConfiguration() {
     override fun createExpressionHandler(): MethodSecurityExpressionHandler {
         val expressionHandler = MlReefMethodSecurityExpressionHandler(
@@ -33,6 +37,8 @@ class MethodSecurityConfig(
             pipelineRepository,
             projectService,
             experimentRepository,
+            projectResolverService,
+            externalDrivesService,
         )
         expressionHandler.setPermissionEvaluator(MlReefPermissionEvaluator())
         return expressionHandler

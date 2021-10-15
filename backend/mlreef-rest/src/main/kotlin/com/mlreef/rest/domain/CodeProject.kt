@@ -5,15 +5,8 @@ import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.marketplace.SearchableType
 import com.mlreef.rest.domain.marketplace.Star
 import java.time.ZonedDateTime
-import java.util.UUID
-import javax.persistence.DiscriminatorValue
-import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.JoinColumn
-import javax.persistence.JoinTable
-import javax.persistence.ManyToMany
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
+import java.util.*
+import javax.persistence.*
 
 /**
  * A Code Repository is used for the working Code like Data Operations,
@@ -62,6 +55,7 @@ class CodeProject(
     tags: MutableSet<SearchableTag> = hashSetOf(),
     starsCount: Int = 0,
     stars: MutableSet<Star> = mutableSetOf(),
+    cover: MlreefFile? = null,
     //Auditing
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
@@ -74,7 +68,7 @@ class CodeProject(
     //searchable
     globalSlug, tags, starsCount, stars,
     forkParent, forkChildren,
-    version, createdAt, updatedAt
+    cover, version, createdAt, updatedAt
 ), SearchableExtended {
     fun wasPublished(): Boolean {
         return this.processors.any { it.status == PublishStatus.PUBLISHED || it.status == PublishStatus.PUBLISH_FINISHING }
@@ -101,6 +95,7 @@ class CodeProject(
         visibilityScope: VisibilityScope?,
         forkParent: Project?,
         forkChildren: MutableSet<Project>?,
+        cover: MlreefFile?,
     ): T {
         return CodeProject(
             id = id,
@@ -127,6 +122,7 @@ class CodeProject(
             processors = this.processors,
             forkParent = forkParent ?: this.forkParent,
             forkChildren = forkChildren ?: this.forkChildren,
+            cover = cover ?: this.cover,
         ) as T
     }
 
@@ -149,7 +145,8 @@ class CodeProject(
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
         updatedAt: ZonedDateTime? = null,
-        visibilityScope: VisibilityScope? = null
+        visibilityScope: VisibilityScope? = null,
+        cover: MlreefFile? = null,
     ): CodeProject {
         return CodeProject(
             id = this.id,
@@ -174,6 +171,7 @@ class CodeProject(
             outputDataTypes = outputDataTypes?.toMutableSet() ?: this.outputDataTypes,
             processorType = processorType ?: this.processorType,
             processors = processors?.toMutableSet() ?: this.processors,
+            cover = cover ?: this.cover,
         )
     }
 
@@ -197,7 +195,7 @@ class CodeProject(
             stars = stars,
             outputDataTypes = outputDataTypes,
             inputDataTypes = inputDataTypes,
-            tags = tags
+            tags = tags,
         )
     }
 
@@ -223,7 +221,7 @@ class CodeProject(
         imageName: String? = null,
         branch: String? = null,
         version: String? = null,
-        publisher: Person? = null,
+        publisher: Account? = null,
     ): Processor {
         val processor = Processor(
             UUID.randomUUID(),

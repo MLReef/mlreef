@@ -40,7 +40,7 @@ data class PipelineConfiguration(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    val creator: Person? = null,
+    val creator: Account? = null,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -93,7 +93,7 @@ data class PipelineConfiguration(
         return element
     }
 
-    fun createPipeline(creator: Person, number: Int, slug: String? = null): Pipeline {
+    fun createPipeline(creator: Account, number: Int, slug: String? = null): Pipeline {
         val instanceId = randomUUID()
 
         val targetBranch = this.createTargetBranchName(instanceId, number)

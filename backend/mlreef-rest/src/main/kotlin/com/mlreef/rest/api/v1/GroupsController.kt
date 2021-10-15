@@ -5,7 +5,6 @@ import com.mlreef.rest.api.v1.dto.GroupOfUserDto
 import com.mlreef.rest.api.v1.dto.UserInGroupDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.helpers.GroupOfUser
 import com.mlreef.rest.domain.helpers.UserInGroup
@@ -15,17 +14,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 
@@ -39,8 +29,8 @@ class GroupsController(
     }
 
     @GetMapping("/my")
-    fun getAllUsersGroups(person: Person, token: TokenDetails): List<GroupOfUserDto> {
-        return groupsService.getUserGroupsList(token.accessToken, person.id).map(GroupOfUser::toDto)
+    fun getAllUsersGroups(token: TokenDetails): List<GroupOfUserDto> {
+        return groupsService.getUserGroupsList(token.accessToken, token.accountId).map(GroupOfUser::toDto)
     }
 
     @PreAuthorize("canCreateGroup()")
@@ -48,11 +38,10 @@ class GroupsController(
     fun checkAvailability(
         @RequestParam(required = true) name: String = "",
         token: TokenDetails,
-        person: Person
     ): String {
         return groupsService.checkAvailability(
             userToken = token.accessToken,
-            creatingPersonId = person.id,
+            creatorId = token.accountId,
             groupName = name,
         )
     }

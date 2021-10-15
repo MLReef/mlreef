@@ -52,11 +52,13 @@ dependencies {
 
 jar {
     enabled = true
+    zip64 = true
 }
 
 
 task fatJar(type: Jar) {
     manifest.from jar.manifest
+    zip64 = true
     from {
         configurations.testRuntime.collect { it.isDirectory() ? it : zipTree(it) }
     } {

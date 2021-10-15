@@ -1,34 +1,29 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.api.CurrentUserService
-import com.mlreef.rest.api.v1.dto.SecretUserDto
-import com.mlreef.rest.api.v1.dto.UserDto
-import com.mlreef.rest.api.v1.dto.toSecretUserDto
-import com.mlreef.rest.api.v1.dto.toUserDto
+import com.mlreef.rest.api.v1.dto.*
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
 import com.mlreef.rest.external_api.gitlab.dto.toUserDto
 import com.mlreef.rest.feature.auth.AuthService
+import com.mlreef.rest.feature.system.FilesManagementService
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 
 @RestController
 @RequestMapping("/api/v1/auth") //, produces = ["application/json"], consumes = ["application/json"])
 class AuthController(
-    val authService: AuthService,
-    val currentUserService: CurrentUserService
+    private val authService: AuthService,
+    private val currentUserService: CurrentUserService,
+    private val filesManagementService: FilesManagementService,
 ) {
 
     @PostMapping("/login")
@@ -41,7 +36,8 @@ class AuthController(
         .let { (findUser: Account, oauthToken) ->
             findUser.toSecretUserDto(
                 accessToken = oauthToken.accessToken,
-                refreshToken = oauthToken.refreshToken
+                refreshToken = oauthToken.refreshToken,
+                avatarUrl = filesManagementService.getDownloadLinkForFile(findUser.avatar),
             )
         }
 
@@ -56,7 +52,8 @@ class AuthController(
         .let { (newUser: Account, oauthToken: OAuthToken?) ->
             newUser.toSecretUserDto(
                 accessToken = oauthToken?.accessToken,
-                refreshToken = oauthToken?.refreshToken
+                refreshToken = oauthToken?.refreshToken,
+                avatarUrl = filesManagementService.getDownloadLinkForFile(newUser.avatar),
             )
         }
 
@@ -77,7 +74,7 @@ class AuthController(
             userRole = updateProfileRequest.userRole,
             termsAcceptedAt = updateProfileRequest.termsAcceptedAt,
             hasNewsletters = updateProfileRequest.hasNewsletters
-        ).toUserDto()
+        ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar)) }
 
     @PutMapping("/user")
     @PreAuthorize("isUserItself(#token.accountId)")
@@ -93,13 +90,48 @@ class AuthController(
             userRole = updateProfileRequest.userRole,
             termsAcceptedAt = updateProfileRequest.termsAcceptedAt,
             hasNewsletters = updateProfileRequest.hasNewsletters
-        ).toUserDto()
+        ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar)) }
+
+    @PostMapping("/user/avatar/create")
+    @PreAuthorize("isUserItself(#token.accountId)")
+    fun createUserAvatarFile(
+        @RequestParam("file") file: MultipartFile,
+        token: TokenDetails,
+    ): MlreefFileDto {
+        return authService.createUserAvatar(
+            file,
+            ownerId = token.accountId,
+        ).toDto()
+    }
+
+    @PostMapping("/user/avatar/update")
+    @PreAuthorize("isUserItself(#token.accountId)")
+    fun updateUserAvatarFile(
+        @RequestParam("file") file: MultipartFile,
+        token: TokenDetails,
+    ): MlreefFileDto {
+        return authService.updateUserAvatar(
+            file,
+            ownerId = token.accountId,
+        ).toDto()
+    }
+
+    @DeleteMapping("/user/avatar/delete")
+    @PreAuthorize("isUserItself(#token.accountId)")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteUserAvatarFile(
+        token: TokenDetails,
+    ) {
+        authService.deleteUserAvatars(
+            ownerId = token.accountId,
+        )
+    }
 
     @GetMapping("/whoami")
     fun whoami(): UserDto = (
-        currentUserService.accountOrNull()
-            ?: currentUserService.visitorAccount()
-        ).toUserDto()
+            currentUserService.accountOrNull()
+                ?: currentUserService.visitorAccount()
+            ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar)) }
 
     // FIXME: Coverage says: missing tests
     @GetMapping("/check/token")

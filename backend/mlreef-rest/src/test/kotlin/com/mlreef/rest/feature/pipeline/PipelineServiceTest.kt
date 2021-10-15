@@ -8,6 +8,7 @@ import com.mlreef.rest.domain.PipelineConfiguration
 import com.mlreef.rest.domain.PipelineStatus
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.exceptions.PipelineCreateException
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Branch
 import com.mlreef.rest.external_api.gitlab.dto.Commit
@@ -61,7 +62,6 @@ class PipelineServiceTest : AbstractServiceTest() {
         service = PipelineService(
             conf = config,
             pipelineConfigRepository = pipelineConfigurationRepository,
-            personRepository = personRepository,
             pipelinesRepository = pipelineRepository,
             processorsRepository = processorsRepository,
             gitlabRestClient = restClient,
@@ -75,12 +75,13 @@ class PipelineServiceTest : AbstractServiceTest() {
             entityManagerFactory = entityManagerFactory,
             processorsService = processorsService,
             repositoryService = repositoryService,
+            userResolverService = userResolverService,
         )
 
         dataProject1 = createDataProject(
             slug = "new-repo",
             name = "Test DataProject",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "pipeline-test",
             path = "new-repo",
             gitlabId = 30L,
@@ -91,7 +92,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         dataProject2 = createDataProject(
             slug = "new-repo2",
             name = "Test DataProject",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "pipeline-test",
             path = "new-repo2",
             gitlabId = 31L,
@@ -150,7 +151,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Cannot create PipelineConfig for missing DataProject`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                mainPerson.id,
+                mainAccount.id,
                 randomUUID(),
                 "DATA",
                 "name",
@@ -166,7 +167,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Cannot create PipelineConfig for missing branch name`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject1.id,
                 "DATA",
                 "name",
@@ -182,7 +183,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Cannot create PipelineConfig for missing slug`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject1.id,
                 "DATA",
                 "name",
@@ -198,7 +199,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Cannot create PipelineConfig for missing pipelineType`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject1.id,
                 "",
                 "name",
@@ -214,7 +215,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Cannot create PipelineConfig for invalid pipelineType`() {
         assertThrows<PipelineCreateException> {
             service.createPipelineConfig(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject1.id,
                 "DATEN",
                 "name",
@@ -229,7 +230,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Cannot create PipelineConfig for duplicate slug scoped to DataProject`() {
         service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "name",
@@ -238,7 +239,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         )
         assertThrows<DataIntegrityViolationException> {
             service.createPipelineConfig(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject1.id,
                 "DATA",
                 "name",
@@ -254,7 +255,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig if Owner and DataProject exist`() {
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "name",
@@ -270,7 +271,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig with reused slug scoped to different DataProject`() {
         service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "name",
@@ -279,7 +280,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         )
 
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject2.id,
             "DATA",
             "name",
@@ -295,7 +296,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig with different slug scoped same DataProject`() {
         service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "name",
@@ -304,7 +305,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         )
 
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "another-name",
@@ -320,7 +321,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig for pipelineType DATA`() {
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "name",
@@ -336,7 +337,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig with nullable and therefore generated name`() {
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "",
@@ -353,7 +354,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig for pipelineType VISUAL`() {
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "VISUAL",
             "name",
@@ -369,7 +370,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig for pipelineType VISUALisation`() {
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "VISUALIZATION",
             "name",
@@ -385,7 +386,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create PipelineConfig with empty targetBranchPattern`() {
         val createExperiment = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             "name",
@@ -411,7 +412,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Can create DataInstance from PipelineConfig`() {
         val pipelineConfig = createFullMockData()
 
-        val createdInstance = pipelineConfig.createPipeline(mainPerson, 1)
+        val createdInstance = pipelineConfig.createPipeline(mainAccount, 1)
 
         assertThat(createdInstance).isNotNull
         assertThat(createdInstance.status).isEqualTo(PipelineStatus.CREATED)
@@ -456,7 +457,7 @@ class PipelineServiceTest : AbstractServiceTest() {
     fun `Can create DataInstance from PipelineConfig as deep copy`() {
         val pipelineConfig = createFullMockData()
 
-        val pipeline = pipelineConfig.createPipeline(mainPerson, 1)
+        val pipeline = pipelineConfig.createPipeline(mainAccount, 1)
 
         assertThat(pipeline.dataProject!!.id).isEqualTo(pipelineConfig.dataProject!!.id)
         assertThat(pipeline.pipelineConfiguration!!.id).isEqualTo(pipelineConfig.id)
@@ -518,14 +519,14 @@ class PipelineServiceTest : AbstractServiceTest() {
             restClient.commitFiles(
                 token = userToken, targetBranch = targetBranch,
                 fileContents = fileContents, projectId = projectId, commitMessage = any(),
-                action = "create"
+                action = GitlabCommitOperations.CREATE
             )
         } returns (Commit())
 
         val commit = service.commitYamlFile(userToken, projectId, targetBranch, fileContent, sourceBranch)
 
         verify { restClient.createBranch(userToken, projectId, targetBranch, sourceBranch) }
-        verify { restClient.commitFiles(userToken, projectId, targetBranch, any(), fileContents, action = "create") }
+        verify { restClient.commitFiles(userToken, projectId, targetBranch, any(), fileContents, action = GitlabCommitOperations.CREATE) }
 
         assertThat(commit).isNotNull
     }
@@ -549,7 +550,7 @@ class PipelineServiceTest : AbstractServiceTest() {
         )
 
         val createPipelineConfig = service.createPipelineConfig(
-            mainPerson.id,
+            mainAccount.id,
             dataProject1.id,
             "DATA",
             name,

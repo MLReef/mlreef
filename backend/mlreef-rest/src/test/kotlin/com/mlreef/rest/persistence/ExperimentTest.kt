@@ -48,7 +48,7 @@ class ExperimentTest : AbstractRepositoryTest() {
         dataProject1 = createDataProject(
             slug = "slug1",
             name = "Experiment test project 1",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group1",
             path = "project",
             gitlabId = 1L
@@ -57,7 +57,7 @@ class ExperimentTest : AbstractRepositoryTest() {
         dataProject2 = createDataProject(
             slug = "slug2",
             name = "Experiment test project 2",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group2",
             path = "project",
             gitlabId = 2L

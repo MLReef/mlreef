@@ -47,6 +47,9 @@ dependencies {
     implementation 'com.github.scribejava:scribejava-core:8.3.1'
     implementation 'com.github.scribejava:scribejava-apis:8.3.1'
 
+    //External drives
+    implementation 'com.amazonaws:aws-java-sdk:1.12.21'
+
     // parsing python files with ANTLR
     antlr 'org.antlr:antlr4:4.7.2'
     implementation 'org.antlr:antlr4-runtime:4.7.2'
@@ -120,7 +123,6 @@ sourceSets {
 }
 
 
-
 task allTests(type: Test) {
     useJUnitPlatform {
         includeTags 'any() | all()'
@@ -187,11 +189,13 @@ bootJar {
 
 jar {
     enabled = true
+    zip64 = true
 }
 
 
 task fatJar(type: Jar) {
     manifest.from jar.manifest
+    zip64 = true
     from {
         configurations.testRuntime.collect { it.isDirectory() ? it : zipTree(it) }
     } {
@@ -222,7 +226,7 @@ task prepareDocker {
     dependsOn ":mlreef-rest:explodeJar"
     mustRunAfter ":mlreef-rest:explodeJar"
     doLast {
-       print("Exploded Jar for docker")
+        print("Exploded Jar for docker")
     }
 }
 

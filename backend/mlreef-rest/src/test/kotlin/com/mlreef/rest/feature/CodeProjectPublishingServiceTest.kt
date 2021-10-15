@@ -2,6 +2,7 @@ package com.mlreef.rest.feature
 
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.RepositoryTreeType
 import com.mlreef.rest.external_api.gitlab.dto.RepositoryFileFullInfo
@@ -15,11 +16,7 @@ import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.service.AbstractServiceTest
 import com.mlreef.rest.utils.RandomUtils
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.confirmVerified
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.spyk
-import io.mockk.verify
+import io.mockk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -30,8 +27,7 @@ import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.Base64Utils
 import java.io.InputStream
-import java.util.Random
-import java.util.UUID
+import java.util.*
 import kotlin.math.absoluteValue
 
 class CodeProjectPublishingServiceTest : AbstractServiceTest() {
@@ -70,13 +66,13 @@ class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 pythonParserService,
                 baseEnvironmentsRepository,
                 repositoryService,
-                personRepository,
                 pipelineService,
                 processorService,
                 parametersRepository,
                 entityManagerFactory,
                 schedulerService,
                 codeProjectRepository,
+                userResolverService,
             ),
             recordPrivateCalls = true
         )
@@ -85,7 +81,7 @@ class CodeProjectPublishingServiceTest : AbstractServiceTest() {
             slug = "new-project-${UUID.randomUUID()}",
             url = "url",
             name = "CodeProject-${UUID.randomUUID()}",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = RandomUtils.generateRandomUserName(10),
             path = RandomUtils.generateRandomUserName(10),
             gitlabId = Random().nextInt().toLong().absoluteValue,
@@ -185,7 +181,7 @@ class CodeProjectPublishingServiceTest : AbstractServiceTest() {
             environmentId = baseEnv1.id,
             mlCategory = null,
             modelType = null,
-            publisherSubjectId = mainPerson.id,
+            publisherSubjectId = mainAccount.id,
             branch = "master",
             version = "version1"
         )
@@ -199,14 +195,14 @@ class CodeProjectPublishingServiceTest : AbstractServiceTest() {
                 commitMessage = match { !it.contains("[skip ci]") },
                 fileContents = match {
                     it.containsKey(MLREEF_NAME)
-                        && it.containsKey(DOCKERFILE_NAME)
+                            && it.containsKey(DOCKERFILE_NAME)
 //                        && it[MLREEF_NAME]?.contains(project.name) ?: false
-                        && it[MLREEF_NAME]?.contains("job:") ?: false
-                        && it[MLREEF_NAME]?.contains("image:") ?: false
-                        && it[MLREEF_NAME]?.contains("script:") ?: false
-                        && it[DOCKERFILE_NAME]?.contains("EPF_DOCKER_IMAGE") ?: false
+                            && it[MLREEF_NAME]?.contains("job:") ?: false
+                            && it[MLREEF_NAME]?.contains("image:") ?: false
+                            && it[MLREEF_NAME]?.contains("script:") ?: false
+                            && it[DOCKERFILE_NAME]?.contains("EPF_DOCKER_IMAGE") ?: false
                 },
-                action = "create"
+                action = GitlabCommitOperations.CREATE
             )
         }
         verify(exactly = 2) {

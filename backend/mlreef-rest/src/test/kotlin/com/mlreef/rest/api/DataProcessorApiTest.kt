@@ -13,14 +13,12 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
+import java.util.*
 import javax.transaction.Transactional
 
 class DataProcessorApiTest : AbstractRestApiTest() {
@@ -35,7 +33,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         codeProject = createCodeProject(
             slug = "code-project-slug1",
             name = "Test CodeProject",
-            ownerId = mainPerson3.id,
+            ownerId = mainAccount3.id,
             namespace = "processor-api-test",
             gitlabId = 10,
             path = "code-project-slug1",
@@ -47,7 +45,7 @@ class DataProcessorApiTest : AbstractRestApiTest() {
         codeProject2 = createCodeProject(
             slug = "code-project-slug2",
             name = "Test CodeProject 2",
-            ownerId = mainPerson3.id,
+            ownerId = mainAccount3.id,
             namespace = "processor-api-test",
             gitlabId = 11,
             path = "code-project-slug2",

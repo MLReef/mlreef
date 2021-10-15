@@ -4,21 +4,17 @@ import com.mlreef.rest.api.v1.ProjectCreateRequest
 import com.mlreef.rest.api.v1.ProjectForkRequest
 import com.mlreef.rest.api.v1.ProjectUpdateRequest
 import com.mlreef.rest.api.v1.ProjectUserMembershipRequest
-import com.mlreef.rest.api.v1.dto.CodeProjectDto
-import com.mlreef.rest.api.v1.dto.DataProjectDto
-import com.mlreef.rest.api.v1.dto.ProjectDto
-import com.mlreef.rest.api.v1.dto.UserInProjectDto
-import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.api.v1.dto.*
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.marketplace.Star
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
+import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.system.SessionsService
 import com.mlreef.rest.testcommons.RestResponsePage
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -26,11 +22,10 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType.BOOLEAN
-import org.springframework.restdocs.payload.JsonFieldType.NUMBER
-import org.springframework.restdocs.payload.JsonFieldType.OBJECT
-import org.springframework.restdocs.payload.JsonFieldType.STRING
+import org.springframework.restdocs.payload.JsonFieldType.*
 import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
@@ -39,6 +34,7 @@ import org.springframework.test.annotation.Rollback
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Instant
 import java.time.Period
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -75,18 +71,24 @@ class ProjectsApiTest : AbstractRestApiTest() {
         val id6 = randomUUID()
 
         //FIXME hard to maintain
-        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", mainPerson3.id, "group1", "project-1", 1, VisibilityScope.PUBLIC, mutableSetOf())
-        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", "description", mainPerson3.id, "group2", "project-2", 2, VisibilityScope.PUBLIC, mutableSetOf())
-        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", mainPerson2.id, "group3", "project-3", 3, VisibilityScope.PRIVATE, mutableSetOf())
+        val project1 = DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "description", mainAccount3.id, "group1", "project-1", 1, VisibilityScope.PUBLIC, mutableSetOf())
+        val project2 = DataProject(id2, "slug-2", "www.url.net", "Test Project 2", "description", mainAccount3.id, "group2", "project-2", 2, VisibilityScope.PUBLIC, mutableSetOf())
+        val project3 = DataProject(id3, "slug-3", "www.url.xyz", "Test Project 3", "description", mainAccount2.id, "group3", "project-3", 3, VisibilityScope.PRIVATE, mutableSetOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
 
-        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", mainPerson3.id, "group4", "project-4", 4, processorType = operationProcessorType, modelType = "Model Type", mlCategory = "ML Category")
-        val project5 = CodeProject(id5, "slug-5", "www.url.net", "Test Code Project 2", "description", mainPerson3.id, "group5", "project-5", 5, processorType = operationProcessorType, modelType = "Model Type", mlCategory = "ML Category")
+        val project4 = CodeProject(id4, "slug-4", "www.url.com", "Test Code Project 1", "description", mainAccount3.id, "group4", "project-4", 4, processorType = operationProcessorType, modelType = "Model Type", mlCategory = "ML Category")
+        val projectCover5 = filesRepository.save(MlreefFile(randomUUID(), mainAccount2, purpose = projectCoverPurpose))
+        val project5 = CodeProject(
+            id5, "slug-5", "www.url.net", "Test Code Project 2",
+            "description", mainAccount3.id, "group5", "project-5", 5,
+            processorType = operationProcessorType, modelType = "Model Type", mlCategory = "ML Category",
+            cover = projectCover5
+        )
         val project6 = CodeProject(
             id6, "slug-6", "www.url.xyz", "Test Code Project 3",
-            "description", mainPerson2.id, "group6", "project-6", 6,
+            "description", mainAccount2.id, "group6", "project-6", 6,
             VisibilityScope.PRIVATE, processorType = operationProcessorType, modelType = "Model Type", mlCategory = "ML Category",
         )
         codeProjectRepository.save(project4)
@@ -161,7 +163,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Data Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-1",
             1,
@@ -174,7 +176,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Data Project 2",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-2",
             2,
@@ -187,7 +189,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Data Project 3",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "mlreef",
             "project-3",
             3,
@@ -204,7 +206,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group4",
             "project-4",
             4,
@@ -216,7 +218,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Code Project 5",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group5",
             "project-5",
             5,
@@ -228,7 +230,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Code Project 6",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "group6",
             "project-6",
             6,
@@ -264,7 +266,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Data Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-1",
             1,
@@ -277,7 +279,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Data Project 2",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-2",
             2,
@@ -290,7 +292,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Data Project 3",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "mlreef",
             "project-3",
             3,
@@ -307,7 +309,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group4",
             "project-4",
             4,
@@ -319,7 +321,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Code Project 5",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group5",
             "project-5",
             5,
@@ -331,7 +333,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Code Project 6",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "group6",
             "project-6",
             6,
@@ -362,9 +364,9 @@ class ProjectsApiTest : AbstractRestApiTest() {
     @Tag(TestTags.RESTDOC)
     fun `Can retrieve own CodeProject by namespace and slug`() {
         val id1 = randomUUID()
-        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", "description", mainPerson.id, "mlreef", "project-1", 1, VisibilityScope.PUBLIC, mutableSetOf())
-        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", "description", mainPerson.id, "mlreef", "project-2", 2, VisibilityScope.PUBLIC, mutableSetOf())
-        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", "description", mainPerson2.id, "mlreef", "project-3", 3, VisibilityScope.PUBLIC, mutableSetOf())
+        val project1 = DataProject(randomUUID(), "slug-1", "www.url.com", "Test Data Project 1", "description", mainAccount.id, "mlreef", "project-1", 1, VisibilityScope.PUBLIC, mutableSetOf())
+        val project2 = DataProject(randomUUID(), "slug-2", "www.url.net", "Test Data Project 2", "description", mainAccount.id, "mlreef", "project-2", 2, VisibilityScope.PUBLIC, mutableSetOf())
+        val project3 = DataProject(randomUUID(), "slug-3", "www.url.xyz", "Test Data Project 3", "description", mainAccount2.id, "mlreef", "project-3", 3, VisibilityScope.PUBLIC, mutableSetOf())
         dataProjectRepository.save(project1)
         dataProjectRepository.save(project2)
         dataProjectRepository.save(project3)
@@ -375,7 +377,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-4",
             4,
@@ -387,7 +389,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Code Project 5",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-5",
             5,
@@ -399,7 +401,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Code Project 6",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "mlreef",
             "project-6",
             6,
@@ -436,7 +438,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Data Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-1",
             1,
@@ -449,7 +451,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Data Project 2",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-2",
             2,
@@ -462,7 +464,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Data Project 3",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "mlreef",
             "project-3",
             3,
@@ -479,7 +481,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group4",
             "project-4",
             4,
@@ -491,7 +493,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Code Project 5",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group5",
             "project-5",
             5,
@@ -503,7 +505,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Code Project 6",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "group6",
             "project-6",
             6,
@@ -675,7 +677,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 url = "www.url.com",
                 name = "Test Project 1",
                 description = "description",
-                ownerId = mainPerson2.id,
+                ownerId = mainAccount2.id,
                 gitlabNamespace = "group1",
                 gitlabPath = "project-1",
                 gitlabId = 1,
@@ -715,7 +717,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 url = "www.url.com",
                 name = "Test Code Project 1",
                 description = "description",
-                ownerId = mainPerson2.id,
+                ownerId = mainAccount2.id,
                 gitlabNamespace = "group4",
                 gitlabPath = "project-4",
                 gitlabId = 4,
@@ -754,7 +756,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group1",
             "project-1",
             1,
@@ -791,7 +793,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "project-1",
             1,
@@ -829,7 +831,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "group1",
             1,
@@ -861,7 +863,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "group1",
             "project-1",
             1,
@@ -928,7 +930,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "",
-            mainPerson2.id,
+            mainAccount2.id,
             "group1",
             "project-1",
             1,
@@ -943,7 +945,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         this.mockUserAuthentication(listOf(project1.id), mainAccount, AccessLevel.OWNER)
 
         val url =
-            "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.person.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z"
+            "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z"
 
         val returnedResult: List<UserInProjectDto> = this.performPost(url, token)
             .expectOk()
@@ -981,7 +983,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "group1",
             1,
             VisibilityScope.PUBLIC,
-            mutableSetOf()
+            mutableSetOf(),
         )
         dataProjectRepository.save(project1)
 
@@ -992,7 +994,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         this.mockUserAuthentication(listOf(project1.id), mainAccount, AccessLevel.OWNER)
 
         val url =
-            "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.person.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z"
+            "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.gitlabId}&level=DEVELOPER&expires_at=2099-12-31T10:15:20Z"
 
         val returnedResult: List<UserInProjectDto> = this.performPost(url, token)
             .expectOk()
@@ -1020,7 +1022,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
     fun `Can add user to DataProject by gitlabId in body`() {
         val id1 = randomUUID()
         val project1 =
-            DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "", mainPerson2.id, "group1", "project-1", 1)
+            DataProject(id1, "slug-1", "www.url.com", "Test Project 1", "", mainAccount2.id, "group1", "project-1", 1)
         dataProjectRepository.save(project1)
 
         every { projectService.getUsersInProject(any()) } answers {
@@ -1061,7 +1063,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "",
-            mainPerson2.id,
+            mainAccount2.id,
             "group1",
             "project-1",
             1,
@@ -1142,7 +1144,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "",
-            mainPerson2.id,
+            mainAccount2.id,
             "group1",
             "project-1",
             1,
@@ -1191,7 +1193,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(listOf(project1.id), mainAccount, AccessLevel.OWNER)
 
-        val url = "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.person.gitlabId}"
+        val url = "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.gitlabId}"
 
         val returnedResult: List<UserInProjectDto> = this.performDelete(url, token)
             .expectOk()
@@ -1220,7 +1222,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "",
-            mainPerson2.id,
+            mainAccount2.id,
             "group1",
             "project-1",
             1,
@@ -1234,7 +1236,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(listOf(project1.id), mainAccount, AccessLevel.OWNER)
 
-        val url = "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.person.gitlabId}"
+        val url = "$rootUrl/${project1.id}/users?gitlab_id=${mainAccount2.gitlabId}"
 
         val returnedResult: List<UserInProjectDto> = this.performDelete(url, token)
             .expectOk()
@@ -1263,7 +1265,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "",
-            mainPerson2.id,
+            mainAccount2.id,
             "group1",
             "project-1",
             1,
@@ -1310,11 +1312,11 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Project 1",
             "",
-            mainPerson2.id,
+            mainAccount2.id,
             "group1",
             "project-1",
             1,
-            stars = mutableSetOf(Star(id1, mainPerson.id)),
+            stars = mutableSetOf(Star(id1, mainAccount.id)),
             processorType = operationProcessorType
         )
         codeProjectRepository.save(project1)
@@ -1359,7 +1361,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Project 1",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group1",
                 "project-1",
                 1,
@@ -1374,7 +1376,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Project 2",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group2",
                 "project-2",
                 2,
@@ -1389,7 +1391,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group3",
                 "project-3",
                 3,
@@ -1404,7 +1406,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Code Project 1",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group4",
                 "project-4",
                 4,
@@ -1419,7 +1421,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Code Project 2",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group5",
                 "project-5",
                 5,
@@ -1434,7 +1436,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Code Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group6",
                 "project-6",
                 6,
@@ -1469,7 +1471,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Project 1",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group1",
                 "project-1",
                 1,
@@ -1484,7 +1486,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Project 2",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group2",
                 "project-2",
                 2,
@@ -1499,7 +1501,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group3",
                 "project-3",
                 3,
@@ -1514,7 +1516,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Code Project 1",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group4",
                 "project-4",
                 4,
@@ -1528,7 +1530,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Code Project 2",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group5",
                 "project-5",
                 5,
@@ -1542,7 +1544,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Code Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group6",
                 "project-6",
                 6,
@@ -1576,7 +1578,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Project 1",
                 "description",
-                mainPerson.id,
+                mainAccount.id,
                 "group1",
                 "project-1",
                 1,
@@ -1591,7 +1593,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Project 2",
                 "description",
-                mainPerson.id,
+                mainAccount.id,
                 "group2",
                 "project-2",
                 2,
@@ -1606,7 +1608,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group3",
                 "project-3",
                 3,
@@ -1621,7 +1623,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Code Project 1",
                 "description",
-                mainPerson.id,
+                mainAccount.id,
                 "group4",
                 "project-4",
                 4,
@@ -1635,7 +1637,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Code Project 2",
                 "description",
-                mainPerson.id,
+                mainAccount.id,
                 "group5",
                 "project-5",
                 5,
@@ -1649,7 +1651,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Code Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group6",
                 "project-6",
                 6,
@@ -1683,7 +1685,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Project 1",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group1",
                 "project-1",
                 1,
@@ -1698,7 +1700,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Project 2",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group2",
                 "project-2",
                 2,
@@ -1713,7 +1715,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group3",
                 "project-3",
                 3,
@@ -1728,7 +1730,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.com",
                 "Test Code Project 1",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group4",
                 "project-4",
                 4,
@@ -1743,7 +1745,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.net",
                 "Test Code Project 2",
                 "description",
-                mainPerson3.id,
+                mainAccount3.id,
                 "group5",
                 "project-5",
                 5,
@@ -1758,7 +1760,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
                 "www.url.xyz",
                 "Test Code Project 3",
                 "description",
-                mainPerson2.id,
+                mainAccount2.id,
                 "group6",
                 "project-6",
                 6,
@@ -1786,43 +1788,43 @@ class ProjectsApiTest : AbstractRestApiTest() {
         val project1 = createDataProject(
             slug = "slug-1",
             name = "Test Project 1",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group1",
             path = "project-1",
             gitlabId = 1,
             visibility = VisibilityScope.PUBLIC,
-            stars = listOf(mainPerson),
+            stars = listOf(mainAccount),
             inTransaction = true,
         )
 
         val project2 = createDataProject(
             slug = "slug-2",
             name = "Test Project 2",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group2",
             path = "project-2",
             gitlabId = 2,
             visibility = VisibilityScope.PUBLIC,
-            stars = listOf(mainPerson),
+            stars = listOf(mainAccount),
             inTransaction = true,
         )
 
         val project3 = createDataProject(
             slug = "slug-3",
             name = "Test Project 3",
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             namespace = "group3",
             path = "project-3",
             gitlabId = 3,
             visibility = VisibilityScope.PUBLIC,
-            stars = listOf(mainPerson),
+            stars = listOf(mainAccount),
             inTransaction = true,
         )
 
         val project4 = createCodeProject(
             slug = "slug-4",
             name = "Test Code Project 4",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group4",
             path = "project-4",
             gitlabId = 4,
@@ -1834,7 +1836,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         val project5 = createCodeProject(
             slug = "slug-5",
             name = "Test Code Project 5",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group5",
             path = "project-5",
             gitlabId = 5,
@@ -1846,7 +1848,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
         val project6 = createCodeProject(
             slug = "slug-6",
             name = "Test Code Project 6",
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             namespace = "group6",
             path = "project-6",
             gitlabId = 6,
@@ -1881,7 +1883,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Data Project 1",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "mlreef",
             "project-1",
             1,
@@ -1894,7 +1896,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Data Project 2",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "mlreef",
             "project-2",
             2,
@@ -1907,7 +1909,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Data Project 3",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "mlreef",
             "project-3",
             3,
@@ -1924,7 +1926,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "group4",
             "project-4",
             4,
@@ -1936,7 +1938,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Code Project 5",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "group5",
             "project-5",
             5,
@@ -1948,7 +1950,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Code Project 6",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "group6",
             "project-6",
             6,
@@ -1984,7 +1986,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "group4",
             "project-4",
             4,
@@ -2017,7 +2019,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Data Project 1",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "mlreef",
             "project-1",
             1,
@@ -2030,7 +2032,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Data Project 2",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "mlreef",
             "project-2",
             2,
@@ -2043,7 +2045,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Data Project 3",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "mlreef",
             "project-3",
             3,
@@ -2060,7 +2062,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.com",
             "Test Code Project 4",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "group4",
             "project-4",
             4,
@@ -2072,7 +2074,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.net",
             "Test Code Project 5",
             "description",
-            mainPerson3.id,
+            mainAccount3.id,
             "group5",
             "project-5",
             5,
@@ -2084,7 +2086,7 @@ class ProjectsApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Code Project 6",
             "description",
-            mainPerson2.id,
+            mainAccount2.id,
             "group6",
             "project-6",
             6,
@@ -2094,11 +2096,11 @@ class ProjectsApiTest : AbstractRestApiTest() {
         codeProjectRepository.save(project5)
         codeProjectRepository.save(project6)
 
-        createRecentProject(project1, mainPerson3)
-        createRecentProject(project2, mainPerson3)
-        createRecentProject(project3, mainPerson3)
-        createRecentProject(project4, mainPerson3)
-        createRecentProject(project5, mainPerson3)
+        createRecentProject(project1, mainAccount3)
+        createRecentProject(project2, mainAccount3)
+        createRecentProject(project3, mainAccount3)
+        createRecentProject(project4, mainAccount3)
+        createRecentProject(project5, mainAccount3)
 
         this.mockUserAuthentication(
             listOf(project1.id, project2.id, project4.id, project5.id),
@@ -2126,6 +2128,552 @@ class ProjectsApiTest : AbstractRestApiTest() {
 
 
         assertThat(returnedResult.content.size).isEqualTo(5)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can commit files to repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            Commit("branch")
+        }
+
+        val content1 = "Some content of file 1"
+        val content2 = "Some content of file 2"
+        val fis1 = content1.byteInputStream(Charsets.UTF_8)
+        val fis2 = content2.byteInputStream(Charsets.UTF_8)
+        val multipartFile1 = MockMultipartFile("files", "file1.txt", TEXT_PLAIN_VALUE, fis1)
+        val multipartFile2 = MockMultipartFile("files", "file2.txt", TEXT_PLAIN_VALUE, fis2)
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.CREATE.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            files = listOf(multipartFile1, multipartFile2),
+            accessToken = mainToken,
+            params = mapOf("path" to "folder/to/save", "message" to "Commit message", "branch" to "master")
+        ).expectOk()
+            .document(
+                "project-commit-files-add",
+                RequestDocumentation.requestParts(
+                    RequestDocumentation.partWithName("files").description("Files to be saved to repository"),
+                ),
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("path").optional().description("Path in repository the files to be saved to. Root for not provided/empty path"),
+                    RequestDocumentation.parameterWithName("message").optional().description("Commit message. There will be some default message if this value is not provided"),
+                    RequestDocumentation.parameterWithName("branch").description("Branch name")
+                ),
+                responseFields(commitFields())
+            )
+            .returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.equals("Commit message") },
+                fileContents = match {
+                    it.size == 2
+                            && it.containsKey("folder/to/save/${multipartFile1.originalFilename}")
+                            && it.containsKey("folder/to/save/${multipartFile2.originalFilename}")
+                            && it["folder/to/save/${multipartFile1.originalFilename}"]?.equals(Base64.getEncoder().encodeToString(content1.toByteArray())) ?: false
+                            && it["folder/to/save/${multipartFile2.originalFilename}"]?.equals(Base64.getEncoder().encodeToString(content2.toByteArray())) ?: false
+                },
+                action = GitlabCommitOperations.CREATE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can move files to new path in repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            val commit = Commit("branch")
+            commit
+        }
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.MOVE.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            accessToken = mainToken,
+            params = mapOf("names" to "folder/file1.txt, folder/file2.txt", "new_path" to "new_folder", "branch" to "master")
+        ).expectOk()
+            .document(
+                "project-commit-files-move",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("path").optional().description("Path in repository the files to be taken from. Root for not provided/empty path or path can be set in 'names' param"),
+                    RequestDocumentation.parameterWithName("new_path").description("New path the files are being moved to"),
+                    RequestDocumentation.parameterWithName("names").description("The list of files to be moved. The separator is ,"),
+                    RequestDocumentation.parameterWithName("message").optional().description("Commit message. There will be some default message if this value is not provided"),
+                    RequestDocumentation.parameterWithName("branch").description("Branch name")
+                ),
+                responseFields(commitFields())
+            )
+            .returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.contains(CommitOperations.MOVE.name) },
+                fileContents = match {
+                    it.size == 2
+                            && it.containsKey("new_folder/file1.txt")
+                            && it.containsKey("new_folder/file2.txt")
+                            && it["new_folder/file1.txt"] == "folder/file1.txt"
+                            && it["new_folder/file2.txt"] == "folder/file2.txt"
+                },
+                action = GitlabCommitOperations.MOVE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can rename file in repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            val commit = Commit("branch")
+            commit
+        }
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.RENAME.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            accessToken = mainToken,
+            params = mapOf("names" to "folder/file1.txt", "new_name" to "new_file_name.txt", "branch" to "master")
+        ).expectOk()
+            .document(
+                "project-commit-files-rename",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("path").optional().description("Path in repository the files to be taken from. Root for not provided/empty path or path can be set in 'names' param"),
+                    RequestDocumentation.parameterWithName("new_name").description("New name for specific file"),
+                    RequestDocumentation.parameterWithName("names")
+                        .description("The file name to be renamed. Must contain only one name or an exception will be called otherwise. Can contain full path to file or file name only alone with 'path' parameter"),
+                    RequestDocumentation.parameterWithName("message").optional().description("Commit message. There will be some default message if this value is not provided"),
+                    RequestDocumentation.parameterWithName("branch").description("Branch name")
+                ),
+                responseFields(commitFields())
+            )
+            .returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.contains(CommitOperations.RENAME.name) },
+                fileContents = match {
+                    it.size == 1
+                            && it.containsKey("folder/new_file_name.txt")
+                            && it["folder/new_file_name.txt"] == "folder/file1.txt"
+                },
+                action = GitlabCommitOperations.MOVE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can delete files in repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            val commit = Commit("branch")
+            commit
+        }
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.DELETE.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            accessToken = mainToken,
+            params = mapOf("names" to "a_folder_777/file1.txt, a_folder_888/file2.txt, a_folder_999/file3.txt", "path" to "new_folder/folder", "branch" to "master")
+        ).expectOk()
+            .document(
+                "project-commit-files-delete",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("path").optional().description("Path in repository the files to be deleted from. Root for not provided/empty path or the path can be set in 'names' param"),
+                    RequestDocumentation.parameterWithName("names").description("The list of files to be moved. The separator is ,. The names can contain the full path to file, but 'path' param has priority if was provided"),
+                    RequestDocumentation.parameterWithName("message").optional().description("Commit message. There will be some default message if this value is not provided"),
+                    RequestDocumentation.parameterWithName("branch").description("Branch name")
+                ),
+                responseFields(commitFields())
+            )
+            .returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.contains(CommitOperations.DELETE.name) },
+                fileContents = match {
+                    it.size == 3
+                            && it.containsKey("new_folder/folder/file1.txt")
+                            && it.containsKey("new_folder/folder/file2.txt")
+                            && it.containsKey("new_folder/folder/file3.txt")
+                            && it["new_folder/folder/file1.txt"] == null
+                            && it["new_folder/folder/file2.txt"] == null
+                            && it["new_folder/folder/file3.txt"] == null
+                },
+                action = GitlabCommitOperations.DELETE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can update a file in repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            Commit("branch")
+        }
+
+        val content1 = "Some new content of file 1"
+        val fis1 = content1.byteInputStream(Charsets.UTF_8)
+        val multipartFile1 = MockMultipartFile("files", "another_filename.txt", TEXT_PLAIN_VALUE, fis1)
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.UPDATE.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            files = listOf(multipartFile1),
+            accessToken = mainToken,
+            params = mapOf("path" to "folder/with/target/file", "names" to "target_file_name.txt", "branch" to "master")
+        ).expectOk()
+            .document(
+                "project-commit-files-update",
+                RequestDocumentation.requestParts(
+                    RequestDocumentation.partWithName("files").description("Files to be updated in repository"),
+                ),
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("path").optional().description("Path in repository the file to be updated in. Root for not provided/empty path or the path can be passed alone with 'names' param"),
+                    RequestDocumentation.parameterWithName("names").optional().description("Commit message. There will be some default message if this value is not provided"),
+                    RequestDocumentation.parameterWithName("message").optional().description("Commit message. There will be some default message if this value is not provided"),
+                    RequestDocumentation.parameterWithName("branch").description("Branch name")
+                ),
+                responseFields(commitFields())
+            )
+            .returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.contains(CommitOperations.UPDATE.name) },
+                fileContents = match {
+                    it.size == 1
+                            && it.containsKey("folder/with/target/file/target_file_name.txt")
+                            && it["folder/with/target/file/target_file_name.txt"]?.equals(Base64.getEncoder().encodeToString(content1.toByteArray())) ?: false
+                },
+                action = GitlabCommitOperations.UPDATE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can rename folder in repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            Commit("branch")
+        }
+
+        mockFilesInBranchForCommit()
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.RENAME.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            accessToken = mainToken,
+            params = mapOf("names" to "folder/folder_in_folder", "new_name" to "new_folder_in_folder", "branch" to "master")
+        ).expectOk().returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.contains(CommitOperations.RENAME.name) },
+                fileContents = match {
+                    it.size == 3
+                            && it.containsKey("folder/new_folder_in_folder/fileInFolder_1_1.txt")
+                            && it.containsKey("folder/new_folder_in_folder/fileInFolder_2_1.txt")
+                            && it.containsKey("folder/new_folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java")
+                            && it["folder/new_folder_in_folder/fileInFolder_1_1.txt"] == "folder/folder_in_folder/fileInFolder_1_1.txt"
+                            && it["folder/new_folder_in_folder/fileInFolder_2_1.txt"] == "folder/folder_in_folder/fileInFolder_2_1.txt"
+                            && it["folder/new_folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java"] == "folder/folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java"
+                },
+                action = GitlabCommitOperations.MOVE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can move folder in repo`() {
+        val project = createDataProject(
+            slug = "slug-1",
+            name = "Test Data Project For Commit",
+            ownerId = mainAccount.id,
+            namespace = "group1",
+            path = "project-1-commit",
+            gitlabId = 1,
+            visibility = VisibilityScope.PUBLIC,
+        )
+
+        every { restClient.commitFiles(token = any(), projectId = any(), targetBranch = any(), commitMessage = any(), fileContents = any(), action = any(), isBase64 = any()) } answers {
+            Commit("branch")
+        }
+
+        mockFilesInBranchForCommit()
+
+        this.mockUserAuthentication(listOf(project.id), mainAccount, AccessLevel.OWNER)
+
+        val url = "$rootUrl/${project.id}/commit/${CommitOperations.MOVE.name.toLowerCase()}"
+
+        val returnedResult: CommitDto = this.performPostMultipart(
+            url = url,
+            accessToken = mainToken,
+            params = mapOf("names" to "folder/folder_in_folder", "new_path" to "new_folder", "branch" to "master")
+        ).expectOk().returns()
+
+        assertThat(returnedResult).isNotNull()
+
+        verify(exactly = 1) {
+            restClient.commitFiles(
+                token = mainToken,
+                projectId = project.gitlabId,
+                targetBranch = "master",
+                commitMessage = match { it.contains(CommitOperations.MOVE.name) },
+                fileContents = match {
+                    it.size == 3
+                            && it.containsKey("new_folder/folder_in_folder/fileInFolder_1_1.txt")
+                            && it.containsKey("new_folder/folder_in_folder/fileInFolder_2_1.txt")
+                            && it.containsKey("new_folder/folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java")
+                            && it["new_folder/folder_in_folder/fileInFolder_1_1.txt"] == "folder/folder_in_folder/fileInFolder_1_1.txt"
+                            && it["new_folder/folder_in_folder/fileInFolder_2_1.txt"] == "folder/folder_in_folder/fileInFolder_2_1.txt"
+                            && it["new_folder/folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java"] == "folder/folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java"
+                },
+                action = GitlabCommitOperations.MOVE,
+                force = false,
+                isBase64 = true,
+            )
+        }
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can create cover for Project`() {
+        val project = createCodeProject(ownerId = mainAccount.id)
+
+        this.mockUserAuthentication(
+            listOf(project.id),
+            mainAccount,
+            AccessLevel.OWNER
+        )
+
+        val fis = "Some text data inside file".byteInputStream(Charsets.UTF_8)
+        val multipartFile = MockMultipartFile("file", fis)
+
+        val url = "$rootUrl/${project.id}/cover/create"
+
+        val result = this.performPostMultipart(url, multipartFile, null, "jwt-access-token")
+            .expectOk()
+            .document("create-project-cover",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("desc").optional().description("Description")
+                ),
+                responseFields(uploadedFileFields())
+            )
+            .returns(MlreefFileDto::class.java)
+
+        val projectInDb = projectRepository.findByIdOrNull(project.id)!!
+
+        assertThat(result).isNotNull()
+        assertThat(projectInDb.cover).isNotNull()
+        assertThat(projectInDb.cover!!.id).isEqualTo(result.id)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can update cover for Project`() {
+        val coverFile = createMlreefFile(mainAccount)
+        val project = createCodeProject(ownerId = mainAccount.id, cover = coverFile)
+
+        var projectInDb = projectRepository.findByIdOrNull(project.id)!!
+
+        assertThat(projectInDb.cover).isNotNull()
+
+        this.mockUserAuthentication(
+            listOf(project.id),
+            mainAccount,
+            AccessLevel.OWNER
+        )
+
+        val fis = "Some text data inside file".byteInputStream(Charsets.UTF_8)
+        val multipartFile = MockMultipartFile("file", fis)
+
+        val url = "$rootUrl/${project.id}/cover/update"
+
+        val result = this.performPostMultipart(url, multipartFile, null, "jwt-access-token")
+            .expectOk()
+            .document("update-project-cover",
+                RequestDocumentation.requestParameters(
+                    RequestDocumentation.parameterWithName("desc").optional().description("Description")
+                ),
+                responseFields(uploadedFileFields())
+            )
+            .returns(MlreefFileDto::class.java)
+
+        projectInDb = projectRepository.findByIdOrNull(project.id)!!
+
+        assertThat(result).isNotNull()
+        assertThat(projectInDb.cover).isNotNull()
+        assertThat(projectInDb.cover!!.id).isEqualTo(result.id)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can delete cover for Project`() {
+        val coverFile = createMlreefFile(mainAccount)
+        val project = createCodeProject(ownerId = mainAccount.id, cover = coverFile)
+
+        var projectInDb = projectRepository.findByIdOrNull(project.id)!!
+
+        assertThat(projectInDb.cover).isNotNull()
+
+        this.mockUserAuthentication(
+            listOf(project.id),
+            mainAccount,
+            AccessLevel.OWNER
+        )
+
+        val url = "$rootUrl/${project.id}/cover/delete"
+
+        this.performDelete(url, "jwt-access-token")
+            .expectNoContent()
+            .document("delete-project-cover",)
+
+        projectInDb = projectRepository.findByIdOrNull(project.id)!!
+
+        assertThat(projectInDb.cover).isNull()
     }
 
 }

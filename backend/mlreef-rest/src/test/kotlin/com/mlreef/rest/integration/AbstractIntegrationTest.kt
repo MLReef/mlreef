@@ -3,16 +3,10 @@ package com.mlreef.rest.integration
 import com.mlreef.rest.AccountTokenRepository
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.api.TestTags
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.DataType
-import com.mlreef.rest.domain.Group
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.UserRole
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.repositories.DataTypesRepository
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
@@ -48,16 +42,19 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
-import java.util.UUID
+import java.util.*
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.INTEGRATION_TEST)
-@ContextConfiguration(initializers = [
-    TestRedisContainer.Initializer::class,
-    TestPostgresContainer.Initializer::class,
-    TestGitlabContainer.Initializer::class])
+@ContextConfiguration(
+    initializers = [
+        TestRedisContainer.Initializer::class,
+        TestPostgresContainer.Initializer::class,
+        TestGitlabContainer.Initializer::class]
+)
 @Tags(value = [Tag(TestTags.SLOW), Tag(TestTags.INTEGRATION)])
 abstract class AbstractIntegrationTest : AbstractRestTest() {
 
@@ -105,7 +102,8 @@ abstract class AbstractIntegrationTest : AbstractRestTest() {
     fun createRealUser(
         userName: String? = null,
         password: String? = null,
-        index: Int = -1
+        index: Int = -1,
+        skipLogin: Boolean = false,
     ): Triple<Account, String, GitlabUser> {
         if (realCreatedUsersCache.size < index)
             return realCreatedUsersCache[index]
@@ -118,29 +116,25 @@ abstract class AbstractIntegrationTest : AbstractRestTest() {
             restClient.adminGetUsers(email).firstOrNull()
                 ?: restClient.adminCreateUser(email, username, "Existing $username", plainPassword)
         } catch (ex: Exception) {
-            GitlabUser(Random.nextLong())
+            GitlabUser(Random.nextInt().absoluteValue.toLong())
         }
-
-        val person = createPerson(
-            "Name $username",
-            Slugs.toSlug(username),
-            userInGitlab.id,
-            role = UserRole.DEVELOPER
-        )
 
         val account = createAccount(
             username,
-            person,
             email,
-            plainPassword
+            plainPassword,
+            name = "Name $username",
+            slug = Slugs.toSlug(username),
+            gitlabId = userInGitlab.id,
+            role = UserRole.DEVELOPER
         )
 
-        val loggedClient = restClient.userLoginOAuthToGitlab(username, plainPassword)
+        val loggedClient = if (!skipLogin) restClient.userLoginOAuthToGitlab(account.username, plainPassword) else null
 
-        val result = Triple(account, loggedClient.accessToken, userInGitlab)
+        val result = Triple(account, loggedClient?.accessToken ?: "", userInGitlab)
 
         realCreatedUsersCache.add(result)
-        allCreatedUsersNames.add(username)
+        allCreatedUsersNames.add(account.username)
 
         return result
     }
@@ -160,7 +154,7 @@ abstract class AbstractIntegrationTest : AbstractRestTest() {
 
         val projectInDb = createDataProject(
             slug = gitLabProject.path,
-            ownerId = account.person.id,
+            ownerId = account.id,
             url = gitLabProject.webUrl,
             name = gitLabProject.name,
             path = gitLabProject.path,
@@ -194,7 +188,7 @@ abstract class AbstractIntegrationTest : AbstractRestTest() {
         val projectInDb = createCodeProject(
             id = UUID.randomUUID(),
             slug = gitLabProject.path,
-            ownerId = account.person.id,
+            ownerId = account.id,
             url = gitLabProject.webUrl,
             name = gitLabProject.name,
             path = gitLabProject.path,
@@ -290,7 +284,7 @@ abstract class AbstractIntegrationTest : AbstractRestTest() {
             targetBranch = branch ?: "master",
             commitMessage = "Test commit",
             fileContents = mapOf(fileName to (content ?: javaClass.classLoader.getResource(resourceName)!!.readText())),
-            action = "create",
+            action = GitlabCommitOperations.CREATE,
         ).id
     }
 }

@@ -37,7 +37,7 @@ class ProcessorTest : AbstractRepositoryTest() {
             imageName = "image:master",
             branch = branch ?: "master",
             version = version ?: "1",
-            publisher = mainPerson3,
+            publisher = mainAccount3,
             publishedAt = Instant.now(),
         )
     }
@@ -50,19 +50,19 @@ class ProcessorTest : AbstractRepositoryTest() {
 
         codeProject1 = createCodeProject(
             slug = "test-project-1",
-            name = "Test project 1", ownerId = mainPerson.id, url = "url",
+            name = "Test project 1", ownerId = mainAccount.id, url = "url",
             namespace = "namespace1", gitlabId = 1L, path = ""
         )
 
         codeProject2 = createCodeProject(
             slug = "test-project-2",
-            name = "Test project 2", ownerId = mainPerson.id, url = "url",
+            name = "Test project 2", ownerId = mainAccount.id, url = "url",
             namespace = "namespace2", gitlabId = 2L, path = ""
         )
 
         codeProject3 = createCodeProject(
             slug = "test-project-3",
-            name = "Test project 3", ownerId = mainPerson2.id, url = "url",
+            name = "Test project 3", ownerId = mainAccount2.id, url = "url",
             namespace = "namespace3", gitlabId = 3L, path = ""
         )
     }

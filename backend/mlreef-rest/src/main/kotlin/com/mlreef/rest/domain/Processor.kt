@@ -67,7 +67,7 @@ data class Processor(
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "published_by")
-    var publisher: Person? = null,
+    var publisher: Account? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "environment_id")

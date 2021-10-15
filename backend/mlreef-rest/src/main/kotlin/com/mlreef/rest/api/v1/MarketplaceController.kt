@@ -3,6 +3,7 @@ package com.mlreef.rest.api.v1
 import com.mlreef.rest.SearchableTagRepository
 import com.mlreef.rest.api.CurrentUserService
 import com.mlreef.rest.api.v1.dto.ProjectDto
+import com.mlreef.rest.api.v1.dto.SearchResultDto
 import com.mlreef.rest.api.v1.dto.SearchableTagDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
@@ -18,6 +19,7 @@ import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.project.RecentProjectService
+import com.mlreef.rest.feature.system.FilesManagementService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -34,6 +36,7 @@ class MarketplaceController(
     val publicProjectsCacheService: PublicProjectsCacheService,
     private val recentProjectService: RecentProjectService,
     private val projectService: ProjectService<Project>,
+    private val filesManagementService: FilesManagementService,
 ) {
     @PostMapping("/entries/search")
     fun searchEntries(
@@ -136,7 +139,10 @@ class MarketplaceController(
         )
 
         return marketplaceService.searchProjects(finalFilter, pageable, profile).map {
-            it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile?.personId))
+            it.toDto(
+                forkedByUser = projectService.isProjectForkedByUser(it, profile?.accountId),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+            )
         }
     }
 
@@ -148,7 +154,7 @@ class MarketplaceController(
         @RequestParam("query_and") queryAnd: Boolean? = false,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
         profile: TokenDetails? = null,
-    ): Iterable<ProjectDto> {
+    ): Iterable<SearchResultDto> {
 
         val finalFilter = filter?.copy(
             query = query ?: filter.query,
@@ -164,8 +170,11 @@ class MarketplaceController(
             finalFilter.queryAnd,
             profile
         ).map {
-            it.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, profile?.personId))
-        } as Iterable<ProjectDto>
+            it.toDto(
+                forkedByUser = projectService.isProjectForkedByUser(it.project, profile?.accountId),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover),
+            )
+        }
 
         return result
     }
@@ -179,7 +188,10 @@ class MarketplaceController(
         pageable,
         profile
     ).map {
-        it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile?.personId))
+        it.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(it, profile?.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+        )
     }
 
     @GetMapping("/entries/{slug}")
@@ -194,7 +206,10 @@ class MarketplaceController(
             profile
         ).firstOrNull() ?: throw NotFoundException(ErrorCode.NotFound, "Project by slug $slug not found")
 
-        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, profile?.personId))
+        return project.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(project, profile?.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover),
+        )
     }
 
     @GetMapping("/tags")
@@ -213,9 +228,14 @@ class MarketplaceController(
     ): Page<ProjectDto> {
         val projectTypeParsed = projectType?.let { ProjectType.valueOf(it) }
 
-        val projects = recentProjectService.getRecentProjectsForUser(profile.personId, pageable, projectTypeParsed)
+        val projects = recentProjectService.getRecentProjectsForUser(profile.accountId, pageable, projectTypeParsed)
 
-        return projects.map { it.project.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, profile.personId)) }
+        return projects.map {
+            it.project.toDto(
+                forkedByUser = projectService.isProjectForkedByUser(it.project, profile.accountId),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover),
+            )
+        }
     }
 }
 

@@ -147,8 +147,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = createRealDataProject(token1, account1, public = false)
         val (project4, _) = createRealCodeProject(token1, account1, public = false)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
-        addRealUserToProject(project4.gitlabId, account2.person.gitlabId!!)
+        addRealUserToProject(project1.gitlabId, account2.gitlabId!!)
+        addRealUserToProject(project4.gitlabId, account2.gitlabId!!)
 
         val (_, _) = createRealDataProject(token2, account2, namespace = project1.gitlabNamespace)
         val (_, _) = createRealDataProject(token2, account2)
@@ -254,7 +254,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = createRealDataProject(token1, account1, public = false)
         val (_, _) = createRealDataProject(token1, account1, public = false)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        addRealUserToProject(project1.gitlabId, account2.gitlabId!!)
 
         val (_, _) = createRealDataProject(token2, account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = createRealDataProject(token2, account2)
@@ -281,7 +281,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = createRealCodeProject(token1, account1)
         val (_, _) = createRealCodeProject(token1, account1)
 
-        addRealUserToProject(project1.gitlabId, account2.person.gitlabId!!)
+        addRealUserToProject(project1.gitlabId, account2.gitlabId!!)
 
         val (_, _) = createRealCodeProject(token2, account2, slug = "slug-1", namespace = project1.gitlabNamespace)
         val (_, _) = createRealCodeProject(token2, account2)
@@ -564,7 +564,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = createRealUser(index = -1)
         val (project21, gitlabProject21) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
 
         val newProjectName = "New Test project"
         val newDescription = "new description"
@@ -679,7 +679,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (project21, gitlabProject21) = createRealDataProject(token1, account2)
         val (_, _) = createRealDataProject(token1, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
 
         assertThat(dataProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
@@ -707,7 +707,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = createRealUser(index = -1)
         val (project21, gitlabProject21) = createRealCodeProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
 
         assertThat(codeProjectRepository.findByIdOrNull(project21.id)).isNotNull
 
@@ -738,8 +738,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
         val (_, _) = createRealDataProject(token2, account2)
         val (project23, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
-        addRealUserToProject(project23.gitlabId, account3.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
+        addRealUserToProject(project23.gitlabId, account3.gitlabId!!)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -762,8 +762,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account3.gitlabId!!, GitlabAccessLevel.GUEST)
 
         val getUsersUrl = "$rootUrl/${project21.id}/users"
 
@@ -787,8 +787,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GitlabAccessLevel.GUEST)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account3.gitlabId!!, GitlabAccessLevel.GUEST)
 
         val userInProjectUrl = "$rootUrl/${project21.id}/users/check/myself"
         val getUsersUrl = "$rootUrl/${project21.id}/users"
@@ -815,7 +815,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
@@ -843,7 +843,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealCodeProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
@@ -909,7 +909,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
@@ -939,7 +939,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (group1, _) = createRealGroup(token3)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!, GitlabAccessLevel.MAINTAINER)
 
         val getUsersInProjectUrl = "$rootUrl/${project21.id}/users"
         val addGroupUrl = "$rootUrl/${project21.id}/groups?gitlab_id=${group1.gitlabId}"
@@ -967,7 +967,7 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val addUserUrl = "$rootUrl/${project21.id}/users?user_id=${account3.id}"
@@ -997,8 +997,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!)
+        addRealUserToProject(project21.gitlabId, account3.gitlabId!!)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"
@@ -1026,8 +1026,8 @@ class ProjectsIntegrationTest : AbstractIntegrationTest() {
 
         val (project21, _) = createRealDataProject(token2, account2)
 
-        addRealUserToProject(project21.gitlabId, account1.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
-        addRealUserToProject(project21.gitlabId, account3.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account1.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        addRealUserToProject(project21.gitlabId, account3.gitlabId!!, GitlabAccessLevel.DEVELOPER)
 
         val getUserUrl = "$rootUrl/${project21.id}/users"
         val deleteUserUrl = "$rootUrl/${project21.id}/users/${account3.id}"

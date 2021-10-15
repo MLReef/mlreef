@@ -2,26 +2,18 @@ package com.mlreef.rest.feature.project
 
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.ProjectsConfiguration
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import io.mockk.confirmVerified
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime.now
-import java.util.UUID
+import java.util.*
 
 internal open class ProjectServiceForkingTest {
 
@@ -81,11 +73,11 @@ internal open class ProjectServiceForkingTest {
         reservedNamesService = mockk(),
         accountRepository = mockk(),
         groupRepository = mockk(),
-        subjectRepository = mockk(),
         userResolverService = mockk(),
         dataTypesRepository = mockk(),
         processorTypeRepository = mockk(),
         projectsConfiguration = projectsConfiguration,
+        filesManagementService = mockk(),
     )
 
 
@@ -100,7 +92,7 @@ internal open class ProjectServiceForkingTest {
         // Capture what is saved to the repository
         val capture = slot<CodeProject>()
         every { repoMock.save(capture(capture)) } answers { this.arg(0) }
-        val ret = codeProjectService.forkProject(userToken = "test-token", creator = Person(UUID.randomUUID(), "slug-slug-slug", "Name", 2948492L), originalId = original.id)
+        val ret = codeProjectService.forkProject(userToken = "test-token", creator = Account(UUID.randomUUID(), username = "account", email="account@mlreef.com", passwordEncrypted = "password", slug = "slug-slug-slug", name = "Name", gitlabId = 2948492L), originalId = original.id)
         verify {
             repoMock.findByOwnerIdAndForkParent(ret.ownerId, original)
             repoMock.findById(original.id)

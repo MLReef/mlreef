@@ -1,6 +1,5 @@
 package com.mlreef.rest.api.v1
 
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.Project
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
@@ -27,13 +26,12 @@ class ReservedNamesController(
         @RequestParam(required = false) namespace: String?,
         request: HttpServletRequest,
         token: TokenDetails,
-        person: Person
     ): SlugDto {
         val slug: String = when {
             request.requestURL.contains("project-names") -> {
                 projectService.checkAvailability(
                     userToken = token.accessToken,
-                    creatingPersonId = person.id,
+                    creatorId = token.accountId,
                     projectName = name,
                     projectNamespace = namespace,
                 )
@@ -41,7 +39,7 @@ class ReservedNamesController(
             request.requestURL.contains("group-names") -> {
                 groupService.checkAvailability(
                     userToken = token.accessToken,
-                    creatingPersonId = person.id,
+                    creatorId = token.accountId,
                     groupName = name,
                 )
             }

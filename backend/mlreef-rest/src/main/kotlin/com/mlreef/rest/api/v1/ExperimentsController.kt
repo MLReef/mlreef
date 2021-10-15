@@ -1,17 +1,12 @@
 package com.mlreef.rest.api.v1
 
 import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.api.v1.dto.ExperimentDto
-import com.mlreef.rest.api.v1.dto.FileLocationDto
-import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
-import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
-import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.api.v1.dto.*
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.DataProject
 import com.mlreef.rest.domain.Experiment
 import com.mlreef.rest.domain.FileLocation
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.exceptions.ConflictException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
@@ -24,15 +19,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 import java.util.logging.Logger
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
@@ -106,7 +94,7 @@ internal class ExperimentsController(
     fun createExperiment(
         @PathVariable dataProjectId: UUID,
         @Valid @RequestBody experimentCreateRequest: ExperimentCreateRequest,
-        person: Person
+        account: Account
     ): ExperimentDto {
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
             ?: throw NotFoundException("Project $dataProjectId not found")
@@ -136,7 +124,7 @@ internal class ExperimentsController(
         }
 
         val newExperiment = experimentService.createExperiment(
-            authorId = person.id,
+            authorId = account.id,
             dataProjectId = dataProject.id,
             pipelineId = experimentCreateRequest.dataInstanceId,
             slug = slug,
@@ -165,7 +153,7 @@ internal class ExperimentsController(
         val experiment = beforeGetExperiment(idOrNumber, dataProjectId)
 
         return experimentService
-            .startExperiment(experiment, userToken.accessToken, userToken.personId)
+            .startExperiment(experiment, userToken.accessToken, userToken.accountId)
             .pipelineJobInfo!!
             .toDto()
     }

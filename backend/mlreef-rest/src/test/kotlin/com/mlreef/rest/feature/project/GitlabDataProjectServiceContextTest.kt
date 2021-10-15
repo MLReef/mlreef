@@ -9,17 +9,13 @@ import com.mlreef.rest.feature.AbstractContextTest
 import com.mlreef.rest.feature.caches.domain.PublicProjectHash
 import com.mlreef.rest.testcommons.ASYNC_UPDATE_OPERATIONS_WAIT_COMPLETION_TIMEOUT
 import com.ninjasquad.springmockk.SpykBean
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
-import java.util.UUID
+import java.util.*
 import javax.transaction.Transactional
 
 class GitlabDataProjectServiceContextTest : AbstractContextTest() {
@@ -107,7 +103,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         //given
         val ownerId = UUID.randomUUID()
         val dataProject = createDataProject(
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             gitlabId = 110L,
         )
 
@@ -184,7 +180,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         //given
         val ownerId = UUID.randomUUID()
         val dataProject = createDataProject(
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             gitlabId = 111L,
             visibility = VisibilityScope.PRIVATE,
         )
@@ -264,7 +260,7 @@ class GitlabDataProjectServiceContextTest : AbstractContextTest() {
         //given
         val ownerId = UUID.randomUUID()
         val dataProject = createDataProject(
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             gitlabId = 112L,
             visibility = VisibilityScope.PUBLIC,
         )

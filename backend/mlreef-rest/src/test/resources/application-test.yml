@@ -1,0 +1,61 @@
+logging:
+  level:
+    root: INFO
+    web: INFO
+    com.mlreef.rest: DEBUG
+    org.springframework.security: INFO
+    org.springframework.orm: INFO
+    org.hibernate: INFO
+    com.mlreef.rest.testcommons.TestGitlabContainer: WARN
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+
+  pattern:
+#    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{85}.%M [%line]) - %msg%n%throwable'
+    console: '%d{HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{85}.%M [%line]) - %msg%n%throwable'
+spring:
+  devtools:
+    add-properties: false
+  data:
+    repositories.type: none
+    redis:
+      repositories:
+        enabled: false
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:6000}/${DB_NAME:mlreef_backend}
+    username: ${DB_USER:mlreef}
+    password: ${DB_PASSWORD:password}
+  jpa:
+    show-sql: false # true for debugging
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+        format_sql: true
+        use_sql_comments: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    baseline-on-migrate: true
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:7379}
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save
+      namespace: spring:session
+
+mlreef:
+  epf:
+    backend-url: https://backend.test.domain.com
+    delay-scheduled-publish-tasks-msec: 5000000
+    delay-scheduled-pipeline-tasks-msec: 5000000
+  init-data:
+    enabled: false
+  files-management:
+    storage-place: memory #disk, db, memory
+    download-domain: /
+    download-path: /api/v1/files/download
+

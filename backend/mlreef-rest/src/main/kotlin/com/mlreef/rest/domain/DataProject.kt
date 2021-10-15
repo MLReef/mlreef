@@ -9,6 +9,7 @@ import javax.persistence.CascadeType
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 import javax.persistence.FetchType
+import javax.persistence.ManyToMany
 import javax.persistence.OneToMany
 
 /**
@@ -35,6 +36,9 @@ class DataProject(
     @OneToMany(mappedBy = "dataProject", fetch = FetchType.EAGER)
     val pipelineConfigurations: MutableSet<PipelineConfiguration> = mutableSetOf(),
 
+    @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
+    val externalDrives: MutableSet<DriveExternal> = mutableSetOf(),
+
     gitlabPathWithNamespace: String = "$gitlabNamespace/$gitlabPath",
     forksCount: Int = 0,
     inputDataTypes: MutableSet<DataType> = hashSetOf(),
@@ -47,18 +51,18 @@ class DataProject(
     tags: MutableSet<SearchableTag> = hashSetOf(),
     starsCount: Int = 0,
     stars: MutableSet<Star> = mutableSetOf(),
+    cover: MlreefFile? = null,
     //Auditing
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null
-) : Project(
-    id, ProjectType.DATA_PROJECT, slug, url, name, description, ownerId,
+) : Project(id, ProjectType.DATA_PROJECT, slug, url, name, description, ownerId,
     gitlabNamespace, gitlabPath, gitlabPathWithNamespace, gitlabId,
     visibilityScope, forksCount, inputDataTypes,
     //searchable
     globalSlug, tags, starsCount, stars,
     forkParent, forkChildren,
-    version, createdAt, updatedAt
+    cover, version, createdAt, updatedAt
 ) {
 
     @Suppress("UNCHECKED_CAST")
@@ -82,6 +86,7 @@ class DataProject(
         visibilityScope: VisibilityScope?,
         forkParent: Project?,
         forkChildren: MutableSet<Project>?,
+        cover: MlreefFile?,
     ): T {
         return DataProject(
             id = this.id,
@@ -106,6 +111,7 @@ class DataProject(
             inputDataTypes = inputDataTypes?.toMutableSet() ?: this.inputDataTypes,
             forkParent = forkParent ?: this.forkParent,
             forkChildren = forkChildren ?: this.forkChildren,
+            cover = cover ?: this.cover,
         ) as T
     }
 
@@ -127,7 +133,8 @@ class DataProject(
         version: Long? = null,
         createdAt: ZonedDateTime? = null,
         updatedAt: ZonedDateTime? = null,
-        visibilityScope: VisibilityScope? = null
+        visibilityScope: VisibilityScope? = null,
+        cover: MlreefFile?,
     ): DataProject {
         return DataProject(
             id = id ?: this.id,
@@ -150,6 +157,7 @@ class DataProject(
             starsCount = stars?.size ?: this.stars.size,
             tags = tags?.toMutableSet() ?: this.tags,
             inputDataTypes = inputDataTypes?.toMutableSet() ?: this.inputDataTypes,
+            cover = cover ?: this.cover,
         )
     }
 

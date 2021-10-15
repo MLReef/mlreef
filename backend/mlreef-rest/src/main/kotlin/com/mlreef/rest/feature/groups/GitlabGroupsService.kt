@@ -11,31 +11,20 @@ import com.mlreef.rest.domain.Group
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.helpers.GroupOfUser
 import com.mlreef.rest.domain.helpers.UserInGroup
-import com.mlreef.rest.exceptions.AccessDeniedException
-import com.mlreef.rest.exceptions.BadParametersException
-import com.mlreef.rest.exceptions.ConflictException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GroupNotFoundException
-import com.mlreef.rest.exceptions.IncorrectCredentialsException
-import com.mlreef.rest.exceptions.UnknownGroupException
-import com.mlreef.rest.exceptions.UnknownUserException
-import com.mlreef.rest.exceptions.UserNotFoundException
-import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.GitlabVisibility
-import com.mlreef.rest.external_api.gitlab.toAccessLevel
-import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
-import com.mlreef.rest.external_api.gitlab.toGitlabVisibility
+import com.mlreef.rest.exceptions.*
+import com.mlreef.rest.external_api.gitlab.*
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.utils.Slugs
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
 interface GroupsService {
-    fun getUserGroupsList(token: String, personId: UUID? = null, userId: UUID? = null): List<GroupOfUser>
+    fun getUserGroupsList(token: String, userId: UUID? = null): List<GroupOfUser>
     fun getGroupById(groupId: UUID): Group?
     fun getUsersInGroup(groupId: UUID): List<UserInGroup>
     fun createGroup(ownerToken: String, groupName: String, path: String? = null, visibility: VisibilityScope?): Group
@@ -47,7 +36,7 @@ interface GroupsService {
     fun deleteUserFromGroup(groupId: UUID, userId: UUID): List<UserInGroup>
     fun deleteUsersFromGroup(groupId: UUID, users: List<UserInGroup>): List<UserInGroup>
     fun checkUserInGroup(groupId: UUID, userToken: String? = null, userId: UUID? = null, userName: String? = null, email: String? = null, userGitlabId: Long? = null, personId: UUID? = null): Boolean
-    fun checkAvailability(userToken: String, creatingPersonId: UUID, groupName: String): String
+    fun checkAvailability(userToken: String, creatorId: UUID, groupName: String): String
 }
 
 @Service
@@ -57,16 +46,17 @@ class GitlabGroupsService(
     private val membershipRepository: MembershipRepository,
     private val accountRepository: AccountRepository,
     private val gitlabRestClient: GitlabRestClient,
-    private val currentUserService: CurrentUserService
+    private val currentUserService: CurrentUserService,
+    private val userResolverService: UserResolverService,
 ) : GroupsService {
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun getUserGroupsList(token: String, personId: UUID?, userId: UUID?): List<GroupOfUser> {
-        val account = resolveAccount(userId = userId, personId = personId)
-            ?: throw UserNotFoundException(userId = userId, personId = personId)
+    override fun getUserGroupsList(token: String, userId: UUID?): List<GroupOfUser> {
+        val account = userResolverService.resolveAccount(userId = userId)
+            ?: throw UserNotFoundException(userId = userId)
 
         val gitlabsGroupsIds = gitlabRestClient
             .userGetUserGroups(token)
@@ -74,7 +64,7 @@ class GitlabGroupsService(
 
         return gitlabsGroupsIds.map {
             try {
-                val gitlabAccessLevel = gitlabRestClient.adminGetGroupMembers(it).first { user -> user.id == account.person.gitlabId }.accessLevel
+                val gitlabAccessLevel = gitlabRestClient.adminGetGroupMembers(it).first { user -> user.id == account.gitlabId }.accessLevel
                 val groupInDb = groupsRepository.findByGitlabId(it) ?: throw GroupNotFoundException(gitlabId = it)
                 groupInDb.toGroupOfUser(gitlabAccessLevel.toAccessLevel())
             } catch (ex: Exception) {
@@ -100,13 +90,14 @@ class GitlabGroupsService(
             accountRepository.findAccountByGitlabId(it.key)
         }.filterNotNull()
 
-        return accounts.map { it.toUserInGroup(gitlabUsersMap[it.person.gitlabId].toAccessLevel()) }
+        return accounts.map { it.toUserInGroup(gitlabUsersMap[it.gitlabId].toAccessLevel()) }
     }
 
     @Transactional
     @RefreshUserInformation(userId = "#ownerId")
     override fun createGroup(ownerToken: String, groupName: String, path: String?, visibility: VisibilityScope?): Group {
-        resolveAccount(userToken = ownerToken) ?: throw IncorrectCredentialsException("Not authenticated")
+        userResolverService.resolveAccount(userToken = ownerToken)
+            ?: throw IncorrectCredentialsException("Not authenticated")
 
         val slug = Slugs.toSlug(groupName)
         reservedNamesService.assertGroupNameIsNotReserved(groupName)
@@ -155,15 +146,18 @@ class GitlabGroupsService(
 
     @RefreshUserInformation(userId = "#userId")
     override fun addUserToGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel?): List<UserInGroup> {
-        val user = resolveAccount(userId = userId) ?: throw UserNotFoundException(userId = userId)
+        val user = userResolverService.resolveAccount(userId = userId)
+            ?: throw UserNotFoundException(userId = userId)
+
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
 
         gitlabRestClient.adminAddUserToGroup(
             groupId = group.gitlabId
                 ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
-            userId = user.person.gitlabId
-                ?: throw UnknownUserException("Person ${user.person.id} is not connected to gitlab"),
-            accessLevel = (accessLevel ?: AccessLevel.GUEST).toGitlabAccessLevel())
+            userId = user.gitlabId
+                ?: throw UnknownUserException("Person ${user.id} is not connected to gitlab"),
+            accessLevel = (accessLevel ?: AccessLevel.GUEST).toGitlabAccessLevel()
+        )
 
         return getUsersInGroup(groupId)
     }
@@ -174,12 +168,17 @@ class GitlabGroupsService(
         val gitlabGroupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab")
 
         val usersIds = users.map {
-            val account = resolveAccount(userId = it.id, email = it.userName, userName = it.userName, gitlabId = it.gitlabId)
+            val account = userResolverService.resolveAccount(
+                userId = it.id,
+                email = it.userName,
+                userName = it.userName,
+                gitlabId = it.gitlabId
+            )
 
-            if (account == null || account.person.gitlabId == null) {
+            if (account == null || account.gitlabId == null) {
                 null
             } else {
-                Pair(account.person.gitlabId!!, it.accessLevel)
+                Pair(account.gitlabId!!, it.accessLevel)
             }
         }.filterNotNull().toMap()
 
@@ -201,30 +200,33 @@ class GitlabGroupsService(
 
     @RefreshUserInformation(userId = "#userId")
     override fun editUserInGroup(groupId: UUID, userId: UUID, accessLevel: AccessLevel): List<UserInGroup> {
-        val userToBeEdit = resolveAccount(userId = userId) ?: throw UserNotFoundException(userId = userId)
+        val userToBeEdit = userResolverService.resolveAccount(userId = userId)
+            ?: throw UserNotFoundException(userId = userId)
 
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
 
         gitlabRestClient.adminEditUserInGroup(
             groupId = group.gitlabId
                 ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
-            userId = userToBeEdit.person.gitlabId
-                ?: throw UnknownUserException("Person ${userToBeEdit.person.id} is not connected to gitlab"),
-            accessLevel = accessLevel.toGitlabAccessLevel()!!)
+            userId = userToBeEdit.gitlabId
+                ?: throw UnknownUserException("Person ${userToBeEdit.id} is not connected to gitlab"),
+            accessLevel = accessLevel.toGitlabAccessLevel()!!
+        )
 
         return getUsersInGroup(groupId)
     }
 
     @RefreshUserInformation(userId = "#userId")
     override fun deleteUserFromGroup(groupId: UUID, userId: UUID): List<UserInGroup> {
-        val userToBeDeleted = resolveAccount(userId = userId) ?: throw UserNotFoundException(userId = userId)
+        val userToBeDeleted = userResolverService.resolveAccount(userId = userId)
+            ?: throw UserNotFoundException(userId = userId)
 
         val group = groupsRepository.findByIdOrNull(groupId) ?: throw GroupNotFoundException(groupId = groupId)
 
         gitlabRestClient.adminDeleteUserFromGroup(
             groupId = group.gitlabId ?: throw UnknownGroupException("Group $groupId is not connected to Gitlab"),
-            userId = userToBeDeleted.person.gitlabId
-                ?: throw UnknownUserException("Person ${userToBeDeleted.person.id} is not connected to gitlab")
+            userId = userToBeDeleted.gitlabId
+                ?: throw UnknownUserException("Person ${userToBeDeleted.id} is not connected to gitlab")
         )
 
         return getUsersInGroup(groupId)
@@ -239,8 +241,8 @@ class GitlabGroupsService(
             try {
                 when {
                     it.gitlabId != null -> it.gitlabId
-                    it.email != null -> accountRepository.findOneByEmail(it.email!!)?.person?.gitlabId
-                    it.userName != null -> accountRepository.findOneByUsername(it.userName ?: "")?.person?.gitlabId
+                    it.email != null -> accountRepository.findOneByEmail(it.email!!)?.gitlabId
+                    it.userName != null -> accountRepository.findOneByUsername(it.userName ?: "")?.gitlabId
                     else -> null
                 }
             } catch (ex: Exception) {
@@ -261,16 +263,16 @@ class GitlabGroupsService(
 
     override fun checkUserInGroup(groupId: UUID, userToken: String?, userId: UUID?, userName: String?, email: String?, userGitlabId: Long?, personId: UUID?): Boolean {
         try {
-            val account: Account = resolveAccount(userToken, userId, personId, userName, email, userGitlabId)
+            val account: Account = userResolverService.resolveAccount(userName, userId, userGitlabId, userToken, email)
                 ?: return false
-            assertMemberOfGroup(groupId, personId = account.person.id)
+            assertMemberOfGroup(groupId, accountId = account.id)
             return true
         } catch (ex: Exception) {
             return false
         }
     }
 
-    override fun checkAvailability(userToken: String, creatingPersonId: UUID, groupName: String): String {
+    override fun checkAvailability(userToken: String, creatorId: UUID, groupName: String): String {
         val possibleSlug = Slugs.toSlug(groupName)
         reservedNamesService.assertGroupNameIsNotReserved(groupName)
         val existingGroups = groupsRepository.findBySlug(possibleSlug)
@@ -281,26 +283,11 @@ class GitlabGroupsService(
     }
 
 
-    private fun assertMemberOfGroup(groupUUID: UUID, accountId: UUID? = null, personId: UUID? = null) {
-        val currentPersonId = personId ?: resolveAccount(userId = accountId)?.person?.id
-        ?: currentUserService.person().id
+    private fun assertMemberOfGroup(groupUUID: UUID, accountId: UUID? = null) {
+        val currentPersonId = userResolverService.resolveAccount(userId = accountId)?.id
+            ?: currentUserService.account().id
         membershipRepository.findByPersonIdAndGroupId(currentPersonId, groupUUID)
             ?: throw AccessDeniedException("User is not in group or not allowed to view the group")
-    }
-
-    private fun resolveAccount(userToken: String? = null, userId: UUID? = null, personId: UUID? = null, userName: String? = null, email: String? = null, gitlabId: Long? = null): Account? {
-        return when {
-            userToken != null -> {
-                val gitlabUser = gitlabRestClient.getUser(userToken)
-                accountRepository.findAccountByGitlabId(gitlabUser.id)
-            }
-            personId != null -> accountRepository.findAccountByPersonId(personId)
-            userId != null -> accountRepository.findByIdOrNull(userId)
-            email != null -> accountRepository.findOneByEmail(email)
-            userName != null -> accountRepository.findOneByUsername(userName)
-            gitlabId != null -> accountRepository.findAccountByGitlabId(gitlabId)
-            else -> throw BadParametersException("At least one parameter must be provided")
-        }
     }
 }
 

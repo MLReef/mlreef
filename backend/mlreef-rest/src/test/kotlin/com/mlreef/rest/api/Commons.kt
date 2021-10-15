@@ -40,6 +40,7 @@ internal fun projectResponseFields(prefix: String = ""): MutableList<FieldDescri
         fieldWithPath(prefix + "ml_category").optional().type(JsonFieldType.STRING).description("ML category (Code project only)"),
         fieldWithPath(prefix + "forked_from").optional().type(JsonFieldType.STRING).description("Parent project id the project was forked from"),
         fieldWithPath(prefix + "forked_by_user").optional().type(JsonFieldType.BOOLEAN).description("The sign that the project was already forked by requesting user"),
+        fieldWithPath(prefix + "cover_url").optional().type(JsonFieldType.STRING).description("Project cover picture download link"),
     ).apply {
         this.add(fieldWithPath(prefix + "processors").optional().type(JsonFieldType.ARRAY).description("DataProcessors array"))
         this.addAll(dataProcessorFields(prefix + "processors[]."))
@@ -402,5 +403,19 @@ internal fun processorParametersFields(prefix: String = ""): MutableList<FieldDe
         fieldWithPath(prefix + "required").type(JsonFieldType.BOOLEAN).optional().description("Required"),
         fieldWithPath(prefix + "group").type(JsonFieldType.STRING).optional().description("Group"),
         fieldWithPath(prefix + "description").type(JsonFieldType.STRING).optional().description("Description"),
+    )
+}
+
+internal fun uploadedFileFields(prefix: String = ""): MutableList<FieldDescriptor> {
+    return arrayListOf(
+        fieldWithPath(prefix + "id").type(JsonFieldType.STRING).optional().description("File id"),
+        fieldWithPath(prefix + "owner_id").type(JsonFieldType.STRING).optional().description("File owner"),
+        fieldWithPath(prefix + "upload_time").type(JsonFieldType.STRING).optional().description("File upload/creation date/time"),
+        fieldWithPath(prefix + "file_name").type(JsonFieldType.STRING).optional().description("File name"),
+        fieldWithPath(prefix + "format").type(JsonFieldType.STRING).optional().description("File format"),
+        fieldWithPath(prefix + "purpose").type(JsonFieldType.STRING).optional().description("File purpose"),
+        fieldWithPath(prefix + "size").type(JsonFieldType.NUMBER).optional().description("File size in bytes"),
+        fieldWithPath(prefix + "description").type(JsonFieldType.STRING).optional().description("Description"),
+        fieldWithPath(prefix + "download_link").type(JsonFieldType.STRING).optional().description("Link for file download"),
     )
 }

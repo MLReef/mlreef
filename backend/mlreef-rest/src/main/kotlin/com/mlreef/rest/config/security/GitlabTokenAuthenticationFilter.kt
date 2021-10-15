@@ -27,9 +27,9 @@ class GitlabTokenAuthenticationFilter(requestMatcher: RequestMatcher) : Abstract
     @Throws(AuthenticationException::class)
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
         val token = (
-            request?.getHeader(PRIVATE_TOKEN_NAME)
-                ?: request?.cookies?.find { it.name.equals(PRIVATE_TOKEN_NAME, true) }?.value
-            )?.removePrefix("Bearer")?.trim()
+                request?.getHeader(PRIVATE_TOKEN_NAME)
+                    ?: request?.cookies?.find { it.name.equals(PRIVATE_TOKEN_NAME, true) }?.value
+                )?.removePrefix("Bearer")?.trim()
 
         val springToken = UsernamePasswordAuthenticationToken(token, token, listOf(SimpleGrantedAuthority("USER")))
 

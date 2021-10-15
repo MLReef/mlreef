@@ -1,19 +1,8 @@
 package com.mlreef.rest.integration
 
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
-import com.mlreef.rest.api.v1.dto.ExperimentDto
-import com.mlreef.rest.api.v1.dto.FileLocationDto
-import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
-import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
-import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Experiment
-import com.mlreef.rest.domain.FileLocation
-import com.mlreef.rest.domain.FileLocationType
-import com.mlreef.rest.domain.Parameter
-import com.mlreef.rest.domain.Pipeline
-import com.mlreef.rest.domain.Processor
+import com.mlreef.rest.api.v1.dto.*
+import com.mlreef.rest.domain.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -228,7 +217,7 @@ class ExperimentsIntegrationTest : AbstractIntegrationTest() {
         val (account2, token2, _) = createRealUser()
         val (project, _) = createRealDataProject(token1, account1, public = false)
 
-        addRealUserToProject(project.gitlabId, account2.person.gitlabId!!)
+        addRealUserToProject(project.gitlabId, account2.gitlabId!!)
 
         val experiment1 = createExperiment(project)
 

@@ -24,19 +24,21 @@ data class UserDto(
     val hasNewsletters: Boolean? = null,
     val external: Boolean = false,
     val externalFrom: String? = null,
+    val avatarUrl: String? = null,
 ) : DataClassWithId
 
-fun Account.toUserDto() = UserDto(
+fun Account.toUserDto(avatarUrl: String? = null) = UserDto(
     id = this.id,
     username = this.externalAccount?.let { it.username ?: "" } ?: this.username,
-    name = this.person.name,
+    name = this.name,
     email = this.externalAccount?.let { it.email ?: "" } ?: this.email,
-    gitlabId = this.person.gitlabId,
-    userRole = this.person.userRole,
-    termsAcceptedAt = this.person.termsAcceptedAt,
-    hasNewsletters = this.person.hasNewsletters,
+    gitlabId = this.gitlabId,
+    userRole = this.userRole,
+    termsAcceptedAt = this.termsAcceptedAt,
+    hasNewsletters = this.hasNewsletters,
     external = this.externalAccount != null,
     externalFrom = this.externalAccount?.oauthClient,
+    avatarUrl = avatarUrl,
 )
 
 data class SecretUserDto(
@@ -54,24 +56,26 @@ data class SecretUserDto(
     val hasNewsletters: Boolean? = null,
     val external: Boolean = false,
     val externalFrom: String? = null,
+    val avatarUrl: String? = null,
 ) : DataClassWithId {
     fun censor(): SecretUserDto = this.copy(token = token?.censor())
 }
 
-fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? = null) = SecretUserDto(
+fun Account.toSecretUserDto(accessToken: String? = null, refreshToken: String? = null,avatarUrl: String? = null) = SecretUserDto(
     id = this.id,
     username = this.externalAccount?.let { it.username ?: "" } ?: this.username,
-    name = this.person.name,
+    name = this.name,
     email = this.externalAccount?.let { it.email ?: "" } ?: this.email,
-    gitlabId = this.person.gitlabId,
+    gitlabId = this.gitlabId,
     token = accessToken,
     accessToken = accessToken,
     refreshToken = refreshToken,
-    userRole = this.person.userRole,
-    termsAcceptedAt = this.person.termsAcceptedAt,
-    hasNewsletters = this.person.hasNewsletters,
+    userRole = this.userRole,
+    termsAcceptedAt = this.termsAcceptedAt,
+    hasNewsletters = this.hasNewsletters,
     external = this.externalAccount != null,
     externalFrom = this.externalAccount?.oauthClient,
+    avatarUrl = avatarUrl,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

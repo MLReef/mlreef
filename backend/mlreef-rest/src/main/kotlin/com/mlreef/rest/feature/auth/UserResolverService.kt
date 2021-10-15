@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.web.client.ResourceAccessException
-import java.util.UUID
+import java.util.*
 
 @Service
 class UserResolverService(
@@ -27,14 +27,14 @@ class UserResolverService(
         userId: UUID? = null,
         gitlabId: Long? = null,
         userToken: String? = null,
-        personId: UUID? = null,
         email: String? = null,
+        slug: String? = null,
     ): Account? = findAccountByUserId(userId)
         ?: findAccountByUserName(userName)
         ?: findAccountByGitlabId(gitlabId)
         ?: findAccountByToken(userToken)
-        ?: findAccountByPersonId(personId)
         ?: findAccountByEmail(email)
+        ?: findAccountBySlug(slug)
 
     fun resolveExternalAccount(oauthClient: String, username: String? = null, email: String? = null, externalId: String? = null): AccountExternal? =
         findExternalAccountByExternalId(externalId, oauthClient)
@@ -46,8 +46,8 @@ class UserResolverService(
     private fun findAccountByUserId(userId: UUID?) = userId?.let { accountRepository.findByIdOrNull(it) }
     private fun findAccountByGitlabId(gitlabId: Long?) = gitlabId?.let { accountRepository.findAccountByGitlabId(it) }
     private fun findAccountByToken(token: String?) = token?.let { gitlabRestClient.getUser(it).let { accountRepository.findAccountByGitlabId(it.id) } }
-    private fun findAccountByPersonId(personId: UUID?) = personId?.let { accountRepository.findAccountByPersonId(it) }
     private fun findAccountByEmail(email: String?) = email?.let { accountRepository.findOneByEmail(it) }
+    private fun findAccountBySlug(slug: String?) = slug?.let { accountRepository.findBySlug(it) }
 
     fun findGitlabUserViaGitlabId(id: Long): GitlabUser? {
         return try {

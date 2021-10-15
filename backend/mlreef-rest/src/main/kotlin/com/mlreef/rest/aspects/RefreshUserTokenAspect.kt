@@ -48,7 +48,7 @@ class RefreshUserTokenAspect(
         val usernames = ArrayList<String?>()
         if (!userId.isNullOrBlank()) {
             val uuid = UUID.fromString(userId)
-            val user = accountRepository.findAccountByPersonId(uuid) ?: accountRepository.findByIdOrNull(uuid)
+            val user = accountRepository.findByIdOrNull(uuid)
             usernames.add(user?.username)
         } else if (usersList != null) {
             usernames.addAll(
@@ -56,7 +56,6 @@ class RefreshUserTokenAspect(
                     .mapNotNull { it.id }
                     .map {
                         accountRepository.findByIdOrNull(it)?.username
-                            ?: accountRepository.findAccountByPersonId(it)?.username
                     }
             )
         } else if (!gitlabUserId.isNullOrBlank()) {

@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import org.springframework.test.annotation.Rollback
@@ -57,7 +55,7 @@ class GroupsApiTest : AbstractRestApiTest() {
         val gitlabGroup2 = GitlabGroup(102L, "url", "group-name-1", "path-2")
         val gitlabGroup3 = GitlabGroup(103L, "url", "group-name-1", "path-3")
 
-        val gitlabUserInGroup = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup = GitlabUserInGroup(mainAccount.gitlabId!!, "url", mainAccount.name, mainAccount.username)
 
         every { restClient.userGetUserGroups(any()) } answers {
             listOf(gitlabGroup1, gitlabGroup2, gitlabGroup3)
@@ -177,9 +175,9 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainAccount.gitlabId!!, "url", mainAccount.name, mainAccount.username)
         val gitlabUserInGroup2 =
-            GitlabUserInGroup(mainPerson2.gitlabId!!, "url", mainPerson2.name, mainAccount2.username)
+            GitlabUserInGroup(mainAccount2.gitlabId!!, "url", mainAccount2.name, mainAccount2.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1, gitlabUserInGroup2)
@@ -208,9 +206,9 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainAccount.gitlabId!!, "url", mainAccount.name, mainAccount.username)
         val gitlabUserInGroup2 =
-            GitlabUserInGroup(mainPerson2.gitlabId!!, "url", mainPerson2.name, mainAccount2.username)
+            GitlabUserInGroup(mainAccount2.gitlabId!!, "url", mainAccount2.name, mainAccount2.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1, gitlabUserInGroup2)
@@ -239,9 +237,9 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainAccount.gitlabId!!, "url", mainAccount.name, mainAccount.username)
         val gitlabUserInGroup2 =
-            GitlabUserInGroup(mainPerson2.gitlabId!!, "url", mainPerson2.name, mainAccount2.username)
+            GitlabUserInGroup(mainAccount2.gitlabId!!, "url", mainAccount2.name, mainAccount2.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1, gitlabUserInGroup2)
@@ -273,7 +271,7 @@ class GroupsApiTest : AbstractRestApiTest() {
 
         this.mockUserAuthentication(groupIdLevelMap = mutableMapOf(group.id to AccessLevel.OWNER))
 
-        val gitlabUserInGroup1 = GitlabUserInGroup(mainPerson.gitlabId!!, "url", mainPerson.name, mainAccount.username)
+        val gitlabUserInGroup1 = GitlabUserInGroup(mainAccount.gitlabId!!, "url", mainAccount.name, mainAccount.username)
 
         every { restClient.adminGetGroupMembers(any()) } answers {
             listOf(gitlabUserInGroup1)

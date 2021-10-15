@@ -94,7 +94,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(restClient.oAuthAdminToken.get()).isNotNull
 
-        val returnedResult: UserDto = this.performGet("$sessionsUrl/find/user?gitlab_id=${account.person.gitlabId}", token)
+        val returnedResult: UserDto = this.performGet("$sessionsUrl/find/user?gitlab_id=${account.gitlabId}", token)
             .expectOk()
             .returns()
 
@@ -108,7 +108,7 @@ class AuthIntegrationTest : AbstractIntegrationTest() {
 
         assertThat(restClient.oAuthAdminToken.get()!!.second).isEqualTo("123")
 
-        val returnedResult2: UserDto = this.performGet("$sessionsUrl/find/user?gitlab_id=${account.person.gitlabId}", token)
+        val returnedResult2: UserDto = this.performGet("$sessionsUrl/find/user?gitlab_id=${account.gitlabId}", token)
             .expectOk()
             .returns()
 

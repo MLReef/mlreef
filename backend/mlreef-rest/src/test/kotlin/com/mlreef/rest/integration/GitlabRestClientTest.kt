@@ -1,21 +1,13 @@
 package com.mlreef.rest.integration
 
-import com.mlreef.rest.exceptions.BadRequestException
-import com.mlreef.rest.exceptions.ConflictException
-import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
-import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.NotFoundException
+import com.mlreef.rest.exceptions.*
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.utils.RandomUtils
 import com.mlreef.rest.utils.Slugs
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
 import javax.transaction.Transactional
@@ -359,7 +351,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val members = gitlabRestClient.adminGetProjectMembers(project1.id)
         assertThat(members).isNotNull
         assertThat(members).hasSize(1)
-        assertThat(members.map { it.id }).contains(user1.person.gitlabId!!)
+        assertThat(members.map { it.id }).contains(user1.gitlabId!!)
     }
 
     @Test
@@ -368,9 +360,9 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
     fun `adminGetProjectMember shall deliver owner`() {
         val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
-        val member = gitlabRestClient.adminGetProjectMember(project1.id, user1.person.gitlabId!!)
+        val member = gitlabRestClient.adminGetProjectMember(project1.id, user1.gitlabId!!)
         assertThat(member).isNotNull
-        assertThat(member.id).isEqualTo(user1.person.gitlabId!!)
+        assertThat(member.id).isEqualTo(user1.gitlabId!!)
     }
 
     @Test
@@ -381,7 +373,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<NotFoundException> {
-            gitlabRestClient.adminGetProjectMember(project1.id, user2.person.gitlabId!!)
+            gitlabRestClient.adminGetProjectMember(project1.id, user2.gitlabId!!)
         }
     }
 
@@ -403,7 +395,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<ConflictException> {
-            gitlabRestClient.adminAddUserToProject(project1.id, user1.person.gitlabId!!)
+            gitlabRestClient.adminAddUserToProject(project1.id, user1.gitlabId!!)
         }
     }
 
@@ -414,9 +406,9 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (_, token1, _) = createRealUser()
         val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
-        val member = gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!)
+        val member = gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!)
         assertThat(member).isNotNull
-        assertThat(member.id).isEqualTo(user2.person.gitlabId!!)
+        assertThat(member.id).isEqualTo(user2.gitlabId!!)
     }
 
     @Test
@@ -437,7 +429,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
-            gitlabRestClient.adminEditUserInProject(project1.id, user1.person.gitlabId!!)
+            gitlabRestClient.adminEditUserInProject(project1.id, user1.gitlabId!!)
         }
     }
 
@@ -448,10 +440,10 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (_, token1, _) = createRealUser()
         val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
-        gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!)
+        gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!)
 
-        val member = gitlabRestClient.adminEditUserInProject(project1.id, user2.person.gitlabId!!)
-        assertThat(member.id).isEqualTo(user2.person.gitlabId!!)
+        val member = gitlabRestClient.adminEditUserInProject(project1.id, user2.gitlabId!!)
+        assertThat(member.id).isEqualTo(user2.gitlabId!!)
     }
 
     @Test
@@ -461,7 +453,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
-            gitlabRestClient.adminEditUserInProject(project1.id, user1.person.gitlabId!!, accessLevel = GitlabAccessLevel.GUEST)
+            gitlabRestClient.adminEditUserInProject(project1.id, user1.gitlabId!!, accessLevel = GitlabAccessLevel.GUEST)
         }
     }
 
@@ -472,12 +464,12 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (_, token1, _) = createRealUser()
         val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
-        val member1 = gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
-        val member2 = gitlabRestClient.adminEditUserInProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
-        val member3 = gitlabRestClient.adminEditUserInProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
-        assertThat(member1.id).isEqualTo(user2.person.gitlabId!!)
-        assertThat(member2.id).isEqualTo(user2.person.gitlabId!!)
-        assertThat(member3.id).isEqualTo(user2.person.gitlabId!!)
+        val member1 = gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!, GitlabAccessLevel.GUEST)
+        val member2 = gitlabRestClient.adminEditUserInProject(project1.id, user2.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        val member3 = gitlabRestClient.adminEditUserInProject(project1.id, user2.gitlabId!!, GitlabAccessLevel.GUEST)
+        assertThat(member1.id).isEqualTo(user2.gitlabId!!)
+        assertThat(member2.id).isEqualTo(user2.gitlabId!!)
+        assertThat(member3.id).isEqualTo(user2.gitlabId!!)
     }
 
     @Test
@@ -487,7 +479,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
-            gitlabRestClient.userEditUserInProject(token1, project1.id, user1.person.gitlabId!!)
+            gitlabRestClient.userEditUserInProject(token1, project1.id, user1.gitlabId!!)
         }
     }
 
@@ -500,7 +492,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
 
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
-            gitlabRestClient.userEditUserInProject(token2, project1.id, user1.person.gitlabId!!)
+            gitlabRestClient.userEditUserInProject(token2, project1.id, user1.gitlabId!!)
         }
     }
 
@@ -511,9 +503,9 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (_, token1, _) = createRealUser()
         val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
-        gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!)
-        val member2 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.person.gitlabId!!)
-        assertThat(member2.id).isEqualTo(user2.person.gitlabId!!)
+        gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!)
+        val member2 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.gitlabId!!)
+        assertThat(member2.id).isEqualTo(user2.gitlabId!!)
     }
 
     @Test
@@ -525,9 +517,9 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user2, token2, _) = createRealUser()
         val (user3, _, _) = createRealUser()
         val project1 = createProject(token1)
-        gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.MAINTAINER)
-        val member2 = gitlabRestClient.userEditUserInProject(token2, project1.id, user3.person.gitlabId!!, GitlabAccessLevel.GUEST)
-        assertThat(member2.id).isEqualTo(user3.person.gitlabId!!)
+        gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!, GitlabAccessLevel.MAINTAINER)
+        val member2 = gitlabRestClient.userEditUserInProject(token2, project1.id, user3.gitlabId!!, GitlabAccessLevel.GUEST)
+        assertThat(member2.id).isEqualTo(user3.gitlabId!!)
     }
 
     @Test
@@ -538,9 +530,9 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user2, token2, _) = createRealUser()
         val (user3, _, _) = createRealUser()
         val project1 = createProject(token1)
-        gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
+        gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!, GitlabAccessLevel.GUEST)
         assertThrows<GitlabAuthenticationFailedException> {
-            gitlabRestClient.userEditUserInProject(token2, project1.id, user3.person.gitlabId!!, GitlabAccessLevel.GUEST)
+            gitlabRestClient.userEditUserInProject(token2, project1.id, user3.gitlabId!!, GitlabAccessLevel.GUEST)
         }
     }
 
@@ -551,7 +543,7 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (user1, token1, _) = createRealUser()
         val project1 = createProject(token1)
         assertThrows<GitlabAuthenticationFailedException> {
-            gitlabRestClient.userEditUserInProject(token1, project1.id, user1.person.gitlabId!!, accessLevel = GitlabAccessLevel.GUEST)
+            gitlabRestClient.userEditUserInProject(token1, project1.id, user1.gitlabId!!, accessLevel = GitlabAccessLevel.GUEST)
         }
     }
 
@@ -562,11 +554,11 @@ class GitlabRestClientTest : AbstractIntegrationTest() {
         val (_, token1, _) = createRealUser()
         val (user2, _, _) = createRealUser()
         val project1 = createProject(token1)
-        val member1 = gitlabRestClient.adminAddUserToProject(project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
-        val member2 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.person.gitlabId!!, GitlabAccessLevel.DEVELOPER)
-        val member3 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.person.gitlabId!!, GitlabAccessLevel.GUEST)
-        assertThat(member1.id).isEqualTo(user2.person.gitlabId!!)
-        assertThat(member2.id).isEqualTo(user2.person.gitlabId!!)
-        assertThat(member3.id).isEqualTo(user2.person.gitlabId!!)
+        val member1 = gitlabRestClient.adminAddUserToProject(project1.id, user2.gitlabId!!, GitlabAccessLevel.GUEST)
+        val member2 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.gitlabId!!, GitlabAccessLevel.DEVELOPER)
+        val member3 = gitlabRestClient.userEditUserInProject(token1, project1.id, user2.gitlabId!!, GitlabAccessLevel.GUEST)
+        assertThat(member1.id).isEqualTo(user2.gitlabId!!)
+        assertThat(member2.id).isEqualTo(user2.gitlabId!!)
+        assertThat(member3.id).isEqualTo(user2.gitlabId!!)
     }
 }

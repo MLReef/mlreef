@@ -33,6 +33,7 @@ object ApplicationProfiles {
     GitlabConfiguration::class,
     ProxyConfiguration::class,
     ProjectsConfiguration::class,
+    FilesManagementConfiguration::class,
 )
 class RestApplication
 
@@ -96,6 +97,9 @@ class EpfConfiguration {
     var mainPublishBranch: String = "master"
     var maxProcessorsForMainBranch: Int = 10
     var maxProcessorsForNonmainBranch: Int = 10
+
+    var dvcWorkingDir: String = ""
+    var awsDefaultRegion: String? = null
 }
 
 @ConfigurationProperties(prefix = "mlreef.proxy")
@@ -111,4 +115,12 @@ class ProjectsConfiguration(
     var waitGitlabForkSec: Int = 30,
     var pauseForkFinishedPollingSec: Int = 2, //pause between project status requests
     var maxRecentProjectsHistorySize: Int = 10,
+)
+
+@ConfigurationProperties(prefix = "mlreef.files-management")
+class FilesManagementConfiguration(
+    var storagePlace: String? = null,
+    var uploadDir: String? = null,
+    var downloadDomain: String? = null,
+    var downloadPath: String? = null,
 )

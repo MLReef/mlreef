@@ -36,7 +36,7 @@ class PipelineConfigTest : AbstractRepositoryTest() {
         dataProject = createDataProject(
             slug = "slug",
             name = "Test pipeline config project 1",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group1",
             path = "project1",
             gitlabId = Random.nextInt().absoluteValue.toLong(),
@@ -45,7 +45,7 @@ class PipelineConfigTest : AbstractRepositoryTest() {
         dataProject2 = createDataProject(
             slug = "slug2",
             name = "Test pipeline config project 2",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group2",
             path = "project2",
             gitlabId = Random.nextInt().absoluteValue.toLong(),

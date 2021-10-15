@@ -614,52 +614,54 @@ class GitlabRestClient(
             }
     }
 
+    //https://docs.gitlab.com/ee/api/commits.html#create-a-commit-with-multiple-files-and-actions
     fun commitFiles(
         token: String,
         projectId: Long,
         targetBranch: String,
         commitMessage: String,
-        fileContents: Map<String, String>,
-        action: String,
+        fileContents: Map<String, String?>,
+        action: GitlabCommitOperations,
         force: Boolean = false,
+        isBase64: Boolean = false,
     ): Commit =
-        GitlabCreateCommitRequest(
+        GitlabCommitRequest(
             branch = targetBranch,
             actions = fileContents.map {
-                GitlabCreateCommitAction(
+                GitlabCommitAction(
                     filePath = it.key,
-                    content = it.value,
-                    action = action
+                    content = if (action != GitlabCommitOperations.MOVE) it.value else null,
+                    previousPath = if (action == GitlabCommitOperations.MOVE) it.value else null,
+                    action = action.name.toLowerCase(),
+                    encoding = if (isBase64) "base64" else "text",
                 )
             },
             commitMessage = commitMessage,
             force = force
         ).let {
             GitlabHttpEntity(it, createUserHeaders(token))
-        }.addErrorDescription(
-            error = ErrorCode.GitlabCommitFailed,
-            name = "Cannot commit ${fileContents.keys.joinToString()} in $targetBranch for Gitlab project $projectId"
-        ).makeRequest {
+        }.addErrorDescription(error = ErrorCode.GitlabCommitFailed, name = "Cannot commit ${fileContents.keys.joinToString()} in $targetBranch for Gitlab project $projectId").makeRequest {
             val url = "$gitlabServiceRootUrl/projects/$projectId/repository/commits"
             restTemplate(builder).exchange(url, HttpMethod.POST, it, Commit::class.java)
         }
-
 
     fun adminCommitFiles(
         projectId: Long,
         targetBranch: String,
         commitMessage: String,
-        fileContents: Map<String, String>,
-        action: String,
+        fileContents: Map<String, String?>,
+        action: GitlabCommitOperations,
         force: Boolean = false,
+        isBase64: Boolean = false,
     ): Commit =
-        GitlabCreateCommitRequest(
+        GitlabCommitRequest(
             branch = targetBranch,
             actions = fileContents.map {
-                GitlabCreateCommitAction(
+                GitlabCommitAction(
                     filePath = it.key,
                     content = it.value,
-                    action = action
+                    action = action.name.toLowerCase(),
+                    encoding = if (isBase64) "base64" else "text",
                 )
             },
             commitMessage = commitMessage,
