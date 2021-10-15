@@ -1,11 +1,6 @@
 package com.mlreef.rest.persistence
 
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.DataType
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.Subject
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.marketplace.Star
 import org.assertj.core.api.Assertions.assertThat
@@ -25,7 +20,7 @@ class ProjectTest : AbstractRepositoryTest() {
         val id = randomUUID()
 
         val entity =
-            dataProject(id = id, owner = mainPerson, inputDataTypes = mutableSetOf(imageDataType, modelDataType))
+            dataProject(id = id, owner = mainAccount, inputDataTypes = mutableSetOf(imageDataType, modelDataType))
 
         projectRepository.save(entity)
         val fromRepo = projectRepository.findByIdOrNull(id)!!
@@ -65,7 +60,7 @@ class ProjectTest : AbstractRepositoryTest() {
         id: UUID,
         tags: Set<SearchableTag> = emptySet(),
         globalSlug: String = "slug",
-        owner: Subject = mainPerson,
+        owner: Account = mainAccount,
         inputDataTypes: Set<DataType> = setOf(),
         gitlabId: Long = 2,
         gitlabNamespace: String = "",
@@ -91,7 +86,7 @@ class ProjectTest : AbstractRepositoryTest() {
         id: UUID,
         tags: Set<SearchableTag> = emptySet(),
         globalSlug: String = "slug",
-        owner: Subject = mainPerson,
+        owner: Account = mainAccount,
         inputDataTypes: Collection<DataType> = setOf(),
         outputDataTypes: Collection<DataType> = setOf(),
         gitlabId: Long = 2,
@@ -128,7 +123,7 @@ class ProjectTest : AbstractRepositoryTest() {
 
         // test
         val id = randomUUID()
-        val entity = dataProject(id, tags = saveAll.toSet(), globalSlug = "slug", owner = mainPerson)
+        val entity = dataProject(id, tags = saveAll.toSet(), globalSlug = "slug", owner = mainAccount)
 
         projectRepository.save(entity)
 
@@ -147,11 +142,11 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `saving persists Entry and stars`() {
         val id = randomUUID()
 
-        val entity = dataProject(id = id, owner = mainPerson)
+        val entity = dataProject(id = id, owner = mainAccount)
 
         val adapted = entity
-            .addStar(mainPerson)
-            .addStar(mainPerson2)
+            .addStar(mainAccount)
+            .addStar(mainAccount2)
         val save = projectRepository.save(adapted)
         assertThat(save).isNotNull
 
@@ -160,8 +155,8 @@ class ProjectTest : AbstractRepositoryTest() {
         assertThat(fromRepo).isNotNull
         assertThat(fromRepo!!.stars).hasSize(2)
         assertThat(fromRepo.starsCount).isEqualTo(2)
-        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson.id))
-        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainAccount.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainAccount2.id))
     }
 
     @Transactional
@@ -171,16 +166,16 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `saving persists Entry and stars after remove`() {
         val id = randomUUID()
 
-        val entity = dataProject(id = id, owner = mainPerson)
+        val entity = dataProject(id = id, owner = mainAccount)
 
 //        val person1 = EntityMocks.person(slug = "slug23")
 //        val person2 = EntityMocks.person(slug = "slug234")
 //        personRepository.saveAll(listOf(person1, person2))
 
         val adapted = entity
-            .addStar(mainPerson)
-            .addStar(mainPerson2)
-            .addStar(mainPerson3)
+            .addStar(mainAccount)
+            .addStar(mainAccount2)
+            .addStar(mainAccount3)
 
         withinTestTransaction {
             projectRepository.save(adapted)
@@ -189,18 +184,18 @@ class ProjectTest : AbstractRepositoryTest() {
         val fromRepo = projectRepository.findByIdOrNull(id)
         assertThat(fromRepo!!.stars).hasSize(2)
         assertThat(fromRepo.starsCount).isEqualTo(2)
-        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson2.id))
-        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson3.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainAccount2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainAccount3.id))
 
         val afterRemove = withinTestTransaction {
             val beforeRemove = fromRepo
-                .removeStar(mainPerson)
-                .removeStar(mainPerson)
+                .removeStar(mainAccount)
+                .removeStar(mainAccount)
             projectRepository.save(beforeRemove)
         }
         assertThat(afterRemove.stars).hasSize(1)
         assertThat(afterRemove.starsCount).isEqualTo(1)
-        assertThat(fromRepo.stars).contains(Star(entity.id, mainPerson2.id))
+        assertThat(fromRepo.stars).contains(Star(entity.id, mainAccount2.id))
     }
 
     @Transactional
@@ -209,7 +204,7 @@ class ProjectTest : AbstractRepositoryTest() {
     fun `find works`() {
         val id = randomUUID()
 
-        val entity = dataProject(id = id, owner = mainPerson)
+        val entity = dataProject(id = id, owner = mainAccount)
 
         assertThat(projectRepository.findByIdOrNull(id)).isNull()
         projectRepository.save(entity)
@@ -221,7 +216,7 @@ class ProjectTest : AbstractRepositoryTest() {
     @Rollback
     fun `save works`() {
         val id = randomUUID()
-        val entity = dataProject(id = id, owner = mainPerson)
+        val entity = dataProject(id = id, owner = mainAccount)
 
         assertThat(projectRepository.findByIdOrNull(id)).isNull()
         val saved = projectRepository.save(entity)
@@ -235,7 +230,7 @@ class ProjectTest : AbstractRepositoryTest() {
     @Rollback
     fun `delete works`() {
         val id = randomUUID()
-        val entity = dataProject(id = id, owner = mainPerson)
+        val entity = dataProject(id = id, owner = mainAccount)
 
         val saved = projectRepository.save(entity)
         projectRepository.delete(saved)

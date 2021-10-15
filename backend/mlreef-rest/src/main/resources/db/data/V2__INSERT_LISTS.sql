@@ -101,3 +101,14 @@ VALUES (E'c1ec5c70-ef27-4e5c-bc0d-3a6d0b76219c', E'EXPERIMENT');
 
 INSERT INTO public.pipeline_types ("id", "name")
 VALUES (E'2c4b7990-4a97-4ccb-b962-4f2ebe5193c1', E'VISUALIZATION');
+
+-- File purposes types
+
+INSERT INTO public.file_purposes ("id", "purpose_name", "max_file_size", "file_ext_allowed")
+VALUES (E'4814d73e-0043-4aac-8443-fb0cff859491', E'Project main picture', 0, E'*.*');
+
+INSERT INTO public.file_purposes ("id", "purpose_name", "max_file_size", "file_ext_allowed")
+VALUES (E'd7fa34ee-9cc8-474e-87e0-095050ea7457', E'User main picture', 0, E'*.*');
+
+INSERT INTO public.file_purposes ("id", "purpose_name", "max_file_size", "file_ext_allowed")
+VALUES (E'145be80f-4352-4a89-a7a3-cd20ebc03352', E'Undefined', 0, E'*.*');

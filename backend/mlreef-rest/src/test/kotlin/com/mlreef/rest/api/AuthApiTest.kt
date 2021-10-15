@@ -3,6 +3,7 @@ package com.mlreef.rest.api
 import com.mlreef.rest.api.v1.LoginRequest
 import com.mlreef.rest.api.v1.RegisterRequest
 import com.mlreef.rest.api.v1.UpdateRequest
+import com.mlreef.rest.api.v1.dto.MlreefFileDto
 import com.mlreef.rest.api.v1.dto.SecretUserDto
 import com.mlreef.rest.api.v1.dto.UserDto
 import com.mlreef.rest.domain.UserRole
@@ -19,16 +20,16 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.annotation.Rollback
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
 
@@ -59,9 +60,11 @@ class AuthApiTest : AbstractRestApiTest() {
 
         val result = this.performPost(url, body = registerRequest)
             .expectOk()
-            .document("register-success",
+            .document(
+                "register-success",
                 requestFields(registerRequestFields()),
-                responseFields(userSecretDtoResponseFields()))
+                responseFields(userSecretDtoResponseFields())
+            )
             .returns(SecretUserDto::class.java)
 
         with(accountRepository.findOneByEmail(email)!!) {
@@ -81,8 +84,10 @@ class AuthApiTest : AbstractRestApiTest() {
 
         this.performPost(url, body = registerRequest)
             .expect4xx()
-            .document("register-fail",
-                responseFields(errorResponseFields()))
+            .document(
+                "register-fail",
+                responseFields(errorResponseFields())
+            )
     }
 
     @Transactional
@@ -102,9 +107,11 @@ class AuthApiTest : AbstractRestApiTest() {
 
         val result = this.performPost(url, body = loginRequest)
             .expectOk()
-            .document("login-success",
+            .document(
+                "login-success",
                 requestFields(loginRequestFields()),
-                responseFields(userSecretDtoResponseFields()))
+                responseFields(userSecretDtoResponseFields())
+            )
             .returns(SecretUserDto::class.java).censor()
 
         assertThat(result).isNotNull
@@ -131,8 +138,10 @@ class AuthApiTest : AbstractRestApiTest() {
 
         this.performPost(url, body = loginRequest)
             .expect4xx()
-            .document("login-fail",
-                responseFields(errorResponseFields()))
+            .document(
+                "login-fail",
+                responseFields(errorResponseFields())
+            )
     }
 
     @Transactional
@@ -168,16 +177,17 @@ class AuthApiTest : AbstractRestApiTest() {
             result.username,
             "new-token-${UUID.randomUUID()}",
             result.id,
-            UUID.randomUUID()
         )
 
         mockSecurityContextHolder(tokenDetails)
 
         val returnedResult2: UserDto = this.performPut("$authUrl/update/${result.id}", token = "new-token-${UUID.randomUUID()}", body = updateRequest)
             .expectOk()
-            .document("update-profile-success",
+            .document(
+                "update-profile-success",
                 requestFields(updateProfileRequestFields()),
-                responseFields(userDtoResponseFields()))
+                responseFields(userDtoResponseFields())
+            )
             .returns()
 
         with(accountRepository.findOneByEmail(newEmail)!!) {
@@ -203,12 +213,13 @@ class AuthApiTest : AbstractRestApiTest() {
             .expectOk()
             .returns(SecretUserDto::class.java)
 
-        mockSecurityContextHolder(TokenDetails(
-            result.username,
-            "new-token-${UUID.randomUUID()}",
-            result.id,
-            UUID.randomUUID()
-        ))
+        mockSecurityContextHolder(
+            TokenDetails(
+                result.username,
+                "new-token-${UUID.randomUUID()}",
+                result.id,
+            )
+        )
 
         val returnedResult2: UserDto = this.performPut(
             "$authUrl/user",
@@ -219,11 +230,14 @@ class AuthApiTest : AbstractRestApiTest() {
                 userRole = UserRole.DEVELOPER,
                 email = email,
                 username = randomUserName
-            ))
+            )
+        )
             .expectOk()
-            .document("update-own-profile-success",
+            .document(
+                "update-own-profile-success",
                 requestFields(updateProfileRequestFields()),
-                responseFields(userDtoResponseFields()))
+                responseFields(userDtoResponseFields())
+            )
             .returns()
 
         with(accountRepository.findOneByEmail(email)!!) {
@@ -276,6 +290,95 @@ class AuthApiTest : AbstractRestApiTest() {
         assertThat(result.email).isEqualTo("mock@example.com")
     }
 
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can create avatar for myself`() {
+        val existingUser = createMockUser()
+
+        mockUserAuthentication(forAccount = existingUser)
+
+        val fis = "Some text data inside file".byteInputStream(Charsets.UTF_8)
+        val multipartFile = MockMultipartFile("file", fis)
+
+        val url = "$authUrl/user/avatar/create"
+
+        val result = this.performPostMultipart(url, multipartFile, null, "jwt-access-token")
+            .expectOk()
+            .document("create-user-avatar",
+                responseFields(uploadedFileFields())
+            )
+            .returns(MlreefFileDto::class.java)
+
+        val userInDb = accountRepository.findByIdOrNull(existingUser.id)!!
+
+        assertThat(result).isNotNull()
+        assertThat(userInDb.avatar).isNotNull()
+        assertThat(userInDb.avatar!!.id).isEqualTo(result.id)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can update my own avatar`() {
+        var existingUser = createMockUser()
+        val avatarFile = createMlreefFile(existingUser)
+        existingUser = updateMockUser(existingUser, avatar = avatarFile)
+
+        var userInDb = accountRepository.findByIdOrNull(existingUser.id)!!
+
+        assertThat(userInDb.avatar).isNotNull()
+
+        mockUserAuthentication(forAccount = existingUser)
+
+        val fis = "Some text data inside file".byteInputStream(Charsets.UTF_8)
+        val multipartFile = MockMultipartFile("file", fis)
+
+        val url = "$authUrl/user/avatar/update"
+
+        val result = this.performPostMultipart(url, multipartFile, null, "jwt-access-token")
+            .expectOk()
+            .document("update-user-avatar",
+                responseFields(uploadedFileFields())
+            )
+            .returns(MlreefFileDto::class.java)
+
+        userInDb = accountRepository.findByIdOrNull(existingUser.id)!!
+
+        assertThat(result).isNotNull()
+        assertThat(userInDb.avatar).isNotNull()
+        assertThat(userInDb.avatar!!.id).isEqualTo(result.id)
+    }
+
+    @Transactional
+    @Rollback
+    @Test
+    @Tag(TestTags.RESTDOC)
+    fun `Can delete my own avatar`() {
+        var existingUser = createMockUser()
+        val avatarFile = createMlreefFile(existingUser)
+        existingUser = updateMockUser(existingUser, avatar = avatarFile)
+
+        var userInDb = accountRepository.findByIdOrNull(existingUser.id)!!
+
+        assertThat(userInDb.avatar).isNotNull()
+
+        mockUserAuthentication(forAccount = existingUser)
+
+        val url = "$authUrl/user/avatar/delete"
+
+        this.performDelete(url, "jwt-access-token")
+            .expectNoContent()
+            .document("delete-user-avatar",)
+
+        userInDb = accountRepository.findByIdOrNull(existingUser.id)!!
+
+        assertThat(userInDb.avatar).isNull()
+    }
+
+
     private fun userSecretDtoResponseFields(): List<FieldDescriptor> {
         return listOf(
             fieldWithPath("id").type(JsonFieldType.STRING).description("UUID"),
@@ -291,6 +394,7 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("name").optional().type(JsonFieldType.STRING).description("Person name"),
             fieldWithPath("external").optional().type(JsonFieldType.BOOLEAN).description("The mark showing that user comes from social network registration"),
             fieldWithPath("external_from").optional().type(JsonFieldType.STRING).description("Social network name the user registered with"),
+            fieldWithPath("avatar_url").optional().type(JsonFieldType.STRING).description("User's avatar url for downloading"),
         )
     }
 
@@ -306,7 +410,8 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("name").optional().type(JsonFieldType.STRING).description("Person name"),
             fieldWithPath("external").optional().type(JsonFieldType.BOOLEAN).description("The mark showing that user comes from social network registration"),
             fieldWithPath("external_from").optional().type(JsonFieldType.STRING).description("Social network name the user registered with"),
-            )
+            fieldWithPath("avatar_url").optional().type(JsonFieldType.STRING).description("User's avatar url for downloading"),
+        )
     }
 
     private fun registerRequestFields(): List<FieldDescriptor> {
@@ -323,12 +428,14 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("username").type(JsonFieldType.STRING).description("A valid, not-yet-existing username"),
             fieldWithPath("email").type(JsonFieldType.STRING).description("A valid email"),
             fieldWithPath("name").type(JsonFieldType.STRING).optional().description("The fullname of the user"),
-            fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description("UserRole: Can be DATA_SCIENTIST,\n" +
-                "    DEVELOPER,\n" +
-                "    ML_ENGINEER,\n" +
-                "    RESEARCHER,\n" +
-                "    STUDENT,\n" +
-                "    TEAM_LEAD,"),
+            fieldWithPath("user_role").optional().type(JsonFieldType.STRING).description(
+                "UserRole: Can be DATA_SCIENTIST,\n" +
+                        "    DEVELOPER,\n" +
+                        "    ML_ENGINEER,\n" +
+                        "    RESEARCHER,\n" +
+                        "    STUDENT,\n" +
+                        "    TEAM_LEAD,"
+            ),
             fieldWithPath("terms_accepted_at").optional().type(JsonFieldType.STRING).description("Timestamp, when the terms & conditions have been accepted."),
             fieldWithPath("has_newsletters").optional().type(JsonFieldType.BOOLEAN).description("Indicates that the user wants to retrieve newsletters, or not")
 

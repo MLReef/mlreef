@@ -75,8 +75,8 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     @Rollback
     @Test
     fun `createEntry persists Entry`() {
-        dataProject = createDataProject(ownerId = mainPerson.id)
-        val createEntry = service.prepareEntry(dataProject, mainPerson)
+        dataProject = createDataProject(ownerId = mainAccount.id)
+        val createEntry = service.prepareEntry(dataProject, mainAccount)
 
         assertThat(createEntry).isNotNull()
         assertThat(createEntry.ownerId).isNotNull()
@@ -92,7 +92,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     @Test
     fun `addTags persists Entry and tags collection`() {
 
-        dataProject = createDataProject(ownerId = mainPerson.id)
+        dataProject = createDataProject(ownerId = mainAccount.id)
         // prepare
         val tag1 = SearchableTag(randomUUID(), "tag1")
         val tag2 = SearchableTag(randomUUID(), "tag2")
@@ -100,7 +100,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         val tag4 = SearchableTag(randomUUID(), "tag4")
         val bunch1 = tagRepository.saveAll(arrayListOf(tag1, tag2)).toList()
         val bunch2 = tagRepository.saveAll(arrayListOf(tag3, tag4)).toList()
-        val entry = service.prepareEntry(dataProject, mainPerson)
+        val entry = service.prepareEntry(dataProject, mainAccount)
 
         val addTags = service.addTags(entry, bunch1)
         val fromRepo1 = projectRepository.findByIdOrNull(addTags.getId())
@@ -130,14 +130,14 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     @Test
     fun `defineTags persists Entry and reset Tags`() {
         // prepare
-        dataProject = createDataProject(ownerId = mainPerson.id)
+        dataProject = createDataProject(ownerId = mainAccount.id)
         val tag1 = SearchableTag(randomUUID(), "tag1")
         val tag2 = SearchableTag(randomUUID(), "tag2")
         val tag3 = SearchableTag(randomUUID(), "tag3")
         val tag4 = SearchableTag(randomUUID(), "tag4")
         val bunch1 = tagRepository.saveAll(arrayListOf(tag1, tag2)).toList()
         val bunch2 = tagRepository.saveAll(arrayListOf(tag3, tag4)).toList()
-        val entry = service.prepareEntry(dataProject, mainPerson)
+        val entry = service.prepareEntry(dataProject, mainAccount)
 
         service.defineTags(entry, bunch1)
         val fromRepo1 = projectRepository.findByIdOrNull(entry.getId())
@@ -167,18 +167,18 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
     @Test
     fun `addStar persists stars for Entity`() {
         // prepare
-        dataProject = createDataProject(ownerId = mainPerson.id)
-        val entity = service.prepareEntry(dataProject, mainPerson)
+        dataProject = createDataProject(ownerId = mainAccount.id)
+        val entity = service.prepareEntry(dataProject, mainAccount)
 
-        val v1 = service.addStar(entity, mainPerson)
-        service.addStar(v1, mainPerson2)
+        val v1 = service.addStar(entity, mainAccount)
+        service.addStar(v1, mainAccount2)
         val fromRepo = projectRepository.findByIdOrNull(entity.getId())
 
         assertThat(fromRepo).isNotNull()
         assertThat(fromRepo!!.stars).hasSize(2)
         assertThat(fromRepo.starsCount).isEqualTo(2)
-        assertThat(fromRepo.stars).contains(Star(entity.getId(), mainPerson.getId()))
-        assertThat(fromRepo.stars).contains(Star(entity.getId(), mainPerson2.getId()))
+        assertThat(fromRepo.stars).contains(Star(entity.getId(), mainAccount.getId()))
+        assertThat(fromRepo.stars).contains(Star(entity.getId(), mainAccount2.getId()))
     }
 
     @Transactional
@@ -1053,7 +1053,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         createMockedProjects()
         var searchResult = service.searchProjects(
             SearchRequest(
-                ownerIdsOr = listOf(mainPerson.id, mainPerson2.id),
+                ownerIdsOr = listOf(mainAccount.id, mainAccount2.id),
             ), page(), token1
         )
         var ids = searchResult.content.map { it.slug }
@@ -1072,7 +1072,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
         searchResult = service.searchProjects(
             SearchRequest(
-                ownerIdsOr = listOf(mainPerson.id, mainPerson2.id),
+                ownerIdsOr = listOf(mainAccount.id, mainAccount2.id),
             ), page(), token2
         )
         ids = searchResult.content.map { it.slug }
@@ -1509,11 +1509,11 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             slug = "slug1",
             inputTypes = dataTypeSet4,
             tags = tagSet2,
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             visibility = PUBLIC,
             forksCount = 8,
             namespace = "namespace2",
-            stars = listOf(mainPerson, mainPerson2),
+            stars = listOf(mainAccount, mainAccount2),
             name = "Marketplace service test data project 1",
         )
 
@@ -1524,7 +1524,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             visibility = PRIVATE,
             forksCount = 7,
             namespace = "namespace1",
-            stars = listOf(mainPerson),
+            stars = listOf(mainAccount),
             name = "Marketplace service test data project 2",
         )
 
@@ -1542,7 +1542,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             slug = "Slug4",
             inputTypes = dataTypeSet4,
             tags = tagSet5,
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             visibility = PRIVATE,
             forksCount = 5,
             namespace = "namespace1",
@@ -1572,7 +1572,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             slug = "slu7",
             inputTypes = dataTypeSet7,
             tags = mutableListOf(tag4),
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             visibility = PUBLIC,
             forksCount = 2,
             namespace = "namespace2",
@@ -1591,7 +1591,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
 
         dataProject9 = createDataProject(
             slug = "slug9",
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             visibility = PRIVATE,
             namespace = "namespace2",
             name = "Marketplace service test data project 9",
@@ -1628,7 +1628,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             inputTypes = dataTypeSet2,
             outputTypes = dataTypeSet2,
             tags = tagSet4,
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             visibility = PRIVATE,
             forksCount = 1,
             namespace = "namespace2",
@@ -1700,7 +1700,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             processorType = visualizationProcessorType,
             modelType = "modelType6",
             mlCategory = "mlCategory6",
-            stars = listOf(mainPerson, mainPerson2),
+            stars = listOf(mainAccount, mainAccount2),
             name = "Marketplace service test code project 6",
         )
 
@@ -1709,7 +1709,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             inputTypes = dataTypeSet8,
             outputTypes = dataTypeSet6,
             tags = mutableListOf(tag3),
-            ownerId = mainPerson2.id,
+            ownerId = mainAccount2.id,
             visibility = PUBLIC,
             forksCount = 7,
             namespace = "namespace2",
@@ -1728,7 +1728,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
             forksCount = 8,
             namespace = "namespace1",
             processorType = operationProcessorType,
-            stars = listOf(mainPerson2),
+            stars = listOf(mainAccount2),
             name = "Marketplace service test code project 8",
         )
 
@@ -1771,7 +1771,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         val processorForCodeProject8 = createProcessor(codeProject8, status = PublishStatus.PUBLISH_FINISHING) //private, token1
 
         token1 = TokenDetails(
-            mainPerson.name, "1234", mainPerson.id, mainPerson.id, projects = mutableMapOf(
+            mainAccount.name, "1234", mainAccount.id, projects = mutableMapOf(
                 dataProject0.id to OWNER,
                 dataProject1.id to DEVELOPER,
                 dataProject2.id to OWNER,
@@ -1792,7 +1792,7 @@ class MarketplaceServiceTest : AbstractRepositoryTest() {
         )
 
         token2 = TokenDetails(
-            mainPerson2.name, "98765", mainPerson2.id, mainPerson2.id, projects = mutableMapOf(
+            mainAccount2.name, "98765", mainAccount2.id, projects = mutableMapOf(
                 dataProject0.id to DEVELOPER,
                 dataProject1.id to OWNER,
                 dataProject4.id to OWNER,

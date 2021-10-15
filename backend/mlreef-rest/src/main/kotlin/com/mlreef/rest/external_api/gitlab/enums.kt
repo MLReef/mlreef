@@ -110,3 +110,11 @@ enum class RepositoryTreeType {
     BLOB,
 }
 
+enum class GitlabCommitOperations {
+    CREATE,
+    DELETE,
+    MOVE,
+    UPDATE,
+    CHMOD;
+}
+

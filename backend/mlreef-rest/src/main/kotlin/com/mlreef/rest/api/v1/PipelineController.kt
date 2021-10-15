@@ -76,7 +76,7 @@ class PipelineController(
         tokenDetails: TokenDetails,
     ): PipelineDto {
         val pipelineConfig = beforeGetPipelineConfig(configId)
-        return pipelineService.createPipelineForConfig(tokenDetails.personId, pipelineConfig).toDto()
+        return pipelineService.createPipelineForConfig(tokenDetails.accountId, pipelineConfig).toDto()
     }
 
     @PutMapping("/{configId}/instances/{pipelineId}/{action}")
@@ -102,7 +102,7 @@ class PipelineController(
                 tokenDetails.accessToken,
                 pipelineConfig.dataProject!!.id,
                 pipeline,
-                tokenDetails.personId,
+                tokenDetails.accountId,
                 secret = pipelineService.createSecret()
             )
             "archive" -> pipelineService.archivePipeline(pipeline)

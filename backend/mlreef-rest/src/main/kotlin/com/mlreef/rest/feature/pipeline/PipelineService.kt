@@ -1,56 +1,23 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.ApplicationConfiguration
-import com.mlreef.rest.EPF_CONTROLLER_PATH
-import com.mlreef.rest.ParameterInstancesRepository
-import com.mlreef.rest.ParametersRepository
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.PipelineConfigurationRepository
-import com.mlreef.rest.PipelinesRepository
-import com.mlreef.rest.ProcessorInstancesRepository
-import com.mlreef.rest.ProcessorsRepository
+import com.mlreef.rest.*
 import com.mlreef.rest.annotations.SaveRecentProject
 import com.mlreef.rest.api.v1.PipelineConfigCreateRequest
 import com.mlreef.rest.api.v1.dto.FileLocationDto
 import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
 import com.mlreef.rest.config.censor
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.FileLocation
-import com.mlreef.rest.domain.ParameterInstance
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Pipeline
-import com.mlreef.rest.domain.PipelineConfiguration
-import com.mlreef.rest.domain.PipelineJobInfo
-import com.mlreef.rest.domain.PipelineStatus
-import com.mlreef.rest.domain.PipelineType
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.PublishStatus
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.repositories.PipelineTypesRepository
-import com.mlreef.rest.exceptions.BadRequestException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GitlabIncorrectAnswerException
-import com.mlreef.rest.exceptions.InconsistentStateOfObject
-import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
-import com.mlreef.rest.exceptions.InternalException
-import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.exceptions.PipelineCreateException
-import com.mlreef.rest.exceptions.PipelineStartException
-import com.mlreef.rest.exceptions.PipelineStateException
-import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.exceptions.*
 import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.VariableType
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
-import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
+import com.mlreef.rest.external_api.gitlab.dto.*
 import com.mlreef.rest.feature.MLREEF_NAME
 import com.mlreef.rest.feature.UNPUBLISH_COMMIT_MESSAGE
 import com.mlreef.rest.feature.auth.AuthService
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.processors.ProcessorsService
 import com.mlreef.rest.feature.processors.RepositoryService
 import com.mlreef.rest.feature.project.ProjectResolverService
@@ -70,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.DigestUtils
 import java.nio.charset.Charset
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.annotation.PostConstruct
 import javax.persistence.EntityManagerFactory
@@ -82,7 +49,6 @@ import javax.persistence.PersistenceUnit
 @RequiredArgsConstructor
 class PipelineService(
     private val conf: ApplicationConfiguration,
-    private val personRepository: PersonRepository,
     private val pipelineConfigRepository: PipelineConfigurationRepository,
     private val pipelinesRepository: PipelinesRepository,
     private val processorsRepository: ProcessorsRepository,
@@ -98,6 +64,7 @@ class PipelineService(
     private val entityManagerFactory: EntityManagerFactory,
     private val processorsService: ProcessorsService,
     private val repositoryService: RepositoryService,
+    private val userResolverService: UserResolverService,
 ) {
     private val DEFAULT_BASE_IMAGE_PATH = "registry.gitlab.com/mlreef/mlreef/experiment:master"
 
@@ -132,12 +99,12 @@ class PipelineService(
         return pipelinesRepository.findByIdOrNull(pipelineId)
     }
 
-    @SaveRecentProject(projectId = "#dataProjectId", userId = "#person.id", operation = "createPipelineConfig")
+    @SaveRecentProject(projectId = "#dataProjectId", userId = "#accountId", operation = "createPipelineConfig")
     @Transactional
     fun createNewPipelineConfig(
         dataProjectId: UUID,
         createRequest: PipelineConfigCreateRequest,
-        person: Person
+        accountId: UUID
     ): PipelineConfiguration {
         log.info(createRequest.toString())
 
@@ -146,7 +113,7 @@ class PipelineService(
 
         return try {
             val newPipelineConfig = this.createPipelineConfig(
-                personId = person.id,
+                accountId = accountId,
                 dataProjectId = dataProject.id,
                 pipelineType = createRequest.pipelineType,
                 name = createRequest.name,
@@ -178,8 +145,8 @@ class PipelineService(
     }
 
     @Transactional
-    fun createPipelineFromConfig(pipelineConfig: PipelineConfiguration, number: Int, person: Person): Pipeline {
-        val pipeline = pipelinesRepository.save(pipelineConfig.createPipeline(person, number))
+    fun createPipelineFromConfig(pipelineConfig: PipelineConfiguration, number: Int, account: Account): Pipeline {
+        val pipeline = pipelinesRepository.save(pipelineConfig.createPipeline(account, number))
         processorInstancesRepository.saveAll(pipeline.processorInstances)
 
         log.info("Created new Instance $pipeline for Pipeline Configuration $pipelineConfig")
@@ -191,7 +158,7 @@ class PipelineService(
 
     @Transactional
     fun createPipelineConfig(
-        personId: UUID,
+        accountId: UUID,
         dataProjectId: UUID,
         pipelineType: String,
         name: String?,
@@ -199,8 +166,8 @@ class PipelineService(
         processorInstances: List<ProcessorInstance>,
         inputFiles: List<FileLocation>
     ): PipelineConfiguration {
-        val subject = personRepository.findByIdOrNull(personId)
-            ?: throw PipelineCreateException(ErrorCode.PipelineCreationOwnerMissing, "Owner is missing!")
+        val account = userResolverService.resolveAccount(userId = accountId)
+            ?: throw PipelineCreateException(ErrorCode.PipelineCreationInvalid, "Cannot create pipeline. User $accountId not found or missing")
 
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
             ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject $dataProjectId is missing!")
@@ -252,19 +219,19 @@ class PipelineService(
             targetBranchPattern = finalTargetBranchPattern,
             processorInstances = processorInstances.toMutableSet(),
             inputFiles = inputFiles.toMutableSet(),
-            creator = subject,
+            creator = account,
         )
         return pipelineConfigRepository.save(pipelineConfig)
     }
 
-    @SaveRecentProject(projectId = "#dataProjectId", userId = "#person.id", operation = "updatePipelineProject")
+    @SaveRecentProject(projectId = "#dataProjectId", userId = "#accountId", operation = "updatePipelineProject")
     @Transactional
     fun updatePipelineConfig(
         dataProjectId: UUID,
         pipelineConfigId: UUID,
         processorInstancesDtos: List<ProcessorInstanceDto>,
         inputFiles: List<FileLocationDto>,
-        person: Person,
+        accountId: UUID,
     ): PipelineConfiguration {
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
             ?: throw NotFoundException("Project $dataProjectId not found")
@@ -373,7 +340,7 @@ class PipelineService(
                 targetBranch = targetBranch,
                 commitMessage = commitMessage,
                 fileContents = fileContents,
-                action = "create",
+                action = GitlabCommitOperations.CREATE,
             )
             log.info("Committed Yaml file in commit ${commitFiles.shortId}")
             commitFiles
@@ -451,8 +418,8 @@ class PipelineService(
         pipelineConfig: PipelineConfiguration? = null,
         pipelineConfigId: UUID? = null
     ): Pipeline {
-        val subject = personRepository.findByIdOrNull(authorId)
-            ?: throw PipelineCreateException(ErrorCode.PipelineCreationOwnerMissing, "Owner is missing!")
+        val account = userResolverService.resolveAccount(userId = authorId)
+            ?: throw UserNotFoundException(userId = authorId)
 
         val finalPipelineConfig = pipelineConfig
             ?: pipelineConfigId?.let { pipelineConfigRepository.findByIdOrNull(it) }
@@ -460,7 +427,7 @@ class PipelineService(
 
         val nextNumber = (pipelinesRepository.maxNumberByPipelineConfig(finalPipelineConfig) ?: 0) + 1
 
-        var pipeline = finalPipelineConfig.createPipeline(subject, nextNumber)
+        var pipeline = finalPipelineConfig.createPipeline(account, nextNumber)
 
         pipeline = pipelinesRepository.save(pipeline)
 
@@ -820,7 +787,7 @@ class PipelineService(
                         targetBranch = branch,
                         commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
                         fileContents = fileContents,
-                        action = "delete"
+                        action = GitlabCommitOperations.DELETE,
                     )
                 } else {
                     gitlabRestClient.adminCommitFiles(
@@ -828,7 +795,7 @@ class PipelineService(
                         targetBranch = branch,
                         commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
                         fileContents = fileContents,
-                        action = "delete"
+                        action = GitlabCommitOperations.DELETE,
                     )
                 }
             } catch (e: RestException) {

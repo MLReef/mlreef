@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
@@ -30,18 +31,19 @@ abstract class AbstractRestTest: BaseTest() {
 
     protected fun acceptContentAuth(
         requestBuilder: MockHttpServletRequestBuilder,
-        token: String
+        token: String,
+        mediaType: MediaType? = null,
     ): MockHttpServletRequestBuilder {
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
             .header(HEADER_PRIVATE_TOKEN, token)
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(mediaType ?: MediaType.APPLICATION_JSON)
     }
 
-    protected fun acceptAnonymousAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
+    protected fun acceptAnonymousAuth(requestBuilder: MockHttpServletRequestBuilder, mediaType: MediaType? = null): MockHttpServletRequestBuilder {
         return requestBuilder
             .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(mediaType ?: MediaType.APPLICATION_JSON)
     }
 
     protected fun defaultAcceptContentEPFBot(token: String, requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
@@ -73,11 +75,25 @@ abstract class AbstractRestTest: BaseTest() {
 
     protected fun performEPFPut(token: String, url: String, body: Any? = null) =
         if (body != null) {
-            this.mockMvc.perform(this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url))
-                .content(objectMapper.writeValueAsString(body)))
+            this.mockMvc.perform(
+                this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url))
+                    .content(objectMapper.writeValueAsString(body))
+            )
         } else {
             this.mockMvc.perform(this.defaultAcceptContentEPFBot(token, RestDocumentationRequestBuilders.put(url)))
         }
+
+    protected fun performPostMultipart(
+        url: String,
+        file: MockMultipartFile? = null,
+        files: List<MockMultipartFile>? = null,
+        accessToken: String? = null,
+        params: Map<String, String>? = null
+    ): ResultActions {
+        return mockMvc.perform(
+            generateMultipartRequestBuilder(url, accessToken, file, files, params)
+        )
+    }
 
     private fun generateRequestBuilder(url: String, token: String?, body: Any?, method: HttpMethod = HttpMethod.GET): MockHttpServletRequestBuilder {
         val builder = when (method) {
@@ -96,6 +112,34 @@ abstract class AbstractRestTest: BaseTest() {
             acceptAnonymousAuth(builder)
         } else {
             acceptContentAuth(builder, token)
+        }
+    }
+
+    private fun generateMultipartRequestBuilder(
+        url: String,
+        token: String?,
+        file: MockMultipartFile? = null,
+        files: List<MockMultipartFile>? = null,
+        params: Map<String, String>?
+    ): MockHttpServletRequestBuilder {
+        val builder = RestDocumentationRequestBuilders.fileUpload(url)
+
+        file?.let {
+            builder.file(file)
+        }
+
+        files?.forEach {
+            builder.file(it)
+        }
+
+        params?.forEach { t, u -> builder.param(t, u) }
+
+        builder.accept(MediaType.APPLICATION_JSON)
+
+        return if (token == null) {
+            acceptAnonymousAuth(builder, MediaType.MULTIPART_FORM_DATA)
+        } else {
+            acceptContentAuth(builder, token, MediaType.MULTIPART_FORM_DATA)
         }
     }
 
@@ -134,6 +178,10 @@ abstract class AbstractRestTest: BaseTest() {
         return this.andReturn().let {
             objectMapper.readValue(it.response.contentAsByteArray, valueTypeRef)
         }
+    }
+
+    fun ResultActions.returnsFile(): ByteArray {
+        return this.andReturn().response.contentAsByteArray
     }
 
     fun ResultActions.expectOk(): ResultActions {

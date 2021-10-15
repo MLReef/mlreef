@@ -2,61 +2,34 @@ package com.mlreef.rest.api.v1
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.mlreef.rest.api.v1.dto.CodeProjectDto
-import com.mlreef.rest.api.v1.dto.DataProjectDto
-import com.mlreef.rest.api.v1.dto.NamespaceDto
-import com.mlreef.rest.api.v1.dto.ParameterDto
-import com.mlreef.rest.api.v1.dto.ProcessorDto
-import com.mlreef.rest.api.v1.dto.ProjectDto
-import com.mlreef.rest.api.v1.dto.ProjectShortDto
-import com.mlreef.rest.api.v1.dto.UserInProjectDto
-import com.mlreef.rest.api.v1.dto.toDto
-import com.mlreef.rest.api.v1.dto.toShortDto
-import com.mlreef.rest.config.MAX_PAGE_SIZE
+import com.mlreef.rest.api.v1.dto.*
 import com.mlreef.rest.config.DEFAULT_PAGE_SIZE
+import com.mlreef.rest.config.MAX_PAGE_SIZE
 import com.mlreef.rest.config.tryToUUID
-import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProcessorType
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.OldDataType
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.ProjectType
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.marketplace.SearchableTag
-import com.mlreef.rest.exceptions.BadParametersException
-import com.mlreef.rest.exceptions.BadRequestException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.exceptions.ProjectNotFoundException
-import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.exceptions.*
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.feature.DEFAULT_BRANCH
 import com.mlreef.rest.feature.marketplace.MarketplaceService
 import com.mlreef.rest.feature.processors.ProcessorsService
+import com.mlreef.rest.feature.processors.RepositoryService
+import com.mlreef.rest.feature.project.ExternalDrivesService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
 import com.mlreef.rest.feature.project.RecentProjectService
+import com.mlreef.rest.feature.system.FilesManagementService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PostAuthorize
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.io.File
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
@@ -71,6 +44,9 @@ class ProjectsController(
     private val projectResolverService: ProjectResolverService,
     private val marketplaceService: MarketplaceService,
     private val recentProjectService: RecentProjectService,
+    private val filesManagementService: FilesManagementService,
+    private val repositoryService: RepositoryService,
+    private val externalDrivesService: ExternalDrivesService,
 ) {
     @GetMapping
     fun getAllAccessibleProjects(
@@ -84,9 +60,19 @@ class ProjectsController(
         val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProjectRequest, isCodeProjectRequest)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.content.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         } else {
-            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         }
     }
 
@@ -102,9 +88,9 @@ class ProjectsController(
         val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProjectRequest, isCodeProjectRequest)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toShortDto(profile.personId) }
+            projectsPage.content.map { it.toShortDto(profile.accountId, filesManagementService.getDownloadLinkForFile(it.cover)) }
         } else {
-            projectsPage.map { it.toShortDto(profile.personId) }
+            projectsPage.map { it.toShortDto(profile.accountId, filesManagementService.getDownloadLinkForFile(it.cover)) }
         }
     }
 
@@ -123,12 +109,22 @@ class ProjectsController(
             ProjectType.CODE_PROJECT
         } else null
 
-        val projectsPage = recentProjectService.getRecentProjectsForUser(profile.personId, pageable, type)
+        val projectsPage = recentProjectService.getRecentProjectsForUser(profile.accountId, pageable, type)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.project.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, personId = profile.personId)) }
+            projectsPage.content.map {
+                it.project.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it.project, accountId = profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover),
+                )
+            }
         } else {
-            projectsPage.map { it.project.toDto(forkedByUser = projectService.isProjectForkedByUser(it.project, personId = profile.personId)) }
+            projectsPage.map {
+                it.project.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it.project, accountId = profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover),
+                )
+            }
         }
     }
 
@@ -148,9 +144,19 @@ class ProjectsController(
         val projectsPage = projectService.getAllProjectsStarredByUser(profile, pageable)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.content.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         } else {
-            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         }
     }
 
@@ -171,9 +177,19 @@ class ProjectsController(
         val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.content.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         } else {
-            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         }
     }
 
@@ -194,12 +210,20 @@ class ProjectsController(
 
         val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
-//        val projectsPage = getAccessibleProjectsPage(profile, pageable, isDataProject, isCodeProject)
-
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.content.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         } else {
-            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         }
     }
 
@@ -220,9 +244,19 @@ class ProjectsController(
         val projectsPage = marketplaceService.searchProjects(filter, pageable, profile)
 
         return if (pageable.pageSize == MAX_PAGE_SIZE) {
-            projectsPage.content.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.content.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         } else {
-            projectsPage.map { it.toDto(forkedByUser = projectService.isProjectForkedByUser(it, profile.personId)) }
+            projectsPage.map {
+                it.toDto(
+                    forkedByUser = projectService.isProjectForkedByUser(it, profile.accountId),
+                    coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                )
+            }
         }
     }
 
@@ -262,7 +296,12 @@ class ProjectsController(
             else -> throw BadRequestException("No id $id was provided")
         } ?: throw ProjectNotFoundException(projectId = uuid, projectName = projectName, gitlabId = gitlabId)
 
-        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
+        return project.let {
+            it.toDto(
+                forkedByUser = projectService.isProjectForkedByUser(it, token.accountId),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+            )
+        }
     }
 
 
@@ -270,22 +309,28 @@ class ProjectsController(
     @PreAuthorize("canViewProject(#id)")
     fun starProjectById(
         @PathVariable id: UUID,
-        person: Person,
+        account: Account,
         token: TokenDetails,
     ): ProjectDto {
-        val project = projectService.starProject(id, person = person, userToken = token.accessToken)
-        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
+        val project = projectService.starProject(id, account = account, userToken = token.accessToken)
+        return project.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(project, token.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover),
+        )
     }
 
     @DeleteMapping("/{id}/star")
     @PreAuthorize("canViewProject(#id)")
     fun unstarProjectById(
         @PathVariable id: UUID,
-        person: Person,
+        account: Account,
         token: TokenDetails,
     ): ProjectDto {
-        val project = projectService.unstarProject(id, person = person, userToken = token.accessToken)
-        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
+        val project = projectService.unstarProject(id, account = account, userToken = token.accessToken)
+        return project.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(project, token.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover),
+        )
     }
 
     @PostMapping
@@ -295,19 +340,16 @@ class ProjectsController(
         @Valid @RequestBody projectCreateRequest: ProjectCreateRequest,
         request: HttpServletRequest,
         token: TokenDetails,
-        person: Person,
     ): T {
         return if (request.requestURL.contains("data-project")) {
             this.createDataProject(
                 dataProjectCreateRequest = projectCreateRequest,
                 token = token,
-                person = person
             ) as T
         } else if (request.requestURL.contains("code-project")) {
             this.createCodeProject(
                 request = projectCreateRequest,
                 token = token,
-                person = person
             ) as T
         } else {
             throw BadParametersException("You should request either /data or /code endpoints")
@@ -321,18 +363,21 @@ class ProjectsController(
         @PathVariable id: UUID,
         @Valid @RequestBody projectForkRequest: ProjectForkRequest,
         token: TokenDetails,
-        person: Person,
+        account: Account,
     ): T {
         val forkedProject = this.projectService.forkProject(
             userToken = token.accessToken,
             originalId = id,
-            creator = person,
+            creator = account,
             name = projectForkRequest.targetName,
             path = projectForkRequest.targetPath,
             namespaceIdOrName = projectForkRequest.targetNamespace,
         )
 
-        return forkedProject.toDto(forkedByUser = projectService.isProjectForkedByUser(forkedProject, token.personId)) as T
+        return forkedProject.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(forkedProject, token.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(forkedProject.cover),
+        ) as T
     }
 
     @PostMapping("/data")
@@ -341,7 +386,6 @@ class ProjectsController(
         @Valid @RequestBody dataProjectCreateRequest: ProjectCreateRequest,
         token: TokenDetails,
         request: HttpServletRequest? = null,
-        person: Person,
     ): DataProjectDto {
         if ((request?.requestURL?.contains("data-project") == true)
             || (request?.requestURL?.contains("code-project")) == true
@@ -351,7 +395,7 @@ class ProjectsController(
 
         val dataProject = dataProjectService.createProject(
             userToken = token.accessToken,
-            ownerId = person.id,
+            ownerId = token.accountId,
             projectSlug = dataProjectCreateRequest.slug,
             projectNamespace = dataProjectCreateRequest.namespace,
             projectName = dataProjectCreateRequest.name,
@@ -361,7 +405,12 @@ class ProjectsController(
             inputDataTypes = dataProjectCreateRequest.inputDataTypes,
         )
 
-        return dataProject.toDto(forkedByUser = projectService.isProjectForkedByUser(dataProject, token.personId))
+        return dataProject.let {
+            it.toDto(
+                forkedByUser = projectService.isProjectForkedByUser(dataProject, token.accountId),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+            )
+        }
     }
 
     @PostMapping("/code")
@@ -369,14 +418,13 @@ class ProjectsController(
     fun createCodeProject(
         @Valid @RequestBody request: ProjectCreateRequest,
         token: TokenDetails,
-        person: Person,
     ): CodeProjectDto {
         if (request.inputDataTypes.isEmpty())
             throw IllegalArgumentException("A code project needs an InputDataType. request.inputDataType=${request.inputDataTypes}")
 
         val codeProject = codeProjectService.createProject(
             userToken = token.accessToken,
-            ownerId = person.id,
+            ownerId = token.accountId,
             projectSlug = request.slug,
             projectName = request.name,
             projectNamespace = request.namespace,
@@ -388,7 +436,10 @@ class ProjectsController(
             processorType = request.dataProcessorType
         )
 
-        return codeProject.toDto(forkedByUser = projectService.isProjectForkedByUser(codeProject, token.personId))
+        return codeProject.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(codeProject, token.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(codeProject.cover),
+        )
     }
 
     @PutMapping("/{id}")
@@ -397,11 +448,10 @@ class ProjectsController(
         @PathVariable id: UUID,
         @Valid @RequestBody projectUpdateRequest: ProjectUpdateRequest,
         token: TokenDetails,
-        person: Person,
     ): ProjectDto {
         val project = projectService.updateProject(
             userToken = token.accessToken,
-            ownerId = person.id,
+            ownerId = token.accountId,
             projectUUID = id,
             projectName = projectUpdateRequest.name,
             description = projectUpdateRequest.description,
@@ -411,7 +461,10 @@ class ProjectsController(
             tags = projectUpdateRequest.tags
         )
 
-        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
+        return project.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(project, token.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover),
+        )
     }
 
     @DeleteMapping("/{id}")
@@ -420,11 +473,10 @@ class ProjectsController(
     fun deleteProject(
         @PathVariable id: UUID,
         token: TokenDetails,
-        person: Person,
     ) {
         projectService.deleteProject(
             userToken = token.accessToken,
-            ownerId = person.id,
+            ownerId = token.accountId,
             projectUUID = id
         )
     }
@@ -596,17 +648,6 @@ class ProjectsController(
         ).map { it.toDto() }
     }
 
-    @PostMapping("code-projects/{codeProjectId}/processor")
-    @PreAuthorize("isProjectOwner(#codeProjectId)")
-    @Deprecated("To be deleted")
-    fun createDataProcessor(
-        @PathVariable codeProjectId: UUID,
-        @RequestBody request: ProcessorCreateRequest,
-        owner: Person
-    ): ProcessorDto {
-        throw BadRequestException("Use publish for that")
-    }
-
     //-------------------- Other
 
     //TODO: possible need to add an unique index to database for gitlab_namespace + slug. Currently it is not present
@@ -619,7 +660,10 @@ class ProjectsController(
     ): ProjectDto {
         val project = projectService.getProjectsByNamespaceAndSlug(namespace, slug)
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
-        return project.toDto(forkedByUser = projectService.isProjectForkedByUser(project, token.personId))
+        return project.toDto(
+            forkedByUser = projectService.isProjectForkedByUser(project, token.accountId),
+            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover),
+        )
     }
 
     @Deprecated("maybe unused, frontend unclear")
@@ -644,6 +688,75 @@ class ProjectsController(
 
         return dataProcessors.map { it.toDto() }
     }
+
+    // Git Repository
+
+    @RequestMapping(value = ["/{projectId}/commit/{action}"], method = [RequestMethod.POST])
+    @PreAuthorize("hasAccessToProject(#projectId, 'MAINTAINER')")
+    fun commitFiles(
+        @PathVariable projectId: String,
+        @PathVariable action: String,
+        @RequestParam("files", required = false) files: Array<MultipartFile>?,
+        @RequestParam("names", required = false) fileNames: List<String>?,
+        @RequestParam("name", required = false) fileName: String?,
+        @RequestParam("path", required = false) path: String?,
+        @RequestParam("new_path", required = false) newPath: String?,
+        @RequestParam("new_name", required = false) newName: String?,
+        @RequestParam("message", required = false) commitMessage: String?,
+        @RequestParam("branch", required = true) branch: String,
+        token: TokenDetails,
+    ): CommitDto {
+        val finalProjectId = projectId.tryToUUID()
+        val finalProjectGitlabId = if (finalProjectId == null) projectId.toLongOrNull() else null
+
+        val project = projectResolverService.resolveProject(finalProjectId, finalProjectGitlabId)
+            ?: throw NotFoundException("Project $projectId not found")
+
+        val finalAction = CommitOperations.values().find { it.name.equals(action.trim(), true) }
+            ?: throw BadRequestException("Action $action is not allowed")
+
+        val finalFiles = files?.takeIf { it.isNotEmpty() }?.toList()
+            ?: fileNames?.map { DummyMultipartFile(it) }
+            ?: fileName?.let { listOf(DummyMultipartFile(it)) }
+            ?: throw BadRequestException("Either files ('files' parameter with multipart content) or file names ('names' parameter) must be provided")
+
+        return repositoryService.commitFilesToGitlab(
+            project,
+            token.accessToken,
+            token.accountId,
+            branch,
+            finalAction,
+            finalFiles,
+            commitMessage,
+            path,
+            newPath,
+            newName,
+            fileName ?: fileNames?.firstOrNull(),
+        ).toCommitDto()
+    }
+
+    // Files list
+    @RequestMapping(value = ["/{projectId}/content"], method = [RequestMethod.GET])
+    @PreAuthorize("canViewProject(#projectId)")
+    fun getProjectContent(
+        @PathVariable projectId: String,
+        @RequestParam("path", required = false) path: String?,
+        @RequestParam("branch", required = false) branch: String?,
+        @RequestParam("alias", required = false) alias: String?,
+        token: TokenDetails,
+    ): List<RepositoryTreeDto> {
+        val finalProjectId = projectId.tryToUUID()
+        val finalProjectGitlabId = if (finalProjectId == null) projectId.toLongOrNull() else null
+
+        val project = projectResolverService.resolveProject(finalProjectId, finalProjectGitlabId)
+            ?: throw NotFoundException("Project $projectId not found")
+
+        val elements = repositoryService.getElementsListInRepository(project.gitlabId, branch ?: DEFAULT_BRANCH, path) +
+                externalDrivesService.getElementsListInExternalDrive(project, path, 0)
+
+        return elements.map { it.toDto() }
+    }
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -678,6 +791,49 @@ class ProjectsController(
     private fun getProjectIdByNamespaceAndSlug(namespace: String, slug: String): UUID {
         return projectService.getProjectsByNamespaceAndPath(namespace, slug)?.id
             ?: throw ProjectNotFoundException(path = "$namespace/$slug")
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+
+    @PostMapping("/{id}/cover/create")
+    @PreAuthorize("isProjectOwner(#id)")
+    fun createProjectCoverPictureFile(
+        @PathVariable id: UUID,
+        @RequestParam("file") file: MultipartFile,
+        token: TokenDetails,
+    ): MlreefFileDto {
+        return projectService.createProjectCover(
+            file,
+            ownerId = token.accountId,
+            projectId = id,
+        ).toDto()
+    }
+
+    @PostMapping("/{id}/cover/update")
+    @PreAuthorize("isProjectOwner(#id)")
+    fun updateProjectCoverPictureFile(
+        @PathVariable id: UUID,
+        @RequestParam("file") file: MultipartFile,
+        token: TokenDetails,
+    ): MlreefFileDto {
+        return projectService.updateProjectCover(
+            file,
+            ownerId = token.accountId,
+            projectId = id,
+        ).toDto()
+    }
+
+    @DeleteMapping("/{id}/cover/delete")
+    @PreAuthorize("isProjectOwner(#id)")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteProjectCoverPictureFile(
+        @PathVariable id: UUID,
+        token: TokenDetails,
+    ) {
+        projectService.deleteProjectCover(
+            ownerId = token.accountId,
+            projectId = id,
+        )
     }
 }
 
@@ -762,3 +918,16 @@ class DataProcessorCreateRequest(
 class DataProcessorUpdateRequest(
     @NotEmpty val name: String
 )
+
+internal class DummyMultipartFile(private val fileName: String) : MultipartFile {
+    override fun getInputStream() = TODO("Incorrect usage")
+    override fun getName() = fileName
+    override fun getOriginalFilename() = fileName
+    override fun getContentType() = null
+    override fun isEmpty() = true
+    override fun getSize() = 0L
+    override fun getBytes() = null
+    override fun transferTo(dest: File) = TODO("Incorrect usage")
+}
+
+

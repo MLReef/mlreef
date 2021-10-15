@@ -1,7 +1,7 @@
 package com.mlreef.rest.feature.processors
 
+import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.Processor
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.project.ProjectResolverService
@@ -42,20 +42,20 @@ class ProcessorServiceTest : AbstractServiceTest() {
             metricTypesRepository,
             processorTypeRepository,
             dataTypesRepository,
-            personRepository,
             baseEnvironmentsRepository,
             entityManager,
+            userResolverService,
         )
 
         codeProject1 = createCodeProject(
             slug = "slug", url = "orf.at", name = "name",
-            gitlabId = 1111L, ownerId = mainPerson.id, path = "path1",
+            gitlabId = 1111L, ownerId = mainAccount.id, path = "path1",
             namespace = "mlreef", processorType = operationProcessorType
         )
 
         codeProject2 = createCodeProject(
             slug = "slug2", url = "orf.at", name = "name",
-            gitlabId = 2222L, ownerId = mainPerson.id, path = "path2",
+            gitlabId = 2222L, ownerId = mainAccount.id, path = "path2",
             namespace = "mlreef", processorType = algorithmProcessorType
         )
     }
@@ -100,7 +100,7 @@ class ProcessorServiceTest : AbstractServiceTest() {
             slug = "slug",
             codeProject = codeProject1,
             version = "1",
-            author = mainPerson,
+            author = mainAccount,
         )
 
         assertNotNull(dataProcessor)
@@ -198,7 +198,7 @@ class ProcessorServiceTest : AbstractServiceTest() {
         slug: String,
         branch: String? = null,
         version: String? = null,
-        author: Person? = null,
+        author: Account? = null,
     ): Processor {
         return processorService.createProcessorForCodeProject(
             codeProject = codeProject,
@@ -208,7 +208,7 @@ class ProcessorServiceTest : AbstractServiceTest() {
             version = version ?: "1",
             mainScriptPath = "main.py",
             description = "description",
-            author = author ?: mainPerson,
+            author = author ?: mainAccount,
             parameters = listOf()
         )
     }

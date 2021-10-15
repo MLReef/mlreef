@@ -1,31 +1,11 @@
 package com.mlreef.rest.feature.experiment
 
-import com.mlreef.rest.ApplicationConfiguration
-import com.mlreef.rest.EPF_CONTROLLER_PATH
-import com.mlreef.rest.ExperimentRepository
-import com.mlreef.rest.ParametersRepository
-import com.mlreef.rest.PersonRepository
-import com.mlreef.rest.PipelinesRepository
-import com.mlreef.rest.ProcessorsRepository
-import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.*
 import com.mlreef.rest.annotations.SaveRecentProject
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.Experiment
-import com.mlreef.rest.domain.ExperimentStatus
-import com.mlreef.rest.domain.FileLocation
-import com.mlreef.rest.domain.ParameterInstance
-import com.mlreef.rest.domain.PipelineJobInfo
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.PublishStatus
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.ExperimentCreateException
-import com.mlreef.rest.exceptions.ExperimentUpdateException
-import com.mlreef.rest.exceptions.InconsistentStateOfObject
-import com.mlreef.rest.exceptions.IncorrectApplicationConfiguration
-import com.mlreef.rest.exceptions.InternalException
-import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.exceptions.PipelineCreateException
+import com.mlreef.rest.domain.*
+import com.mlreef.rest.exceptions.*
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.pipeline.YamlFileGenerator
 import com.mlreef.rest.feature.processors.ProcessorsService
@@ -36,7 +16,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.annotation.PostConstruct
 import kotlin.math.absoluteValue
@@ -47,7 +27,6 @@ import kotlin.random.Random
 class ExperimentService(
     private val conf: ApplicationConfiguration,
     private val experimentRepository: ExperimentRepository,
-    private val subjectRepository: SubjectRepository,
     private val projectResolverService: ProjectResolverService,
     private val processorsRepository: ProcessorsRepository,
     private val pipelineInstanceRepository: PipelinesRepository,
@@ -56,7 +35,7 @@ class ExperimentService(
     private val processorsService: ProcessorsService,
     private val gitlabRestClient: GitlabRestClient,
     private val pipelineService: PipelineService,
-    private val personRepository: PersonRepository,
+    private val userResolverService: UserResolverService,
 ) {
     @PostConstruct
     fun init() {
@@ -96,7 +75,7 @@ class ExperimentService(
         inputFiles: List<FileLocation>,
         processorInstance: ProcessorInstance,
     ): Experiment {
-        val subject = personRepository.findByIdOrNull(authorId)
+        val author = userResolverService.resolveAccount(userId = authorId)
             ?: throw PipelineCreateException(ErrorCode.PipelineCreationOwnerMissing, "Owner is missing!")
 
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
@@ -128,7 +107,7 @@ class ExperimentService(
                 inputFiles = inputFiles,
                 sourceBranch = sourceBranch,
                 targetBranch = targetBranch,
-                creator = subject,
+                creator = author,
             )
 
             postProcessors.forEach { experiment.addPostProcessor(it) }
@@ -145,7 +124,7 @@ class ExperimentService(
 
         val fileContent = this.createExperimentFile(
             experiment = experiment,
-            author = experiment.creator?.account ?: throw InconsistentStateOfObject("Experiment has no author"),
+            author = experiment.creator ?: throw InconsistentStateOfObject("Experiment has no author"),
             secret = secret,
             overrideTargetBranch = finalTargetBranch
         )

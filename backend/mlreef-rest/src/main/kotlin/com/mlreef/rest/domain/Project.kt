@@ -10,23 +10,7 @@ import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.ZonedDateTime
 import java.util.UUID
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.DiscriminatorColumn
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.ForeignKey
-import javax.persistence.Inheritance
-import javax.persistence.InheritanceType
-import javax.persistence.JoinColumn
-import javax.persistence.JoinTable
-import javax.persistence.ManyToMany
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.PrePersist
-import javax.persistence.Table
+import javax.persistence.*
 
 enum class ProjectType {
     DATA_PROJECT,
@@ -126,6 +110,10 @@ abstract class Project(
     @OneToMany(mappedBy = "forkParent", fetch = FetchType.LAZY)
     val forkChildren: MutableSet<Project> = mutableSetOf(),
 
+    @OneToOne(fetch = FetchType.LAZY) //, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "cover_picture_id")
+    var cover: MlreefFile? = null,
+
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
     updatedAt: ZonedDateTime? = null,
@@ -157,16 +145,17 @@ abstract class Project(
         visibilityScope: VisibilityScope? = null,
         forkParent: Project? = null,
         forkChildren: MutableSet<Project>? = null,
+        cover: MlreefFile? = null,
     ): T
 
-    fun addStar(subject: Person): Project {
-        val existing = stars.find { it.subjectId == subject.id }
+    fun addStar(account: Account): Project {
+        val existing = stars.find { it.subjectId == account.id }
         return if (existing != null) {
             this
         } else {
             val newStars = this.stars.toMutableList().apply {
                 add(Star(
-                    subjectId = subject.id,
+                    subjectId = account.id,
                     projectId = this@Project.id
                 ))
             }
@@ -177,10 +166,10 @@ abstract class Project(
         }
     }
 
-    fun removeStar(subject: Person): Project {
-        val existing = stars.find { it.subjectId == subject.id }
+    fun removeStar(account: Account): Project {
+        val existing = stars.find { it.subjectId == account.id }
         return if (existing != null) {
-            val newStars = this.stars.filter { it.subjectId != subject.id }
+            val newStars = this.stars.filter { it.subjectId != account.id }
             this.clone(
                 stars = newStars
             )

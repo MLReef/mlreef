@@ -1,22 +1,14 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.api.v1.ExperimentCreateRequest
-import com.mlreef.rest.api.v1.dto.ExperimentDto
-import com.mlreef.rest.api.v1.dto.FileLocationDto
-import com.mlreef.rest.api.v1.dto.ParameterInstanceDto
-import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
-import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
+import com.mlreef.rest.api.v1.dto.*
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.FileLocation
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import io.mockk.MockKAnnotations
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Tag
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
@@ -109,7 +101,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         createExperiment(
             pipeline,
@@ -154,7 +146,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject1, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         createExperiment(
             pipeline,
@@ -200,7 +192,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         createExperiment(
             pipeline,
@@ -242,7 +234,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject1, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
         val files = arrayListOf(FileLocation.fromPath("folder"))
 
         createExperiment(
@@ -296,7 +288,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
         val files = arrayListOf(FileLocation.fromPath("folder"))
 
         val experiment = createExperiment(
@@ -333,7 +325,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -357,7 +349,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -382,7 +374,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -409,7 +401,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -426,7 +418,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val tokenDetails = TokenDetails(
             "testusername",
             "test-token",
-            randomUUID(),
             randomUUID(),
             projects = mutableMapOf(dataProject.id to AccessLevel.DEVELOPER)
         )
@@ -457,7 +448,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -474,7 +465,6 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val tokenDetails = TokenDetails(
             "testusername",
             "test-token",
-            randomUUID(),
             randomUUID(),
             projects = mutableMapOf(dataProject.id to AccessLevel.DEVELOPER)
         )
@@ -506,7 +496,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -537,7 +527,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -564,7 +554,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processorInstance = createProcessorInstance(processor)
         val files = arrayListOf(FileLocation.fromPath("folder"))
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -598,7 +588,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processorInstance = createProcessorInstance(processor)
         val files = arrayListOf(FileLocation.fromPath("folder"))
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,
@@ -626,7 +616,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
         val files = arrayListOf(FileLocation.fromPath("folder"))
 
         mockGitlabBranchExisting(branchName = pipeline.targetBranch, exists = true)
@@ -672,7 +662,7 @@ class ExperimentsApiTest : AbstractRestApiTest() {
         val processor = createProcessor(codeProject)
         val processorInstance = createProcessorInstance(processor)
         val pipelineConfig = createPipelineConfiguration(dataProject, "slug1", inputFiles = arrayListOf(), processorInstance = processorInstance)
-        val pipeline = createPipeline(pipelineConfig, mainPerson, number = 1)
+        val pipeline = createPipeline(pipelineConfig, mainAccount, number = 1)
 
         val experiment = createExperiment(
             pipeline,

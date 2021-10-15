@@ -5,6 +5,7 @@ import com.mlreef.rest.PipelineConfigurationRepository
 import com.mlreef.rest.PipelinesRepository
 import com.mlreef.rest.ProcessorsRepository
 import com.mlreef.rest.api.v1.dto.ExperimentDto
+import com.mlreef.rest.api.v1.dto.ExternalDriveDto
 import com.mlreef.rest.api.v1.dto.PipelineConfigDto
 import com.mlreef.rest.api.v1.dto.PipelineDto
 import com.mlreef.rest.api.v1.dto.ProcessorDto
@@ -15,6 +16,8 @@ import com.mlreef.rest.domain.Project
 import com.mlreef.rest.domain.helpers.DataClassWithId
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.project.ExternalDrivesService
+import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.access.expression.SecurityExpressionRoot
@@ -30,6 +33,8 @@ class MlReefSecurityExpressionRoot(
     private val pipelineRepository: PipelinesRepository,
     private val projectService: ProjectService<Project>,
     private val experimentsRepository: ExperimentRepository,
+    private val projectResolverService: ProjectResolverService,
+    private val externalDrivesService: ExternalDrivesService,
 ) : SecurityExpressionRoot(authentication), MethodSecurityExpressionOperations {
 
     private var returnObject: Any? = null
@@ -74,6 +79,15 @@ class MlReefSecurityExpressionRoot(
         return getIdFromContext()?.let {
             canViewProject(it)
         } ?: false
+    }
+
+    fun hasAccessToProject(projectId: String?, minAccessLevel: String, defaultIfNull: Boolean): Boolean {
+        return projectId?.let {
+            (it.tryToUUID() ?: it.toLongOrNull()?.let { id -> projectResolverService.resolveProject(projectGitlabId = id)?.id })
+                ?.let { id ->
+                    hasAccessToProject(id, minAccessLevel)
+                } ?: false
+        } ?: defaultIfNull
     }
 
     fun hasAccessToProject(projectId: UUID, minAccessLevel: String): Boolean {
@@ -187,6 +201,23 @@ class MlReefSecurityExpressionRoot(
 
     fun canViewProcessor(processorId: UUID): Boolean = hasAccessToProcessor(processorId, AccessLevel.VISITOR.name)
     fun postCanViewProcessor() = postHasAccessToProcessor(AccessLevel.VISITOR.name)
+
+    //------------------------------- EXTERNAL DRIVE
+
+    fun hasAccessToDrive(driveIdOrAlias: String, minAccessLevelToProject: String): Boolean {
+        val driveId = driveIdOrAlias.tryToUUID()
+        val driveAlias = if (driveId == null) driveIdOrAlias else null
+
+        val drive = externalDrivesService.resolveExternalDrive(driveId, tokenDetails?.accountId, driveAlias) ?: return false
+        val connectedProjects = drive.projects.map { it.id }
+
+        return if (drive.account.id == tokenDetails?.accountId) {
+            true
+        } else {
+            val level = AccessLevel.valueOf(minAccessLevelToProject.toUpperCase())
+            projects.filterKeys { it in connectedProjects }.any { (it.value?.accessCode ?: 0) >= level.accessCode }
+        }
+    }
 
     //-------------------------------- OTHERS
 
@@ -317,6 +348,15 @@ class MlReefSecurityExpressionRoot(
             experimentId != null -> experimentsRepository.findByIdOrNull(experimentId)?.toDto()
             filterObject != null -> (filterObject as? ExperimentDto)
             returnObject != null -> (returnObject as? ExperimentDto)
+            else -> null
+        }
+    }
+
+    private fun getExternalDriveFromContext(driveId: UUID? = null): ExternalDriveDto? {
+        return when {
+            driveId != null -> externalDrivesService.resolveExternalDrive(driveId = driveId)?.toDto()
+            filterObject != null -> (filterObject as? ExternalDriveDto)
+            returnObject != null -> (returnObject as? ExternalDriveDto)
             else -> null
         }
     }

@@ -3,14 +3,12 @@ package com.mlreef.rest.feature.processors
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.api.v1.ProjectCreateRequest
 import com.mlreef.rest.api.v1.ProjectUpdateRequest
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.UserRole
 import com.mlreef.rest.exceptions.BadParametersException
 import com.mlreef.rest.exceptions.ConflictException
@@ -27,7 +25,7 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.support.ResourcePatternResolver
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.annotation.PostConstruct
 import javax.persistence.EntityManagerFactory
@@ -56,7 +54,6 @@ class DataSetup(
     val objectMapper: ObjectMapper,
     private val dataProjectService: ProjectService<DataProject>,
     private val codeProjectService: ProjectService<CodeProject>,
-    private val personRepository: PersonRepository,
     private val accountRepository: AccountRepository,
     private val passwordEncoder: PasswordEncoder,
 ) {
@@ -69,7 +66,7 @@ class DataSetup(
     private val DELETE_SCRIPT_PREFIX = "delete"
 
     private lateinit var gitlabUser: GitlabUser
-    private lateinit var devPerson: Person
+    private lateinit var devAccount: Account
     private var gitlabToken: OAuthToken? = null
     private val needToDeleteUser: AtomicBoolean = AtomicBoolean(false)
 
@@ -84,10 +81,10 @@ class DataSetup(
     }
 
     fun executeInitDataLoad() {
-        val (user, person, userPassword) = findOrCreateUserInGitlab()
+        val (user, account, userPassword) = findOrCreateUserInGitlab()
 
         gitlabUser = user
-        devPerson = person
+        devAccount = account
 
         gitlabToken = try {
             createUserTokenInGitlab(gitlabUser.username, userPassword)
@@ -178,7 +175,7 @@ class DataSetup(
             try {
                 dataProjectService.createProject(
                     gitlabToken!!.accessToken,
-                    devPerson.id,
+                    devAccount.id,
                     it.slug,
                     it.name,
                     it.namespace,
@@ -201,7 +198,7 @@ class DataSetup(
             try {
                 dataProjectService.updateProject(
                     gitlabToken!!.accessToken,
-                    devPerson.id,
+                    devAccount.id,
                     it.id ?: throw BadParametersException("Incorrect script for project ${it.name}. No id is provided"),
                     it.name,
                     it.description,
@@ -229,7 +226,7 @@ class DataSetup(
                 val currentName = if (currentId != null) null else it
                 dataProjectService.deleteProject(
                     gitlabToken!!.accessToken,
-                    devPerson.id,
+                    devAccount.id,
                     currentId,
                     currentName,
                 )
@@ -246,7 +243,7 @@ class DataSetup(
             try {
                 codeProjectService.createProject(
                     gitlabToken!!.accessToken,
-                    devPerson.id,
+                    devAccount.id,
                     it.slug,
                     it.name,
                     it.namespace,
@@ -271,7 +268,7 @@ class DataSetup(
             try {
                 codeProjectService.updateProject(
                     gitlabToken!!.accessToken,
-                    devPerson.id,
+                    devAccount.id,
                     it.id ?: throw BadParametersException("Incorrect script for project ${it.name}. No id is provided"),
                     it.name,
                     it.description,
@@ -299,7 +296,7 @@ class DataSetup(
                 val currentName = if (currentId != null) null else it
                 codeProjectService.deleteProject(
                     gitlabToken!!.accessToken,
-                    devPerson.id,
+                    devAccount.id,
                     currentId,
                     currentName,
                 )
@@ -309,7 +306,7 @@ class DataSetup(
         }
     }
 
-    private fun findOrCreateUserInGitlab(): Triple<GitlabUser, Person, String> {
+    private fun findOrCreateUserInGitlab(): Triple<GitlabUser, Account, String> {
         val finalUserName = if (username.isBlank()) {
             needToDeleteUser.set(true)
             RandomUtils.generateRandomUserName(10)
@@ -334,29 +331,23 @@ class DataSetup(
                 ?: throw IllegalStateException("Cannot create AND cannot find user $finalUserName!")
         }
 
-        val person = personRepository.findByName(finalUserName)
-            ?: personRepository.save(
-                Person(
-                    subjectId,
-                    finalUserName,
-                    finalUserName,
-                    gitlabUser.id,
-                    hasNewsletters = false, userRole = UserRole.ML_ENGINEER, termsAcceptedAt = null
-                )
-            )
-
-        accountRepository.findOneByUsername(finalUserName)
+        val account = accountRepository.findOneByUsername(finalUserName)
             ?: accountRepository.save(
                 Account(
                     id = accountId,
                     username = finalUserName,
                     email = finalEmail,
-                    person = person,
-                    passwordEncrypted = encryptedPassword
+                    passwordEncrypted = encryptedPassword,
+                    name = finalUserName,
+                    slug = finalUserName,
+                    gitlabId = gitlabUser.id,
+                    hasNewsletters = false,
+                    userRole = UserRole.ML_ENGINEER,
+                    termsAcceptedAt = null,
                 )
             )
 
-        return gitlabUser to person too finalPassword
+        return gitlabUser to account too finalPassword
     }
 
     fun createUserTokenInGitlab(userName: String, userPassword: String): OAuthToken {

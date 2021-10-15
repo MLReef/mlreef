@@ -1,8 +1,8 @@
 package com.mlreef.rest.persistence
 
 import com.mlreef.rest.CodeProjectRepository
+import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.ProcessorType
 import com.mlreef.rest.domain.UserRole
 import org.assertj.core.api.Assertions
@@ -13,7 +13,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 
 class CodeProjectTest : AbstractRepositoryTest() {
@@ -24,10 +24,20 @@ class CodeProjectTest : AbstractRepositoryTest() {
 
     private fun createEntity(): Pair<UUID, CodeProject> {
         val id = randomUUID()
-        val person = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = Instant.now())
-        val entity = CodeProject(id = id, slug = "code-project-augment", name = "CodeProject Augment", ownerId = person.id, url = "url",
+        val author = Account(
+            randomUUID(),
+            "testuser",
+            "testuser@mlreef.com",
+            "password",
+            "slug",
+            "name",
+            null,
+            null,
+            null,
+            gitlabId = 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER, termsAcceptedAt = Instant.now()
+        )
+        val entity = CodeProject(id = id, slug = "code-project-augment", name = "CodeProject Augment", ownerId = author.id, url = "url",
             gitlabNamespace = "", gitlabId = 0, gitlabPath = "", description = "", processorType = ProcessorType(
                 randomUUID(), "Type"))
         return Pair(id, entity)

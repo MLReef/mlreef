@@ -8,16 +8,8 @@ import com.mlreef.rest.api.v1.dto.CodeProjectPublishingDto
 import com.mlreef.rest.api.v1.dto.PipelineJobInfoDto
 import com.mlreef.rest.api.v1.dto.toDto
 import com.mlreef.rest.api.v1.dto.toPublishingPipelineDto
-import com.mlreef.rest.domain.Experiment
-import com.mlreef.rest.domain.ExperimentStatus
-import com.mlreef.rest.domain.Pipeline
-import com.mlreef.rest.domain.PipelineJobInfo
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.exceptions.AccessDeniedException
-import com.mlreef.rest.exceptions.BadRequestException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.exceptions.PipelineStateException
+import com.mlreef.rest.domain.*
+import com.mlreef.rest.exceptions.*
 import com.mlreef.rest.feature.PublishingService
 import com.mlreef.rest.feature.experiment.ExperimentService
 import com.mlreef.rest.feature.pipeline.PipelineService
@@ -25,15 +17,9 @@ import com.mlreef.rest.feature.processors.ProcessorsService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 const val EPF_HEADER = "EPF-BOT-TOKEN"
 

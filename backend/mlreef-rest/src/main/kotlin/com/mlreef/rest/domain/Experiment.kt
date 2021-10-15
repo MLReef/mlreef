@@ -3,22 +3,8 @@ package com.mlreef.rest.domain
 import com.mlreef.rest.domain.converters.PairListConverter
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.util.UUID
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Embedded
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.FetchType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.JoinTable
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
-import javax.persistence.Table
+import java.util.*
+import javax.persistence.*
 
 /**
  * An Experiment is a instance of a ProcessingChain with Data
@@ -49,7 +35,7 @@ data class Experiment(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    val creator: Person? = null,
+    val creator: Account? = null,
 
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name = "processor_instance_id")

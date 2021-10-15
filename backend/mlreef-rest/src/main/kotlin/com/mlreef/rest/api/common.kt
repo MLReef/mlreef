@@ -1,23 +1,19 @@
 package com.mlreef.rest.api
 
 import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.domain.AccessLevel
 import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.exceptions.UserNotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.util.*
 
 interface CurrentUserService {
     fun authentication(): Authentication
     fun authenticationOrNull(): Authentication?
-    fun person(): Person
-    fun personOrNull(): Person?
     fun account(): Account
     fun accountOrNull(): Account?
     fun visitorAccount(): Account
@@ -33,7 +29,6 @@ interface CurrentUserService {
 @Component
 class SimpleCurrentUserService(
     val accountRepository: AccountRepository,
-    val personRepository: PersonRepository
 ) : CurrentUserService {
 
     override fun authentication(): Authentication {
@@ -42,19 +37,6 @@ class SimpleCurrentUserService(
 
     override fun authenticationOrNull(): Authentication? {
         return SecurityContextHolder.getContext().authentication
-    }
-
-    override fun person(): Person {
-        val tokenDetails: TokenDetails = authentication().principal as TokenDetails
-        return personRepository.findByIdOrNull(tokenDetails.personId)
-            ?: throw UserNotFoundException(personId = tokenDetails.personId)
-    }
-
-    override fun personOrNull(): Person? {
-        val tokenDetails: TokenDetails? = authenticationOrNull()?.principal as? TokenDetails
-        return tokenDetails?.let {
-            personRepository.findByIdOrNull(tokenDetails.personId)
-        }
     }
 
     override fun accessToken(): String {
@@ -91,7 +73,9 @@ class SimpleCurrentUserService(
             "Visitor",
             "",
             "",
-            Person(tokenDetails.personId, "", "Visitor", null)
+            "",
+            "Visitor",
+            gitlabId = null,
         )
     }
 

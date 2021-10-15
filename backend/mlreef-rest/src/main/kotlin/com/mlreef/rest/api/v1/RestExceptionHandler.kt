@@ -105,7 +105,10 @@ class RestExceptionHandler(
     @ExceptionHandler(Exception::class)
     fun handleException(exception: Exception): ResponseEntity<RestExceptionDto> {
         log.error(exception.message)
-        val messageToShow = if (debugMode) exception.message ?: exception.localizedMessage else "Internal server error"
+        val messageToShow = if (debugMode) {
+            exception.printStackTrace()
+            exception.message ?: exception.localizedMessage
+        } else "Internal server error"
         val restException = RestException(ErrorCode.InternalError.errorCode, HttpStatus.INTERNAL_SERVER_ERROR.name, messageToShow)
         val error = RestExceptionDto(restException)
         return ResponseEntity(error, HttpStatus.INTERNAL_SERVER_ERROR)

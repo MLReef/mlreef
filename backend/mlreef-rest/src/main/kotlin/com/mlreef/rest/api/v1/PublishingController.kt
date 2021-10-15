@@ -79,7 +79,7 @@ internal class CodeProjectPublishingController(
             environmentId = request.environment,
             modelType = request.modelType,
             mlCategory = request.mlCategory,
-            publisherSubjectId = token.personId,
+            publisherSubjectId = token.accountId,
             userToken = token.accessToken,
             projectId = id,
             branch = request.branch,
@@ -158,7 +158,7 @@ internal class CodeProjectPublishingController(
         projectId = id,
         branch = branch,
         version = version,
-        unpublisherSubjectId = token.personId,
+        unpublisherSubjectId = token.accountId,
         isProjectOwner = token.projects.get(id) == AccessLevel.OWNER,
     ).toPublishingPipelineDto()
 
@@ -179,7 +179,7 @@ internal class CodeProjectPublishingController(
             mainFilePath = request.path,
             requirementsFilePath = request.requirementsFile,
             environmentId = request.environment,
-            republisherSubjectId = token.personId,
+            republisherSubjectId = token.accountId,
             isProjectOwner = token.projects.get(id) == AccessLevel.OWNER,
         ).toPublishingPipelineDto()
     }

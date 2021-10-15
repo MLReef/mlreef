@@ -49,9 +49,11 @@ import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.exceptions.ProjectPublicationException
 import com.mlreef.rest.exceptions.PublicationCommonException
 import com.mlreef.rest.exceptions.RestException
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.dto.Commit
 import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.processors.ProcessorsService
 import com.mlreef.rest.feature.processors.PythonParserService
@@ -134,7 +136,6 @@ class PublishingService(
     private val pythonParserService: PythonParserService,
     private val baseEnvironmentsRepository: BaseEnvironmentsRepository,
     private val repositoryService: RepositoryService,
-    private val personRepository: PersonRepository,
     private val pipelineService: PipelineService,
     private val processorsService: ProcessorsService,
     private val parametersRepository: ParametersRepository,
@@ -142,6 +143,7 @@ class PublishingService(
     private val entityManagerFactory: EntityManagerFactory,
     private val taskScheduler: TaskScheduler,
     private val codeProjectRepository: CodeProjectRepository,
+    private val userResolverService: UserResolverService,
 ) {
     final val log: Logger = LoggerFactory.getLogger(this::class.java)
     final val scheduledCleanTasks: ConcurrentHashMap<UUID, ScheduledFuture<*>> = ConcurrentHashMap()
@@ -189,9 +191,9 @@ class PublishingService(
         slug: String? = null,
         republishingProcessor: Processor? = null,
     ): Processor {
-         val project = republishingProcessor?.codeProject
-             ?: projectResolverService.resolveCodeProject(projectId = (projectId ?: throw BadRequestException("Project id can not be null")))
-             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
+        val project = republishingProcessor?.codeProject
+            ?: projectResolverService.resolveCodeProject(projectId = (projectId ?: throw BadRequestException("Project id can not be null")))
+            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
 
         val processor = prepareProcessorForPublishing(
             mainFilePath,
@@ -240,7 +242,7 @@ class PublishingService(
         version: String? = null,
         modelType: String? = null,
         mlCategory: String? = null,
-        publisherSubjectId: UUID? = null,
+        publisherId: UUID? = null,
         userToken: String? = null,
         project: CodeProject,
         slug: String? = null,
@@ -255,8 +257,8 @@ class PublishingService(
         val existingProcessor = processorsService.getProcessorForProjectAndBranchAndVersion(project, finalBranch, finalVersion)
 
         val publisher = republishingProcessor?.publisher
-            ?: personRepository.findByIdOrNull(publisherSubjectId ?: throw BadRequestException("Publisher id can not be null"))
-            ?: throw NotFoundException("Person $publisherSubjectId not found")
+            ?: userResolverService.resolveAccount(userId = publisherId ?: throw BadRequestException("Publisher id can not be null"))
+            ?: throw NotFoundException("Person $publisherId not found")
 
         if (projectHasActivePublishPipeline(project) && republishingProcessor?.republish != true) {
             throw ProjectPublicationException(ErrorCode.ProjectIsInIncorrectState, "Cannot publish. Project has active jobs")
@@ -415,7 +417,7 @@ class PublishingService(
             ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId has no published processor for branch $branch and version $version. Probably it was published incorrectly")
 
         val unpublisher = unpublisherSubjectId?.let {
-            personRepository.findByIdOrNull(it)
+            userResolverService.resolveAccount(userId = it)
                 ?: throw NotFoundException("Person $it not found")
         } ?: processor.publisher
 
@@ -494,8 +496,8 @@ class PublishingService(
         }
 
         val republisher = republisherSubjectId.let {
-            personRepository.findByIdOrNull(it)
-                ?: throw NotFoundException("Person $it not found")
+            userResolverService.resolveAccount(userId = it)
+                ?: throw NotFoundException("Account $it not found")
         }
 
         if (processor.publisher != republisher && !isProjectOwner) {
@@ -551,7 +553,7 @@ class PublishingService(
                     targetBranch = branch,
                     commitMessage = message ?: PUBLISH_COMMIT_MESSAGE,
                     fileContents = fileContents,
-                    action = "create"
+                    action = GitlabCommitOperations.CREATE,
                 )
             } else {
                 gitlabRestClient.adminCommitFiles(
@@ -559,7 +561,7 @@ class PublishingService(
                     targetBranch = branch,
                     commitMessage = message ?: PUBLISH_COMMIT_MESSAGE,
                     fileContents = fileContents,
-                    action = "create"
+                    action = GitlabCommitOperations.CREATE,
                 )
             }
         } catch (e: RestException) {
@@ -583,7 +585,7 @@ class PublishingService(
                         targetBranch = branch,
                         commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
                         fileContents = fileContents,
-                        action = "delete"
+                        action = GitlabCommitOperations.DELETE,
                     )
                 } else {
                     gitlabRestClient.adminCommitFiles(
@@ -591,7 +593,7 @@ class PublishingService(
                         targetBranch = branch,
                         commitMessage = "[skip ci] ${message ?: UNPUBLISH_COMMIT_MESSAGE}",
                         fileContents = fileContents,
-                        action = "delete"
+                        action = GitlabCommitOperations.DELETE,
                     )
                 }
             } catch (e: RestException) {

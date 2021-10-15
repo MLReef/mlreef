@@ -5,15 +5,17 @@ import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.UserRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Rollback
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
+@Disabled("Will be deleted in the next commit")
 class SubjectPersonTest : AbstractRepositoryTest() {
     @Autowired
     private lateinit var repository: PersonRepository

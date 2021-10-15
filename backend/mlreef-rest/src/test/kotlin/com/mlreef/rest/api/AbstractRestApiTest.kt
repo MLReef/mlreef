@@ -2,14 +2,7 @@ package com.mlreef.rest.api
 
 import com.mlreef.rest.ApplicationProfiles
 import com.mlreef.rest.EmailRepository
-import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.DataType
-import com.mlreef.rest.domain.Email
-import com.mlreef.rest.domain.ParameterType
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.UserRole
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.helpers.UserInProject
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.GitlabCommonException
@@ -17,21 +10,7 @@ import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.external_api.gitlab.GitlabVisibility
 import com.mlreef.rest.external_api.gitlab.RepositoryTreeType
 import com.mlreef.rest.external_api.gitlab.TokenDetails
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
-import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
-import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
-import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabRegistry
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
-import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
-import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryFile
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryFileFullInfo
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
+import com.mlreef.rest.external_api.gitlab.dto.*
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
 import com.mlreef.rest.testcommons.AbstractRestTest
 import com.mlreef.rest.testcommons.TestPostgresContainer
@@ -74,13 +53,13 @@ import org.springframework.util.Base64Utils
 import org.springframework.web.context.WebApplicationContext
 import java.io.InputStream
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.regex.Pattern
 import javax.transaction.Transactional
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-@TestPropertySource("classpath:application.yml")
+@TestPropertySource("classpath:application-test.yml")
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(ApplicationProfiles.TEST)
@@ -261,7 +240,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         every { restClient.userGetUserGroups(any()) } returns emptyList()
         every { restClient.createBranch(any(), any(), any(), any()) } returns Branch("branch")
         every { restClient.commitFiles(any(), any(), any(), any(), any(), any()) } returns Commit("branch")
-        every { currentUserService.person() } answers { personRepository.findAll().first() }
         every { currentUserService.account() } answers { accountRepository.findAll().first() }
         every { currentUserService.accountOrNull() } answers { accountRepository.findAll().first() }
         every { currentUserService.accessToken() } answers { testPrivateUserTokenMock1 }
@@ -454,12 +432,70 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
         } returns repoTreePage
     }
 
+    protected fun mockFilesInBranchForCommit() {
+        val file1InRoot = RepositoryTree(UUID.randomUUID().toString(), "file1.py", RepositoryTreeType.BLOB, "file1.py", "064")
+        val file2InRoot = RepositoryTree(UUID.randomUUID().toString(), "master.py", RepositoryTreeType.BLOB, "master.py", "064")
+        val file3InRoot = RepositoryTree(UUID.randomUUID().toString(), "readme.md", RepositoryTreeType.BLOB, "readme.md", "064")
+
+        val folder1InRoot = RepositoryTree(UUID.randomUUID().toString(), "folder", RepositoryTreeType.TREE, "folder", "064")
+        val folder2InRoot = RepositoryTree(UUID.randomUUID().toString(), "folder_2", RepositoryTreeType.TREE, "folder_2", "064")
+
+        val file1InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "file1.txt", RepositoryTreeType.BLOB, "folder/file1.txt", "064")
+        val file2InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "bigfile.jpg", RepositoryTreeType.BLOB, "folder/bigfile.jpg", "064")
+        val file3InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "unknownfile", RepositoryTreeType.BLOB, "folder/unknownfile", "064")
+        val file4InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "script.py", RepositoryTreeType.BLOB, "folder/script.py", "064")
+
+        val folder1InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "folder_in_folder", RepositoryTreeType.TREE, "folder/folder_in_folder", "064")
+        val folder2InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "folder_in_folder_2", RepositoryTreeType.TREE, "folder/folder_in_folder_2", "064")
+
+        val file1InFolder1InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "fileInFolder_1_1.txt", RepositoryTreeType.BLOB, "folder/folder_in_folder/fileInFolder_1_1.txt", "064")
+        val file2InFolder1InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "fileInFolder_2_1.txt", RepositoryTreeType.BLOB, "folder/folder_in_folder/fileInFolder_2_1.txt", "064")
+
+        val folder1InFolder1InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "folder_in_folder_in_folder", RepositoryTreeType.TREE, "folder/folder_in_folder/folder_in_folder_in_folder", "064")
+
+        val file1InFolder1InFolder1InFolder1 = RepositoryTree(UUID.randomUUID().toString(), "fileInFolder_1_1_1.java", RepositoryTreeType.BLOB, "folder/folder_in_folder/folder_in_folder_in_folder/fileInFolder_1_1_1.java", "064")
+
+        val file1InFolder1InFolder2 = RepositoryTree(UUID.randomUUID().toString(), "fileInFolder_1_2.txt", RepositoryTreeType.BLOB, "folder/folder_in_folder_2/fileInFolder_1_2.txt", "064")
+
+        val file1InFolder2 = RepositoryTree(UUID.randomUUID().toString(), "file2.txt", RepositoryTreeType.BLOB, "folder_2/file2.txt", "064")
+
+        val rootRepoTreePage = RepositoryTreePaged(listOf(file1InRoot, file2InRoot, file3InRoot, folder1InRoot, folder2InRoot), 1, 1, 5, 10)
+        val folder1RepoTreePage = RepositoryTreePaged(listOf(file1InFolder1, file2InFolder1, file3InFolder1, file4InFolder1, folder1InFolder1, folder2InFolder1), 1, 1, 6, 10)
+        val folder1InFolder1RepoTreePage = RepositoryTreePaged(listOf(file1InFolder1InFolder1, file2InFolder1InFolder1, folder1InFolder1InFolder1), 1, 1, 3, 10)
+        val folder1InFolder1InFolder1RepoTreePage = RepositoryTreePaged(listOf(file1InFolder1InFolder1InFolder1), 1, 1, 1, 10)
+        val folder2InFolder1RepoTreePage = RepositoryTreePaged(listOf(file1InFolder1InFolder2), 1, 1, 1, 10)
+        val folder2RepoTreePage = RepositoryTreePaged(listOf(file1InFolder2), 1, 1, 1, 10)
+
+        every {
+            restClient.adminGetProjectTree(any(), isNull(), branch = any())
+        } returns rootRepoTreePage
+
+        every {
+            restClient.adminGetProjectTree(any(), eq("folder"), branch = any())
+        } returns folder1RepoTreePage
+
+        every {
+            restClient.adminGetProjectTree(any(), eq("folder/folder_in_folder"), branch = any())
+        } returns folder1InFolder1RepoTreePage
+
+        every {
+            restClient.adminGetProjectTree(any(), eq("folder/folder_in_folder/folder_in_folder_in_folder"), branch = any())
+        } returns folder1InFolder1InFolder1RepoTreePage
+
+        every {
+            restClient.adminGetProjectTree(any(), eq("folder/folder_in_folder_2"), branch = any())
+        } returns folder2InFolder1RepoTreePage
+
+        every {
+            restClient.adminGetProjectTree(any(), eq("folder_2"), branch = any())
+        } returns folder2RepoTreePage
+    }
+
     fun generateAdminTokenDetails(): TokenDetails {
         return TokenDetails(
             username = "test-admin",
             accessToken = "test-token",
             accountId = UUID.randomUUID(),
-            personId = UUID.randomUUID(),
             gitlabUser = GitlabUser(
                 id = Random.nextLong(),
                 username = "test-admin",
@@ -475,7 +511,6 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
             "testusername",
             "test-token",
             UUID.randomUUID(),
-            UUID.randomUUID()
         )
 
         val secContext = mockk<SecurityContext>()
@@ -518,33 +553,56 @@ abstract class AbstractRestApiTest : AbstractRestTest() {
     }
 
     @Transactional
-    fun createMockUser(plainPassword: String = "password", userOverrideSuffix: String? = null): Account {
+    fun createMockUser(
+        plainPassword: String = "password",
+        userOverrideSuffix: String? = null,
+        avatar: MlreefFile? = null
+    ): Account {
         val accountId = UUID.randomUUID()
         val passwordEncrypted = passwordEncoder.encode(plainPassword)
-        val person = personRepository.save(
-            Person(
-                UUID.randomUUID(), generateRandomUserName(30), generateRandomUserName(30), 10L, hasNewsletters = true,
-                userRole = UserRole.DEVELOPER,
-                termsAcceptedAt = Instant.now()
-            )
-        )
+        val name = generateRandomUserName(30)
         val account = accountRepository.save(
             Account(
                 accountId,
-                person.slug,
-                "${person.slug}@example.com",
+                name,
+                "$name@example.com",
                 passwordEncrypted,
-                person
+                gitlabId = 10L,
+                slug = generateRandomUserName(30),
+                name = generateRandomUserName(30),
+                userRole = UserRole.DEVELOPER,
+                termsAcceptedAt = Instant.now(),
+                hasNewsletters = true,
+                avatar = avatar,
             )
         )
         return account
+    }
+
+    @Transactional
+    fun updateMockUser(
+        user: Account,
+        name:String? = null,
+        gitlabId: Long? = null,
+        slug: String? = null,
+        plainPassword: String? = null,
+        avatar: MlreefFile? = null
+    ): Account {
+        return accountRepository.save(
+            user.copy(
+                name = name ?: user.name,
+                gitlabId = gitlabId ?: user.gitlabId,
+                slug = slug ?: user.slug,
+                avatar = avatar,
+            )
+        )
     }
 
     protected fun accountToUserInProject(
         account: Account,
         level: AccessLevel = AccessLevel.DEVELOPER,
         expiredAt: Instant? = null
-    ) = UserInProject(account.id, account.username, account.email, account.person.gitlabId, level, expiredAt)
+    ) = UserInProject(account.id, account.username, account.email, account.gitlabId, level, expiredAt)
 
     fun ResultActions.document(name: String, vararg snippets: Snippet): ResultActions {
         return this.andDo(MockMvcRestDocumentation.document(name, *snippets))

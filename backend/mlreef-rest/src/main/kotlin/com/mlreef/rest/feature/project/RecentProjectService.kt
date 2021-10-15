@@ -3,13 +3,13 @@ package com.mlreef.rest.feature.project
 import com.mlreef.rest.ProjectRepository
 import com.mlreef.rest.ProjectsConfiguration
 import com.mlreef.rest.RecentProjectsRepository
-import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.config.MessagingConfig
 import com.mlreef.rest.config.MessagingConfig.Companion.PUB_SUB_FIELD_SEPARATOR
 import com.mlreef.rest.config.tryToUUID
 import com.mlreef.rest.domain.ProjectType
 import com.mlreef.rest.domain.RecentProject
 import com.mlreef.rest.exceptions.UserNotFoundException
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.utils.too
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -20,24 +20,24 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 @Component
 class RecentProjectService(
     private val recentProjectsRepository: RecentProjectsRepository,
-    private val subjectRepository: SubjectRepository,
     private val projectRepository: ProjectRepository,
     private val projectsConfiguration: ProjectsConfiguration,
+    private val userResolverService: UserResolverService,
 ) : MessageListener {
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    fun getRecentProjectsForUser(subjectId: UUID, pageable: Pageable, type: ProjectType? = null): Page<RecentProject> {
-        val subject = subjectRepository.findByIdOrNull(subjectId)
-            ?: throw UserNotFoundException(personId = subjectId)
+    fun getRecentProjectsForUser(accountId: UUID, pageable: Pageable, type: ProjectType? = null): Page<RecentProject> {
+        val account = userResolverService.resolveAccount(userId = accountId)
+            ?: throw UserNotFoundException(userId = accountId)
 
         return when {
-            type != null -> recentProjectsRepository.findRecentDataProjectsByUserAndType(subject, type, pageable)
-            else -> recentProjectsRepository.findByUserOrderByUpdateDateDesc(subject, pageable)
+            type != null -> recentProjectsRepository.findRecentDataProjectsByUserAndType(account, type, pageable)
+            else -> recentProjectsRepository.findByUserOrderByUpdateDateDesc(account, pageable)
         }
     }
 
@@ -54,9 +54,9 @@ class RecentProjectService(
 
     @Transactional
     fun handleMessage(message: Triple<String, String, String>) {
-        log.debug("Received redis message: project = ${message.first} subject = ${message.second} operation = ${message.third}")
+        log.debug("Received redis message: project = ${message.first} account = ${message.second} operation = ${message.third}")
         val user = message.second.tryToUUID()?.let {
-            subjectRepository.findByIdOrNull(it)
+            userResolverService.resolveAccount(userId = it)
         }
 
         val project = message.first.tryToUUID()?.let {
@@ -66,9 +66,9 @@ class RecentProjectService(
         //Insert
         user?.let {
             val recentProject = (
-                recentProjectsRepository.findByProjectAndUser(project, it)
-                    ?: RecentProject(UUID.randomUUID(), it, project, Instant.now(), message.third)
-                ).copy(updateDate = Instant.now(), operation = message.third)
+                    recentProjectsRepository.findByProjectAndUser(project, it)
+                        ?: RecentProject(UUID.randomUUID(), it, project, Instant.now(), message.third)
+                    ).copy(updateDate = Instant.now(), operation = message.third)
             recentProjectsRepository.save(recentProject)
         }
 

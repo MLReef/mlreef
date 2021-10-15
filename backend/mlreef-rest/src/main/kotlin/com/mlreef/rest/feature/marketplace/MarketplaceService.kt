@@ -108,7 +108,7 @@ class MarketplaceService(
 
         val builder = getQueryBuilderForType(
             finalProjectType,
-            (request.starredByMe != null && token?.personId != null && !token.isVisitor)
+            (request.starredByMe != null && token?.accountId != null && !token.isVisitor)
         )
 
         when (finalVisibility) {
@@ -155,9 +155,9 @@ class MarketplaceService(
         request.slugExact?.let { builder.and().equals("slug", it, caseSensitive = false) }
         request.maxStars?.let { builder.and().lessOrEqualThan("_starsCount", it) }
         request.minStars?.let { builder.and().greaterOrEqualThan("_starsCount", it) }
-        request.starredByMe?.takeIf { token?.personId != null && !token.isVisitor }?.let {
-            if (it) builder.and().equals("subjectId", token?.personId!!, joinedAlias = "stars")
-            else builder.and().notEquals("subjectId", token?.personId!!, joinedAlias = "stars")
+        request.starredByMe?.takeIf { token?.accountId != null && !token.isVisitor }?.let {
+            if (it) builder.and().equals("subjectId", token?.accountId!!, joinedAlias = "stars")
+            else builder.and().notEquals("subjectId", token?.accountId!!, joinedAlias = "stars")
         }
         finalProcessorType?.let { builder.and().equals("processorType", it) }
         finalInputTypesAnd?.let { builder.and().containsAll("inputDataTypes", it) }
@@ -293,7 +293,7 @@ class MarketplaceService(
      * Searchable can be a DataProject or a DataProcessorr
      */
     @Transactional
-    fun prepareEntry(searchable: Searchable, owner: Subject): Project =
+    fun prepareEntry(searchable: Searchable, owner: Account): Project =
         when (searchable) {
             is DataProject -> searchable.copy(
                 name = searchable.name,
@@ -305,7 +305,7 @@ class MarketplaceService(
                 name = searchable.name,
                 description = searchable.description,
                 visibilityScope = searchable.visibilityScope,
-                globalSlug = "code-project-${searchable.slug}"
+                globalSlug = "code-project-${searchable.slug}",
             ) as CodeProject
             else -> throw NotImplementedError("Searchable does not support that type")
         }
@@ -317,7 +317,7 @@ class MarketplaceService(
      * Searchable can be a DataProject or a DataProcessorr
      *
      */
-    fun assertEntry(searchable: Searchable, owner: Subject): Project {
+    fun assertEntry(searchable: Searchable, owner: Account): Project {
         val existing = projectRepository.findByIdOrNull(searchable.getId())
         existing?.let { return@let existing }
         return prepareEntry(searchable, owner)
@@ -335,8 +335,8 @@ class MarketplaceService(
     /**
      * Adds a star from one Person
      */
-    fun addStar(searchable: Project, person: Person): Project =
-        searchable.addStar(person)
+    fun addStar(searchable: Project, account: Account): Project =
+        searchable.addStar(account)
             .let { save(it) }
 
     /**
@@ -355,9 +355,9 @@ class MarketplaceService(
             .addTags(tags)
             .let { save(it) }
 
-    fun removeStar(searchable: Project, person: Person): Project =
-        searchable.removeStar(person)
-            .also { log.info("User $person put removed star from $Searchable") }
+    fun removeStar(searchable: Project, account: Account): Project =
+        searchable.removeStar(account)
+            .also { log.info("User $account put removed star from $Searchable") }
             .let { save(it) }
 
     fun findEntriesForProjects(pageable: Pageable, projectsMap: Map<UUID, AccessLevel?>): List<Project> {

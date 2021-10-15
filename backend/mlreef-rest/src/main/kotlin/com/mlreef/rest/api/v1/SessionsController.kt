@@ -7,6 +7,7 @@ import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
 import com.mlreef.rest.feature.auth.AuthService
 import com.mlreef.rest.feature.auth.UserResolverService
+import com.mlreef.rest.feature.system.FilesManagementService
 import com.mlreef.rest.feature.system.SessionDto
 import com.mlreef.rest.feature.system.SessionsService
 import org.slf4j.LoggerFactory
@@ -21,11 +22,12 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/v1/sessions")
 class SessionsController(
-    val gitlabRestClient: GitlabRestClient,
-    val sessionsService: SessionsService,
-    val currentUserService: CurrentUserService,
-    val authService: AuthService,
-    val userResolverService: UserResolverService,
+    private val gitlabRestClient: GitlabRestClient,
+    private val sessionsService: SessionsService,
+    private val currentUserService: CurrentUserService,
+    private val authService: AuthService,
+    private val userResolverService: UserResolverService,
+    private val filesManagementService: FilesManagementService,
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(SessionsController::class.java)
@@ -77,8 +79,8 @@ class SessionsController(
     ): UserDto? {
         log.debug("Find user by username=$userName and userId=$userId and gitlabId=$gitlabId")
         val user = userResolverService.resolveAccount(userName, userId, gitlabId)
-        user?.person?.gitlabId?.let { userResolverService.findGitlabUserViaGitlabId(it) }
-            ?: if (user != null) throw NotFoundException("No user with id ${user.person.gitlabId} exists in Gitlab")
-        return user?.toUserDto()
+        user?.gitlabId?.let { userResolverService.findGitlabUserViaGitlabId(it) }
+            ?: user?.let { throw NotFoundException("No user with id ${it.gitlabId} exists in Gitlab") }
+        return user?.toUserDto(filesManagementService.getDownloadLinkForFile(user.avatar))
     }
 }

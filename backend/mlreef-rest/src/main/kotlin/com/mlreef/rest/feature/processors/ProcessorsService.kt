@@ -1,17 +1,10 @@
 package com.mlreef.rest.feature.processors
 
 import com.mlreef.rest.BaseEnvironmentsRepository
-import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.ProcessorsRepository
 import com.mlreef.rest.api.v1.SearchProcessorRequest
 import com.mlreef.rest.config.tryToUUID
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.Parameter
-import com.mlreef.rest.domain.ParameterType
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.PublishStatus
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.repositories.DataTypesRepository
 import com.mlreef.rest.domain.repositories.MetricTypesRepository
 import com.mlreef.rest.domain.repositories.ParameterTypesRepository
@@ -20,6 +13,7 @@ import com.mlreef.rest.exceptions.BadRequestException
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.NotFoundException
 import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.utils.QueryBuilder
 import com.mlreef.rest.utils.Slugs
@@ -41,9 +35,9 @@ class ProcessorsService(
     private val metricTypesRepository: MetricTypesRepository,
     private val processorTypeRepository: ProcessorTypeRepository,
     private val dataTypesRepository: DataTypesRepository,
-    private val personRepository: PersonRepository,
     private val environmentsRepository: BaseEnvironmentsRepository,
     private val entityManager: EntityManager,
+    private val userResolverService: UserResolverService,
 ) {
     private val maxAttemptForPessimisticLockFails = 10
     private val pauseBetweenPessimisticLockAttemptsSec = 5L
@@ -78,13 +72,8 @@ class ProcessorsService(
         val publishers = request.publishersOr?.map {
             val userId = it.tryToUUID()
             val username = if (userId == null) it else null
-            when {
-                userId != null -> personRepository.findByIdOrNull(userId)
-                    ?: throw NotFoundException("User id $userId not found")
-                username != null -> personRepository.findByName(username)
-                    ?: throw NotFoundException("User $username not found")
-                else -> throw NotFoundException("User $it not found")
-            }
+            userResolverService.resolveAccount(username, userId)
+                ?: throw NotFoundException("User $it not found")
         }
 
         val environments = request.environmentsOr?.flatMap {
@@ -93,7 +82,7 @@ class ProcessorsService(
             when {
                 envId != null -> listOf(environmentsRepository.findByIdOrNull(envId))
                 envTitleOrDocker != null -> listOf(environmentsRepository.findByTitle(envTitleOrDocker)) +
-                    environmentsRepository.findByDockerImage(envTitleOrDocker)
+                        environmentsRepository.findByDockerImage(envTitleOrDocker)
                 else -> listOf()
             }.filterNotNull().apply { if (this.size == 0) throw NotFoundException("Environment $it not found") }
         }
@@ -298,7 +287,7 @@ class ProcessorsService(
         version: String,
         description: String? = null,
         mainScriptPath: String? = null,
-        author: Person,
+        author: Account,
         parameters: Collection<Parameter> = listOf()
     ): Processor {
         return processorsRepository.save(

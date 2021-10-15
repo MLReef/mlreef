@@ -10,7 +10,6 @@ class TokenDetails(
     private val username: String,
     val accessToken: String,
     val accountId: UUID,
-    val personId: UUID,
     val valid: Boolean = true,
     val edition: Int = 0,
     val groups: MutableMap<UUID, AccessLevel?> = mutableMapOf(),

@@ -6,6 +6,8 @@ import com.mlreef.rest.PipelinesRepository
 import com.mlreef.rest.ProcessorsRepository
 import com.mlreef.rest.domain.Project
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.project.ExternalDrivesService
+import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
 import org.aopalliance.intercept.MethodInvocation
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler
@@ -22,6 +24,8 @@ class MlReefMethodSecurityExpressionHandler(
     private val pipelineRepository: PipelinesRepository,
     private val projectService: ProjectService<Project>,
     private val experimentRepository: ExperimentRepository,
+    private val projectResolverService: ProjectResolverService,
+    private val externalDrivesService: ExternalDrivesService,
 ) : DefaultMethodSecurityExpressionHandler() {
     private val trustResolver: AuthenticationTrustResolver = AuthenticationTrustResolverImpl()
 
@@ -34,6 +38,8 @@ class MlReefMethodSecurityExpressionHandler(
             pipelineRepository,
             projectService,
             experimentRepository,
+            projectResolverService,
+            externalDrivesService,
         )
         root.setPermissionEvaluator(permissionEvaluator)
         root.setTrustResolver(this.trustResolver)

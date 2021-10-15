@@ -2,32 +2,7 @@
 
 package com.mlreef.rest
 
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.AccountExternal
-import com.mlreef.rest.domain.AccountToken
-import com.mlreef.rest.domain.BaseEnvironments
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Email
-import com.mlreef.rest.domain.Experiment
-import com.mlreef.rest.domain.Group
-import com.mlreef.rest.domain.KtCrudRepository
-import com.mlreef.rest.domain.Membership
-import com.mlreef.rest.domain.Parameter
-import com.mlreef.rest.domain.ParameterInstance
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Pipeline
-import com.mlreef.rest.domain.PipelineConfiguration
-import com.mlreef.rest.domain.PipelineStatus
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.ProjectType
-import com.mlreef.rest.domain.PublishStatus
-import com.mlreef.rest.domain.ReadOnlyRepository
-import com.mlreef.rest.domain.RecentProject
-import com.mlreef.rest.domain.Subject
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -37,7 +12,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import javax.persistence.EntityManager
 import javax.persistence.EntityManagerFactory
 import javax.persistence.LockModeType
@@ -76,12 +51,10 @@ interface AccountRepository : KtCrudRepository<Account, UUID> {
     fun findByChangeAccountToken(token: String): Account?
     fun findByUsernameIgnoreCase(username: String): Account?
     fun findByEmailIgnoreCase(email: String): Account?
+    fun findBySlug(slug: String): Account?
 
-    @Query("SELECT a FROM Account a WHERE a.person.gitlabId = :gitlabId")
+    @Query("SELECT a FROM Account a WHERE a.gitlabId = :gitlabId")
     fun findAccountByGitlabId(gitlabId: Long): Account?
-
-    @Query("SELECT a FROM Account a WHERE a.person.id = :personId")
-    fun findAccountByPersonId(personId: UUID): Account?
 }
 
 @Repository
@@ -104,12 +77,14 @@ interface AccountTokenRepository : ReadOnlyRepository<AccountToken, UUID> {
 }
 
 @Repository
+@Deprecated("To be deleted", replaceWith = ReplaceWith("Account and Group"))
 interface SubjectRepository : KtCrudRepository<Subject, UUID> {
     fun findByGitlabId(gitlabId: Long): Subject?
     fun findBySlug(path: String): Subject?
 }
 
 @Repository
+@Deprecated("To be deleted", replaceWith = ReplaceWith("Account"))
 interface PersonRepository : KtCrudRepository<Person, UUID> {
     //FIXME dangerous!! Multiple names should be ok!
     fun findByName(name: String): Person?
@@ -427,12 +402,34 @@ interface BaseEnvironmentsRepository : KtCrudRepository<BaseEnvironments, UUID> 
 
 @Repository
 interface RecentProjectsRepository : KtCrudRepository<RecentProject, UUID> {
-    fun findByUserOrderByUpdateDateDesc(user: Subject): List<RecentProject>
-    fun findByUserOrderByUpdateDateDesc(user: Subject, page: Pageable): Page<RecentProject>
+    fun findByUserOrderByUpdateDateDesc(user: Account): List<RecentProject>
+    fun findByUserOrderByUpdateDateDesc(user: Account, page: Pageable): Page<RecentProject>
 
     @Query("SELECT r FROM RecentProject r WHERE r.user=:user AND r.project.type=:projectType ORDER BY r.updateDate DESC")
-    fun findRecentDataProjectsByUserAndType(user: Subject, projectType: ProjectType, page: Pageable): Page<RecentProject>
+    fun findRecentDataProjectsByUserAndType(user: Account, projectType: ProjectType, page: Pageable): Page<RecentProject>
 
     fun findByProjectOrderByUpdateDateDesc(project: Project): List<RecentProject>
-    fun findByProjectAndUser(project: Project, user: Subject): RecentProject?
+    fun findByProjectAndUser(project: Project, user: Account): RecentProject?
 }
+
+@Repository
+interface MlreefFilesRepository : KtCrudRepository<MlreefFile, UUID> {
+    fun findByOwner(owner: Account): List<MlreefFile>
+    fun findByOwnerAndPurpose(owner: Account, purpose: FilePurpose): List<MlreefFile>
+    fun findByStorageFileName(fileName: String): MlreefFile?
+}
+
+@Repository
+interface DriveExternalRepository : KtCrudRepository<DriveExternal, UUID> {
+    fun findByAccountAndAlias(account: Account, alias: String): DriveExternal?
+}
+
+@Repository
+interface FilePurposesRepository : KtCrudRepository<FilePurpose, UUID> {
+    fun findByPurposeName(name:String): FilePurpose?
+}
+
+
+
+
+

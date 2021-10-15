@@ -1,13 +1,6 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.domain.BaseEnvironments
-import com.mlreef.rest.domain.Parameter
-import com.mlreef.rest.domain.ParameterType
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.UserRole
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.utils.RandomUtils
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -142,8 +135,17 @@ class YamlFileGeneratorTest {
         val stringParameter = ParameterType(randomUUID(), "STRING")
         val floatParameter = ParameterType(randomUUID(), "STRING")
 
-        val publisher = Person(
-            randomUUID(), "subject", "name", 1, hasNewsletters = true,
+        val publisher = Account(
+            randomUUID(),
+            "account",
+            "subject@mlreef.com",
+            "password",
+            "slug",
+            "name",
+            null,
+            null,
+            gitlabId = 1,
+            hasNewsletters = true,
             userRole = UserRole.DEVELOPER,
             termsAcceptedAt = Instant.now()
         )

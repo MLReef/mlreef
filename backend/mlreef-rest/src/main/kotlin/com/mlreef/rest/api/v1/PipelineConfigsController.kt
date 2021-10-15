@@ -4,14 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.mlreef.rest.PipelineConfigurationRepository
 import com.mlreef.rest.PipelinesRepository
 import com.mlreef.rest.api.CurrentUserService
-import com.mlreef.rest.api.v1.dto.FileLocationDto
-import com.mlreef.rest.api.v1.dto.PipelineConfigDto
-import com.mlreef.rest.api.v1.dto.PipelineDto
-import com.mlreef.rest.api.v1.dto.ProcessorInstanceDto
-import com.mlreef.rest.api.v1.dto.toDto
+import com.mlreef.rest.api.v1.dto.*
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Person
 import com.mlreef.rest.domain.PipelineConfiguration
 import com.mlreef.rest.exceptions.ErrorCode
 import com.mlreef.rest.exceptions.InternalException
@@ -21,14 +16,8 @@ import com.mlreef.rest.feature.pipeline.PipelineService
 import com.mlreef.rest.feature.project.ProjectResolverService
 import com.mlreef.rest.feature.project.ProjectService
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 import java.util.logging.Logger
 import javax.transaction.Transactional
 import javax.validation.Valid
@@ -73,9 +62,9 @@ class PipelineConfigsController(
     fun createPipelineConfig(
         @PathVariable dataProjectId: UUID,
         @Valid @RequestBody createRequest: PipelineConfigCreateRequest,
-        person: Person
+        tokenDetails: TokenDetails,
     ): PipelineConfigDto {
-        return pipelineService.createNewPipelineConfig(dataProjectId, createRequest, person).toDto()
+        return pipelineService.createNewPipelineConfig(dataProjectId, createRequest, tokenDetails.accountId).toDto()
     }
 
     @PutMapping("/{id}")
@@ -84,7 +73,7 @@ class PipelineConfigsController(
         @PathVariable dataProjectId: UUID,
         @PathVariable id: UUID,
         @Valid @RequestBody updateRequest: PipelineConfigUpdateRequest,
-        person: Person
+        tokenDetails: TokenDetails,
     ): PipelineConfigDto {
         log.info(updateRequest.toString())
         return pipelineService.updatePipelineConfig(
@@ -92,7 +81,7 @@ class PipelineConfigsController(
             id,
             updateRequest.dataOperations,
             updateRequest.inputFiles,
-            person,
+            tokenDetails.accountId,
         ).toDto()
     }
 
@@ -104,22 +93,21 @@ class PipelineConfigsController(
         @Valid @RequestBody createRequest: PipelineConfigCreateRequest,
         tokenDetails: TokenDetails,
         account: Account,
-        person: Person,
     ): PipelineDto {
         val newPipelineConfig = pipelineService.createNewPipelineConfig(
             dataProjectId = dataProjectId,
             createRequest = createRequest,
-            person = person,
+            accountId = tokenDetails.accountId,
         )
 
-        val pipeline = pipelineService.createPipelineFromConfig(newPipelineConfig, 1, person)
+        val pipeline = pipelineService.createPipelineFromConfig(newPipelineConfig, 1, account)
 
         pipelineService.startPipeline(
             account,
             tokenDetails.accessToken,
             dataProjectId,
             pipeline,
-            person.id,
+            tokenDetails.accountId,
         )
 
         return pipelineService.getPipelineById(pipeline.id)?.toDto()

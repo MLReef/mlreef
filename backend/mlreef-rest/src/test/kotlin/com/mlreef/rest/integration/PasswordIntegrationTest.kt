@@ -32,7 +32,6 @@ class PasswordIntegrationTest : AbstractIntegrationTest() {
     fun clearRepo() {
         accountTokenRepository.deleteAll()
         accountRepository.deleteAll()
-        personRepository.deleteAll()
 
         every { mailSender.send(ofType(SimpleMailMessage::class)) } just Runs
         every { mailSender.send(ofType(MimeMessage::class)) } just Runs

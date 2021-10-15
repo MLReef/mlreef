@@ -15,6 +15,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     AuthenticationError(1411, "Authentication error"),
     ValidationFailed(1400, "ValidationFailed"),
     ParsingError(1401, "Parsing cannot be performed"),
+    LimitExceed(1410, "LimitExceed"),
 
     // MAJOR general Gitlab errors: 15xx
     GitlabBadGateway(1500, "Gitlab server is unavailable"),
@@ -25,6 +26,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     // Requests error
     BadParametersRequest(1601, "Bad request parameters"),
     MethodNotSupportedError(1602, "Method is not supported"),
+    CannotProcessError(1603, "Cannot process request"),
 
     // specific user management errors 2xxx
     UserAlreadyExisting(2001, "User already exists"),
@@ -96,7 +98,7 @@ enum class ErrorCode(val errorCode: Int, val errorName: String) {
     //Internal errors
     InternalError(5000, "Internal application exception"),
     IncorrectConfiguration(5001, "Not correct configuration"),
-    FeatureNotSupported(5002, "The feature is not supported yet")
+    FeatureNotSupportedError(5002, "The feature is not supported yet")
 
 }
 
@@ -127,6 +129,12 @@ class ValidationException(val validationErrors: Array<FieldError?>) :
 class BadRequestException(errorCode: ErrorCode, detailMessage: String) : RestException(errorCode, detailMessage) {
     constructor(message: String) : this(ErrorCode.BadParametersRequest, message)
 }
+
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Request cannot be processed")
+class RequestCannotBeProcessedException(errorCode: ErrorCode, detailMessage: String) : RestException(errorCode, detailMessage) {
+    constructor(message: String) : this(ErrorCode.CannotProcessError, message)
+}
+
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized for the request")
 class AccessDeniedException(message: String? = null) : RestException(ErrorCode.AccessDenied, message ?: "Access denied")
@@ -168,6 +176,16 @@ class AuthenticationException(message: String) : RestException(ErrorCode.Authent
 class ConflictException(errorCode: ErrorCode, message: String) : RestException(errorCode, message) {
     constructor(message: String) : this(ErrorCode.Conflict, message)
     constructor() : this(ErrorCode.Conflict, "Conflict")
+}
+
+@ResponseStatus(code = HttpStatus.EXPECTATION_FAILED, reason = "Limit exceed")
+class LimitExceedException(message: String) : RestException(ErrorCode.LimitExceed, message) {
+    constructor() : this("Limit exceed")
+}
+
+@ResponseStatus(code = HttpStatus.EXPECTATION_FAILED, reason = "Cannot save the file")
+class FileSavingException(message: String) : RestException(ErrorCode.ValidationFailed, message) {
+    constructor() : this("Cannot save the file")
 }
 
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "The state of internal db is inconsistent")
@@ -216,12 +234,11 @@ class UserNotFoundException(
     userId: UUID? = null,
     userName: String? = null,
     email: String? = null,
-    personId: UUID? = null,
     gitlabId: Long? = null,
     subjectId: UUID? = null
 ) : NotFoundException(
     ErrorCode.UserNotExisting,
-    generateUserNotFoundMessage(userId, userName, email, personId, gitlabId, subjectId)
+    generateUserNotFoundMessage(userId, userName, email, gitlabId, subjectId)
 )
 
 class GroupNotFoundException(
@@ -278,12 +295,11 @@ class FeatureNotSupported(message: String) : RestException(500, message)
 
 private fun generateUserNotFoundMessage(
     userId: UUID?, userName: String?, email: String?,
-    personId: UUID?, gitlabId: Long?, subjectId: UUID?
+    gitlabId: Long?, subjectId: UUID?
 ) = listOf(
     "User id" to userId,
     "Username" to userName,
     "Email Address" to email,
-    "Person id" to personId,
     "Gitlab id" to gitlabId,
     "Subject id" to subjectId
 )

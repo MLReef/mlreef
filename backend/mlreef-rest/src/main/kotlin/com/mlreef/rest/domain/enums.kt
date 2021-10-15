@@ -1,5 +1,7 @@
 package com.mlreef.rest.domain
 
+import com.mlreef.rest.external_api.gitlab.GitlabCommitOperations
+
 enum class AccessLevel(val accessCode: Int) {
     NONE(0),
     VISITOR(5), // Use VISITOR for PUBLIC projects as pseudo role
@@ -271,5 +273,21 @@ enum class OldDataType {
     VIDEO,
     MODEL,
     NUMBER,
+}
+
+enum class CommitOperations {
+    CREATE,
+    DELETE,
+    MOVE,
+    UPDATE,
+    RENAME,
+    CHMOD;
+
+    fun toGitlabCommitOperation(): GitlabCommitOperations {
+        return when (this) {
+            RENAME -> GitlabCommitOperations.MOVE
+            else -> GitlabCommitOperations.valueOf(this.name)
+        }
+    }
 }
 

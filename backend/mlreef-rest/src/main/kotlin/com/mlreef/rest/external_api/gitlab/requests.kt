@@ -86,23 +86,26 @@ internal class GitlabCreateBranchRequest(
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/commits.html#create-a-commit-with-multiple-files-and-actions
-internal class GitlabCreateCommitRequest(
+internal class GitlabCommitRequest(
     val branch: String,
     val commitMessage: String,
-    val actions: List<GitlabCreateCommitAction>,
+    val actions: List<GitlabCommitAction>,
     val force: Boolean = false,
+) : Serializable
+
+class GitlabCommitAction(
+    val filePath: String,
+    val content: String?,
+    val action: String = "create",
+    val encoding: String = "text",
+    val previousPath: String? = null,
+    val executeFilemode: Boolean? = null,
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/pipelines.html#create-a-new-pipeline
 internal class GitlabCreatePipelineRequest(
     val ref: String,
     val variables: List<GitlabVariable>,
-) : Serializable
-
-internal class GitlabCreateCommitAction(
-    val filePath: String,
-    val content: String,
-    val action: String = "create",
 ) : Serializable
 
 // https://docs.gitlab.com/ee/api/group_level_variables.html#create-variable

@@ -68,12 +68,13 @@ class NamesApiTest : AbstractRestApiTest() {
             "www.url.xyz",
             "Test Data Project 3",
             "description",
-            mainPerson.id,
+            mainAccount.id,
             "mlreef",
             "test-project",
             3,
             VisibilityScope.PUBLIC,
-            mutableSetOf()
+            mutableSetOf(),
+            cover = null,
         )
         dataProjectRepository.save(project1)
         this.mockUserAuthentication(listOf(project1.id), mainAccount, AccessLevel.OWNER)

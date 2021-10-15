@@ -1,14 +1,6 @@
 package com.mlreef.rest.feature.pipeline
 
-import com.mlreef.rest.domain.BaseEnvironments
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.Parameter
-import com.mlreef.rest.domain.ParameterType
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.UserRole
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.utils.RandomUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -26,16 +18,28 @@ open class ProcessorInstanceTest {
 
     @BeforeEach
     fun prepare() {
-        val author = Person(randomUUID(), "slug", "name", 1L, hasNewsletters = true,
-            userRole = UserRole.DEVELOPER,
-            termsAcceptedAt = Instant.now())
+        val author = Account(
+            randomUUID(),
+            "testuser",
+            "testuser@mlreef.com",
+            "password",
+            "slug",
+            "name",
+            null,
+            null,
+            null,
+            gitlabId = 1L, hasNewsletters = true,
+            userRole = UserRole.DEVELOPER, termsAcceptedAt = Instant.now()
+        )
 
         parameterType = ParameterType(randomUUID(), "Parameter type")
 
         val codeProjectId = randomUUID()
 
-        val codeProject = CodeProject(id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", description = "", ownerId = author.id, url = "url",
-            gitlabNamespace = "", gitlabId = 0, gitlabPath = "", processorType = ProcessorType(randomUUID(), "type"))
+        val codeProject = CodeProject(
+            id = codeProjectId, slug = "code-project-augment", name = "CodeProject Augment", description = "", ownerId = author.id, url = "url",
+            gitlabNamespace = "", gitlabId = 0, gitlabPath = "", processorType = ProcessorType(randomUUID(), "type")
+        )
 
         val env = BaseEnvironments(randomUUID(), RandomUtils.generateRandomUserName(15), "docker:latest")
 

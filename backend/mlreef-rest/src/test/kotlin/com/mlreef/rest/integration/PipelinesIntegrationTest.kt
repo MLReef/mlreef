@@ -108,7 +108,7 @@ class PipelinesIntegrationTest : AbstractIntegrationTest() {
         val fileList = arrayListOf(FileLocation.fromPath("folder"))
         val dataProcessorInstance = createDataProcessorInstance(processor1)
         val pipelineConfig = createPipelineConfig(dataProcessorInstance, project, "slug1", fileList)
-        val pipeline = createPipeline(pipelineConfig, mainPerson)
+        val pipeline = createPipeline(pipelineConfig, mainAccount)
 
         this.performPut("$rootUrl/${pipelineConfig.id}/instances/${pipeline.id}/start", token)
             .expectOk()

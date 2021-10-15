@@ -15,9 +15,10 @@ import org.springframework.session.Session
 
 
 @Configuration
-class AuthenticationProvider(val authService: AuthService,
-                             val sessionRegistry: MlReefSessionRegistry,
-                             val sessionRepository: FindByIndexNameSessionRepository<out Session>
+class AuthenticationProvider(
+    val authService: AuthService,
+    val sessionRegistry: MlReefSessionRegistry,
+    val sessionRepository: FindByIndexNameSessionRepository<out Session>
 ) : AbstractUserDetailsAuthenticationProvider() {
 
     companion object {

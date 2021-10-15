@@ -1,60 +1,25 @@
 package com.mlreef.rest.feature.project
 
-import com.mlreef.rest.AccountRepository
-import com.mlreef.rest.CodeProjectRepository
-import com.mlreef.rest.DataProjectRepository
-import com.mlreef.rest.GroupRepository
-import com.mlreef.rest.ProjectBaseRepository
-import com.mlreef.rest.ProjectRepository
-import com.mlreef.rest.ProjectsConfiguration
-import com.mlreef.rest.SubjectRepository
+import com.mlreef.rest.*
 import com.mlreef.rest.annotations.RefreshGroupInformation
 import com.mlreef.rest.annotations.RefreshProject
 import com.mlreef.rest.annotations.RefreshUserInformation
 import com.mlreef.rest.annotations.SaveRecentProject
 import com.mlreef.rest.config.tryToUUID
-import com.mlreef.rest.domain.AccessLevel
-import com.mlreef.rest.domain.Account
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.DataType
-import com.mlreef.rest.domain.Group
-import com.mlreef.rest.domain.Person
-import com.mlreef.rest.domain.ProcessorType
-import com.mlreef.rest.domain.Project
-import com.mlreef.rest.domain.ProjectType
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.domain.ProjectType.DATA_PROJECT
-import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.helpers.ProjectOfUser
 import com.mlreef.rest.domain.helpers.UserInProject
 import com.mlreef.rest.domain.marketplace.SearchableTag
 import com.mlreef.rest.domain.repositories.DataTypesRepository
 import com.mlreef.rest.domain.repositories.ProcessorTypeRepository
-import com.mlreef.rest.exceptions.BadParametersException
-import com.mlreef.rest.exceptions.BadRequestException
-import com.mlreef.rest.exceptions.ConflictException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.GroupNotFoundException
-import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.exceptions.ProjectCreationException
-import com.mlreef.rest.exceptions.ProjectNotFoundException
-import com.mlreef.rest.exceptions.RestException
-import com.mlreef.rest.exceptions.UnknownGroupException
-import com.mlreef.rest.exceptions.UnknownProjectException
-import com.mlreef.rest.exceptions.UnknownUserException
-import com.mlreef.rest.exceptions.UserNotFoundException
-import com.mlreef.rest.external_api.gitlab.GitlabAccessLevel
-import com.mlreef.rest.external_api.gitlab.GitlabRestClient
-import com.mlreef.rest.external_api.gitlab.NamespaceKind
-import com.mlreef.rest.external_api.gitlab.TokenDetails
+import com.mlreef.rest.exceptions.*
+import com.mlreef.rest.external_api.gitlab.*
 import com.mlreef.rest.external_api.gitlab.dto.GitlabNamespace
 import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.external_api.gitlab.toAccessLevel
-import com.mlreef.rest.external_api.gitlab.toGitlabAccessLevel
-import com.mlreef.rest.external_api.gitlab.toVisibilityScope
 import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.system.FilesManagementService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.utils.Slugs
 import org.slf4j.LoggerFactory
@@ -63,14 +28,11 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
+import org.springframework.web.multipart.MultipartFile
+import java.time.*
 import java.time.ZonedDateTime.now
 import java.time.ZonedDateTime.of
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 import javax.transaction.Transactional
 
@@ -91,13 +53,12 @@ interface ProjectService<T : Project> {
     fun getProjectByGitlabId(projectId: Long): T?
     fun getProjectsByNamespaceAndPath(namespaceName: String, path: String): T?
     fun getUsersInProject(projectUUID: UUID): List<UserInProject>
-
     fun getNamespaces(userToken: String): List<GitlabNamespace>
 
-    fun <T : Project> isProjectForkedByUser(project: T?, personId: UUID?, projectId: UUID? = null): Boolean
+    fun <T : Project> isProjectForkedByUser(project: T?, accountId: UUID?, projectId: UUID? = null): Boolean
 
-    fun starProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
-    fun unstarProject(projectId: UUID? = null, projectGitlabId: Long? = null, person: Person, userToken: String): T
+    fun starProject(projectId: UUID? = null, projectGitlabId: Long? = null, account: Account, userToken: String): T
+    fun unstarProject(projectId: UUID? = null, projectGitlabId: Long? = null, account: Account, userToken: String): T
 
     fun createProject(
         userToken: String,
@@ -114,7 +75,7 @@ interface ProjectService<T : Project> {
         id: UUID? = null,
     ): T
 
-    fun forkProject(userToken: String, originalId: UUID, creator: Person, name: String? = null, path: String? = null, namespaceIdOrName: String? = null): T
+    fun forkProject(userToken: String, originalId: UUID, creator: Account, name: String? = null, path: String? = null, namespaceIdOrName: String? = null): T
 
     fun saveProject(project: T): T
 
@@ -184,10 +145,14 @@ interface ProjectService<T : Project> {
     fun updateUserNameInProjects(oldUserName: String, newUserName: String, tokenDetails: TokenDetails)
     fun checkAvailability(
         userToken: String,
-        creatingPersonId: UUID,
+        creatorId: UUID,
         projectName: String,
         projectNamespace: String?,
     ): String
+
+    fun createProjectCover(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null): MlreefFile
+    fun updateProjectCover(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null): MlreefFile
+    fun deleteProjectCover(owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null)
 }
 
 @Configuration
@@ -200,11 +165,11 @@ class ProjectTypesConfiguration(
     private val reservedNamesService: ReservedNamesService,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
-    private val subjectRepository: SubjectRepository,
     private val processorTypeRepository: ProcessorTypeRepository,
     private val dataTypesRepository: DataTypesRepository,
     private val userResolverService: UserResolverService,
     private val projectsConfiguration: ProjectsConfiguration,
+    private val filesManagementService: FilesManagementService,
 ) {
 
     @Bean
@@ -217,11 +182,11 @@ class ProjectTypesConfiguration(
             reservedNamesService,
             accountRepository,
             groupRepository,
-            subjectRepository,
             processorTypeRepository,
             dataTypesRepository,
             userResolverService,
-            projectsConfiguration
+            projectsConfiguration,
+            filesManagementService,
         )
     }
 
@@ -235,11 +200,11 @@ class ProjectTypesConfiguration(
             reservedNamesService,
             accountRepository,
             groupRepository,
-            subjectRepository,
             processorTypeRepository,
             dataTypesRepository,
             userResolverService,
-            projectsConfiguration
+            projectsConfiguration,
+            filesManagementService,
         )
     }
 
@@ -253,11 +218,11 @@ class ProjectTypesConfiguration(
             reservedNamesService,
             accountRepository,
             groupRepository,
-            subjectRepository,
             processorTypeRepository,
             dataTypesRepository,
             userResolverService,
-            projectsConfiguration
+            projectsConfiguration,
+            filesManagementService,
         )
     }
 }
@@ -271,11 +236,11 @@ open class ProjectServiceImpl<T : Project>(
     private val reservedNamesService: ReservedNamesService,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
-    private val subjectRepository: SubjectRepository,
     private val processorTypeRepository: ProcessorTypeRepository,
     private val dataTypesRepository: DataTypesRepository,
     private val userResolverService: UserResolverService,
     private val projectsConfiguration: ProjectsConfiguration,
+    private val filesManagementService: FilesManagementService,
 ) : ProjectService<T> {
 
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -298,15 +263,15 @@ open class ProjectServiceImpl<T : Project>(
                 repository.findAccessibleProjectsForVisitor(pageable)
         else
             if (isDataProjectRequest)
-                repository.findAccessibleDataProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
+                repository.findAccessibleDataProjectsForOwner(token.accountId, token.projects.map { it.key }, pageable)
             else
-                repository.findAccessibleProjectsForOwner(token.personId, token.projects.map { it.key }, pageable)
+                repository.findAccessibleProjectsForOwner(token.accountId, token.projects.map { it.key }, pageable)
 
     override fun getAllProjectsStarredByUser(token: TokenDetails, pageable: Pageable?): Page<T> =
         if (token.isVisitor)
             Page.empty(pageable ?: Pageable.unpaged())
         else
-            repository.findAccessibleStarredProjectsForUser(token.personId, token.projects.map { it.key }, pageable)
+            repository.findAccessibleStarredProjectsForUser(token.accountId, token.projects.map { it.key }, pageable)
 
     override fun getOwnProjectsOfUserPaged(token: TokenDetails, pageable: Pageable?): Page<T> {
         if (token.isVisitor) {
@@ -314,9 +279,9 @@ open class ProjectServiceImpl<T : Project>(
         } else {
             val type = getProjectType()
             return if (type != null) {
-                repository.findAllByOwnerIdAndType(token.personId, type = type, pageable)
+                repository.findAllByOwnerIdAndType(token.accountId, type = type, pageable)
             } else {
-                repository.findAllByOwnerId(token.personId, pageable)
+                repository.findAllByOwnerId(token.accountId, pageable)
             }
         }
     }
@@ -327,9 +292,9 @@ open class ProjectServiceImpl<T : Project>(
         } else {
             val type = getProjectType()
             return if (type != null) {
-                repository.findAllByOwnerIdAndType(token.personId, type = type)
+                repository.findAllByOwnerIdAndType(token.accountId, type = type)
             } else {
-                repository.findAllByOwnerId(token.personId)
+                repository.findAllByOwnerId(token.accountId)
             }
         }
     }
@@ -380,25 +345,25 @@ open class ProjectServiceImpl<T : Project>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun starProject(projectId: UUID?, projectGitlabId: Long?, person: Person, userToken: String): T {
+    override fun starProject(projectId: UUID?, projectGitlabId: Long?, account: Account, userToken: String): T {
         val project = when {
             projectId != null -> repository.findByIdOrNull(projectId)
             projectGitlabId != null -> repository.findByGitlabId(projectGitlabId)
             else -> throw UnknownProjectException("Incorrect search project criteria")
         } ?: throw ProjectNotFoundException(projectId, gitlabId = projectGitlabId)
         gitlabRestClient.userStarProject(userToken, project.gitlabId)
-        return repository.save(project.addStar(person) as T)
+        return repository.save(project.addStar(account) as T)
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun unstarProject(projectId: UUID?, projectGitlabId: Long?, person: Person, userToken: String): T {
+    override fun unstarProject(projectId: UUID?, projectGitlabId: Long?, account: Account, userToken: String): T {
         val project = when {
             projectId != null -> repository.findByIdOrNull(projectId)
             projectGitlabId != null -> repository.findByGitlabId(projectGitlabId)
             else -> throw UnknownProjectException("Incorrect search project criteria")
         } ?: throw ProjectNotFoundException(projectId, gitlabId = projectGitlabId)
         gitlabRestClient.userUnstarProject(userToken, project.gitlabId)
-        return repository.save(project.removeStar(person) as T)
+        return repository.save(project.removeStar(account) as T)
     }
 
     override fun getProjectsByNamespaceAndPath(namespaceName: String, path: String): T? {
@@ -407,7 +372,7 @@ open class ProjectServiceImpl<T : Project>(
 
     override fun checkAvailability(
         userToken: String,
-        creatingPersonId: UUID,
+        creatorId: UUID,
         projectName: String,
         projectNamespace: String?,
     ): String {
@@ -421,21 +386,21 @@ open class ProjectServiceImpl<T : Project>(
         } else null
 
         val ownerId = if (findNamespace != null) {
-            subjectRepository.findBySlug(findNamespace.path)?.id
-                ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Subject")
+            accountRepository.findBySlug(findNamespace.path)?.id
+                ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} not connected to persisted Account")
         } else {
-            creatingPersonId
+            creatorId
         }
 
         reservedNamesService.assertProjectNameIsNotReserved(projectName)
 
         repository.findOneByOwnerIdAndSlug(ownerId, possibleSlug)?.let {
-            throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatingPersonId")
+            throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatorId")
         }
 
         if (projectNamespace != null) {
             repository.findByNamespaceAndPath(projectNamespace, possibleSlug)?.let {
-                throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatingPersonId")
+                throw ConflictException(ErrorCode.GitlabProjectAlreadyExists, "Project exists for owner $creatorId")
             }
         }
 
@@ -446,10 +411,10 @@ open class ProjectServiceImpl<T : Project>(
         return gitlabRestClient.getNamespaces(userToken)
     }
 
-    override fun <T : Project> isProjectForkedByUser(project: T?, personId: UUID?, projectId: UUID?): Boolean {
-        return personId?.let {
+    override fun <T : Project> isProjectForkedByUser(project: T?, accountId: UUID?, projectId: UUID?): Boolean {
+        return accountId?.let {
             repository.getProjectIdByOwnerAndForkedParent(
-                personId,
+                accountId,
                 project
                     ?: projectId?.let { repository.findByIdOrNull(it) }
                     ?: throw NotFoundException("Project $projectId was not found")
@@ -498,7 +463,7 @@ open class ProjectServiceImpl<T : Project>(
         }
 
         val creatorId = if (findNamespace != null) {
-            subjectRepository.findBySlug(findNamespace.path)?.id
+            userResolverService.resolveAccount(slug = findNamespace.path)?.id
                 ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} is not connected to persisted Subject")
         } else {
             ownerId
@@ -565,12 +530,12 @@ open class ProjectServiceImpl<T : Project>(
      */
     @SaveRecentProject(projectId = "#result.id", userId = "#creatorId", operation = "forkProject")
     @RefreshUserInformation(userId = "#creatorId")
-    override fun forkProject(userToken: String, originalId: UUID, creator: Person, name: String?, path: String?, namespaceIdOrName: String?): T {
+    override fun forkProject(userToken: String, originalId: UUID, creator: Account, name: String?, path: String?, namespaceIdOrName: String?): T {
         val original = repository.findByIdOrNull(originalId)
             ?: throw ProjectNotFoundException(originalId)
 
         if (repository.findByOwnerIdAndForkParent(creator.id, original) != null)
-            throw ConflictException("The user '${creator.account?.username}' has already forked the project '${original.name}'")
+            throw ConflictException("The user '${creator.username}' has already forked the project '${original.name}'")
 
         if (original.ownerId == creator.id)
             throw ConflictException("User cannot fork own project")
@@ -749,10 +714,10 @@ open class ProjectServiceImpl<T : Project>(
         return userProjects.mapNotNull { project ->
             try {
                 //Without this IF block Gitlab returns access level for user as a Maintainer
-                val gitlabAccessLevel = if (project.owner?.id?.equals(user.person.gitlabId) == true)
+                val gitlabAccessLevel = if (project.owner?.id?.equals(user.gitlabId) == true)
                     GitlabAccessLevel.OWNER
                 else
-                    gitlabRestClient.adminGetProjectMembers(project.id).first { gitlabUser -> gitlabUser.id == user.person.gitlabId }.accessLevel
+                    gitlabRestClient.adminGetProjectMembers(project.id).first { gitlabUser -> gitlabUser.id == user.gitlabId }.accessLevel
 
                 val projectInDb = repository.findByGitlabId(project.id)
                     ?: throw ProjectNotFoundException(gitlabId = project.id)
@@ -768,7 +733,7 @@ open class ProjectServiceImpl<T : Project>(
             val project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
 
             val gitlabId = userGitlabId
-                ?: userResolverService.resolveAccount(userId = userId, userName = userName, email = email)?.person?.gitlabId
+                ?: userResolverService.resolveAccount(userId = userId, userName = userName, email = email)?.gitlabId
                 ?: return false
 
             if ((level != null && level == AccessLevel.OWNER) || (minlevel != null && minlevel == AccessLevel.OWNER)) {
@@ -809,7 +774,7 @@ open class ProjectServiceImpl<T : Project>(
         gitlabRestClient
             .adminAddUserToProject(
                 projectId = codeProject.gitlabId,
-                userId = account.person.gitlabId
+                userId = account.gitlabId
                     ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId"),
                 accessLevel = level.toGitlabAccessLevel()!!,
                 expiresAt = accessTill
@@ -859,7 +824,7 @@ open class ProjectServiceImpl<T : Project>(
         val account = userResolverService.resolveAccount(userName, userId, userGitlabId)
             ?: throw UserNotFoundException(userId = userId, userName = userName, gitlabId = userGitlabId)
 
-        val gitlabUserId = account.person.gitlabId
+        val gitlabUserId = account.gitlabId
             ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId")
 
         val gitlabUserInProject = gitlabRestClient.adminGetUserInProject(codeProject.gitlabId, gitlabUserId)
@@ -895,7 +860,7 @@ open class ProjectServiceImpl<T : Project>(
             ?: throw UserNotFoundException(userId = userId, userName = userName, gitlabId = userGitlabId)
 
         gitlabRestClient.adminDeleteUserFromProject(
-            projectId = codeProject.gitlabId, userId = account.person.gitlabId
+            projectId = codeProject.gitlabId, userId = account.gitlabId
                 ?: throw UnknownUserException("Person is not connected to Gitlab and has no valid gitlabId")
         )
 
@@ -967,7 +932,8 @@ open class ProjectServiceImpl<T : Project>(
             gitlabPathWithNamespace = gitlabProject.pathWithNamespace,
             gitlabNamespace = gitlabProject.pathWithNamespace.split("/")[0],
             gitlabId = gitlabProject.id,
-            visibilityScope = gitlabProject.visibility.toVisibilityScope()
+            visibilityScope = gitlabProject.visibility.toVisibilityScope(),
+            cover = null,
         )
 
     private fun createCodeProjectEntity(
@@ -997,6 +963,7 @@ open class ProjectServiceImpl<T : Project>(
             mlCategory = mlCategory,
             inputDataTypes = mutableSetOf(*inputDataTypes.map { it.copy() }.toTypedArray()),
             outputDataTypes = mutableSetOf(*outputDataTypes.map { it.copy() }.toTypedArray()),
+            cover = null,
         )
 
     @Transactional
@@ -1015,5 +982,79 @@ open class ProjectServiceImpl<T : Project>(
                 saveProject(updatedProject)
             }
         }
+    }
+
+    @Transactional
+    override fun createProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?): MlreefFile {
+        val account = owner
+            ?: userResolverService.resolveAccount(userId = ownerId)
+            ?: throw UserNotFoundException(userId = ownerId)
+
+        val projectInDb= project
+            ?: projectId?.let {
+                this.getProjectById(it) ?: throw ProjectNotFoundException(it)
+            } ?: throw BadRequestException("No project id provided")
+
+        if (projectInDb.cover!=null) {
+            throw ConflictException("Project already has a cover")
+        }
+
+        projectInDb.cover = filesManagementService.saveFile(
+            file = file,
+            owner = account,
+            purposeId = FilesManagementService.PROJECT_COVER_PURPOSE_ID,
+            description = null,
+        )
+
+        repository.save(projectInDb)
+
+        return projectInDb.cover ?: throw InternalException("Project cover was not saved")
+    }
+
+    @Transactional
+    override fun updateProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?): MlreefFile {
+        val account = owner
+            ?: userResolverService.resolveAccount(userId = ownerId)
+            ?: throw UserNotFoundException(userId = ownerId)
+
+        val projectInDb= project
+            ?: projectId?.let {
+                this.getProjectById(it) ?: throw ProjectNotFoundException(it)
+            } ?: throw BadRequestException("No project id provided")
+
+        val coverToDelete = projectInDb.cover ?: throw NotFoundException("Project has no a cover")
+
+        projectInDb.cover = filesManagementService.saveFile(
+            file = file,
+            owner = account,
+            purposeId = FilesManagementService.PROJECT_COVER_PURPOSE_ID,
+            description = null,
+        )
+
+        repository.save(projectInDb)
+
+        filesManagementService.deleteFile(coverToDelete, owner = account)
+
+        return projectInDb.cover ?: throw InternalException("Project cover was not saved")
+    }
+
+    @Transactional
+    override fun deleteProjectCover(owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?) {
+        val account = owner
+            ?: userResolverService.resolveAccount(userId = ownerId)
+            ?: throw UserNotFoundException(userId = ownerId)
+
+        val projectInDb= project
+            ?: projectId?.let {
+                this.getProjectById(it) ?: throw ProjectNotFoundException(it)
+            } ?: throw BadRequestException("No project id provided")
+
+        val coverToDelete = projectInDb.cover ?: throw NotFoundException("Project has no a cover")
+
+        projectInDb.cover = null
+
+        repository.save(projectInDb)
+
+        filesManagementService.deleteFile(coverToDelete, owner = account)
     }
 }

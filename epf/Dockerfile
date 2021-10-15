@@ -9,7 +9,13 @@ RUN apt-get update                  && \
     apt-get install -y apt-utils    && \
     apt-get install --yes git       && \
     apt-get install -y wget         && \
-    apt-get clean
+    apt-get install -y wget gnupg gnupg2 gnupg1 && \
+    wget https://dvc.org/deb/dvc.list -O /etc/apt/sources.list.d/dvc.list && \
+    wget -qO - https://dvc.org/deb/iterative.asc | apt-key add - && \
+    apt-get update && \
+    apt-get install -y dvc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ##### ADD files to the image
 WORKDIR /

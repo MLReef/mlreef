@@ -117,7 +117,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Can retrieve MarketplaceEntries per Slug`() {
         val dataProject1 = createDataProject(slug = "slug1")
 
-        marketplaceService.prepareEntry(dataProject1, mainPerson)
+        marketplaceService.prepareEntry(dataProject1, mainAccount)
         this.mockUserAuthentication(listOf(dataProject1.id), mainAccount, AccessLevel.GUEST)
 
         val returnedResult = this.performGet("$rootUrl/entries/${dataProject1.globalSlug}", mainToken)
@@ -410,7 +410,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
     fun `Visitor can retrieve MarketplaceEntries per Slug`() {
         val dataProject1 = createDataProject(slug = "slug1")
 
-        marketplaceService.prepareEntry(dataProject1, mainPerson3)
+        marketplaceService.prepareEntry(dataProject1, mainAccount3)
 
         val returnedResult = this.performGet("$rootUrl/entries/${dataProject1.globalSlug}")
             .checkStatus(HttpStatus.OK)
@@ -448,12 +448,12 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         val codeProject2 = createDataProject(slug = "slug12")
         val codeProject3 = createDataProject(slug = "slug13")
 
-        createRecentProject(dataProject1, mainPerson)
-        createRecentProject(dataProject2, mainPerson)
-        createRecentProject(dataProject3, mainPerson)
-        createRecentProject(codeProject1, mainPerson)
-        createRecentProject(codeProject2, mainPerson)
-        createRecentProject(codeProject3, mainPerson)
+        createRecentProject(dataProject1, mainAccount)
+        createRecentProject(dataProject2, mainAccount)
+        createRecentProject(dataProject3, mainAccount)
+        createRecentProject(codeProject1, mainAccount)
+        createRecentProject(codeProject2, mainAccount)
+        createRecentProject(codeProject3, mainAccount)
 
         this.mockUserAuthentication(
             listOf(dataProject1.id, dataProject2.id, dataProject3.id),
@@ -501,7 +501,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 processorType = listOf(operationProcessorType, algorithmProcessorType, visualizationProcessorType)[Random.nextInt(0, 3)],
                 inputTypes = listOf(imageDataType, tabularDataType),
                 outputTypes = listOf(modelDataType, timeSeriesDataType),
-                ownerId = mainPerson2.id,
+                ownerId = mainAccount2.id,
             )
         }
 
@@ -510,12 +510,12 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 slug = "data-project-sync-pagination-$it",
                 name = "Data Project pagination sync test $it",
                 inputTypes = listOf(imageDataType, tabularDataType),
-                ownerId = mainPerson2.id,
+                ownerId = mainAccount2.id,
             )
         }
 
         val filterRequest = SearchRequest(
-            ownerIdsOr = listOf(mainPerson2.id),
+            ownerIdsOr = listOf(mainAccount2.id),
         )
 
         val totalResults = mutableListOf<ProjectDto>()
@@ -558,7 +558,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 processorType = listOf(operationProcessorType, algorithmProcessorType, visualizationProcessorType)[Random.nextInt(0, 3)],
                 inputTypes = listOf(imageDataType, tabularDataType),
                 outputTypes = listOf(modelDataType, timeSeriesDataType),
-                ownerId = mainPerson2.id,
+                ownerId = mainAccount2.id,
             )
         }
 
@@ -567,12 +567,12 @@ class MarketplaceApiTest : AbstractRestApiTest() {
                 slug = "data-project-sync-pagination-$it",
                 name = "Data Project pagination sync test $it",
                 inputTypes = listOf(imageDataType, tabularDataType),
-                ownerId = mainPerson2.id,
+                ownerId = mainAccount2.id,
             )
         }
 
         val filterRequest = SearchRequest(
-            ownerIdsOr = listOf(mainPerson2.id),
+            ownerIdsOr = listOf(mainAccount2.id),
         )
 
         val totalResults = CopyOnWriteArrayList<ProjectDto>()
@@ -713,7 +713,7 @@ class MarketplaceApiTest : AbstractRestApiTest() {
         val tag3 = createTag("tag3")
 
         val persons = (0..10).map {
-            createPerson(name = "person$it", slug = "person-$it")
+            createAccount(name = "person$it", slug = "person-$it")
         }
 
         val project1 = createCodeProject(
@@ -762,13 +762,13 @@ class MarketplaceApiTest : AbstractRestApiTest() {
             tags = mutableSetOf(tag1, tag2)
         )
 
-        val processor1 = createProcessor(project1, name = "operation1", slug = "op1", author = mainPerson3)
-        val processor2 = createProcessor(project2, name = "operation2", slug = "op2", author = mainPerson3)
-        val processor3 = createProcessor(project3, name = "model1", author = mainPerson3)
-        val processor4 = createProcessor(project4, name = "visualization1", author = mainPerson3)
+        val processor1 = createProcessor(project1, name = "operation1", slug = "op1", author = mainAccount3)
+        val processor2 = createProcessor(project2, name = "operation2", slug = "op2", author = mainAccount3)
+        val processor3 = createProcessor(project3, name = "model1", author = mainAccount3)
+        val processor4 = createProcessor(project4, name = "visualization1", author = mainAccount3)
 
-        marketplaceService.prepareEntry(project1, mainPerson3)
-        marketplaceService.prepareEntry(project2, mainPerson3)
+        marketplaceService.prepareEntry(project1, mainAccount3)
+        marketplaceService.prepareEntry(project2, mainAccount3)
 
         return listOf(tag1, tag2, tag3)
     }

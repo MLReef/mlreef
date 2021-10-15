@@ -45,7 +45,7 @@ data class Pipeline(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    var creator: Person? = null,
+    var creator: Account? = null,
 
     val slug: String,
     val name: String,
@@ -132,7 +132,7 @@ data class Pipeline(
     }
 
     val dataProject: DataProject?
-    get() = this.pipelineConfiguration?.dataProject
+        get() = this.pipelineConfiguration?.dataProject
 
     override fun hashCode() = id.hashCode()
 

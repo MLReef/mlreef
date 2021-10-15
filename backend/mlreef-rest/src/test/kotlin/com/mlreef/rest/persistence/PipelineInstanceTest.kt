@@ -47,7 +47,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
         val dataProject = createDataProject(
             slug = "slug",
             name = "CodeProject Augment",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "group",
             path = "project$gitlabIdCount",
             gitlabId = ++gitlabIdCount
@@ -141,7 +141,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
             createDataProject(
                 slug = "slug1",
                 name = "CodeProject Augment",
-                ownerId = mainPerson.id,
+                ownerId = mainAccount.id,
                 namespace = "group1",
                 path = "project1",
                 gitlabId = 201
@@ -151,7 +151,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
             createDataProject(
                 slug = "slug2",
                 name = "CodeProject Augment",
-                ownerId = mainPerson.id,
+                ownerId = mainAccount.id,
                 namespace = "group2",
                 path = "project2",
                 gitlabId = 202
@@ -191,7 +191,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
             createDataProject(
                 slug = "slug1",
                 name = "CodeProject Augment",
-                ownerId = mainPerson.id,
+                ownerId = mainAccount.id,
                 namespace = "group1",
                 path = "project1",
                 gitlabId = 201
@@ -201,7 +201,7 @@ class PipelineInstanceTest : AbstractRepositoryTest() {
             createDataProject(
                 slug = "slug2",
                 name = "CodeProject Augment",
-                ownerId = mainPerson.id,
+                ownerId = mainAccount.id,
                 namespace = "group2",
                 path = "project2",
                 gitlabId = 202

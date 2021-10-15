@@ -27,6 +27,8 @@ mlreef:
     main-publish-branch: master
     max-processors-for-main-branch: 10
     max-processors-for-nonmain-branch: 10
+    dvc-working-dir: ${DVC_WORKING_DIR:/dvc}
+    aws-default-region: eu-central-1
   gitlab:
     root-url: ${GITLAB_ROOT_URL}
     admin-user-token: ${GITLAB_ADMIN_TOKEN}
@@ -52,7 +54,7 @@ mlreef:
     host: ${PROXY_HOST:localhost}
     port: ${PROXY_PORT:8866}
   init-data:
-    enabled: true
+    enabled: ${ENABLE_INIT_DATA:true}
     path: classpath:db/data/*.*
     command-separators: ; #it's a list, split items with ,
     owner-username: ${GITLAB_ADMIN_USERNAME:mlreef}
@@ -71,7 +73,11 @@ mlreef:
     default-impersonate-token-lifetime-sec: 86400
     put-token-to-cookie: true
     put-token-to-header: true
-
+  files-management:
+    storage-place: db #disk, db, memory
+    upload-dir: ${UPLOAD_DIR:c:\temp\mlreef}
+    download-domain: /
+    download-path: /api/v1/files/download
 
 spring:
   devtools:
@@ -118,23 +124,23 @@ spring:
             enable: true
 social:
   github: #https://github.com/settings/developers
-    client-id: ${GITHUB_CLIENT_ID:3903f7060c54871882fd}
-    client-secret: ${GITHUB_CLIENT_SECRET:6e3b7ad895dadd4d256f7ae6e47a6e3f40f2792d}
+    client-id: ${GITHUB_CLIENT_ID:}
+    client-secret: ${GITHUB_CLIENT_SECRET:}
     impersonate-token-lifetime-sec: 86400
     scope:
       - read:user
       - user:email
   facebook: #https://developers.facebook.com/
-    client-id: ${FACEBOOK_CLIENT_ID:495604315102104}
-    client-secret: ${FACEBOOK_CLIENT_SECRET:5ff1fb337a369aec0435ef8734399890}
+    client-id: ${FACEBOOK_CLIENT_ID:}
+    client-secret: ${FACEBOOK_CLIENT_SECRET:}
     impersonate-token-lifetime-sec: 86400
     scope:
       - public_profile
       - email
       #- user_photos
   google: #https://console.cloud.google.com/apis/credentials?pli=1
-    client-id: ${GOOGLE_CLIENT_ID:802864893948-3rq4ubj3fdpmcrf5jl1tjccefqhcov6c.apps.googleusercontent.com}
-    client-secret: ${GOOGLE_CLIENT_SECRET:pFfbTJ0rQYj1xv2HOxjNoKXu}
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
     impersonate-token-lifetime-sec: 86400
     scope:
       - openid
@@ -142,13 +148,13 @@ social:
       - email
   okta:
     enabled: false #doesn't work and it is not necessary for now
-    client-id: ${OKTA_CLIENT_ID:0oa9y61l08XlDjgxs357}
-    client-secret: ${OKTA_CLIENT_SECRET:YfwY2g2fA7jMJ5k-YORlASTQHGlpSBZMobkfrb5x}
+    client-id: ${OKTA_CLIENT_ID:}
+    client-secret: ${OKTA_CLIENT_SECRET:}
     impersonate-token-lifetime-sec: 86400
     authorization-uri: dev-845314.okta.com
   gitlab: #https://gitlab.com/oauth/applications , https://docs.gitlab.com/ee/api/oauth2.html#authorization-code-flow
-    client-id: ${GITLAB_CLIENT_ID:3648311f1d65c745256f27458b262b8afea78a258450fa9dcccb01d5c55feaec}
-    client-secret: ${GITLAB_CLIENT_SECRET:cca2842cab9882a647c076f5b69fc9b962eb85e3efc3250d10044ebfd80299e7}
+    client-id: ${GITLAB_CLIENT_ID:}
+    client-secret: ${GITLAB_CLIENT_SECRET:}
     scope:
       - openid
       - api
@@ -156,8 +162,8 @@ social:
       - email
     client-name: Gitlab
   linkedin: #https://www.linkedin.com/developers/login
-    client-id: ${LINKEDIN_CLIENT_ID:86cy5fwcl47r1n}
-    client-secret: ${LINKEDIN_CLIENT_SECRET:Kvp9sOtZVtThz9Rc}
+    client-id: ${LINKEDIN_CLIENT_ID:}
+    client-secret: ${LINKEDIN_CLIENT_SECRET:}
     authorization-grant-type: authorization_code
     scope:
       - r_liteprofile
@@ -171,32 +177,32 @@ social:
     #      - email
     client-name: Twitter
   live: #https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
-    client-id: ${LIVE_CLIENT_ID:4a96897b-71e0-4dde-a637-2aaa79ec8975}
-    client-secret: ${LIVE_CLIENT_SECRET:mGB.JnshH~0S.c4XnBN1Kh~f6Ht9i4pj9L}
+    client-id: ${LIVE_CLIENT_ID:}
+    client-secret: ${LIVE_CLIENT_SECRET:}
     scope:
       - wl.basic
       - wl.emails
   freelancer: #https://accounts.freelancer-sandbox.com/settings/develop https://accounts.freelancer.com/settings/develop https://developers.freelancer.com/docs/authentication/generating-access-tokens
-    client-id: ${FREELANCER_CLIENT_ID:b3b29c71-df29-454a-aac8-f002963c78b6}
-    client-secret: ${FREELANCER_CLIENT_SECRET:a9df3bb95918de73b27c1128deccd36db86ac2dc77e771b0ba7f0f815d7f431805bd9215717181a2a675673eab03cf7e6982d1c1326240693462cf1b6ea9d777}
+    client-id: ${FREELANCER_CLIENT_ID:}
+    client-secret: ${FREELANCER_CLIENT_SECRET:}
     scope:
       - basic
     debug: false
   azure: #https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-spa-app-registration#redirect-uri-msaljs-20-with-auth-code-flow https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview
-    client-id: ${AZURE_CLIENT_ID:ff3e4f3c-950c-4c01-927d-4e5a2e6df31f}
-    client-secret: ${AZURE_CLIENT_SECRET:Re~zp.~-11hnn2Ej_P1a40ZW7yFWWn6Xv.}
+    client-id: ${AZURE_CLIENT_ID:}
+    client-secret: ${AZURE_CLIENT_SECRET:}
     scope:
       - openid
       - email
       - User.Read
   salesforce: #https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_oauth_and_connected_apps.htm
     enabled: false #doesn't work
-    client-id: ${SALESFORCE_CLIENT_ID:c6fec9c4-746b-43de-8747-5148f9618986}
-    client-secret: ${SALESFORCE_CLIENT_SECRET:0oI4a-wEbaL90_.~9A4~-f.xlCpfasvTaf}
+    client-id: ${SALESFORCE_CLIENT_ID:}
+    client-secret: ${SALESFORCE_CLIENT_SECRET:}
   stackexchange: #https://stackapps.com/users/join?ssrc=login&returnurl=%2fapps%2foauth%2fregister
-    client-id: ${STACKEXCHANGE_CLIENT_ID:20429}
-    client-secret: ${STACKEXCHANGE_CLIENT_SECRET:s1T962uWKmEC*ULLYPcSew((}
-    client-key: ${STACKEXCHANGE_CLIENT_KEY:SxxRTYZmPCQJ)S6r36zTcw((}
+    client-id: ${STACKEXCHANGE_CLIENT_ID:}
+    client-secret: ${STACKEXCHANGE_CLIENT_SECRET:}
+    client-key: ${STACKEXCHANGE_CLIENT_KEY:}
 
 logging:
   pattern:

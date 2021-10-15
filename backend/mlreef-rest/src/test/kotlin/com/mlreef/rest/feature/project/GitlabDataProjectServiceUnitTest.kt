@@ -4,7 +4,6 @@ import com.mlreef.rest.AccountRepository
 import com.mlreef.rest.DataProjectRepository
 import com.mlreef.rest.GroupRepository
 import com.mlreef.rest.ProjectsConfiguration
-import com.mlreef.rest.SubjectRepository
 import com.mlreef.rest.domain.DataProject
 import com.mlreef.rest.domain.VisibilityScope
 import com.mlreef.rest.domain.repositories.DataTypesRepository
@@ -14,6 +13,8 @@ import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
 import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
 import com.mlreef.rest.feature.auth.UserResolverService
 import com.mlreef.rest.feature.caches.PublicProjectsCacheService
+import com.mlreef.rest.feature.system.FilesManagementService
+import com.mlreef.rest.feature.processors.RepositoryService
 import com.mlreef.rest.feature.system.ReservedNamesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -50,13 +51,16 @@ internal class GitlabDataProjectServiceUnitTest {
     private lateinit var groupRepository: GroupRepository
 
     @MockK
-    private lateinit var subjectRepository: SubjectRepository
-
-    @MockK
     private lateinit var processorTypeRepository: ProcessorTypeRepository
 
     @MockK
     private lateinit var dataTypesRepository: DataTypesRepository
+
+    @MockK
+    private lateinit var repositoryService: RepositoryService
+
+    @MockK
+    private lateinit var filesManagementService: FilesManagementService
 
     private lateinit var projectsConfiguration: ProjectsConfiguration
 
@@ -77,11 +81,11 @@ internal class GitlabDataProjectServiceUnitTest {
             reservedNamesService,
             accountRepository,
             groupRepository,
-            subjectRepository,
             processorTypeRepository,
             dataTypesRepository,
             userResolverService,
-            projectsConfiguration
+            projectsConfiguration,
+            filesManagementService,
         )
     }
 
@@ -121,15 +125,15 @@ internal class GitlabDataProjectServiceUnitTest {
         }
 
         val result = service.createProject(
-                "test-token",
-                UUID.randomUUID(),
-                "test-slug",
-                "test-name",
-                "test-namespace",
-                "Description",
-                VisibilityScope.PUBLIC,
-                true,
-                listOf()
+            "test-token",
+            UUID.randomUUID(),
+            "test-slug",
+            "test-name",
+            "test-namespace",
+            "Description",
+            VisibilityScope.PUBLIC,
+            true,
+            listOf()
         )
 
         assertThat(result.slug).isEqualTo("test-slug")

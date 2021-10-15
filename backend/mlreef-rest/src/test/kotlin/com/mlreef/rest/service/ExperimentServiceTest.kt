@@ -1,14 +1,6 @@
 package com.mlreef.rest.service
 
-import com.mlreef.rest.domain.CodeProject
-import com.mlreef.rest.domain.DataProject
-import com.mlreef.rest.domain.Experiment
-import com.mlreef.rest.domain.FileLocation
-import com.mlreef.rest.domain.Pipeline
-import com.mlreef.rest.domain.PipelineConfiguration
-import com.mlreef.rest.domain.Processor
-import com.mlreef.rest.domain.ProcessorInstance
-import com.mlreef.rest.domain.VisibilityScope
+import com.mlreef.rest.domain.*
 import com.mlreef.rest.exceptions.ExperimentCreateException
 import com.mlreef.rest.exceptions.PipelineCreateException
 import com.mlreef.rest.external_api.gitlab.GitlabRestClient
@@ -57,7 +49,6 @@ class ExperimentServiceTest : AbstractServiceTest() {
         experimentService = ExperimentService(
             conf = config,
             experimentRepository = experimentsRepository,
-            subjectRepository = subjectRepository,
             projectResolverService = projectResolverService,
             pipelineInstanceRepository = pipelineRepository,
             processorsRepository = processorsRepository,
@@ -66,13 +57,13 @@ class ExperimentServiceTest : AbstractServiceTest() {
             processorsService = processorsService,
             gitlabRestClient = gitlabRestClient,
             pipelineService = pipelineService,
-            personRepository = personRepository,
+            userResolverService = userResolverService,
         )
 
         dataProject = createDataProject(
             slug = "new-repo-test",
             name = "Test DataProject",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             path = "new-repo-test",
             namespace = "exp-test",
             gitlabId = 20,
@@ -84,7 +75,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
         codeProject = createCodeProject(
             slug = "code-project-test",
             name = "Test CodeProject",
-            ownerId = mainPerson.id,
+            ownerId = mainAccount.id,
             namespace = "exp-test",
             path = "code-project-test",
             gitlabId = 21,
@@ -98,7 +89,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             codeProject,
             slug = "commons-augment",
             name = "Augment",
-            author = mainPerson,
+            author = mainAccount,
         )
 
         pipelineConfig = createPipelineConfiguration(
@@ -119,7 +110,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
 
         pipelineInstance = createPipeline(
             pipelineConfig,
-            mainPerson,
+            mainAccount,
             "test-pipeline-slug",
             1,
         )
@@ -151,7 +142,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
     fun `Cannot create for missing DataProject`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                mainPerson.id,
+                mainAccount.id,
                 randomUUID(),
                 pipelineInstance.id,
                 "slug",
@@ -171,7 +162,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
     fun `Cannot create for missing name`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject.id,
                 pipelineInstance.id,
                 "slug",
@@ -191,7 +182,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
     fun `Cannot create for missing source branch name`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject.id,
                 pipelineInstance.id,
                 "slug",
@@ -216,7 +207,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
             branch = "master",
             name = "Test processor",
             slug = "test-processor",
-            author = mainPerson,
+            author = mainAccount,
         )
 
         processorsRepository.save(dataProcessor)
@@ -226,7 +217,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
         )
 
         val experiment = experimentService.createExperiment(
-            mainPerson.id,
+            mainAccount.id,
             dataProject.id,
             pipelineInstance.id,
             "slug",
@@ -246,7 +237,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
     @Rollback
     fun `Can create if pipelineInstance is set and exists`() {
         val createExperiment = experimentService.createExperiment(
-            mainPerson.id,
+            mainAccount.id,
             dataProject.id,
             pipelineInstance.id,
             "slug",
@@ -267,7 +258,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
     fun `Cannot create if pipelineInstance is set but does not exist`() {
         assertThrows<ExperimentCreateException> {
             experimentService.createExperiment(
-                mainPerson.id,
+                mainAccount.id,
                 dataProject.id,
                 randomUUID(),
                 "slug",
@@ -293,7 +284,7 @@ class ExperimentServiceTest : AbstractServiceTest() {
                 async(GlobalScope.coroutineContext) {
                     delay(1000)
                     val experiment = experimentService.createExperiment(
-                        mainPerson.id,
+                        mainAccount.id,
                         dataProject.id,
                         pipelineInstance.id,
                         "slug-$n",

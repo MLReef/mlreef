@@ -195,6 +195,24 @@ Check token is correct and alive
 
 operation::check-token[snippets='curl-request,http-response,response-fields']
 
+=== POST /auth/user/avatar/create
+
+Upload a photo for user avatar
+
+operation::create-user-avatar[snippets='curl-request,http-response,response-fields']
+
+=== POST /auth/user/avatar/update
+
+Delete the user's avatar
+
+operation::delete-user-avatar[snippets='curl-request,http-response']
+
+=== DELETE /auth/user/avatar/delete
+
+Update the user's avatar
+
+operation::update-user-avatar[snippets='curl-request,http-response,response-fields']
+
 [[password-management]]
 = Passwords management - /password
 == Password reset request - POST /password/reset
@@ -274,7 +292,6 @@ operation::data-processors-codeproject-retrieve-one-by-namespace-slug[snippets='
 
 operation::fork-data-project[snippets='curl-request,response-body,response-fields']
 
-
 === POST /projects/:project/star
 
 operation::project-place-star[snippets='curl-request,response-body,response-fields']
@@ -299,6 +316,24 @@ operation::project-remove-star[snippets='curl-request,response-body,response-fie
 |===
 
 operation::project-check-availability-success[snippets='curl-request,request-parameters,response-body']
+
+=== POST /projects/:project/cover/create
+
+Upload a photo for project cover
+
+operation::create-project-cover[snippets='curl-request,response-body,response-fields']
+
+=== POST /projects/:project/cover/update
+
+Update the cover for the project
+
+operation::update-project-cover[snippets='curl-request,response-body,response-fields']
+
+=== DELETE /projects/:project/cover/delete
+
+Delete the cover of the project with :project id
+
+operation::delete-project-cover[snippets='curl-request,response-body']
 
 [[code-projects]]
 == CodeProjects - /code-projects
@@ -453,6 +488,43 @@ operation::data-project-update[snippets='curl-request,request-body,response-body
 
 operation::data-project-delete[snippets='curl-request']
 
+[[repository-commits]]
+== Commits through HTTP - /projects/:project_id/commit
+
+The endpoint allows files manipulation in browser
+
+=== POST /projects/:project_id/commit/create
+
+Upload files to repository
+
+operation::project-commit-files-add[snippets='curl-request,request-parts,request-parameters,response-body']
+
+=== POST /projects/:project_id/commit/move
+
+Move file(s) from one directory to another one
+
+operation::project-commit-files-move[snippets='curl-request,request-parameters,response-body']
+
+=== POST /projects/:project_id/commit/rename
+
+Rename one file in the repository.
+The endpoint accepts only single name for renaming file, otherwise an exception will be thrown
+
+operation::project-commit-files-rename[snippets='curl-request,request-parameters,response-body']
+
+=== POST /projects/:project_id/commit/delete
+
+Delete file(s) in the repository
+
+operation::project-commit-files-delete[snippets='curl-request,request-parameters,response-body']
+
+=== POST /projects/:project_id/commit/update
+
+Update content of a single file.
+The endpoint accepts only one file per request.
+The name of the file inside repository can be pass in 'names' or 'name' parameter, then original name of uploading file will be ignored, otherwise the file name will be taken from 'files' part
+
+operation::project-commit-files-update[snippets='curl-request,request-parts,request-parameters,response-body']
 
 [[groups]]
 == Groups - /groups
@@ -797,3 +869,14 @@ DataTypes are *not* SearchableTags but their own enum
 === GET /explore/tags
 
 operation::marketplace-tags-retrieve-all[snippets='curl-request,response-body,response-fields']
+
+[[files-management]]
+= Files management
+
+Files management allows to upload and download files for various purposes
+
+=== GET /api/v1/files/download/:file_id
+
+Download a file by :file_id
+
+operation::download-file[snippets='curl-request,http-response,response-body']

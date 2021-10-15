@@ -1,10 +1,10 @@
 UPDATE mlreef_project mp
 SET processor_type_id = a.processor_type_id
 FROM (
-SELECT dp.code_project_id as project_id, pt.id as processor_type_id
-FROM data_processor dp
-join processor_types pt on dp.processor_type = pt.name
-) a
+         SELECT dp.code_project_id as project_id, pt.id as processor_type_id
+         FROM data_processor dp
+                  join processor_types pt on dp.processor_type = pt.name
+     ) a
 where mp.id = a.project_id;
 
 UPDATE mlreef_project
