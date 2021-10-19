@@ -20,7 +20,6 @@ import MInput from 'components/ui/MInput';
 import MButton from 'components/ui/MButton';
 import { validateProjectName } from 'functions/validations';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import SearchApi from 'apis/MLSearchApi';
 import * as projectActions from 'store/actions/projectInfoActions';
 import * as userActions from 'store/actions/userActions';
 import { getGroupsList } from 'store/actions/groupsActions';

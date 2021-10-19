@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toastr } from 'react-redux-toastr';
 import moment from 'moment';
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
-import { shape, string, arrayOf, number, func } from 'prop-types';
+import { shape, string, arrayOf, number } from 'prop-types';
 import { parseToCamelCase } from 'functions/dataParserHelpers';
 import { SUCCESS, RUNNING, PENDING } from 'dataTypes';
 

@@ -29,8 +29,6 @@ const DashboardV2 = (props) => {
 
   const class2 = classification2 || 'data_project';
 
-  const recentClass = class1 === 'recent' ? 'active' : '';
-
   const myReposActivClass = class1 === 'my-repositories' ? 'active' : '';
 
   const starredClass = class1 === 'starred' ? 'active' : '';
