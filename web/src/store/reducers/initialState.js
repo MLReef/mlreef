@@ -1,5 +1,3 @@
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
-
 export default {
   branches: [],
   jobs: [],

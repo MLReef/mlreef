@@ -2,14 +2,11 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { number, shape, string } from 'prop-types';
 import { Link } from 'router';
-import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import { getTimeCreatedAgo } from 'functions/dataParserHelpers';
 import clock from 'images/clock.png';
 import { getColorForStatus } from 'domain/Publications/metaData';
 import calender from 'images/calender.png';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar';
-
-
 
 const PublicationInfoRow = ({
   gid, namespace, slug, publication,

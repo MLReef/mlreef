@@ -1,7 +1,5 @@
 import { POLL_TIMEOUT } from 'apiConfig';
-import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import CommitsApi from '../apis/CommitsApi.ts';
-import { parseToCamelCase } from './dataParserHelpers';
 
 const commitsApi = new CommitsApi();
 

@@ -1,4 +1,4 @@
-import { CANCELED, FAILED, PENDING, RUNNING, SUCCESS } from 'dataTypes';
+import { CANCELED, FAILED, PENDING, RUNNING } from 'dataTypes';
 import Publication from './Publication';
 import PublishingStatuses from './Status';
 
@@ -32,7 +32,7 @@ const statusesMetadaData: Record<PublishingStatuses, PublicationInfo> = {
 };
 
 export const sortTypedPipelines = (pipes: Array<Publication>) => {
-  
+
   return [
   {
     status: PENDING,

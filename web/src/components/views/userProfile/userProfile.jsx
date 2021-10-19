@@ -25,7 +25,6 @@ const UserProfile = (props) => {
 
   const {
     avatar_url: avatarImage,
-    name,
     state,
     created_at: createdAt,
     status,

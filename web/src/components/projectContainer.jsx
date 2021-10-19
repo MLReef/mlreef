@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'router';
 import {
-  string, objectOf, shape, arrayOf, func, bool,
+  string, objectOf, shape, arrayOf, bool,
 } from 'prop-types';
 import AuthWrapper from 'components/AuthWrapper';
 import MParagraph from 'components/ui/MParagraph';
@@ -9,8 +9,8 @@ import { generateBreadCrumbs } from 'functions/helpers';
 import MBreadcrumb from 'components/ui/MBreadcrumb';
 import { connect } from 'react-redux';
 import { PROJECT_TYPES } from 'domain/project/projectTypes';
-import ProjectInfo from './ProjectTitleNActions';
 import { projectClassificationsProps } from 'dataTypes';
+import ProjectInfo from './ProjectTitleNActions';
 
 const ProjectContainer = (props) => {
   const {
