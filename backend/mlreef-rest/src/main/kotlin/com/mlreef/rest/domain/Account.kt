@@ -52,12 +52,12 @@ class Account(
     val termsAcceptedAt: Instant? = null,
 
     @Column(name = "has_newsletters")
-    val hasNewsletters: Boolean = false,
+    val hasNewsletters: Boolean? = false,
 
     // Auditing
     version: Long? = null,
     createdAt: ZonedDateTime? = null,
-    updatedAt: ZonedDateTime? = null
+    updatedAt: ZonedDateTime? = null,
 ) : AuditEntity(id, version, createdAt, updatedAt) {
     fun copy(
         id: UUID? = null,
