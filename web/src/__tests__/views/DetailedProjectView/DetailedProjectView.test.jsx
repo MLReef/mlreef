@@ -44,7 +44,7 @@ const setup = (auth) => {
   );
 };
 
-describe('test basic rendering for data projects', () => {
+xdescribe('test basic rendering for data projects', () => {
   test('assert that component renders for authenticathed users', async () => {
     const wrapper = setup(true);
     await sleep(500);
@@ -92,7 +92,7 @@ describe('test basic rendering for data projects', () => {
 
     // expect(repoFeaturesAuthWrapper.at(2).find('a').text()).toBe('Data Visualization');
     // expect(repoFeaturesAuthWrapper.at(2).childAt(0).props().title).toBe('Please login');
-  }); 
+  });
 
   afterEach(() => {
     global.fetch.mockClear();

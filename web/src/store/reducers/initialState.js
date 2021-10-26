@@ -1,3 +1,5 @@
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
+
 export default {
   branches: [],
   jobs: [],
@@ -33,6 +35,8 @@ export default {
         DataVisualizationOverview: false,
         NewExperiment: false,
         PipeLineView: false,
+        [PROJECT_TYPES.CODE]: false,
+        [PROJECT_TYPES.DATA]: false,
       },
     },
     globalColorMarker: null,
