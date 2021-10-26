@@ -188,9 +188,9 @@ RUN apt-get -y install curl apt-transport-https ca-certificates software-propert
 # Add postgres repo to apt package manager
 RUN apt-get update                                                                          && \
     apt-get install -y wget vim lsb-release                                                 && \
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc |  apt-key add -   && \
+    wget --no-check-certificate -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc |  apt-key add -   && \
     RELEASE=$(lsb_release -cs)                                                              && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt/ ${RELEASE}"-pgdg main |  tee  /etc/apt/sources.list.d/pgdg.list
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)"-pgdg main |  tee  /etc/apt/sources.list.d/pgdg.list
 
 # Install Postgres
 RUN apt-get update                      && \
