@@ -21,6 +21,7 @@ import RepoFeatures from '../../repoFeatures';
 import Navbar from '../../navbar/navbar';
 import './DetailedProjectView.scss';
 import EmptyProject from '../../layout/EmptyProject/EmptyProject';
+import ProjectHelp from './ProjectHelp';
 import ProjectLastCommitSect from './LastCommitSect';
 import projActions from './ProjectViewactionsAndFunctions';
 
@@ -130,6 +131,7 @@ const DetailedProjectView = (props) => {
                     searchableType={project.searchableType}
                     history={history}
                   />
+                  <ProjectHelp id={project.searchableType} />
                   <FilesContainer
                     projectId={gid}
                     namespace={namespace}
