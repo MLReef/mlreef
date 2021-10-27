@@ -52,7 +52,7 @@ describe('test html elements', () => {
     expect(screen.getByTestId('global-marker')
       .children.item(0)
       .getAttribute('style'))
-      .toBe('animation-iteration-count: infinite; animation-duration: 1s; background-color: rgb(145, 169, 69);');
+      .toBe('animation-iteration-count: infinite; animation-duration: 1s; background-color: rgb(145, 189, 68);');
   });
 
   afterEach(() => {

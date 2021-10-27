@@ -162,7 +162,7 @@ export class RepoFeatures extends Component {
               className="mx-2 mt-3"
             >
               <Link
-                style={{ backgroundColor: projectClassificationsProps[1].color, color: 'white' }}
+                style={{ backgroundColor: projectClassificationsProps[2].color, color: 'white' }}
                 className="btn px-3 mr-2 mt-3"
                 to={`/${namespace}/${slug}/-/datasets/new`}
                 data-icon="o"
@@ -178,7 +178,7 @@ export class RepoFeatures extends Component {
               className="ml-2 mr-auto mt-3"
             >
               <Link
-                style={{ backgroundColor: projectClassificationsProps[2].color, color: 'white' }}
+                style={{ backgroundColor: projectClassificationsProps[3].color, color: 'white' }}
                 className="btn px-3 mr-auto mt-3"
                 data-icon="v"
                 to={`/${namespace}/${slug}/-/visualizations/new`}
