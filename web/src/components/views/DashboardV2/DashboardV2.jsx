@@ -108,7 +108,7 @@ const DashboardV2 = (props) => {
           </div>
         </div>
         {!isMLProjectsOption && <div className="dashboard-v2-content-links-section-2">
-          {projectClassificationsProps.map(({ label, searchableType, color }) => {
+          {projectClassificationsProps.slice(1).map(({ label, searchableType, color }) => {
             const lowerCaseST = searchableType.toLowerCase();
             const isIsClass2 = class2 === lowerCaseST;
             const finalColor = isIsClass2 ? color : 'var(--dark)';
