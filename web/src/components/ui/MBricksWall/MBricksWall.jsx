@@ -38,7 +38,8 @@ const MBricksWall = (props) => {
         container.style.marginLeft = `calc((100% - ${info.width}px + 1rem) / 2)`;
       }
     },
-    [bricks],
+    // eslint-disable-next-line
+    [alignMarginLeft, bricks], // bricks.length is required implicitly. Don't delete this msg
   );
 
   const resizeObs = useMemo(

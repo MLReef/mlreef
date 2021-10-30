@@ -67,15 +67,16 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
       })
       .catch((err) => toastr.error('Error', err.message));
   },
-    [
-      gid,
-      filePath,
-      initialCommit,
-      initialBranch,
-      branchSelected,
-      initialFiles,
-      unmounted,
-    ]);
+  [
+    dispatch,
+    gid,
+    filePath,
+    initialCommit,
+    initialBranch,
+    branchSelected,
+    initialFiles,
+    unmounted,
+  ]);
 
   useEffect(() => {
     updateFiles();
@@ -309,7 +310,8 @@ export const UnconnectedSelectDataPipelineModal = (props) => {
                           </p>
                         </td>
                       </tr>
-                    )), [files])}
+                    // eslint-disable-next-line
+                    )), [files, updateFiles])}
                   </tbody>
                 </table>
               </div>

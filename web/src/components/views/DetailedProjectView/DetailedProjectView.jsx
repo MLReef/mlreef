@@ -65,7 +65,7 @@ const DetailedProjectView = (props) => {
       actions,
     ))
       .finally(() => actions.setIsLoading(false));
-  }, [namespace, slug]);
+  }, [namespace, slug, auth, actions]);
 
   const customCrumbs = [
     {

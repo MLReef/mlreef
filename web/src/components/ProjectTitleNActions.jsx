@@ -54,7 +54,7 @@ const ProjectTitleNActions = (props) => {
     if (classProject.gid && !project.projectStarrers) {
       actions.getProjectStarrers(classProject.gid);
     }
-  }, [classProject.gid, classProject.starsCount, classProject.projectStarrers]);
+  }, [classProject, project, userGid, actions]);
 
   function onClickStarBtn() {
     if (isDisabledStarBtn) return;

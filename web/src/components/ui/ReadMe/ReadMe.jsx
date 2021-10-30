@@ -25,7 +25,7 @@ const Readme = (props) => {
     )
       .then((res) => setTextContent(Base64.decode(res.content)))
       .catch((error) => toastr.error('Error', error.message));
-  }, [projectId, branch]);
+  }, [projectId, branch, readmeUrl]);
 
   const modifyImageSource = (input) => {
     if (/^https?:/.test(input)) {
@@ -61,6 +61,7 @@ Readme.defaultProps = {
 Readme.propTypes = {
   projectId: number,
   branch: string,
+  readmeUrl: string.isRequired,
 };
 
 export default Readme;
