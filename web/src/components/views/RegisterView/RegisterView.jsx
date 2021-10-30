@@ -1,15 +1,14 @@
-import React, { useState, } from 'react';
+import React, { useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import './RegisterView.scss';
-import { registerUser, updateUserInfo, logout } from 'store/actions/userActions';
-import { initialFields } from './formInformation';
+import { registerUser, updateUserInfo } from 'store/actions/userActions';
 import icon from 'images/ml_reef_icon_01.svg';
+import { initialFields } from './formInformation';
 import RegisterViewForm from './RegisterViewForm';
 import RegisterViewRoleForm from './RegisterViewRoleForm';
-import { Redirect } from 'react-router-dom';
 
 const RegisterView = (props) => {
   const [registryStatus, setRegistryStatus] = useState(0);
@@ -24,7 +23,7 @@ const RegisterView = (props) => {
     history.push('/tutorial');
   };
 
-  if(auth && registryStatus === 0) {
+  if (auth && registryStatus === 0) {
     return (
       <Redirect to="/dashboard" />
     );

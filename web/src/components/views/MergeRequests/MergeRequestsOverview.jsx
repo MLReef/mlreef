@@ -65,7 +65,7 @@ const MergeRequestOverview = (props) => {
       actions.getMergeRequestsList(gid)
         .then((mrs) => setMrs(classifyMrsByState(mrs)));
     }
-  }, [gid]);
+  }, [gid, actions]);
 
   const handleFilterBtnClick = (e) => {
     setBtnSelected(e.currentTarget.id);

@@ -1,12 +1,10 @@
 import GitlabPipelinesApi from 'apis/GitlabPipelinesApi';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import { parseToCamelCase, adaptProjectModel } from 'functions/dataParserHelpers';
-import MLSearchApi from 'apis/MLSearchApi';
 import store from 'store';
 import * as types from '../actionTypes';
 
 const projectApi = new ProjectGeneralInfoApi();
-const mlSearchApi = new MLSearchApi();
 const gitlabPipelinesApi = new GitlabPipelinesApi();
 
 /**
@@ -27,7 +25,6 @@ export const mergeGitlabResource = (projects) => projects.map((project) => ({
   ...project,
   members: projectApi.getUsers(project.gitlabId).catch(() => []),
 }));
-
 
 /**
  * get list of projects, function changes the API call depending on the user authentication
@@ -102,7 +99,7 @@ export function removeProject(id) {
   return (dispatch) => projectApi.removeProject(id)
     .then(() => {
       // clean selectedProject after stack is executed to avoid proptypes warinings
-      setTimeout(() => dispatch({ type: types.SET_SELECTED_PROJECT, project: {}}), 0);
+      setTimeout(() => dispatch({ type: types.SET_SELECTED_PROJECT, project: {} }), 0);
     });
 }
 
@@ -138,7 +135,7 @@ export const setProjectPipelines = (pipes = []) => ({
 export function getProjectPipelines(gid) {
   return (dispatch) => gitlabPipelinesApi.getPipesByProjectId(gid)
     .then((pipes) => {
-      dispatch(setProjectPipelines(pipes))
+      dispatch(setProjectPipelines(pipes));
 
       return pipes;
     });
