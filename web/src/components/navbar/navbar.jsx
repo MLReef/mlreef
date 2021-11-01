@@ -88,7 +88,7 @@ class Navbar extends Component {
     const HomeSrc = this.getHomeImage();
 
     console.log({HomeSrc});
-    
+
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
     const docuLink = (
@@ -116,40 +116,40 @@ class Navbar extends Component {
             <div className="ml-3 my-auto d-lg-block" onClick={this.activeHome}>
               <NavLink
                 className="label"
-                activeClassName="active" 
+                activeClassName="active"
                 to={user.auth ? '/welcome' : '/welcome'}
-                
+
               >
                 <img src={HomeSrc} alt="MLReef Home" />
                 <label >Home</label>
               </NavLink>
             </div>
             <div className="ml-3 my-auto d-lg-block" onClick={this.activeMLProjects}>
-              <NavLink 
-                className="label" 
-                to={{ pathname: user.auth ? ('/dashboard/public/data_project'): '/welcome'}} 
+              <NavLink
+                className="label"
+                to={{ pathname: user.auth ? ('/dashboard/public/data_project'): '/welcome'}}
                 activeClassName="active"
                 isActive={(_, location)=>{
                   return MLPaths.includes(location.pathname);
                 }}
-                
+
               >
                 <img src={MLProjectSrc} alt="MLReef ML Projects" />
                 <label>ML Projects</label>
               </NavLink>
             </div>
             <div className="ml-3 my-auto d-lg-block" onClick={this.activeAILibrary}>
-              <NavLink 
-                className="label" 
-                to={{pathname: user.auth ? '/dashboard/public/algorithm' : '/welcome'}} 
+              <NavLink
+                className="label"
+                to={{pathname: user.auth ? '/dashboard/public/algorithm' : '/welcome'}}
                 activeClassName="active"
                 isActive={(_, location)=>{
                   return AIPaths.includes(location.pathname)
                 }}
-                
+
               >
-                <img src={AILibrarySrc} alt="MLReef AI Projects" />
-                <label >AI Projects</label>
+                <img src={AILibrarySrc} alt="MLReef AI Library" />
+                <label>AI Library</label>
               </NavLink>
             </div>
             {user.auth && (

@@ -14,6 +14,7 @@ import * as userActions from 'store/actions/userActions';
 import * as jobsActions from 'store/actions/jobsActions';
 import * as mergeActions from 'store/actions/mergeActions';
 import * as pipelineActions from 'store/actions/pipelinesActions';
+import AuthWrapper from 'components/AuthWrapper';
 import ReadMeComponent from '../../ui/ReadMe/ReadMe';
 import ProjectContainer from '../../projectContainer';
 import RepoInfo from '../../repoInfo';
@@ -109,7 +110,10 @@ const DetailedProjectView = (props) => {
             />
             <div className="main-content">
               {project.emptyRepo ? (
-                <EmptyProject httpUrlToRepo={httpUrlToRepo} namespace={namespace} slug={slug} />
+                <EmptyProject
+                  httpUrlToRepo={httpUrlToRepo}
+                  searchableType={project.searchableType}
+                />
               ) : (
                 <>
                   <RepoInfo
@@ -131,7 +135,9 @@ const DetailedProjectView = (props) => {
                     searchableType={project.searchableType}
                     history={history}
                   />
-                  <ProjectHelp id={project.searchableType} />
+                  <AuthWrapper norender minRole={30}>
+                    <ProjectHelp id={project.searchableType} />
+                  </AuthWrapper>
                   <FilesContainer
                     projectId={gid}
                     namespace={namespace}

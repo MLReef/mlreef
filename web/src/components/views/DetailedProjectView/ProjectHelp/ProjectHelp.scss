@@ -26,8 +26,7 @@
         margin-right: auto;
 
         & > img {
-          width: auto;
-
+          width: 100%;
         }
       }
     }
@@ -90,6 +89,7 @@
 
       & > img {
         width: 400px;
+        max-width: 90%; // aparently fix a bug in Safari
         max-width: 70vw;
       }
     }

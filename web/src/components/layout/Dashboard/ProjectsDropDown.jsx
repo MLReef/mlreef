@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useDropdown from 'customHooks/useDropdown';
 
-export default () => {
+const ProjectsDropDown = () => {
   const [dropDownRef, toggleShow, isDropdownOpen] = useDropdown();
+
   return useMemo(() => (
     <div className="dashboard-v2-content-search-bar-dropdown">
       <button
@@ -12,9 +13,7 @@ export default () => {
         className="new-project btn-primary"
         onClick={toggleShow}
       >
-        New Project
-        {' '}
-        <i className={`fa fa-chevron-${isDropdownOpen ? 'up' : 'down'} my-auto`} />
+        New module <i className={`fa fa-chevron-${isDropdownOpen ? 'up' : 'down'} my-auto`} />
       </button>
       {isDropdownOpen && (
         <div className="dashboard-v2-content-search-bar-dropdown-content mt-1" style={{ top: `${dropDownRef.current.offsetTop + 42}px` }}>
@@ -38,3 +37,5 @@ export default () => {
     </div>
   ), [dropDownRef, toggleShow, isDropdownOpen]);
 };
+
+export default ProjectsDropDown;

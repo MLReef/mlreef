@@ -1,6 +1,8 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'router';
+import { fireModal } from 'store/actions/actionModalActions';
 import './ProjectHelp.scss';
 
 const docUrl = 'https://docs.mlreef.com/4-code-projects/1-publishing_code_repository.md';
@@ -9,6 +11,29 @@ export const CodeProjectContent = (props) => {
   const {
     projectUrl,
   } = props;
+
+  const dispatch = useDispatch();
+
+  const openVideo = () => {
+    dispatch(fireModal({
+      type: 'info',
+      title: '',
+      noActions: true,
+      content: (
+        <div className="p-1">
+          <iframe
+            width="562"
+            height="315"
+            src="https://www.youtube.com/embed/TdYmbck6m3Y"
+            title="Creating AI Modules tutorial"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      ),
+    }));
+  };
 
   return (
     <>
@@ -55,7 +80,7 @@ export const CodeProjectContent = (props) => {
             <button
               type="button"
               className="btn btn-info m-2"
-              disabled
+              onClick={openVideo}
             >
               Watch a video tutorial
             </button>

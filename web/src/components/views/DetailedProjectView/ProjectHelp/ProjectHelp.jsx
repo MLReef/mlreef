@@ -9,7 +9,6 @@ import CodeProjectContent from './CodeProjectContent';
 import MLProjectContent from './MLProjectContent';
 import './ProjectHelp.scss';
 
-
 export const ProjectHelp = (props) => {
   const {
     id,
