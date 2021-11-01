@@ -82,6 +82,7 @@
     padding: $modal-padding 0;
     border-color: $dark;
     font-weight: bold;
+    min-height: 1em;
     @include round-top;
   }
 

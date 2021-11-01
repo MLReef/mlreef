@@ -1,22 +1,28 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import EmptyProject from 'components/layout/EmptyProject/EmptyProject';
 import { projectsArrayMock } from 'testData';
 import { MemoryRouter } from 'react-router-dom';
+import { storeFactory } from 'functions/testUtils';
 
 const { projects: { selectedProject: project } } = projectsArrayMock;
+const store = storeFactory({ ...projectsArrayMock });
+
+store.dispatch({ type: 'LOGIN', user: {} });
 
 const setup = () => mount(
-  <MemoryRouter>
-    <EmptyProject
-      httpUrlToRepo={project.httpUrlToRepo}
-      namespace={project.namespace}
-      slug={project.slug}
-    />
-  </MemoryRouter>,
+  <Provider store={store}>
+    <MemoryRouter>
+      <EmptyProject
+        httpUrlToRepo={project.httpUrlToRepo}
+        searchableType={project.searchableType}
+      />
+    </MemoryRouter>,
+  </Provider>,
 );
 
-describe('', () => {
+describe('Test EmptyProject', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
@@ -26,11 +32,6 @@ describe('', () => {
     const emptyProjProps = wrapper.find('EmptyProject').props();
 
     expect(emptyProjProps.httpUrlToRepo).toBe(project.httpUrlToRepo);
-    expect(emptyProjProps.namespace).toBe(project.namespace);
-    expect(emptyProjProps.slug).toBe(project.slug);
-    const links = wrapper.find('Link');
-
-    expect(links.at(0).props().to).toBe(`/${project.namespace}/${project.slug}/master/upload-file/path/`);
-    expect(links.at(1).props().to).toBe(`/${project.namespace}/${project.slug}/-/tree/file/editor/new`);
+    expect(wrapper.find('ProjectHelp')).toHaveLength(1);
   });
 });
