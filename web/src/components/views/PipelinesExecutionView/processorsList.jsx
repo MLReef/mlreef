@@ -14,14 +14,14 @@ const NoProjectsSign = ({ operationClassification }) => (
     {' '}
     {operationClassification}
     {' '}
-    to execute
+    found.
   </h4>
 );
 
 const DataProcessorsList = ({
   processors,
-  operationClassification, 
-  operationTypeToExecute, 
+  operationClassification,
+  operationTypeToExecute,
   dispatch,
 }) => useMemo(() => processors.length > 0 ? processors.map((processor) => (
   <Processor
@@ -50,10 +50,10 @@ const ProcessorsList = ({ operationTypeToExecute, namespace }) => {
           my models
         </p>
       </div>
-      <DataProcessorsList 
+      <DataProcessorsList
         processors={privateProcessors}
         operationClassification={operationClassification}
-        operationTypeToExecute={operationTypeToExecute} 
+        operationTypeToExecute={operationTypeToExecute}
         dispatch={dispatch}
       />
       <div className="data-operations-list-separation">
@@ -62,10 +62,10 @@ const ProcessorsList = ({ operationTypeToExecute, namespace }) => {
           public models
         </p>
       </div>
-      <DataProcessorsList 
+      <DataProcessorsList
         processors={publicProcessors}
         operationClassification={operationClassification}
-        operationTypeToExecute={operationTypeToExecute} 
+        operationTypeToExecute={operationTypeToExecute}
         dispatch={dispatch}
       />
     </div>

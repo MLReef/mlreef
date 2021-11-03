@@ -134,12 +134,10 @@ const FunctionalExecutionPipelinesView = (props) => {
             <FilesSelector
               instructions={(
                 <p>
-                  First, select a data input path (folder or file)
-                  you want your
+                  Select a folder or file as initial input-path to be used for your
                   {' '}
                   {pipelinesTypeExecutionTitle}
                   {' '}
-                  to be trained on
                 </p>
                 )}
             />

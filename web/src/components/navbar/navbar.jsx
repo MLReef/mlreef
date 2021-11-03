@@ -169,13 +169,9 @@ class Navbar extends Component {
                       <div>
                         {'Signed in as '}
                         <b id="cy-username">{user.username}</b>
-                        <i>
-                          {' '}
-                          {user.email}
-                        </i>
                       </div>
                       <p>
-                        <Link to="/profile">Settings</Link>
+                        <Link to="/profile">Profile</Link>
                       </p>
                       <hr />
                       <p

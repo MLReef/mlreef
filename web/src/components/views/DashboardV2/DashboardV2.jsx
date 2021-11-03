@@ -85,7 +85,7 @@ const DashboardV2 = (props) => {
               to={`/dashboard/my-repositories/${class2}`}
               onClick={changeColorAndSetLoadingStatus}
             >
-              My repositories
+              My Repositories
             </Link>
           </div>
           <div className={starredClass}>

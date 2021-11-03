@@ -93,8 +93,8 @@
             {
               "id": 3,
               "layoutType": 1,
-              "title": "Now you own the Basic Tutorial ML Project!",
-              "instructions": "##### Congratulations! You now own this project.\nFeel free to navigate around to get a first sensation of it.",
+              "title": "The repository is now yours!",
+              "instructions": "##### Congratulations! \nFeel free to navigate around the repository. We will continue with an experiment in the next step.",
               "image": "/tutorials/1/basic_repository.png",
               "validators": []
             }
@@ -238,7 +238,7 @@
               ]
             },
             {
-              "id": 4,
+              "id": 3,
               "layoutType": 1,
               "title": "Navigate the tabs",
               "image": "/tutorials/1/details_2.gif",

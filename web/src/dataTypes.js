@@ -309,9 +309,8 @@ export const projectClassificationsProps = [
     searchableType: PROJECT_TYPES.DATA,
     label: 'ML Project',
     color: '#91BD44',
-    description: `A Machine Learning (ML) project is where you house your data set (repository),
-      where you perform data processing (data pipeline), visualize your data set (data visualization)
-      and where you create your experiments`,
+    description: `A Machine Learning (ML) project is where all real magic happens. Store and manage
+      your data, run data and experiment pipelines and manage your models.`,
   },
   {
     classification: MODEL,
@@ -319,13 +318,8 @@ export const projectClassificationsProps = [
     searchableType: PROJECT_TYPES.ALGORITHM,
     label: "Model",
     color: "#E99444",
-    description: `
-    A machine learning(ML) model is an algorithm that can be trained
-    with data to be a mathematical representation of a real-world process.
-
-    Create a model repository to use it in your experiment pipelines and publishing it.
-    You can find detailed instructions how to create models in MLReef in the documentation
-    `,
+    description: `A Model is an AI Module that hosts and stores your algorithms. Published models can be used
+    in the experiment pipeline in "ML Projects".`,
   },
   {
     classification: DATA_OPERATION,
@@ -333,23 +327,23 @@ export const projectClassificationsProps = [
     searchableType: PROJECT_TYPES.OPERATION,
     label: "Data Operation",
     color: "#D2519D",
-    description: `A data operation transforms your data in a data pre-processing pipeline.
-    It is a script that need input data to create output data.
+    description: `A Data Operation transforms your data in a data pre-processing pipeline.
+    It is a script that needs input data to create new output data.
 
-    You can find detailed instructions how to create data operations in the documentation
-    `,
+    Use published Data Operations in Data Ops pipelines contained in the data tab within
+    "ML Projects".`,
   },
   {
     classification: DATA_VISUALIZATION,
     typeOfProcessor: VISUALIZATION,
     searchableType: PROJECT_TYPES.VISUALIZATION,
-    label: "Data visualization",
+    label: 'Data Visualization',
     color: "#735DA8",
-    description: `A data visualization create undestandable representations of the structure in your data.
-    The output are plots and graphs.
+    description: `A Data Visualization creates understandable representations of the structure in your data.
+    The output can be plots, charts or any other form of visual output.
 
-    You can find detailed instructions how to create data visualizations in the documentation.
-    `,
+    To use Data Visualizations, publish your AI Module and use it in the data visualization pipeline
+    in the data tab within "ML Projects".`,
   },
 ];
 

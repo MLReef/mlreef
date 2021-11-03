@@ -184,7 +184,7 @@ const PublishingOverviewContent = (props) => {
     <div className="publishing-process-view-content-overview">
       <div className="publishing-process-view-content-overview-title-div">
         <h3>Publishing pipelines</h3>
-        <p>See the current pipelines and their status here</p>
+        <p>Your AI Module is being published. You can review the status of your job here.</p>
       </div>
       <div className="publishing-process-view-content-overview-basic-info-1">
         <p>
