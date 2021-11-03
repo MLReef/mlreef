@@ -40,7 +40,7 @@ const RegisterLandingView = (props) => {
         <div className="register-landing-view-tutorial border-rounded">
           <div className="register-landing-view-tutorial-content">
             <h4>Start with a tutorial</h4>
-            <p>Learn MLReef by our curated hands-on video tutorials</p>
+            <p>Learn how to use MLReef with hands-on tutorials!</p>
             <MSelect
               value={tutorialId}
               label="Select a tutorial"
@@ -55,7 +55,7 @@ const RegisterLandingView = (props) => {
             >
               <span
                 className="btn-prepend-icon"
-                style={{ backgroundImage: 'url(/images/TutorialView-01.png)' }}
+                style={{ backgroundImage: 'url(/images/Tutorials-01.png)' }}
               />
               Start tutorial
             </Link>
@@ -89,18 +89,18 @@ const RegisterLandingView = (props) => {
               <h4 id="explore-link-title" className="state-title mt-0">Explore Public Projects</h4>
               <p id="explore-link-text-content" className="state-text">
                 Public projects are an easy way to get started. Explore the ever
-                growing number of projects, get inspired and be part of the reef
+                growing number of ML Projects, get inspired and be part of the reef.
               </p>
             </div>
           </Link>
           <Link className="option-link mb-3 info-box" to="/new-project/classification/ml-project">
             <div id="new-project-link-icon" className="option-icon" style={{ backgroundColor: 'var(--dark)' }} />
             <div id="new-project-link-content" className="state-body pl-3">
-              <h4 id="new-project-link-title" className="state-title mt-0">Create a Project</h4>
+              <h4 id="new-project-link-title" className="state-title mt-0">Create a ML Project</h4>
               <p id="new-project-link-text-content" className="state-text mt-0">
-                In MLReef there are ML projects, which host your data and experiments.
-                Furthermore you can create code only projects for data operations, data
-                visualizations and ML models.
+                In MLReef there are ML projects, which host your data, all pipelines and experiments.
+                Separate to them, you can create AI Modules in the AI Library. These host your ML
+                functions, for example for data operations, data visualizations or models.
               </p>
             </div>
           </Link>
@@ -118,8 +118,7 @@ const RegisterLandingView = (props) => {
             <div id="documentation-link-content" className="state-body">
               <h4 id="documentation-link-title" className="state-title mt-0">Learn more about MLReef</h4>
               <p id="documentation-link-text-content" className="state-text">
-                Take a look at the documentation to know about
-                all capabilities of MLReef
+                Take a look at the documentation to learn about all capabilities of MLReef.
               </p>
             </div>
           </a>

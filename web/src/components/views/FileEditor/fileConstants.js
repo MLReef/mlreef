@@ -2,25 +2,32 @@ export default {
   dataProcessor: {
     fileName: 'data_processor.py',
     content: 
-    `@data_processor(
-      name="Resnet 2.0 Filter",
-      author="MLReef",
-      type="ALGORITHM",
-      description="Transforms images with lots of magic",
-      visibility="PUBLIC",
-      input_type="IMAGE",
-      output_type="IMAGE"
-    )
-    @parameter(name="cropFactor", type="Float", required=True, defaultValue=1)
-    @parameter(name="imageFiles", type="List",required=True, defaultValue="[]")
-    @parameter(name="optionalFilterParam", type="Integer", required=True, defaultValue=1)
-    def myCustomOperationEntrypoint(cropFactor, imageFiles, optionalFilterParam=1):
-      print("stuff happening here")
+    `
+    # These are the annotations required for running your scripts in MLReef.
+    # Add this section below with by adding at leaset the @parameter for input-path and output-path.
+    # You can add any other parameter you specified in your script using CLI arguments. 
+
+    def data_processor(*args, **kwargs):
+      pass
+      return data_processor
+
+    def parameter(*args, **kwargs):
+      pass
+      return parameter
     
-    myCustomOperationEntrypoint(epfInputArray)`
+    @data_processor(
+      name="Set a name here...",
+    )
+    @parameter(name="input-path", type="str", required=True, defaultValue="train", description="Data input, path to the images used for augmentation")
+    @parameter(name="output-path", type="str", required=True, defaultValue="output", description="Output path to save models and logs")
+
+    def init_params():
+    pass
+
+    `
   },
   requirementsFile: {
     fileName: 'requirements.txt',
-    content: 'python==2.7\n',
+    content: '# Add any PIP installable libraries here, for example:\nscipy==1.4.1',
   },
 };

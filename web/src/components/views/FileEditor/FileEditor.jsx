@@ -101,7 +101,7 @@ const FileCreation = (props) => {
                 className="mb-0"
                 options={[
                   { label: 'Select...', value: '' },
-                  { label: 'Data processor', value: 'dataProcessor' },
+                  { label: 'AI Module', value: 'dataProcessor' },
                   { label: 'Requirements file', value: 'requirementsFile' },
                 ]}
                 onChange={(val) => {

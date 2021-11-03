@@ -113,7 +113,7 @@ const Jobs = (props) => {
                 }}
                 >
                   <img src={greyLogo} alt="empty" width="45" />
-                  <span>No Jobs to show</span>
+                  <span>No jobs to show</span>
                 </td>
               </tr>
             </tbody>

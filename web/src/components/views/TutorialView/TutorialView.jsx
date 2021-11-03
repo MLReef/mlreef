@@ -40,32 +40,32 @@ const TutorialView = (props) => {
       <div className='tutorial-view_content'>
         <div className={`tutorial-view_content_slides show-page${activePage}`}>
           <div className='tutorial-view_content_slides_page page1'>
-            <h2 className='title-lg'>You will find two types of repositories</h2>
+            <h2 className="title-lg">In MLReef you will find two major repository types:</h2>
             <div className="content page1_content">
               <img className='image image1' src={tutorialScreen1} alt="" />
-              <div className="page1_labels">  
-                <label className="image1_label1">ML Projects is where you<br /> put your data and run pipelines</label>
-                <label className="image1_label2">"Code Repositories" to store dedicated<br/> functions for each ML stage</label>
+              <div className="page1_labels">
+                <label className="image1_label1">"ML Projects" host your data and is<br />where you run pipelines and experiments.</label>
+                <label className="image1_label2">"Code Repositories" manage your code functions<br/> for specific steps in the ML life cycle.</label>
               </div>
             </div>
           </div>
 
           <div className='tutorial-view_content_slides_page page2'>
-            <h2 className='title-lg'>Transform your code repositories<br /> into runnable modules</h2>
+            <h2 className="title-lg">These can be published into runnable<br />and immutable "AI Modules".<br />All Code Repositories - published or not - can be found in the "AI Library".</h2>
             <div className="content page2_content">
               <img className='image image1' src={tutorialScreen2} alt="" />
             </div>
           </div>
 
           <div className='tutorial-view_content_slides_page page3'>
-            <h2 className='title-lg'>Use your published modules in<br /> pipelines within your ML project</h2>
+            <h2 className="title-lg">Published AI Modules are then accessible<br />in the dedicated pipelines within ML Projects.</h2>
             <div className="content page3_content">
               <img className='image image1' src={tutorialScreen3} alt="" />
             </div>
           </div>
 
           <div className='tutorial-view_content_slides_page page4'>
-            <h2 className='title-lg'>Share, reproduce and track all steps<br /> you made and choose the best performing model</h2>
+            <h2 className="title-lg">All repositories are based on git.<br />Share, reproduce and track all steps up to the final<br /> and best performing model.</h2>
             <div className="content page4_content">
               <img className='image image1' src={tutorialScreen4} alt="" />
             </div>

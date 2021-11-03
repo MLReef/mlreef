@@ -13,7 +13,7 @@ const NewMLProject = () => {
 					className="new-project btn-primary"
 					onClick={handleGoToNewMlProject}
 			>
-					New Project
+					New ML Project
 					{' '}
 			</button>
 		</div>

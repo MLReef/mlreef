@@ -20,17 +20,17 @@ const ProjectsDropDown = () => {
           <hr className="m-0" />
           <Link to="/new-project/classification/model">
             <h5 className="t-warning m-0 mb-1">New Model</h5>
-            <span>Create a model</span>
+            <span>Create a model to run experiments</span>
           </Link>
           <hr className="m-0" />
           <Link to="/new-project/classification/data-operation">
-            <h5 className="t-danger m-0 mb-1">New Data operation</h5>
-            <span>Create a data operation</span>
+            <h5 className="t-danger m-0 mb-1">New Data Ops</h5>
+            <span>Create a data operation module for data processing</span>
           </Link>
           <hr className="m-0" />
           <Link to="/new-project/classification/data-visualization">
-            <h5 style={{ color: 'rgb(115, 93, 168)' }} className="m-0 mb-1">New Data visualization</h5>
-            <span>Create a data visualization</span>
+            <h5 style={{ color: 'rgb(115, 93, 168)' }} className="m-0 mb-1">New Data Visualization</h5>
+            <span>Create a visualization to understand your data</span>
           </Link>
         </div>
       )}
