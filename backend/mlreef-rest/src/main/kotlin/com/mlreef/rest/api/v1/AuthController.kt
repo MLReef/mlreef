@@ -98,6 +98,7 @@ class AuthController(
         @RequestParam("file") file: MultipartFile,
         token: TokenDetails,
     ): MlreefFileDto {
+
         return authService.createUserAvatar(
             file,
             ownerId = token.accountId,

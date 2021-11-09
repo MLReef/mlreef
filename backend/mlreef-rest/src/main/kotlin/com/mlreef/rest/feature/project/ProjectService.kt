@@ -610,7 +610,7 @@ open class ProjectServiceImpl<T : Project>(
         visibility: VisibilityScope?,
         inputDataTypes: List<String>?,
         outputDataTypes: List<String>?,
-        tags: List<SearchableTag>?
+        tags: List<SearchableTag>?,
     ): T {
         var project = this.getProjectById(projectUUID) ?: throw ProjectNotFoundException(projectUUID)
         reservedNamesService.assertProjectNameIsNotReserved(projectName ?: project.name)
@@ -984,18 +984,17 @@ open class ProjectServiceImpl<T : Project>(
         }
     }
 
-    @Transactional
     override fun createProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?): MlreefFile {
         val account = owner
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
 
-        val projectInDb= project
+        val projectInDb = project
             ?: projectId?.let {
                 this.getProjectById(it) ?: throw ProjectNotFoundException(it)
             } ?: throw BadRequestException("No project id provided")
 
-        if (projectInDb.cover!=null) {
+        if (projectInDb.cover != null) {
             throw ConflictException("Project already has a cover")
         }
 
@@ -1017,7 +1016,7 @@ open class ProjectServiceImpl<T : Project>(
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
 
-        val projectInDb= project
+        val projectInDb = project
             ?: projectId?.let {
                 this.getProjectById(it) ?: throw ProjectNotFoundException(it)
             } ?: throw BadRequestException("No project id provided")
@@ -1044,7 +1043,7 @@ open class ProjectServiceImpl<T : Project>(
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
 
-        val projectInDb= project
+        val projectInDb = project
             ?: projectId?.let {
                 this.getProjectById(it) ?: throw ProjectNotFoundException(it)
             } ?: throw BadRequestException("No project id provided")

@@ -339,7 +339,6 @@ class AuthService(
         return updatedUserInDb
     }
 
-    @Transactional
     fun createUserAvatar(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null): MlreefFile {
         val account = owner
             ?: userResolverService.resolveAccount(userId = ownerId)
