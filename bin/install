@@ -9,7 +9,7 @@ cd "$(dirname "$0")"/..
 . bin/includes/gitlab-settings
 ########################################
 set -x  # output all commands
-set -o  pipefail
+set -o  pipefail || true
 set -e  # exit on immediately on every error
 set -u  # error on usage of undefined variables
 ########################################
