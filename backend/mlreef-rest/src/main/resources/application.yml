@@ -122,6 +122,12 @@ spring:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 2000MB
+      max-request-size: 2150MB
 social:
   github: #https://github.com/settings/developers
     client-id: ${GITHUB_CLIENT_ID:}
