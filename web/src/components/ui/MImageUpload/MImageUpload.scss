@@ -1,0 +1,25 @@
+.m-image-upload {
+
+  &-btn {
+    position: relative;
+  }
+
+  &-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+  }
+
+  &-label {
+    display: inline-block;
+    inline-size: 200px;
+    word-break: break-all;
+    vertical-align: middle;
+  }
+}
