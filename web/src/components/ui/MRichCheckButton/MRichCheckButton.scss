@@ -1,0 +1,96 @@
+.m-rich-check-button {
+  display: flex;
+  font-size: 90%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 1em;
+
+  &:disabled {
+    opacity: 0.8;
+  }
+
+  &-input {
+    &-group {
+      position: relative;
+      width: 0.9rem;
+      height: 0.9rem;
+      margin: auto 0;
+      margin-right: 0.6rem;
+      flex: 1 0 auto;
+
+      margin-top: 2px;
+      width: 1.25em;
+      height: 1.25em;
+
+      & > .checkmark {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 0;
+        background-color: transparent;
+        border: solid 1px var(--secondary);
+        display: flex;
+
+        &.radius {
+          border-radius: 50%;
+
+          & > span {
+            border-radius: 50%;
+          }
+        }
+
+        & > span {
+          position: absolute;
+          top: 2px;
+          bottom: 2px;
+          left: 2px;
+          right: 2px;
+          background-color: var(--secondary);
+          opacity: 0;
+        }
+
+        &.checked {
+          border-color: var(--dark) !important;
+
+          & > span {
+            background-color: var(--dark) !important;
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+
+  &-content {
+    display: flex;
+
+
+    &-icon {
+      width: 1.5em;
+      height: 1.5em;
+      border-radius: 4px;
+      margin-top: 0;
+      margin-right: 0.5em;
+    }
+
+    &-label {
+      display: flex;
+      flex-direction: column;
+      margin-top: 2px;
+
+      &-label {
+        font-weight: bold;
+        font-size: 1rem;
+      }
+
+      &-sublabel {
+        margin-top: 0.5em;
+        color: var(--secondary);
+      }
+    }
+  }
+}

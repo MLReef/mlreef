@@ -9,7 +9,7 @@ import { EXTERNAL_URL } from 'apiConfig';
 import GroupsApi from 'apis/GroupApi.ts';
 import * as groupsActions from 'store/actions/groupsActions';
 import { privacyLevelsArr } from 'dataTypes';
-import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
+import MRichRadioGroup from 'components/ui/MRichRadioGroup/MRichRadioGroup';
 import { bannedCharsArray } from '../../../dataTypes';
 import Navbar from '../../navbar/navbar';
 
@@ -177,15 +177,15 @@ export class UnconnectedNewGroup extends Component {
                 />
                 <span style={{ marginTop: '1rem', color: 'var(--secondary)' }}>Maximum file size allowed is 500KB.</span>
               </label>
-              <div style={{ marginTop: '1.5em' }}>
-                <MRadioGroup
-                  label="Visibilty level"
-                  name="visibility"
-                  options={privacyLevelsArr}
-                  value={visibility}
-                  onChange={this.handleOnChangeVisibility}
-                />
-              </div>
+              <MRichRadioGroup
+                radius
+                className="mt-4"
+                title="Visibilty level"
+                name="visibility"
+                options={privacyLevelsArr}
+                value={visibility}
+                onClick={this.handleOnChangeVisibility}
+              />
               <div id="buttons-container" className="d-flex">
                 <button id="cancel-group-creation" type="button" className="btn btn-outline-dark">
                   Cancel

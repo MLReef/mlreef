@@ -353,20 +353,18 @@ export const projectClassificationsProps = [
 
 export const privacyLevelsArr = [
   {
-    name: "Private",
-    label: "Private",
-    value: "private",
-    message:
-      "The #protected-element access must be granted explicitly to every user.",
-    icon: lock,
+    label: 'Public',
+    subLabel: 'The project can be accessed without any authentification.',
+    color: 'var(--info)',
+    value: 'public',
+    icon: '/images/public-01.svg',
   },
   {
-    name: "Public",
-    label: "Public",
-    value: "public",
-    message:
-      "The #protected-element can be accessed without any authentication.",
-    icon: global,
+    label: 'Private',
+    subLabel: 'Project access must be granted explicitly for every user.',
+    color: 'var(--danger)',
+    value: 'private',
+    icon: '/images/Lock-01.svg',
   },
 ];
 

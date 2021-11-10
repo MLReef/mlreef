@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { toastr } from 'react-redux-toastr';
-import MRadioGroup from 'components/ui/MRadio/MRadioGroup';
 import {
   projectClassificationsProps,
   privacyLevelsArr,
@@ -23,6 +22,9 @@ import { PROJECT_TYPES } from 'domain/project/projectTypes';
 import * as projectActions from 'store/actions/projectInfoActions';
 import * as userActions from 'store/actions/userActions';
 import { getGroupsList } from 'store/actions/groupsActions';
+import MRichRadioGroup from 'components/ui/MRichRadioGroup';
+import MRichCheckButton from 'components/ui/MRichCheckButton';
+import MImageUpload from 'components/ui/MImageUpload';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
 import ProjectGeneraInfoApi from '../../../apis/ProjectGeneralInfoApi.ts';
@@ -77,6 +79,7 @@ class CreateProject extends Component {
       dataTypesSelected: [],
       isFetching: false,
       isWaiting: false,
+      file: null,
     };
 
     this.handleDTCallback = this.handleDTCallback.bind(this);
@@ -165,7 +168,7 @@ class CreateProject extends Component {
   toggleCheckReadme = () => {
     const { readme } = this.state;
     this.setState({ readme: !readme });
-  }
+  };
 
   handleDescription = (e) => {
     this.setState({ description: e.target.value });
@@ -180,6 +183,7 @@ class CreateProject extends Component {
       visibility,
       nameSpace,
       dataTypesSelected,
+      file,
     } = this.state;
     const { match: { params: { classification } } } = this.props;
     const projectType = classification && classification !== '' && classification !== ML_PROJECT
@@ -208,7 +212,12 @@ class CreateProject extends Component {
     this.setState({ isFetching: true });
 
     projectGeneraInfoApi.create(body, projectType)
-      .then(() => this.setState({ isWaiting: true }))
+      .then((res) => {
+        this.setState({ isWaiting: true });
+        return res;
+      })
+      .then((res) => file.name && projectGeneraInfoApi.createCover(res.id, file)
+        .catch((err) => toastr.error('Error uploading the cover', err.message)))
       .then(() => setTimeout(() => {
         this.setState({ redirect: `/${nameSpace}/${slug}`, isWaiting: false });
       }, 5000))
@@ -270,6 +279,7 @@ class CreateProject extends Component {
      dataTypesSelected: dtTypesSel,
      isFetching,
      isWaiting,
+     readme,
    } = this.state;
    const { match: { params: { classification } }, groups, user } = this.props;
    const specificType = projectClassificationsProps
@@ -355,20 +365,28 @@ class CreateProject extends Component {
                </label>
              </div>
 
-             <label className="label-name" htmlFor="projectDescription">
-               <span className="heading">Project Description (optional)</span>
-               <textarea
-                 data-cy="description"
-                 value={description}
-                 className="proj-desc-textarea"
-                 onChange={this.handleDescription}
-                 id="projectDescription"
-                 rows="4"
-                 maxLength="250"
-                 spellCheck="false"
-                 placeholder="Enter your project description here..."
-               />
-             </label>
+             {/* eslint-disable-next-line */}
+            <div className="d-flex">
+              <label className="label-name flex-1" htmlFor="projectDescription">
+                <span className="heading">Project Description (optional)</span>
+                <textarea
+                  data-cy="description"
+                  value={description}
+                  className="proj-desc-textarea"
+                  onChange={this.handleDescription}
+                  id="projectDescription"
+                  rows="5"
+                  maxLength="250"
+                  spellCheck="false"
+                  placeholder="Enter your project description here..."
+                />
+              </label>
+              <div className="ml-4">
+                <span className="heading">Project image (optional)</span>
+                <MImageUpload setImage={(file) => this.setState({ file })} />
+              </div>
+            </div>
+
              {/* ------ Data-types radio buttons ------ */}
             {/*  <label className="label-name mb-4" htmlFor="free-tags">
                <span className="heading mb-2">Free tags (optional)</span>
@@ -419,30 +437,28 @@ class CreateProject extends Component {
                  </div>
                ))}
              </div>
-             <MRadioGroup
-               label="Visibilty level"
-               name="visibility"
-               options={privacyLevelsArr
-                 .map((opt) => ({
-                   ...opt,
-                   disabled: this.getIsPrivacyOptionDisabled(opt.value, nameSpace),
-                 }))}
-               value={visibility}
-               onChange={this.handleVisibility}
-             />
-             <div className="readME">
-               <MCheckBox
-                 small
-                 cypressTag="read-me-checkbox"
-                 name="read-me-checkbox"
-                 labelValue="Initialize the repository with a README"
-                 callback={this.toggleCheckReadme}
-               />
-               <p className="readme-msg">
-                 Allows you to immediately clone this projects repository.
-                 Skip this if you want to push up an existing repository
-               </p>
-             </div>
+             {/* eslint-disable-next-line */}
+            <MRichRadioGroup
+              radius
+              title="Visibilty level"
+              name="visibility"
+              options={privacyLevelsArr
+                .map((opt) => ({
+                  ...opt,
+                  disabled: this.getIsPrivacyOptionDisabled(opt.value, nameSpace),
+                }))}
+              value={visibility}
+              onClick={this.handleVisibility}
+            />
+             {/* eslint-disable-next-line */}
+            <MRichCheckButton
+              name="read-me-checkbox"
+              checked={readme}
+              value="true"
+              onClick={this.toggleCheckReadme}
+              label="Initialize the repository with a README"
+              subLabel="Allows you to immediately clone this projects repository. Skip this if you want to push up an existing repository"
+            />
              <div className="form-controls mt-4">
                <button
                  type="button"

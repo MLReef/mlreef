@@ -48,8 +48,8 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   getProjectInfoApi(projectId: number) {
     const url = `/api/v4/projects/${projectId}?statistics=true`;
     const builder = new BLApiRequestCallBuilder(
-      METHODS.GET, 
-      this.buildBasicHeaders(validServicesToCall.GITLAB), 
+      METHODS.GET,
+      this.buildBasicHeaders(validServicesToCall.GITLAB),
       url
     );
 
@@ -262,6 +262,21 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       baseUrl,
     );
     return fetch(apiReqBuilder.build())
+      .then(handleResponse);
+  }
+
+  createCover(projectId: string, file: File) {
+    const baseUrl = `/api/v1/projects/${projectId}/cover/create`;
+    const body = new FormData();
+    body.append('file', file);
+
+    const preheaders = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const headers = new Headers();
+
+    preheaders.forEach((v, k) => { headers.set(k, v); });
+    headers.delete('Content-Type');
+
+    return fetch(baseUrl, { headers, body, method: METHODS.POST })
       .then(handleResponse);
   }
 }
