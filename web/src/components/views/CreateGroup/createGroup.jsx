@@ -2,6 +2,7 @@ import React, { Component, createRef } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
+import PropTypes from 'prop-types';
 import Base64ToArrayBuffer from 'base64-arraybuffer';
 import { convertToSlug } from 'functions/dataParserHelpers';
 import './createGroup.scss';
@@ -81,6 +82,11 @@ export class UnconnectedNewGroup extends Component {
       toastr.error('Error', 'Something went wrong on group creation')
     });
 
+  cancelCreate = () => {
+    const { history } = this.props;
+    history.goBack();
+  };
+
   render() {
     const {
       groupName,
@@ -89,6 +95,7 @@ export class UnconnectedNewGroup extends Component {
       visibility,
     } = this.state;
     const isValidForm = this.validateValues(groupName, groupUrl);
+
     return (
       <>
         <Navbar />
@@ -187,7 +194,12 @@ export class UnconnectedNewGroup extends Component {
                 onClick={this.handleOnChangeVisibility}
               />
               <div id="buttons-container" className="d-flex">
-                <button id="cancel-group-creation" type="button" className="btn btn-outline-dark">
+                <button
+                  id="cancel-group-creation"
+                  type="button"
+                  className="btn btn-outline-dark"
+                  onClick={this.cancelCreate}
+                >
                   Cancel
                 </button>
                 <button
@@ -207,6 +219,13 @@ export class UnconnectedNewGroup extends Component {
     );
   }
 }
+
+UnconnectedNewGroup.propTypes = {
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 function mapDispatchToProps(dispatch) {
   return {

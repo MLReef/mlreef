@@ -39,6 +39,9 @@ export const generateBreadCrumbs = (selectedProject, customCrumbs, isAuth) => {
     gitlab,
     name,
   } = selectedProject;
+
+  if (!selectedProject.name) return [];
+
   const userKind = gitlab?.namespace?.kind;
   let nameSpacelink = `/${gitlabNamespace}`;
   if (isAuth) {
@@ -86,3 +89,7 @@ export const generateColor = (i) => {
 
   return `hsl(${hue}, 90%, 50%)`;
 };
+
+export const delay = timeout => (arg) => new Promise(resolve => {
+  setTimeout(() => resolve(arg), timeout || 1000);
+});

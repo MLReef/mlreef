@@ -32,10 +32,11 @@ MParagraph.defaultProps = {
   emptyMessage: '',
   className: '',
   lineClasses: '',
+  text: '',
 };
 
 MParagraph.propTypes = {
-  text: PropTypes.string.isRequired,
+  text: PropTypes.string,
   separator: PropTypes.string,
   emptyMessage: PropTypes.string,
   className: PropTypes.string,

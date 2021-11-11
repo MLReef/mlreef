@@ -81,13 +81,11 @@ class Navbar extends Component {
   }
 
   render() {
-    const { user, globalMarker } = this.props;
+    const { user, globalMarker, tutorialActive } = this.props;
 
     const MLProjectSrc = this.getMLProjectsImage();
     const AILibrarySrc = this.getAILibraryImage();
     const HomeSrc = this.getHomeImage();
-
-    console.log({HomeSrc});
 
     const avatarUrl = user.userInfo && user.userInfo.avatar_url;
 
@@ -115,7 +113,7 @@ class Navbar extends Component {
 
             <div className="ml-3 my-auto d-lg-block" onClick={this.activeHome}>
               <NavLink
-                className="label"
+                className="navbar-label"
                 activeClassName="active"
                 to={user.auth ? '/welcome' : '/welcome'}
 
@@ -126,7 +124,7 @@ class Navbar extends Component {
             </div>
             <div className="ml-3 my-auto d-lg-block" onClick={this.activeMLProjects}>
               <NavLink
-                className="label"
+                className="navbar-label"
                 to={{ pathname: user.auth ? ('/dashboard/public/data_project'): '/welcome'}}
                 activeClassName="active"
                 isActive={(_, location)=>{
@@ -140,7 +138,7 @@ class Navbar extends Component {
             </div>
             <div className="ml-3 my-auto d-lg-block" onClick={this.activeAILibrary}>
               <NavLink
-                className="label"
+                className="navbar-label"
                 to={{pathname: user.auth ? '/dashboard/public/algorithm' : '/welcome'}}
                 activeClassName="active"
                 isActive={(_, location)=>{
@@ -156,7 +154,30 @@ class Navbar extends Component {
               <>
                 <MDropdown
                   align="right"
-                  className="ml-auto my-auto"
+                  className="m-dropdown ml-auto my-auto"
+                  buttonClasses="btn btn-dark d-flex p-2"
+                  label={(
+                    <img src={helpWhite} alt="" style={{ width: '1.8rem' }} />
+                  )}
+                  component={(
+                    <div className="help-box">
+                      {docuLink}
+                      {slackLink}
+                      <a target="_blank" rel="noopener noreferrer" href="https://about.mlreef.com">
+                        About MLReef
+                      </a>
+                      <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
+                        Slack Community
+                      </a>
+                      <button onClick={this.toggleTutorial} type="button" className="btn t-dark" style={{ borderRadius: 0 }}>
+                        {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
+                      </button>
+                    </div>
+                  )}
+                />
+                <MDropdown
+                  align="right"
+                  className="ml-0 my-auto"
                   buttonClasses="btn btn-dark d-flex p-2"
                   label={(
                     <div

@@ -9,7 +9,7 @@
   width: 8em;
 }
 
-.label {
+.navbar-label {
   font-weight: 500;
   color: #fff;
   margin: 0px 10px;
@@ -46,6 +46,7 @@
   border-radius: 0.3vw;
   position: absolute;
   width: min-content;
+  min-width: 180px;
   height: auto;
   background: #fff;
 
