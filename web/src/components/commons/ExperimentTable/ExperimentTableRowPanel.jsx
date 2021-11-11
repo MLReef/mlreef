@@ -63,7 +63,6 @@ const ExperimentTableRowPanel = (props) => {
     }
   }, [currentExperiment, model]);
 
-  console.log(model);
   const { commitSha } = currentExperiment?.pipelineJobInfo;
   const { parameters } = currentExperiment?.processing;
 
@@ -263,9 +262,9 @@ const ExperimentTableRowPanel = (props) => {
                 Relevant publication
               </p>
               <p className="file-list-item">
-                <a 
-                  href={`/${model?.gitlab_namespace}/${model?.slug}/-/publications/${executedProcessorInfo?.gitlab_pipeline_id}`} 
-                  target="_blank" 
+                <a
+                  href={`/${model?.gitlab_namespace}/${model?.slug}/-/publications/${executedProcessorInfo?.gitlab_pipeline_id}`}
+                  target="_blank"
                   rel="noopener noreferrer"
                 >
                  {executedProcessorInfo.slug}
@@ -276,8 +275,8 @@ const ExperimentTableRowPanel = (props) => {
                   Latest commit:
                 </span>
                 <span className="link-append">
-                  <a 
-                    className="link-append-link border-rounded-left" 
+                  <a
+                    className="link-append-link border-rounded-left"
                     href={`/${model?.gitlab_namespace}/${model?.slug}/-/commits/${executedProcessorInfo.commit_sha}`}
                     target="_blank"
                     rel="noopener noreferrer"

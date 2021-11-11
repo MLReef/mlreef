@@ -53,11 +53,11 @@ const ExperimentTable = (props) => {
   } = props;
 
   const dataTable = useMemo(
-    () => compose(sortDesc('timestamp'), parseExperiments)(experiments),
+    () => parseExperiments(experiments),
     [experiments],
   );
 
-  const data = useMemo(() => dataTable.slice(1), [dataTable]);
+  const data = useMemo(() => sortDesc('timestamp')(dataTable.slice(1)), [dataTable]);
 
   const [decimals] = useState(4);
 

@@ -25,6 +25,7 @@ import { getGroupsList } from 'store/actions/groupsActions';
 import MRichRadioGroup from 'components/ui/MRichRadioGroup';
 import MRichCheckButton from 'components/ui/MRichCheckButton';
 import MImageUpload from 'components/ui/MImageUpload';
+import { delay } from 'functions/helpers';
 import Navbar from '../../navbar/navbar';
 import './createProject.css';
 import ProjectGeneraInfoApi from '../../../apis/ProjectGeneralInfoApi.ts';
@@ -185,7 +186,12 @@ class CreateProject extends Component {
       dataTypesSelected,
       file,
     } = this.state;
-    const { match: { params: { classification } } } = this.props;
+
+    const {
+      match: { params: { classification } },
+      history,
+    } = this.props;
+
     const projectType = classification && classification !== '' && classification !== ML_PROJECT
       ? PROJECT_TYPES.CODE_PROJ
       : PROJECT_TYPES.DATA_PROJ;
@@ -216,14 +222,13 @@ class CreateProject extends Component {
         this.setState({ isWaiting: true });
         return res;
       })
+      .then(delay(5000))
       .then((res) => file.name && projectGeneraInfoApi.createCover(res.id, file)
         .catch((err) => toastr.error('Error uploading the cover', err.message)))
-      .then(() => setTimeout(() => {
-        this.setState({ redirect: `/${nameSpace}/${slug}`, isWaiting: false });
-      }, 5000))
-      .catch((err) => toastr.error('Error', err.message))
-      .finally(() => {
-        this.setState({ isFetching: false});
+      .then(() => history.push(`/${nameSpace}/${slug}`))
+      .catch((err) => {
+        toastr.error('Error', err.message);
+        this.setState({ isFetching: false });
       });
   }
 
@@ -523,6 +528,7 @@ CreateProject.propTypes = {
   }),
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired,
   }).isRequired,
 };
 

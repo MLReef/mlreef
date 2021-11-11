@@ -28,7 +28,7 @@ const MInput = (props) => {
         <input
           id={id}
           data-cy={cypressTag}
-          className={`m-input_input ${!!value.length ? 'full' : ''} ${styleClass}`}
+          className={`m-input_input ${value?.length ? 'full' : ''} ${styleClass}`}
           type={type}
           value={value}
           placeholder={placeholder}
