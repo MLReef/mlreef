@@ -34,6 +34,7 @@ object ApplicationProfiles {
     ProxyConfiguration::class,
     ProjectsConfiguration::class,
     FilesManagementConfiguration::class,
+    OAuthConfiguration::class,
 )
 class RestApplication
 
@@ -124,3 +125,16 @@ class FilesManagementConfiguration(
     var downloadDomain: String? = null,
     var downloadPath: String? = null,
 )
+
+@ConfigurationProperties(prefix = "mlreef.oauth2")
+class OAuthConfiguration(
+    var overwriteRedirectProtocol: String? = null,
+    var overwriteRedirectDomain: String? = null,
+    var overwriteRedirectPort: Int? = null,
+    var redirectOnSuccess: String? = null,
+    var redirectOnFailure: String? = null,
+    var defaultImpersonateTokenLifetimeSec: Int = 86400,
+    var putTokenToCookie: Boolean = true,
+    var putTokenToHeader: Boolean = true,
+)
+
