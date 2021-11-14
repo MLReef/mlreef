@@ -131,6 +131,7 @@ class SecurityConfiguration(
             NegatedRequestMatcher(AntPathRequestMatcher(EPF_BOT_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(INFO_URL)),
             NegatedRequestMatcher(AntPathRequestMatcher(PING_URL)),
+            NegatedRequestMatcher(AntPathRequestMatcher(SOCIAL_SIGNIN_URL)),
         )
     }
 }

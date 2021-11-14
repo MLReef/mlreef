@@ -2,37 +2,17 @@ package com.mlreef.rest.feature.auth
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.scribejava.apis.FacebookApi
-import com.github.scribejava.apis.GitHubApi
-import com.github.scribejava.apis.GoogleApi20
-import com.github.scribejava.apis.LinkedInApi20
-import com.github.scribejava.apis.LiveApi
-import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api
-import com.github.scribejava.apis.StackExchangeApi
-import com.github.scribejava.apis.TwitterApi
+import com.github.scribejava.apis.*
 import com.github.scribejava.core.builder.ServiceBuilder
 import com.github.scribejava.core.builder.api.DefaultApi10a
 import com.github.scribejava.core.builder.api.DefaultApi20
-import com.github.scribejava.core.model.OAuth1AccessToken
-import com.github.scribejava.core.model.OAuth1RequestToken
-import com.github.scribejava.core.model.OAuth2AccessToken
-import com.github.scribejava.core.model.OAuthRequest
-import com.github.scribejava.core.model.Verb
+import com.github.scribejava.core.model.*
 import com.github.scribejava.core.oauth.AccessTokenRequestParams
 import com.github.scribejava.core.oauth.OAuth10aService
 import com.github.scribejava.core.oauth.OAuth20Service
 import com.github.scribejava.core.oauth.OAuthService
-import com.mlreef.rest.config.security.oauth.AZURE_CLIENT
-import com.mlreef.rest.config.security.oauth.FACEBOOK_CLIENT
-import com.mlreef.rest.config.security.oauth.FREELANCER_CLIENT
-import com.mlreef.rest.config.security.oauth.GITHUB_CLIENT
-import com.mlreef.rest.config.security.oauth.GITLAB_CLIENT
-import com.mlreef.rest.config.security.oauth.GOOGLE_CLIENT
-import com.mlreef.rest.config.security.oauth.LINKEDIN_CLIENT
-import com.mlreef.rest.config.security.oauth.LIVE_CLIENT
-import com.mlreef.rest.config.security.oauth.OAuthClientSettingsStorage
-import com.mlreef.rest.config.security.oauth.STACKEXCHANGE_CLIENT
-import com.mlreef.rest.config.security.oauth.TWITTER_CLIENT
+import com.mlreef.rest.OAuthConfiguration
+import com.mlreef.rest.config.security.oauth.*
 import com.mlreef.rest.domain.AccountExternal
 import com.mlreef.rest.domain.AccountToken
 import com.mlreef.rest.exceptions.AuthenticationException
@@ -134,11 +114,9 @@ import com.mlreef.rest.feature.auth.helpers.GitLabApi
 import com.mlreef.rest.feature.caches.SocialAuthCache
 import com.mlreef.rest.utils.RandomUtils
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.Instant
-import java.util.HashMap
-import java.util.UUID
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -149,10 +127,7 @@ import javax.servlet.http.HttpServletResponse
 @Service
 class SocialService(
     private val oAuthClientSettingsStorage: OAuthClientSettingsStorage,
-    @Value("\${mlreef.oauth2.redirect-on-success}")
-    private val successRedirectUrl: String? = null,
-    @Value("\${mlreef.oauth2.redirect-on-failure}")
-    private val failureRedirectUrl: String? = null,
+    private val oAuthConfiguration: OAuthConfiguration,
     private val authService: AuthService,
     private val userResolverService: UserResolverService,
     private val objectMapper: ObjectMapper,
@@ -949,15 +924,18 @@ class SocialService(
     }
 
     private fun getDomainFromRequest(request: HttpServletRequest): String {
-        return "${request.scheme}://${request.serverName}${getPortString(request)}"
+        val finalProtocol = oAuthConfiguration.overwriteRedirectProtocol?.takeIf { it.isNotBlank() } ?: request.scheme
+        val finalDomain = oAuthConfiguration.overwriteRedirectDomain?.takeIf { it.isNotBlank() } ?: request.serverName
+        return "$finalProtocol://$finalDomain${getPortString(request)}"
     }
 
     private fun getPortString(request: HttpServletRequest): String {
-        return if (request.serverPort !in listOf(80, 443)) ":${request.serverPort}" else ""
+        val finalPort = oAuthConfiguration.overwriteRedirectPort?.takeIf { it > 0 } ?: request.serverPort
+        return if (finalPort !in listOf(80, 443)) ":$finalPort" else ""
     }
 
-    private fun getSuccessRedirection() = if (successRedirectUrl.isNullOrBlank()) DEFAULT_PAGE_TO_REDIRECT_ON_SUCCESS else successRedirectUrl
-    private fun getFailureRedirection() = if (failureRedirectUrl.isNullOrBlank()) DEFAULT_PAGE_TO_REDIRECT_ON_FAILURE else failureRedirectUrl
+    private fun getSuccessRedirection() = if (oAuthConfiguration.redirectOnSuccess.isNullOrBlank()) DEFAULT_PAGE_TO_REDIRECT_ON_SUCCESS else oAuthConfiguration.redirectOnSuccess!!
+    private fun getFailureRedirection() = if (oAuthConfiguration.redirectOnFailure.isNullOrBlank()) DEFAULT_PAGE_TO_REDIRECT_ON_FAILURE else oAuthConfiguration.redirectOnFailure!!
 
     private fun JsonNode.getOrNull(fieldName: String): JsonNode? {
         return try {
