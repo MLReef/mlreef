@@ -34,6 +34,7 @@ import java.time.ZonedDateTime.now
 import java.time.ZonedDateTime.of
 import java.util.*
 import java.util.UUID.randomUUID
+import javax.servlet.http.HttpServletRequest
 import javax.transaction.Transactional
 
 interface ProjectService<T : Project> {
@@ -150,8 +151,8 @@ interface ProjectService<T : Project> {
         projectNamespace: String?,
     ): String
 
-    fun createProjectCover(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null): MlreefFile
-    fun updateProjectCover(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null): MlreefFile
+    fun createProjectCover(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null, request: HttpServletRequest? = null): MlreefFile
+    fun updateProjectCover(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null, request: HttpServletRequest? = null): MlreefFile
     fun deleteProjectCover(owner: Account? = null, ownerId: UUID? = null, project: T? = null, projectId: UUID? = null)
 }
 
@@ -984,7 +985,7 @@ open class ProjectServiceImpl<T : Project>(
         }
     }
 
-    override fun createProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?): MlreefFile {
+    override fun createProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?, request: HttpServletRequest?): MlreefFile {
         val account = owner
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
@@ -1003,6 +1004,7 @@ open class ProjectServiceImpl<T : Project>(
             owner = account,
             purposeId = FilesManagementService.PROJECT_COVER_PURPOSE_ID,
             description = null,
+            request = request,
         )
 
         repository.save(projectInDb)
@@ -1011,7 +1013,7 @@ open class ProjectServiceImpl<T : Project>(
     }
 
     @Transactional
-    override fun updateProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?): MlreefFile {
+    override fun updateProjectCover(file: MultipartFile, owner: Account?, ownerId: UUID?, project: T?, projectId: UUID?, request: HttpServletRequest?): MlreefFile {
         val account = owner
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
@@ -1028,6 +1030,7 @@ open class ProjectServiceImpl<T : Project>(
             owner = account,
             purposeId = FilesManagementService.PROJECT_COVER_PURPOSE_ID,
             description = null,
+            request = request,
         )
 
         repository.save(projectInDb)

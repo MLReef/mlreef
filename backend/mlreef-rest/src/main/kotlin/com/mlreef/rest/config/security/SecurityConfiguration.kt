@@ -112,6 +112,7 @@ class SecurityConfiguration(
         private const val CODE_PROJECTS_URL = "/api/v1/code-projects/**"
         private const val WHOAMI_URL = "/api/v1/auth/whoami"
         private const val SOCIAL_SIGNIN_URL = "/api/v1/social/**"
+        private const val DOWNLOAD_URL = "/api/v1/files/download/**"
 
         private val visitorsUrls = arrayOf(
             MARKETPLACE_PUBLIC_URL,
@@ -122,6 +123,7 @@ class SecurityConfiguration(
             CODE_PROJECTS_URL,
             EXPLORE_URL,
             WHOAMI_URL,
+            DOWNLOAD_URL,
         )
 
         private val PROTECTED_MATCHER = AndRequestMatcher(

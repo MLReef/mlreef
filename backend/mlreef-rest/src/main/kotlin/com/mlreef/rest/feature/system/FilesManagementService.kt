@@ -24,6 +24,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
 import javax.annotation.PostConstruct
+import javax.servlet.http.HttpServletRequest
 
 @Service
 class FilesManagementService(
@@ -79,7 +80,7 @@ class FilesManagementService(
         }
     }
 
-    fun saveFile(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, purposeId: UUID?, description: String?): MlreefFile {
+    fun saveFile(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, purposeId: UUID?, description: String?, request: HttpServletRequest? = null): MlreefFile {
         // Normalize file name
         val originalFileName: String = StringUtils.cleanPath(file.originalFilename ?: "")
 
@@ -130,16 +131,34 @@ class FilesManagementService(
             throw FileSavingException("Could not save file $originalFileName. Exception: $ex")
         }
 
-        return savedFile.copy(downloadLink = getDownloadLinkForFile(savedFile))
+        return savedFile.copy(
+            downloadLink = getDownloadLinkForFile(savedFile, request = request)
+        )
     }
 
-    fun getDownloadLinkForFile(file: MlreefFile?): String? {
+    fun getDownloadLinkForFile(file: MlreefFile?, request: HttpServletRequest? = null): String? {
         if (file == null) return null
-        return (filesManagementConfiguration.downloadDomain ?: "").trimEnd('/') +
+        return getDomainFromRequest(request).trimEnd('/') +
                 "/" +
                 (filesManagementConfiguration.downloadPath ?: "").trim('/') +
                 "/" +
                 file.id.toString()
+    }
+
+    private fun getDomainFromRequest(request: HttpServletRequest?): String {
+        val owerwriteDomain = filesManagementConfiguration.downloadDomain?.takeIf { it.isNotBlank() }
+        return owerwriteDomain
+            ?: run {
+                val finalProtocol = filesManagementConfiguration.overwriteDownloadPathProtocol?.takeIf { it.isNotBlank() } ?: request?.scheme ?: ""
+                val finalDomain = filesManagementConfiguration.overwriteDownloadPathDomain?.takeIf { it.isNotBlank() } ?: request?.serverName ?: "/"
+                val port = request?.let { getPortString(it) } ?: ""
+                "$finalProtocol://$finalDomain$port".removePrefix("://")
+            }
+    }
+
+    private fun getPortString(request: HttpServletRequest): String {
+        val finalPort = filesManagementConfiguration.overwriteDownloadPathPort?.takeIf { it > 0 } ?: request.serverPort
+        return if (finalPort !in listOf(80, 443)) ":$finalPort" else ""
     }
 
     fun resolveFile(fileId: UUID?, fileName: String?): MlreefFile? {

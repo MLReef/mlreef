@@ -124,6 +124,9 @@ class FilesManagementConfiguration(
     var uploadDir: String? = null,
     var downloadDomain: String? = null,
     var downloadPath: String? = null,
+    var overwriteDownloadPathProtocol: String? = null,
+    var overwriteDownloadPathDomain: String? = null,
+    var overwriteDownloadPathPort: Int? = null,
 )
 
 @ConfigurationProperties(prefix = "mlreef.oauth2")

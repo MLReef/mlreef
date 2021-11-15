@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
 import java.util.*
 import java.util.UUID.randomUUID
+import javax.servlet.http.HttpServletRequest
 import javax.transaction.Transactional
 
 
@@ -339,7 +340,7 @@ class AuthService(
         return updatedUserInDb
     }
 
-    fun createUserAvatar(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null): MlreefFile {
+    fun createUserAvatar(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, request: HttpServletRequest? = null): MlreefFile {
         val account = owner
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
@@ -353,6 +354,7 @@ class AuthService(
             owner = account,
             purposeId = USER_AVATAR_PURPOSE_ID,
             description = null,
+            request = request,
         )
 
         accountRepository.save(account)
@@ -361,7 +363,7 @@ class AuthService(
     }
 
     @Transactional
-    fun updateUserAvatar(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null): MlreefFile {
+    fun updateUserAvatar(file: MultipartFile, owner: Account? = null, ownerId: UUID? = null, request: HttpServletRequest? = null): MlreefFile {
         val account = owner
             ?: userResolverService.resolveAccount(userId = ownerId)
             ?: throw UserNotFoundException(userId = ownerId)
@@ -373,6 +375,7 @@ class AuthService(
             owner = account,
             purposeId = USER_AVATAR_PURPOSE_ID,
             description = null,
+            request = request,
         )
 
         accountRepository.save(account)

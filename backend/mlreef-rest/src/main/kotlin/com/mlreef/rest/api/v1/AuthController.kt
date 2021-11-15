@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
 import java.util.*
+import javax.servlet.http.HttpServletRequest
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 
@@ -27,7 +28,7 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest): SecretUserDto = authService
+    fun login(@RequestBody loginRequest: LoginRequest, request: HttpServletRequest): SecretUserDto = authService
         .loginUser(
             plainPassword = loginRequest.password,
             username = loginRequest.username,
@@ -37,12 +38,12 @@ class AuthController(
             findUser.toSecretUserDto(
                 accessToken = oauthToken.accessToken,
                 refreshToken = oauthToken.refreshToken,
-                avatarUrl = filesManagementService.getDownloadLinkForFile(findUser.avatar),
+                avatarUrl = filesManagementService.getDownloadLinkForFile(findUser.avatar, request = request),
             )
         }
 
     @PostMapping("/register")
-    fun register(@RequestBody registerRequest: RegisterRequest): SecretUserDto = authService
+    fun register(@RequestBody registerRequest: RegisterRequest, request: HttpServletRequest): SecretUserDto = authService
         .registerUser(
             plainPassword = registerRequest.password,
             username = registerRequest.username,
@@ -53,7 +54,7 @@ class AuthController(
             newUser.toSecretUserDto(
                 accessToken = oauthToken?.accessToken,
                 refreshToken = oauthToken?.refreshToken,
-                avatarUrl = filesManagementService.getDownloadLinkForFile(newUser.avatar),
+                avatarUrl = filesManagementService.getDownloadLinkForFile(newUser.avatar, request = request),
             )
         }
 
@@ -64,7 +65,8 @@ class AuthController(
     fun updateProfile(
         @PathVariable userId: UUID,
         @RequestBody updateProfileRequest: UpdateRequest,
-        token: TokenDetails
+        request: HttpServletRequest,
+        token: TokenDetails,
     ): UserDto = authService
         .userProfileUpdate(
             accountId = userId,
@@ -74,13 +76,14 @@ class AuthController(
             userRole = updateProfileRequest.userRole,
             termsAcceptedAt = updateProfileRequest.termsAcceptedAt,
             hasNewsletters = updateProfileRequest.hasNewsletters
-        ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar)) }
+        ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar, request = request)) }
 
     @PutMapping("/user")
     @PreAuthorize("isUserItself(#token.accountId)")
     fun updateOwnProfile(
         @RequestBody updateProfileRequest: UpdateRequest,
-        token: TokenDetails
+        request: HttpServletRequest,
+        token: TokenDetails,
     ): UserDto = authService
         .userProfileUpdate(
             accountId = token.accountId,
@@ -90,18 +93,19 @@ class AuthController(
             userRole = updateProfileRequest.userRole,
             termsAcceptedAt = updateProfileRequest.termsAcceptedAt,
             hasNewsletters = updateProfileRequest.hasNewsletters
-        ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar)) }
+        ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar, request = request)) }
 
     @PostMapping("/user/avatar/create")
     @PreAuthorize("isUserItself(#token.accountId)")
     fun createUserAvatarFile(
         @RequestParam("file") file: MultipartFile,
+        request: HttpServletRequest,
         token: TokenDetails,
     ): MlreefFileDto {
-
         return authService.createUserAvatar(
             file,
             ownerId = token.accountId,
+            request = request,
         ).toDto()
     }
 
@@ -109,11 +113,13 @@ class AuthController(
     @PreAuthorize("isUserItself(#token.accountId)")
     fun updateUserAvatarFile(
         @RequestParam("file") file: MultipartFile,
+        request: HttpServletRequest,
         token: TokenDetails,
     ): MlreefFileDto {
         return authService.updateUserAvatar(
             file,
             ownerId = token.accountId,
+            request = request,
         ).toDto()
     }
 
@@ -129,10 +135,10 @@ class AuthController(
     }
 
     @GetMapping("/whoami")
-    fun whoami(): UserDto = (
+    fun whoami(request: HttpServletRequest): UserDto = (
             currentUserService.accountOrNull()
                 ?: currentUserService.visitorAccount()
-            ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar)) }
+            ).let { it.toUserDto(filesManagementService.getDownloadLinkForFile(it.avatar, request = request)) }
 
     // FIXME: Coverage says: missing tests
     @GetMapping("/check/token")
