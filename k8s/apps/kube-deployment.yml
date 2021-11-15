@@ -335,6 +335,10 @@ spec:
           value: redis
         - name: STARTUP_DELAY
           value: "30"
+        - name: GOOGLE_CLIENT_ID
+          value: "@GOOGLE_CLIENT_ID@"
+        - name: GOOGLE_CLIENT_SECRET
+          value: "@GOOGLE_CLIENT_SECRET@"
         - name: GITHUB_CLIENT_ID
           value: "@GITHUB_CLIENT_ID@"
         - name: GITHUB_CLIENT_SECRET

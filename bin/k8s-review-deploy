@@ -17,6 +17,8 @@ cat out/instance.info
 ## Export variable that will be included in all final yml files
 export dashed_domain="${CI_ENVIRONMENT_SLUG}"
 export GITLAB_RUNNER_K8S_CLUSTER="${DEV_GITLAB_RUNNER_K8S_CLUSTER}"
+export GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}"
+export GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}"
 export GITHUB_CLIENT_ID="${GITHUB_CLIENT_ID}"
 export GITHUB_CLIENT_SECRET="${GITHUB_CLIENT_SECRET}"
 export FACEBOOK_CLIENT_ID="${FACEBOOK_CLIENT_ID}"
