@@ -12,12 +12,9 @@ import com.mlreef.rest.feature.system.SessionDto
 import com.mlreef.rest.feature.system.SessionsService
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/api/v1/sessions")
@@ -75,12 +72,13 @@ class SessionsController(
     fun findUser(
         @RequestParam(value = "user_name", required = false) userName: String?,
         @RequestParam(value = "user_id", required = false) userId: UUID?,
-        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?
+        @RequestParam(value = "gitlab_id", required = false) gitlabId: Long?,
+        request: HttpServletRequest,
     ): UserDto? {
         log.debug("Find user by username=$userName and userId=$userId and gitlabId=$gitlabId")
         val user = userResolverService.resolveAccount(userName, userId, gitlabId)
         user?.gitlabId?.let { userResolverService.findGitlabUserViaGitlabId(it) }
             ?: user?.let { throw NotFoundException("No user with id ${it.gitlabId} exists in Gitlab") }
-        return user?.toUserDto(filesManagementService.getDownloadLinkForFile(user.avatar))
+        return user?.toUserDto(filesManagementService.getDownloadLinkForFile(user.avatar, request = request))
     }
 }

@@ -79,8 +79,11 @@ mlreef:
   files-management:
     storage-place: db #disk, db, memory
     upload-dir: ${UPLOAD_DIR:c:\temp\mlreef}
-    download-domain: /
+    download-domain:
     download-path: /api/v1/files/download
+    overwrite-download-path-protocol: ${DOWNLOAD_PATH_PROTOCOL:}
+    overwrite-download-path-domain: ${DOWNLOAD_PATH_DOMAIN:}
+    overwrite-download-path-port:
 
 spring:
   devtools:

@@ -73,6 +73,7 @@ class MarketplaceController(
         @RequestParam("query") query: String? = "",
         @RequestParam("query_and") queryAnd: Boolean? = false,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
         profile: TokenDetails? = null,
     ): Page<ProjectDto> {
 
@@ -141,7 +142,7 @@ class MarketplaceController(
         return marketplaceService.searchProjects(finalFilter, pageable, profile).map {
             it.toDto(
                 forkedByUser = projectService.isProjectForkedByUser(it, profile?.accountId),
-                coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.cover, request = request),
             )
         }
     }
@@ -153,6 +154,7 @@ class MarketplaceController(
         @RequestParam("query") query: String? = "",
         @RequestParam("query_and") queryAnd: Boolean? = false,
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
         profile: TokenDetails? = null,
     ): Iterable<SearchResultDto> {
 
@@ -172,7 +174,7 @@ class MarketplaceController(
         ).map {
             it.toDto(
                 forkedByUser = projectService.isProjectForkedByUser(it.project, profile?.accountId),
-                coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover, request = request),
             )
         }
 
@@ -182,6 +184,7 @@ class MarketplaceController(
     @GetMapping("/entries")
     fun getAllEntries(
         @PageableDefault(size = MAX_PAGE_SIZE) pageable: Pageable,
+        request: HttpServletRequest,
         profile: TokenDetails? = null,
     ): Iterable<ProjectDto> = marketplaceService.searchProjects(
         SearchRequest(),
@@ -190,13 +193,14 @@ class MarketplaceController(
     ).map {
         it.toDto(
             forkedByUser = projectService.isProjectForkedByUser(it, profile?.accountId),
-            coverUrl = filesManagementService.getDownloadLinkForFile(it.cover),
+            coverUrl = filesManagementService.getDownloadLinkForFile(it.cover, request = request),
         )
     }
 
     @GetMapping("/entries/{slug}")
     fun getEntry(
         @PathVariable slug: String,
+        request: HttpServletRequest,
         pageable: Pageable,
         profile: TokenDetails? = null,
     ): ProjectDto {
@@ -208,7 +212,7 @@ class MarketplaceController(
 
         return project.toDto(
             forkedByUser = projectService.isProjectForkedByUser(project, profile?.accountId),
-            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover),
+            coverUrl = filesManagementService.getDownloadLinkForFile(project.cover, request = request),
         )
     }
 
@@ -233,7 +237,7 @@ class MarketplaceController(
         return projects.map {
             it.project.toDto(
                 forkedByUser = projectService.isProjectForkedByUser(it.project, profile.accountId),
-                coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover),
+                coverUrl = filesManagementService.getDownloadLinkForFile(it.project.cover, request = request),
             )
         }
     }

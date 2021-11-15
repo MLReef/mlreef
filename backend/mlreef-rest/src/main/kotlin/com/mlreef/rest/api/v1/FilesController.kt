@@ -41,7 +41,7 @@ class FilesController(
         val uploadedFileResource =
             filesManagementService.loadContentOfFile(file = userFile, ownerId = token.accountId, skipOwnerCheck = true)
 
-        val contentType = try {
+        val contentType = userFile.fileFormat ?: try {
             request.getServletContext().getMimeType(uploadedFileResource.getFile().getAbsolutePath())
         } catch (ex: IOException) {
             log.info("Could not determine file type for file ${uploadedFileResource.filename}")
@@ -59,6 +59,7 @@ class FilesController(
         @RequestParam("file") file: MultipartFile,
         @RequestParam("type", required = false) filePurpose: UUID? = null,
         @RequestParam("desc") description: String?,
+        request: HttpServletRequest,
         token: TokenDetails,
     ): MlreefFileDto {
         return filesManagementService.saveFile(
@@ -66,6 +67,7 @@ class FilesController(
             ownerId = token.accountId,
             purposeId = filePurpose,
             description = description,
+            request = request,
         ).toDto()
     }
 }
