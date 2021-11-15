@@ -69,6 +69,10 @@ class AuthService(
         private val GITLAB_TOKEN_USER = "mlreef-user-token"
         private val GITLAB_TOKEN_BOT = "mlreef-bot-token"
 
+        private val USERNAME_ALLOWED_CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9') + ('_')
+        private val USERNAME_REPLACEMENTS = mapOf(' ' to '_', '@' to "_", "." to '_')
+        private val USERNAME_MAX_LENGTH = 25
+
         private const val WELCOME_MESSAGE_SUBJECT = "Welcome to MLReef"
 
         private val guestTokenDetails: TokenDetails by lazy {
@@ -247,23 +251,36 @@ class AuthService(
         existAccountByExternalId?.let { throw UserAlreadyExistsException(message = "User is already registered by $oAuthClient") }
 
         val internalId = randomUUID()
-        val internalUserName = "$oAuthClient-${finalUserName ?: finalExternalId ?: randomUUID()}-$internalId"
+
+        val internalUserName = finalUserName
+            ?: finalName?.let { stringToUsername(it) }
+            ?: finalEmail?.let { stringToUsername(it) }
+            ?: "$oAuthClient-${finalUserName ?: finalExternalId ?: randomUUID()}-$internalId"
+
+        var finalInternalUserName = internalUserName
+
+        var index = 1
+        while (userResolverService.resolveAccount(finalInternalUserName) != null) {
+            finalInternalUserName = "${internalUserName}_$index"
+            index++
+        }
+
         val internalEmail = "$internalId@mlreef.com"
         val internalPassword = RandomUtils.generateRandomPassword(30, true)
 
-        val personSlug = checkAvailability(internalUserName)
+        val personSlug = checkAvailability(finalInternalUserName)
 
-        val newGitlabUser = createGitlabUser(username = internalUserName, email = internalEmail, password = internalPassword)
+        val newGitlabUser = createGitlabUser(username = finalInternalUserName, email = internalEmail, password = internalPassword)
 
         val encryptedPassword = passwordEncoder.encode(internalPassword)
 
         val newUser = accountRepository.save(
             Account(
                 id = internalId,
-                username = internalUserName,
+                username = finalInternalUserName,
                 email = internalEmail,
                 passwordEncrypted = encryptedPassword,
-                name = finalName ?: internalUserName,
+                name = finalName ?: finalInternalUserName,
                 slug = personSlug,
                 gitlabId = newGitlabUser.id,
             )
@@ -299,7 +316,7 @@ class AuthService(
         email: String? = null,
         userRole: UserRole? = null,
         hasNewsletters: Boolean? = null,
-        termsAcceptedAt: Instant? = null
+        termsAcceptedAt: Instant? = null,
     ): Account {
         val user = accountRepository.findByIdOrNull(accountId)
             ?: throw UserNotFoundException(accountId)
@@ -652,5 +669,13 @@ class AuthService(
         // create token ONCE on first try, otherwise return a optional null (no harm) of fail in pain
         val newToken = ensureGitlabToken(account, gitlabUser)
         return Pair(gitlabUser, newToken)
+    }
+
+    private fun stringToUsername(str: String): String {
+        return str.mapNotNull {
+            if (it !in USERNAME_ALLOWED_CHARS) {
+                USERNAME_REPLACEMENTS[it]
+            } else it
+        }.joinToString()
     }
 }
