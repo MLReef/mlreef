@@ -47,6 +47,8 @@ rewriteDockerImage 1151242 "backend"
 # Rewrite external_url and registry_external_url if instance_host is not localhost
 sed -i "s/external_url.*'http\:\/\/gitlab\:10080'/external_url 'http\:\/\/${INSTANCE_HOST}\:10080'/" docker-compose.yml;
 sed -i "s/registry_external_url.*'http\:\/\/gitlab\:5050'/registry_external_url 'http\:\/\/${INSTANCE_HOST}\:5050'/" docker-compose.yml;
+sed -i "s/##GOOGLE_CLIENT_ID##/${GOOGLE_CLIENT_ID}/" docker-compose.yml;
+sed -i "s/##GOOGLE_CLIENT_SECRET##/${GOOGLE_CLIENT_SECRET}/" docker-compose.yml;
 sed -i "s/##GITHUB_CLIENT_ID##/${GITHUB_CLIENT_ID}/" docker-compose.yml;
 sed -i "s/##GITHUB_CLIENT_SECRET##/${GITHUB_CLIENT_SECRET}/" docker-compose.yml;
 sed -i "s/##FACEBOOK_CLIENT_ID##/${FACEBOOK_CLIENT_ID}/" docker-compose.yml;
