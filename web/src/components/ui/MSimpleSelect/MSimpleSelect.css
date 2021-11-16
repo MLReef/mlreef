@@ -8,7 +8,7 @@
 
 .m-select_input {
   width: 100%;
-  padding: 0.7rem 0.9rem 0.35rem;
+  padding: 0.5rem;
   border-radius: 8px;
   border: solid 2px var(--info);
   background-color: #fff;

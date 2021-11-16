@@ -44,6 +44,7 @@
 
         & .actions {
           display: flex;
+          height: min-content;
 
           @media (max-width: $bp-sm) {
             padding-top: 1rem;
