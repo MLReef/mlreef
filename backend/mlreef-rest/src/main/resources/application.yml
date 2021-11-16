@@ -71,7 +71,7 @@ mlreef:
     overwrite-redirect-protocol: https
     overwrite-redirect-domain: mlreef.com
     overwrite-redirect-port:
-    redirect-on-success: ${OAUTH_REDIRECT_ON_SUCCESS:http://localhost:3000/user/oauth-reroute}
+    redirect-on-success: ${OAUTH_REDIRECT_ON_SUCCESS:/user/oauth-reroute}
     redirect-on-failure: ${OAUTH_REDIRECT_ON_FAILURE:/login}
     default-impersonate-token-lifetime-sec: 86400
     put-token-to-cookie: true
