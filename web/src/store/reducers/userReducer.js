@@ -55,6 +55,15 @@ export default function userReducer(state = initialState.user, action) {
         },
       };
 
+    case types.RESET_USER_INSTRUCTIONS:
+      return {
+        ...state,
+        meta: {
+          ...state.meta,
+          closedInstructions: initialState.user.meta.closedInstructions,
+        },
+      };
+
     case types.SET_GLOBAL_COLOR_MARKER:
       return {
         ...state,

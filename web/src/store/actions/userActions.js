@@ -1,117 +1,102 @@
-import UserApi from "apis/UserApi";
-import MLAuthApi from "apis/MLAuthApi";
-import * as types from "../actionTypes";
+import UserApi from 'apis/UserApi';
+import MLAuthApi from 'apis/MLAuthApi';
+import * as types from '../actionTypes';
 
 const userApi = new UserApi();
 const authApi = new MLAuthApi();
 
 export function setLoginInfo(user) {
-    return { type: types.LOGIN, user };
+  return { type: types.LOGIN, user };
 }
 
 export function login(formData) {
-    const { username, email, password } = formData;
+  const { username, email, password } = formData;
 
-    return (dispatch) =>
-        authApi.login(username, email, password).then((user) => {
-            dispatch(setLoginInfo(user));
-            return Promise.resolve(user);
-        });
+  return (dispatch) => authApi.login(username, email, password).then((user) => {
+    dispatch(setLoginInfo(user));
+    return Promise.resolve(user);
+  });
 }
 
 export function getWhoAmI() {
-    return (dispatch) =>
-        authApi.whoAmI().then((user) => {
-            dispatch(setLoginInfo(user));
-            return Promise.resolve(user);
-        });
+  return (dispatch) => authApi.whoAmI().then((user) => {
+    dispatch(setLoginInfo(user));
+    return Promise.resolve(user);
+  });
 }
 
 export function logoutSuccessfully() {
-    return { type: types.LOGOUT };
+  return { type: types.LOGOUT };
 }
 
 export function logout() {
-    return (dispatch) => {
-        const now = new Date();
-        now.setMonth(now.getMonth() - 3);
-        document.cookie = `private_token=''; expires=${now.toUTCString()};`;
+  return (dispatch) => {
+    const now = new Date();
+    now.setMonth(now.getMonth() - 3);
+    document.cookie = `private_token=''; expires=${now.toUTCString()};`;
 
-        dispatch(logoutSuccessfully());
-        return Promise.resolve(true);
-    };
+    dispatch(logoutSuccessfully());
+    return Promise.resolve(true);
+  };
 }
 
 export function updateUserInstructionsSuccessfully(closedInstructions) {
-    return { type: types.UPDATE_USER_INSTRUCTIONS, closedInstructions };
+  return { type: types.UPDATE_USER_INSTRUCTIONS, closedInstructions };
+}
+
+export function resetInstructions() {
+  return dispatch => dispatch({ type: types.RESET_USER_INSTRUCTIONS });
 }
 
 export function updateUserClosedInstructions(closedInstructions) {
-    return (dispatch) =>
-        userApi
-            .updateMeta({ closedInstructions })
-            .then(
-                (success) =>
-                    success &&
-                    dispatch(
-                        updateUserInstructionsSuccessfully(closedInstructions)
-                    )
-            );
+  return dispatch => userApi.updateMeta({ closedInstructions })
+    .then(success => success && dispatch(updateUserInstructionsSuccessfully(closedInstructions)));
 }
 
 export function updateUserMetaSuccessfully(meta) {
-    return { type: types.UPDATE_USER_META, meta };
+  return { type: types.UPDATE_USER_META, meta };
 }
 
 export function updateUserMeta(meta) {
-    return (dispatch) =>
-        userApi
-            .updateMeta(meta)
-            .then(
-                (success) =>
-                    success && dispatch(updateUserMetaSuccessfully(meta))
-            );
+  return (dispatch) => userApi.updateMeta(meta)
+    .then(success => success && dispatch(updateUserMetaSuccessfully(meta)));
 }
 
 export function setUserInfo(userInfo) {
-    return { type: types.SET_USER_INFO, userInfo };
+  return { type: types.SET_USER_INFO, userInfo };
 }
 
 export function getUserInfo() {
-    return (dispatch) =>
-        userApi
-            .getUserInfo()
-            .then((userInfo) => dispatch(setUserInfo(userInfo)));
+  return (dispatch) => userApi.getUserInfo()
+    .then((userInfo) => dispatch(setUserInfo(userInfo)));
 }
 
 export function updateUserInfoSuccessfully(info) {
-    return { type: types.UPDATE_USER_INFO, info };
+  return { type: types.UPDATE_USER_INFO, info };
 }
 
 export function updateUserInfo(info) {
-    return (dispatch) =>
-        userApi
-            .updateUserInfo(info)
-            .then(() => dispatch(updateUserInfoSuccessfully(info)));
+  return (dispatch) => userApi.updateUserInfo(info)
+    .then(() => dispatch(updateUserInfoSuccessfully(info)));
 }
 
 export function registerUserSuccessfully(user) {
-    return { type: types.LOGIN, user };
+  return { type: types.LOGIN, user };
 }
 
 export function registerUser(data) {
-    return (dispatch) =>
-        authApi.register(data).then((user) => {
-            // if success login and continue
-            setTimeout(() => {
-                dispatch(registerUserSuccessfully(user));
-            }, 1000);
-            return user;
-        });
+  return (dispatch) => authApi.register(data)
+    .then((user) => {
+      // if success login and continue
+      setTimeout(() => {
+        dispatch(registerUserSuccessfully(user));
+      }, 1000);
+      return user;
+    });
 }
 
 export function setProfile(profile) {
-    return { type: types.SET_USER_INSPECTED_PROFILE, profile };
+  return { type: types.SET_USER_INSPECTED_PROFILE, profile };
 }
 
 /**
@@ -126,35 +111,31 @@ export function setProfile(profile) {
  * @return {Object} profile
  */
 export function getProfile(username) {
-    return (dispatch) =>
-        userApi
-            .getUserByUsername(username)
-            .then((users) => users.find((u) => u.username === username))
-            .then((user) => (user ? user.id : Promise.reject(user)))
-            .then((gid) =>
-                userApi.getGitlabProfile(gid).then((profile) =>
-                    userApi.getUserStatus(gid).then((status) => {
-                        const profileWithStatus = { ...profile, status };
-                        dispatch(setProfile(profileWithStatus));
+  return (dispatch) => userApi.getUserByUsername(username)
+    .then(users => users.find(u => u.username === username))
+    .then(user => (user ? user.id : Promise.reject(user)))
+    .then(gid => userApi.getGitlabProfile(gid)
+      .then(profile => userApi.getUserStatus(gid)
+        .then(status => {
+          const profileWithStatus = { ...profile, status };
+          dispatch(setProfile(profileWithStatus));
 
-                        return profileWithStatus;
-                    })
-                )
-            );
+          return profileWithStatus;
+        })));
 }
 
 export function setGlobalMarkerColorSuccessfully(color) {
-    return { type: types.SET_GLOBAL_COLOR_MARKER, color };
+  return { type: types.SET_GLOBAL_COLOR_MARKER, color };
 }
 
 export function setGlobalMarkerColor(color) {
-    return (dispatch) => dispatch(setGlobalMarkerColorSuccessfully(color));
+  return (dispatch) => dispatch(setGlobalMarkerColorSuccessfully(color));
 }
 
 export function setIsLoadingSuccessfully(isLoading) {
-    return { type: types.SET_IS_LOADING, isLoading };
+  return { type: types.SET_IS_LOADING, isLoading };
 }
 
 export function setIsLoading(isLoading) {
-    return (dispatch) => dispatch(setIsLoadingSuccessfully(isLoading));
+  return (dispatch) => dispatch(setIsLoadingSuccessfully(isLoading));
 }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import MDropdown from 'components/ui/MDropdown';
-import { logout } from 'store/actions/userActions';
+import { logout, resetInstructions } from 'store/actions/userActions';
 import { toggleTutorial } from 'store/actions/tutorialActions';
 import MGlobalMarker from 'components/ui/MGlobalMarker/MGlobalMarker';
 import mlReefIcon01 from '../../images/MLReef_Logo_navbar.png';
@@ -24,6 +24,7 @@ class Navbar extends Component {
     super(props);
     this.handleSignOut = this.handleSignOut.bind(this);
     this.toggleTutorial = this.toggleTutorial.bind(this);
+    this.resetInstructions = this.resetInstructions.bind(this);
     this.state = {
       isMLProjects: false,
       isAILibrary: false,
@@ -69,6 +70,11 @@ class Navbar extends Component {
     actions.toggleTutorial();
   }
 
+  resetInstructions() {
+    const { actions } = this.props;
+    actions.resetInstructions();
+  }
+
   componentDidMount(){
     const currentPath = window.location.pathname;
     if(MLPaths.includes(currentPath)){
@@ -95,9 +101,9 @@ class Navbar extends Component {
       </a>
     );
 
-    const slackLink = (
-      <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
-        Slack Community
+    const discordLink = (
+      <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/draNC396CM">
+        Discord Community
       </a>
     );
 
@@ -162,15 +168,15 @@ class Navbar extends Component {
                   component={(
                     <div className="help-box">
                       {docuLink}
-                      {slackLink}
+                      {discordLink}
                       <a target="_blank" rel="noopener noreferrer" href="https://about.mlreef.com">
                         About MLReef
                       </a>
-                      <a target="_blank" rel="noopener noreferrer" href="https://mlreefcommunity.slack.com">
-                        Slack Community
-                      </a>
                       <button onClick={this.toggleTutorial} type="button" className="btn t-dark" style={{ borderRadius: 0 }}>
                         {`${tutorialActive ? 'Hide' : 'Show'} Tutorial`}
+                      </button>
+                      <button onClick={this.resetInstructions} type="button" className="btn t-dark" style={{ borderRadius: 0 }}>
+                        Show helpers
                       </button>
                     </div>
                   )}
@@ -219,7 +225,7 @@ class Navbar extends Component {
                   component={(
                     <div className="help-box">
                       {docuLink}
-                      {slackLink}
+                      {discordLink}
                       <a target="_blank" rel="noopener noreferrer" href="https://about.mlreef.com">
                         About MLReef
                       </a>
@@ -256,6 +262,7 @@ Navbar.propTypes = {
     .shape({
       logout: PropTypes.func.isRequired,
       toggleTutorial: PropTypes.func.isRequired,
+      resetInstructions: PropTypes.func.isRequired,
     })
     .isRequired,
   user: PropTypes
@@ -289,6 +296,7 @@ function mapDispatchToProps(dispatch) {
     actions: {
       logout: bindActionCreators(logout, dispatch),
       toggleTutorial: bindActionCreators(toggleTutorial, dispatch),
+      resetInstructions: bindActionCreators(resetInstructions, dispatch),
     },
   };
 }
