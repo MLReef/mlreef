@@ -71,7 +71,12 @@ class AuthService(
         private val GITLAB_TOKEN_BOT = "mlreef-bot-token"
 
         private val USERNAME_ALLOWED_CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9') + ('_')
-        private val USERNAME_REPLACEMENTS = mapOf(' ' to '_', '@' to "_", "." to '_')
+        private val USERNAME_REPLACEMENTS = mapOf(
+            ' ' to '_',
+            '@' to '_',
+            '.' to '_',
+            ',' to '_'
+        )
         private val USERNAME_MAX_LENGTH = 25
 
         private const val WELCOME_MESSAGE_SUBJECT = "Welcome to MLReef"
@@ -679,6 +684,6 @@ class AuthService(
             if (it !in USERNAME_ALLOWED_CHARS) {
                 USERNAME_REPLACEMENTS[it]
             } else it
-        }.joinToString()
+        }.joinToString("", limit = USERNAME_MAX_LENGTH, truncated = "")
     }
 }
