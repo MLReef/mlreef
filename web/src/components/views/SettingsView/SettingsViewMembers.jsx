@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { toastr } from 'react-redux-toastr';
+import dayjs from 'dayjs';
 import MSimpleTabs from 'components/ui/MSimpleTabs';
 import './SettingsViewMembers.scss';
-import MDropdown from 'components/ui/MDropdown';
 import MInput from 'components/ui/MInput';
 import MSimpleSelect from 'components/ui/MSimpleSelect';
 import MButton from 'components/ui/MButton';
@@ -252,28 +252,26 @@ const SettingsViewMembers = (props) => {
               </div>
               <div className="actions">
                 {member.expired_at && (
-                  <div className="date mr-2 border-rounded">
-                    Until
-                    <input
-                      type="date"
-                      min={today}
-                      readOnly
-                      value={parseDate(new Date())}
-                      onChange={handleUpdateExpiration(member.id)}
-                    />
-                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark btn-sm ml-3"
+                    onClick={handleUpdateExpiration(member.id)}
+                  >
+                    Until {dayjs(member.expired_at).format('YYYY-MM-DD')}
+                  </button>
                 )}
-                <MDropdown
-                  className="mr-2"
-                  label={member.access_level}
-                  items={[]}
-                />
+                <button
+                  type="button"
+                  className="btn btn-outline-dark btn-sm ml-3 py-2"
+                >
+                  {member.access_level}
+                </button>
                 {ownerId !== member.id && (
                   <button
                     type="button"
                     onClick={handleRemoveUser(member)}
                     label="close"
-                    className="btn btn-danger btn-icon fa fa-times my-auto"
+                    className="btn btn-danger btn-icon fa fa-times my-auto ml-2"
                   />
                 )}
               </div>

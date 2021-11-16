@@ -74,7 +74,7 @@ const ProjectContainer = (props) => {
             </>
           )}
           <AuthWrapper
-            owneronly
+            minRole={40}
             norender
             className="feature"
           >

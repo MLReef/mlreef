@@ -219,7 +219,7 @@ export default [
     component: SettingsView,
     meta: {
       authRequired: true,
-      owneronly: true,
+      role: 40,
     },
   },
   {
