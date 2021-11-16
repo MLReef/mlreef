@@ -11,12 +11,16 @@ import { persistStore } from 'redux-persist';
 import { Helmet } from 'react-helmet';
 import Router from 'router';
 import store from 'store';
+import { version } from '../package.json';
 import routes from './routes';
 import ToastMessage from './components/toast/toast';
 import ErrorHandler from './ErrorHandler';
 import 'whatwg-fetch';
 
 const persistor = persistStore(store);
+
+// eslint-disable-next-line
+console.info(`Current version: ${version}`);
 
 ReactDOM.render(
 <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.worker.js">
