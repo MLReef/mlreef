@@ -20,7 +20,7 @@ const RegisterRedirectionView = () => {
 
     if (token) {
       setPrivateToken(token);
-      dispatch(getWhoAmI());
+      dispatch(getWhoAmI({ token }));
     } else {
       toastr.warning('Warning: ', 'Login unsuccessful');
     }

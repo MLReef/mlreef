@@ -18,8 +18,11 @@ export function login(formData) {
   });
 }
 
-export function getWhoAmI() {
-  return (dispatch) => authApi.whoAmI().then((user) => {
+export function getWhoAmI(options = {}) {
+  const { token } = options;
+
+  return (dispatch) => authApi.whoAmI().then((u) => {
+    const user = { ...u, token };
     console.log('getWhoImi', user);
     dispatch(setLoginInfo(user));
     return Promise.resolve(user);
