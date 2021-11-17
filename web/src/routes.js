@@ -45,7 +45,7 @@ import FileEditor from 'components/views/FileEditor';
 import ImportDataOverview from 'components/views/ImportDataOverview';
 import Fileview from 'components/views/FileviewComp/Fileview';
 import BasicMergeRequestView from 'components/views/MergeRequestDetails/basicMergeRequestView';
-import { RegisterRedirectionView } from 'components/views/RegisterRedirectionView/RegisterRedirectionView';
+import RegisterRedirectionView from 'components/views/RegisterRedirectionView/RegisterRedirectionView';
 
 export default [
   {

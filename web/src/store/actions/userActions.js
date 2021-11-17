@@ -20,6 +20,7 @@ export function login(formData) {
 
 export function getWhoAmI() {
   return (dispatch) => authApi.whoAmI().then((user) => {
+    console.log('getWhoImi', user);
     dispatch(setLoginInfo(user));
     return Promise.resolve(user);
   });
