@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toastr } from 'react-redux-toastr';
 import PropTypes from 'prop-types';
 import MInput from 'components/ui/MInput';
-import { INFORMATION_UNITS } from 'domain/informationUnits';
 import MAccordion from 'components/ui/MAccordion';
 import ProjectGeneralInfoApi from 'apis/ProjectGeneralInfoApi';
 import MAvatar from 'components/ui/MAvatar/MAvatar';
 import MEmptyAvatar from 'components/ui/MEmptyAvatar/MEmptyAvatar';
+import MImageUpload from 'components/ui/MImageUpload';
 import { validateProjectName } from 'functions/validations';
 import SettingsViewGeneralAdvanced from './SettingsViewGeneralAdvanced';
 import './SettingsViewGeneral.scss';
@@ -14,15 +14,12 @@ import './SettingsViewGeneral.scss';
 const projectApi = new ProjectGeneralInfoApi();
 
 const SettingsViewGeneral = (props) => {
-  const fileMaxSize = 200;
-  const imageInput = useRef();
   const {
-    namespace, slug, avatar, projectId, projectName, description, history,
+    namespace, slug, coverUrl, projectId, projectName, description, history,
   } = props;
 
   const [name, setProjectName] = useState(projectName);
   const [newDescription, changeDescription] = useState(description);
-  const [file, setImageFile] = useState('No file chosen');
   const [disabled, setDisabled] = useState(true);
 
   useEffect(() => {
@@ -54,18 +51,22 @@ const SettingsViewGeneral = (props) => {
       .catch((err) => toastr.error('Error', err.json()));
   };
 
-  const handleFileSelect = () => imageInput.current.click();
-
-  const handleImageSelect = (event) => {
-    event.preventDefault();
-    const selectedFiles = event.target.files[0];
-    if (selectedFiles !== undefined) {
-      if ((selectedFiles.size / INFORMATION_UNITS.KILOBYTE) > fileMaxSize) {
-        toastr.error('Error', 'File size exceeds 200Kb');
-      } else {
-        setImageFile(selectedFiles.name);
-      }
+  const handleSelectCover = file => {
+    if (coverUrl) {
+      projectApi.deleteCover(projectId)
+        .then(() => projectApi.createCover(projectId, file)
+          .catch((err) => toastr.error('Error deleting the cover', err.message)))
+        .then(() => toastr.success('Cover changed', 'Changes will be visible after reloading'))
+        .catch((err) => toastr.error('Error uploading the cover', err.message));
+    } else {
+      projectApi.createCover(projectId, file)
+        .then(() => toastr.success('Cover created', 'Changes will be visible after reloading'))
+        .catch((err) => toastr.error('Error uploading the cover', err.message));
     }
+  };
+
+  const handleCoverError = error => {
+    toastr.error(error.name, error.message);
   };
 
   return (
@@ -124,40 +125,29 @@ const SettingsViewGeneral = (props) => {
             </div>
             <div className="ml-0 mr-0 mb-3">
               <div className="mb-0 pl-3" style={{ float: 'left' }}>
-                {avatar === null
-                  ? <MEmptyAvatar projectName={projectName} styleClass="avatar-md" />
-                  : (
+                {
+                  coverUrl ? (
                     <MAvatar
-                      imgBase={avatar}
+                      imgBase={coverUrl}
                       projectName={projectName}
                       width="140"
                       height="140"
                       styleClass="responsiveAvatar"
                     />
-                  )}
+                  ) : (
+                    <MEmptyAvatar projectName={projectName} styleClass="avatar-md" />
+                  )
+                }
               </div>
-              <h5 className="mt-0">Project avatar</h5>
+              <h5 className="mt-0">Project cover</h5>
               <label htmlFor="image-file">
-                <div className="mt-1 mb-2">
-                  <button
-                    type="button"
-                    disabled
-                    className="btn btn-outline-dark"
-                    onClick={handleFileSelect}
-                  >
-                    Choose File
-                  </button>
-                  <span className="ml-2">{file}</span>
-                  <input
-                    ref={imageInput}
-                    id="image-file"
-                    className="d-none invisible"
-                    type="file"
-                    accept=".*,image/*"
-                    onChange={handleImageSelect}
+                <div className="mt-1 mb-2 ml-3">
+                  <MImageUpload
+                    setImage={handleSelectCover}
+                    onError={handleCoverError}
+                    maxSize={200}
                   />
                 </div>
-                <span className="mb-0 mt-3 t-secondary">The maximum file size allowed is 200Kb</span>
               </label>
             </div>
             <div className="pl-3 mt-4 mb-4">
@@ -192,14 +182,14 @@ SettingsViewGeneral.defaultProps = {
   projectName: '',
   projectId: '',
   description: '',
-  avatar: null,
+  coverUrl: '',
   history: {},
 };
 
 SettingsViewGeneral.propTypes = {
   namespace: PropTypes.string,
   slug: PropTypes.string,
-  avatar: PropTypes.string,
+  coverUrl: PropTypes.string,
   projectName: PropTypes.string,
   projectId: PropTypes.string,
   description: PropTypes.string,

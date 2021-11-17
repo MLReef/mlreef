@@ -72,25 +72,27 @@ const ProjectTitleNActions = (props) => {
         <SEO
           title={`${classProject.gitlabName} · MLReef`}
           description={classProject.description}
-          image={classProject.avatarUrl}
+          image={classProject.coverUrl}
           path={`/${classProject.namespace}/${classProject.slug}`}
           type="object"
         />
       )}
       <div className="project-id">
-        {classProject.avatarUrl === null
-          ? (
-            <div>
-              <MEmptyAvatar projectName={classProject.gitlabName} styleClass="avatar-sm" />
+        {classProject.coverUrl ? (
+          <Link to={`/${project.namespace}/${project.slug}`}>
+            <div className="avatar-sm overflow-hidden">
+              <img
+                style={{ width: 'inherit' }}
+                src={classProject.coverUrl}
+                alt={`${classProject.gitlabName} | cover`}
+              />
             </div>
-          )
-          : (
-            <Link to={`/${project.namespace}/${project.slug}`}>
-              <div className="project-pic overflow-hidden">
-                <img style={{ minWidth: '100%' }} src={classProject.avatarUrl} alt="" />
-              </div>
-            </Link>
-          )}
+          </Link>
+        ) : (
+          <div>
+            <MEmptyAvatar projectName={classProject.gitlabName} styleClass="avatar-sm" />
+          </div>
+        )}
         <div className="project-name mb-2">
           <Link to={`/${project.namespace}/${project.slug}`} id="projectName">
             {classProject.gitlabName}
@@ -190,7 +192,7 @@ function mapStateToProps({ projects: { selectedProject }, user, globalMarker }) 
 
 ProjectTitleNActions.propTypes = {
   project: shape({
-    avatarUrl: string,
+    coverUrl: string,
     forksCount: number.isRequired,
     gitlabName: string.isRequired,
     gid: number.isRequired,

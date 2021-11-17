@@ -279,4 +279,31 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     return fetch(baseUrl, { headers, body, method: METHODS.POST })
       .then(handleResponse);
   }
+
+  updateCover(projectId: string, file: File) {
+    const baseUrl = `/api/v1/projects/${projectId}/cover/update`;
+    const body = new FormData();
+    body.append('file', file);
+
+    const preheaders = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const headers = new Headers();
+
+    preheaders.forEach((v, k) => { headers.set(k, v); });
+    headers.delete('Content-Type');
+
+    return fetch(baseUrl, { headers, body, method: METHODS.POST })
+      .then(handleResponse);
+  }
+
+  deleteCover(projectId: string) {
+    const baseUrl = `/api/v1/projects/${projectId}/cover/delete`;
+    const preheaders = this.buildBasicHeaders(validServicesToCall.BACKEND);
+    const headers = new Headers();
+
+    preheaders.forEach((v, k) => { headers.set(k, v); });
+    headers.delete('Content-Type');
+
+    return fetch(baseUrl, { headers, method: METHODS.DELETE })
+      .then(handleResponse);
+  }
 }

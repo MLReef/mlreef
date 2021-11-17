@@ -10,7 +10,7 @@ import SettingsViewGeneral from './SettingsViewGeneral';
 
 const SettingsView = (props) => {
   const {
-    match: { 
+    match: {
       params : {
         namespace,
         slug,
@@ -53,7 +53,7 @@ const SettingsView = (props) => {
                     slug={selectedProject.slug}
                     projectName={selectedProject.gitlabName}
                     description={selectedProject.description}
-                    avatar={selectedProject.avatarUrl}
+                    coverUrl={selectedProject.coverUrl}
                     ownerId={selectedProject.ownerId}
                     projectId={selectedProject.id}
                     history={history}
