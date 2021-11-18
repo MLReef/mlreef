@@ -3,10 +3,12 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import './MImageUpload.scss';
 
+// refactor suggested due to setImage limitation
+
 const MImageUpload = (props) => {
   const {
     className,
-    setImage,
+    setImage, // cannot be an arrow function because it enters in a loop
     maxSize,
     onError,
   } = props;

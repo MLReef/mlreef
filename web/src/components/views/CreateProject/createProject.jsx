@@ -84,6 +84,7 @@ class CreateProject extends Component {
     };
 
     this.handleDTCallback = this.handleDTCallback.bind(this);
+    this.handleSetImage = this.handleSetImage.bind(this);
   }
 
   componentDidMount() {
@@ -272,6 +273,10 @@ class CreateProject extends Component {
    this.setState({ dataTypesSelected: dts });
  }
 
+ handleSetImage(file) {
+   this.setState({ file });
+ }
+
  render() {
    const {
      visibility,
@@ -388,7 +393,7 @@ class CreateProject extends Component {
               </label>
               <div className="ml-4">
                 <span className="heading">Project image (optional)</span>
-                <MImageUpload setImage={(file) => this.setState({ file })} />
+                <MImageUpload setImage={this.handleSetImage} />
               </div>
             </div>
 
