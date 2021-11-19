@@ -3,59 +3,21 @@ package com.mlreef.rest.external_api.gitlab
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mlreef.rest.ApplicationConfiguration
 import com.mlreef.rest.config.censor
-import com.mlreef.rest.exceptions.BadRequestException
-import com.mlreef.rest.exceptions.ConflictException
-import com.mlreef.rest.exceptions.ErrorCode
-import com.mlreef.rest.exceptions.GitlabAuthenticationFailedException
-import com.mlreef.rest.exceptions.GitlabBadGatewayException
-import com.mlreef.rest.exceptions.GitlabCommonException
-import com.mlreef.rest.exceptions.GitlabConnectException
-import com.mlreef.rest.exceptions.NotFoundException
-import com.mlreef.rest.exceptions.RestException
-import com.mlreef.rest.external_api.gitlab.dto.Branch
-import com.mlreef.rest.external_api.gitlab.dto.Commit
-import com.mlreef.rest.external_api.gitlab.dto.GitlabGroup
-import com.mlreef.rest.external_api.gitlab.dto.GitlabGroupInProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabNamespace
-import com.mlreef.rest.external_api.gitlab.dto.GitlabPage
-import com.mlreef.rest.external_api.gitlab.dto.GitlabPipeline
-import com.mlreef.rest.external_api.gitlab.dto.GitlabProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabProjectSimplified
-import com.mlreef.rest.external_api.gitlab.dto.GitlabRegistry
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUser
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInGroup
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserInProject
-import com.mlreef.rest.external_api.gitlab.dto.GitlabUserToken
-import com.mlreef.rest.external_api.gitlab.dto.GitlabVariable
-import com.mlreef.rest.external_api.gitlab.dto.GroupVariable
-import com.mlreef.rest.external_api.gitlab.dto.OAuthToken
-import com.mlreef.rest.external_api.gitlab.dto.OAuthTokenInfo
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryFile
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryFileFullInfo
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryTree
-import com.mlreef.rest.external_api.gitlab.dto.RepositoryTreePaged
+import com.mlreef.rest.exceptions.*
+import com.mlreef.rest.external_api.gitlab.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.*
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -918,6 +880,14 @@ class GitlabRestClient(
                 }
                 restTemplate(builder).exchange(url, HttpMethod.GET, it, typeRef<List<GitlabUser>>())
             }
+    }
+
+    fun adminGetExactUser(email: String? = null, username: String? = null): GitlabUser? {
+        return this.adminGetUsers(email, username).find { gitlabUser ->
+            if (email != null) gitlabUser.email.equals(email, true)
+            else if (username != null) gitlabUser.username.equals(username, true)
+            else false
+        }
     }
 
 

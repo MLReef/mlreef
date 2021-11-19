@@ -75,4 +75,7 @@ class ReservedNamesService {
         }
     }
 
+    fun isUserNameReserved(name: String): Boolean {
+        return (name.trim().toLowerCase() in userNames)
+    }
 }
