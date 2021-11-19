@@ -23,6 +23,7 @@ import com.mlreef.rest.feature.system.FilesManagementService
 import com.mlreef.rest.feature.system.FilesManagementService.Companion.USER_AVATAR_PURPOSE_ID
 import com.mlreef.rest.feature.system.ReservedNamesService
 import com.mlreef.rest.utils.RandomUtils
+import com.mlreef.rest.utils.Slugs
 import com.mlreef.rest.utils.toInstant
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -70,11 +71,10 @@ class AuthService(
         private val GITLAB_TOKEN_USER = "mlreef-user-token"
         private val GITLAB_TOKEN_BOT = "mlreef-bot-token"
 
-        private val USERNAME_ALLOWED_CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9') + ('_')
+        private val USERNAME_ALLOWED_CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf('_', '.', '-')
         private val USERNAME_REPLACEMENTS = mapOf(
             ' ' to '_',
             '@' to '_',
-            '.' to '_',
             ',' to '_'
         )
         private val USERNAME_MAX_LENGTH = 25
@@ -203,7 +203,9 @@ class AuthService(
         finalUserName.tryToUUID()?.let { throw BadRequestException("Incorrect username $username. Username cannot be UUID") }
         finalUserName.toLongOrNull()?.let { throw BadRequestException("Incorrect username $username. Username cannot be number only") }
 
-        val personSlug = checkAvailability(finalUserName)
+        reservedNamesService.assertUserNameIsNotReserved(finalUserName)
+
+        val accountSlug = tryToGenerateUniqueSlug(Slugs.toSlug(finalUserName))
 
         val newGitlabUser = createGitlabUser(username = finalUserName, email = finalEmail, password = plainPassword)
         createGitlabToken(newGitlabUser)
@@ -220,7 +222,7 @@ class AuthService(
             email = finalEmail,
             passwordEncrypted = encryptedPassword,
             name = finalName,
-            slug = personSlug,
+            slug = accountSlug,
             gitlabId = newGitlabUser.id,
         )
 
@@ -258,36 +260,23 @@ class AuthService(
 
         val internalId = randomUUID()
 
-        val internalUserName = finalUserName
-            ?: finalName?.let { stringToUsername(it) }
-            ?: finalEmail?.let { stringToUsername(it) }
-            ?: "$oAuthClient-${finalUserName ?: finalExternalId ?: randomUUID()}-$internalId"
-
-        var finalInternalUserName = internalUserName
-
-        var index = 1
-        while (userResolverService.resolveAccount(finalInternalUserName) != null) {
-            finalInternalUserName = "${internalUserName}_$index"
-            index++
-        }
-
-        val internalEmail = "$internalId@mlreef.com"
+        val internalUserName = tryToGenerateUniqueUserName(finalUserName, finalEmail, finalName)
+        val internalEmail = tryToGenerateUniqueEmail(internalUserName, finalEmail, internalId)
         val internalPassword = RandomUtils.generateRandomPassword(30, true)
+        val accountSlug = tryToGenerateUniqueSlug(Slugs.toSlug(internalUserName))
 
-        val personSlug = checkAvailability(finalInternalUserName)
-
-        val newGitlabUser = createGitlabUser(username = finalInternalUserName, email = internalEmail, password = internalPassword)
+        val newGitlabUser = createGitlabUser(username = internalUserName, email = internalEmail, password = internalPassword)
 
         val encryptedPassword = passwordEncoder.encode(internalPassword)
 
         val newUser = accountRepository.save(
             Account(
                 id = internalId,
-                username = finalInternalUserName,
+                username = internalUserName,
                 email = internalEmail,
                 passwordEncrypted = encryptedPassword,
-                name = finalName ?: finalInternalUserName,
-                slug = personSlug,
+                name = finalName ?: internalUserName,
+                slug = accountSlug,
                 gitlabId = newGitlabUser.id,
             )
         )
@@ -679,8 +668,135 @@ class AuthService(
         return Pair(gitlabUser, newToken)
     }
 
+    private fun tryToGenerateUniqueUserName(username: String?, email: String?, fullName: String?): String {
+        var index = 0
+        var indexStr = ""
+        var finalUserName: String? = null
+
+        while (finalUserName == null && index < 1000) {
+            val newUsername = username?.let { "$it$indexStr" }
+
+            var foundUser = newUsername?.let {
+                gitlabRestClient.adminGetExactUser(username = it)
+            }
+
+            if (newUsername != null && foundUser == null) {
+                finalUserName = newUsername
+                break
+            }
+
+            val usernameFromEmail = email?.let { emailToUsername(it) }?.let { "$it$indexStr" }
+
+            foundUser = usernameFromEmail?.let {
+                gitlabRestClient.adminGetExactUser(username = it)
+            }
+
+            if (usernameFromEmail != null && foundUser == null) {
+                finalUserName = usernameFromEmail
+                break
+            }
+
+            val usernameFromFullName = fullName?.let { stringToUsername(it) }?.let { "$it$indexStr" }
+
+            foundUser = usernameFromFullName?.let {
+                gitlabRestClient.adminGetExactUser(username = it)
+            }
+
+            if (usernameFromFullName != null && foundUser == null) {
+                finalUserName = usernameFromFullName
+                break
+            }
+
+            index++
+            indexStr = "_$index"
+        }
+
+        return finalUserName ?: RandomUtils.generateRandomUserName(USERNAME_MAX_LENGTH)
+    }
+
+    private fun tryToGenerateUniqueEmail(username: String?, email: String?, id: UUID): String {
+        val emailDomain = "@mlreef.com"
+        var finalEmail: String? = null
+
+        while (finalEmail == null) {
+            var foundUser = email?.let {
+                gitlabRestClient.adminGetExactUser(email = it)
+            }
+
+            if (email != null && foundUser == null) {
+                finalEmail = email
+                break
+            }
+
+            val emailFromUsername = username?.let { "$it$emailDomain" }
+
+            foundUser = emailFromUsername?.let {
+                gitlabRestClient.adminGetExactUser(email = it)
+            }
+
+            if (emailFromUsername != null && foundUser == null) {
+                finalEmail = emailFromUsername
+                break
+            }
+
+            val emailFromId = id.let { "$it$emailDomain" }
+
+            foundUser = emailFromId.let {
+                gitlabRestClient.adminGetExactUser(email = it)
+            }
+
+            if (foundUser == null) {
+                finalEmail = emailFromId
+                break
+            }
+
+            val emailFromRandomId = randomUUID().toString().let { "$it$emailDomain" }
+
+            foundUser = emailFromRandomId.let {
+                gitlabRestClient.adminGetExactUser(email = it)
+            }
+
+            if (foundUser == null) {
+                finalEmail = emailFromRandomId
+                break
+            }
+        }
+
+        return finalEmail!!
+    }
+
+    private fun tryToGenerateUniqueSlug(initialSlug: String?): String {
+        var index = 0
+        var indexStr = ""
+        var finalSlug: String? = null
+
+        while (finalSlug == null && index < 1000) {
+            val newSlug = "$initialSlug$indexStr"
+
+            if (!reservedNamesService.isUserNameReserved(newSlug)
+                && userResolverService.resolveAccount(slug = newSlug) == null
+            ) {
+                finalSlug = newSlug
+                break
+            }
+
+            index++
+            indexStr = "-$index"
+        }
+
+        return finalSlug ?: throw ConflictException("Cannot generate slug for $initialSlug")
+    }
+
     private fun stringToUsername(str: String): String {
         return str.mapNotNull {
+            if (it !in USERNAME_ALLOWED_CHARS) {
+                USERNAME_REPLACEMENTS[it]
+            } else it
+        }.joinToString("", limit = USERNAME_MAX_LENGTH, truncated = "")
+    }
+
+    private fun emailToUsername(email: String): String {
+        return email.substringBefore("@").mapNotNull {
             if (it !in USERNAME_ALLOWED_CHARS) {
                 USERNAME_REPLACEMENTS[it]
             } else it
