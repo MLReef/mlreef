@@ -1,7 +1,7 @@
 {
   "name": "ml-reef-front",
   "homepage": ".",
-  "version": "0.1.9",
+  "version": "0.1.9-1637517641031",
   "private": true,
   "dependencies": {
     "@react-pdf-viewer/core": "^2.7.1",
@@ -103,9 +103,6 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public --quiet"
   },
-  "pre-commit": [
-    "bump-version"
-  ],
   "browserslist": {
     "production": [
       ">0.2%",
