@@ -9,9 +9,9 @@ console.log('Bumping version!');
 
 const packageJson = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
 
-const fixed = packageJson.replace(/("version":\s?")(\d\.\d\.)(\d)(",)/, (_, g1, g2, g3, g4) => {
-  const n = parseInt(g3, 10);
-  return `${g1}${g2}${n + 1}${g4}`;
+const fixed = packageJson.replace(/("version":\s?")(\d\.\d\.\d-)(.+)(",)/, (_, g1, g2, g3, g4) => {
+  const hash = Date.now();
+  return `${g1}${g2}${hash}${g4}`;
 });
 
 fs.writeFileSync(packageJsonPath, fixed);
