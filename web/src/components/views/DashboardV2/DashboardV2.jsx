@@ -72,13 +72,11 @@ const DashboardV2 = (props) => {
               }
             }}
           />
-          {isMLProjectsOption ?
-            <NewMLProject />
-            :
-            <ProjectsDropDown />
-          }
+          <div className="ml-3">
+            {isMLProjectsOption ? <NewMLProject /> : <ProjectsDropDown />}
+          </div>
         </div>
-        <div className="dashboard-v2-content-links-section-1">
+        <div className="dashboard-v2-content-links-section-1 mt-2">
           <div className={myReposActivClass}>
             <Link
               className={`tab-link ${myReposActivClass}`}
