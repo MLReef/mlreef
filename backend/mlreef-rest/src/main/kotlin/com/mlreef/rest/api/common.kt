@@ -9,6 +9,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 interface CurrentUserService {
@@ -59,10 +60,13 @@ class SimpleCurrentUserService(
             ?: throw UserNotFoundException(userId = tokenDetails.accountId)
     }
 
+    @Transactional
     override fun accountOrNull(): Account? {
         val tokenDetails: TokenDetails? = authenticationOrNull()?.principal as? TokenDetails
         return tokenDetails?.let {
-            accountRepository.findByIdOrNull(tokenDetails.accountId)
+            val user = accountRepository.findByIdOrNull(tokenDetails.accountId)
+            user?.externalAccount
+            user
         }
     }
 

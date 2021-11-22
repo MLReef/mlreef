@@ -10,7 +10,7 @@ import com.mlreef.rest.domain.helpers.DataClassWithId
 import com.mlreef.rest.domain.helpers.UserInGroup
 import com.mlreef.rest.domain.helpers.UserInProject
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 // FIXME: Coverage says: missing tests
 data class UserDto(
@@ -29,9 +29,9 @@ data class UserDto(
 
 fun Account.toUserDto(avatarUrl: String? = null) = UserDto(
     id = this.id,
-    username = this.externalAccount?.let { it.username ?: "" } ?: this.username,
+    username = this.externalAccount?.username?.takeIf { it.isNotBlank() } ?: this.username,
     name = this.name,
-    email = this.externalAccount?.let { it.email ?: "" } ?: this.email,
+    email = this.externalAccount?.email?.takeIf { it.isNotBlank() } ?: this.email,
     gitlabId = this.gitlabId,
     userRole = this.userRole,
     termsAcceptedAt = this.termsAcceptedAt,
