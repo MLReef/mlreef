@@ -10,7 +10,7 @@ const setup = (isModalVisible = true) => {
     return generatePromiseResponse(200, true, { message: 'works' }, 10);
   });
   return mount(
-    <DeleteBranchModal 
+    <DeleteBranchModal
       isModalVisible={isModalVisible}
       toggleIsModalVisible={toggleIsModalVisible}
       projectId={2378123}
@@ -30,7 +30,7 @@ describe('test rendering and functions', () => {
     await sleep(15);
     expect(global.fetch.mock.calls.length).toBeGreaterThan(0);
     const [firstCall] = global.fetch.mock.calls;
-    expect(firstCall[0].url).toBe('/api/v4/projects/2378123/repository/branches/master');
+    expect(firstCall[0].url).toContain('/api/v4/projects/2378123/repository/branches/master');
     expect(firstCall[0].method).toBe('DELETE');
   });
 

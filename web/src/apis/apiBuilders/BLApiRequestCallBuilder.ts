@@ -6,9 +6,10 @@ export default class BodyLessApiRequestCallBuilder extends BasicImplFunctions im
   headers: Map<string, string>;
   url: string;
   private urlParams: Map<string, string> = new Map();
-  
-  constructor(method: string, headers: Map<string, string>, url: string){
-    super();
+
+  constructor(method: string, headers: Map<string, string>, url: string, pagination: any){
+    super({ pagination });
+
     this.method = method;
     this.headers = headers;
     this.url = url;
@@ -17,7 +18,7 @@ export default class BodyLessApiRequestCallBuilder extends BasicImplFunctions im
   public setUrlParams(urlParams : Map<string, string>) {
     this.urlParams = urlParams;
   }
-  
+
   buildUrlWithParams = () => Array.from(
     this.urlParams.keys()
   )
@@ -27,9 +28,11 @@ export default class BodyLessApiRequestCallBuilder extends BasicImplFunctions im
       this.url = `${this.url}${urlKey}${key}=${value}`;
     });
 
-  build(): Request {
+  build({ pagination = true }: { pagination?: boolean } = {}) {
+    const url = pagination ? this.attachPagination() : this.url;
+
     return new Request(
-      this.url , {
+      url , {
         method: this.method,
         headers: new Headers(this.parseMapsToJson(this.headers)),
       },

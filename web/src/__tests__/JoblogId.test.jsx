@@ -22,6 +22,6 @@ describe('render', () => {
   test('render', async () => {
     await sleep(100);
     const apiReq = global.fetch.mock.calls[0][0];
-    expect(apiReq.url).toBe('/api/v4/projects/1/jobs/1');
+    expect(apiReq.url).toContain('/api/v4/projects/1/jobs/1');
   });
 });

@@ -34,6 +34,6 @@ describe('test basic UI presence', () => {
 
     expect(
       global.fetch.mock.calls[0][0].url
-    ).toBe('/api/v4/projects/1/repository/files/file_entry.py?ref=d6789ewrfhjewfbnmokpqwsdmkl');
+    ).toContain('/api/v4/projects/1/repository/files/file_entry.py?ref=d6789ewrfhjewfbnmokpqwsdmkl');
   });
 });

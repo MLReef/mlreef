@@ -1,14 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { 
-  UnconnectedSelectDataPipelineModal 
+import {
+  UnconnectedSelectDataPipelineModal
 } from 'components/views/PipelinesExecutionView/SelectDataPipelineModal/SelectDataPipelineModal';
 import { projectsArrayMock, branchesMock, filesMock } from 'testData';
-import { 
-  DataPipelinesContext 
+import {
+  DataPipelinesContext
 } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesProvider';
-import { 
-  initialState 
+import {
+  initialState
 } from 'components/views/PipelinesExecutionView/DataPipelineHooks/DataPipelinesReducerAndFunctions';
 import { generatePromiseResponse, sleep } from 'functions/testUtils';
 import { jobs } from './testData';
@@ -53,7 +53,7 @@ describe('html elements presence', () => {
 
   test('assert that jobs api is called', () => {
     expect(global.fetch.mock.calls.length).toBeGreaterThan(1);
-    expect(global.fetch.mock.calls[1][0].url).toBe('/api/v4/projects/12395599/jobs');
+    expect(global.fetch.mock.calls[1][0].url).toContain('/api/v4/projects/12395599/jobs');
   });
 
   test('assert that wrapper contains and renders elements as well as some events', async () => {
@@ -71,7 +71,7 @@ describe('html elements presence', () => {
 
     dataSetOptions.children().forEach((liNode, ind) => {
       // the function to get index is required because array is reversed
-      const currentJob = jobs[jobs.length - ind - 1]; 
+      const currentJob = jobs[jobs.length - ind - 1];
       expect(liNode.childAt(0).text().includes(currentJob.name)).toBe(true);
       expect(liNode.childAt(0).props().disabled).toBe(currentJob.status !== SUCCESS);
     });
