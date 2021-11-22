@@ -83,7 +83,7 @@ describe('presence of elements and functions', () => {
 
     submitButton.simulate('click');
     const request = global.fetch.mock.calls[0][0];
-    expect(request.url).toBe('/api/v4/projects/12395599/repository/commits');
+    expect(request.url).toContain('/api/v4/projects/12395599/repository/commits');
     const body = JSON.parse(request._bodyInit);
 
     expect(body.branch).toBe('master-1');

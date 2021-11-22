@@ -15,3 +15,4 @@ export const EXTERNAL_URL = process.env.REACT_APP_EXTERNAL_URL || 'http://localh
 export const BUILD_TIMEOUT = process.env.REACT_APP_BUILD_TIMEOUT || 18000;
 export const POLL_TIMEOUT = process.env.REACT_APP_POLL_TIMEOUT || 10000;
 
+export const PER_PAGE = parseInt(process.env.REACT_APP_PER_PAGE || 100, 10);

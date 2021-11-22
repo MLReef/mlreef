@@ -42,22 +42,22 @@ describe('job table contains jobs', () => {
 
   test('assert that query is modified to filter by running', () => {
     wrapper.find('button#running').simulate('click');
-    expect(global.fetch.mock.calls[3][0].url).toBe('/api/v4/projects/12395599/jobs?scope[]=running');
+    expect(global.fetch.mock.calls[3][0].url).toContain('/api/v4/projects/12395599/jobs?scope[]=running');
   });
 
   test('assert that query is modified to filter by success', () => {
     wrapper.find('button#success').simulate('click');
-    expect(global.fetch.mock.calls[3][0].url).toBe('/api/v4/projects/12395599/jobs?scope[]=success');
+    expect(global.fetch.mock.calls[3][0].url).toContain('/api/v4/projects/12395599/jobs?scope[]=success');
   });
 
   test('assert that query is modified to filter by failed', () => {
     wrapper.find('button#failed').simulate('click');
-    expect(global.fetch.mock.calls[3][0].url).toBe('/api/v4/projects/12395599/jobs?scope[]=failed');
+    expect(global.fetch.mock.calls[3][0].url).toContain('/api/v4/projects/12395599/jobs?scope[]=failed');
   });
 
   test('assert that query is modified to filter by canceled', () => {
     wrapper.find('button#canceled').simulate('click');
-    expect(global.fetch.mock.calls[3][0].url).toBe('/api/v4/projects/12395599/jobs?scope[]=canceled');
+    expect(global.fetch.mock.calls[3][0].url).toContain('/api/v4/projects/12395599/jobs?scope[]=canceled');
   });
 
   afterEach(() => {
