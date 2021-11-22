@@ -12,6 +12,7 @@ import 'components/layout/Dashboard/DashboardV2.scss';
 import ProjectsArraySection from 'components/layout/Dashboard/ProjectsArraySection';
 import DashboardProvider from 'components/layout/Dashboard//DashboardContext';
 import ProjectsDropDown from 'components/layout/Dashboard/ProjectsDropDown';
+import AuthWrapper from 'components/AuthWrapper';
 import useHistory from 'router/useHistory';
 
 const DashboardExplore = (props) => {
@@ -65,29 +66,13 @@ const DashboardExplore = (props) => {
               }
             }}
           />
-          <ProjectsDropDown />
+          <AuthWrapper norender>
+            <div className="ml-3">
+              <ProjectsDropDown />
+            </div>
+          </AuthWrapper>
         </div>
-        <div className="dashboard-v2-content-links-section-1">
-          <div className={starredClass}>
-            <Link
-              className={`tab-link ${starredClass}`}
-              to={`/explore/starred/${class2}`}
-              onClick={setLoadingStatus}
-            >
-              Starred
-            </Link>
-          </div>
-          <div className={publicClass}>
-            <Link
-              className={`tab-link ${publicClass}`}
-              to={`/explore/public/${class2}`}
-              onClick={setLoadingStatus}
-            >
-              Public
-            </Link>
-          </div>
-        </div>
-        <div className="dashboard-v2-content-links-section-2">
+        <div className="dashboard-v2-content-links-section-2 mt-2">
           {projectClassificationsProps.map(({ label, searchableType, color }) => {
             const lowerCaseST = searchableType.toLowerCase();
             const isIsClass2 = class2 === lowerCaseST;

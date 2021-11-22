@@ -1,4 +1,5 @@
 @import '../../../styles/breakpoints';
+/* DashboardExplore */
 
 .dashboard-v2 {
   display: flex;
@@ -11,17 +12,15 @@
     &-search-bar {
       display: flex;
       margin: 1rem 5% 0 5%;
-      input {
-        margin-right: 1rem;
-      }
+
       &-dropdown {
         display: flex;
         justify-content: flex-end;
-        
+
         button:hover {
           cursor: pointer;
         }
-  
+
         button.new-project {
           border-radius: 0.3rem;
           padding: 0.5rem;

@@ -18,6 +18,7 @@ import HomeW from '../../images/navbar-options/Home_w.png';
 import { AIPaths, MLPaths } from 'dataTypes';
 
 import './navbar.scss';
+import AuthWrapper from 'components/AuthWrapper';
 
 class Navbar extends Component {
   constructor(props) {
@@ -117,45 +118,48 @@ class Navbar extends Component {
               </Link>
             </div>
 
-            <div className="ml-3 my-auto d-lg-block" onClick={this.activeHome}>
-              <NavLink
-                className="navbar-label"
-                activeClassName="active"
-                to={user.auth ? '/welcome' : '/welcome'}
+            <AuthWrapper norender>
+              <div className="ml-3 my-auto d-lg-block" onClick={this.activeHome}>
+                <NavLink
+                  className="navbar-label"
+                  activeClassName="active"
+                  to={user.auth ? '/welcome' : '/welcome'}
 
-              >
-                <img src={HomeSrc} alt="MLReef Home" />
-                <label >Home</label>
-              </NavLink>
-            </div>
-            <div className="ml-3 my-auto d-lg-block" onClick={this.activeMLProjects}>
-              <NavLink
-                className="navbar-label"
-                to={{ pathname: user.auth ? ('/dashboard/public/data_project'): '/welcome'}}
-                activeClassName="active"
-                isActive={(_, location)=>{
-                  return MLPaths.includes(location.pathname);
-                }}
+                >
+                  <img src={HomeSrc} alt="MLReef Home" />
+                  <span>Home</span>
+                </NavLink>
+              </div>
+            </AuthWrapper>
 
-              >
-                <img src={MLProjectSrc} alt="MLReef ML Projects" />
-                <label>ML Projects</label>
-              </NavLink>
-            </div>
-            <div className="ml-3 my-auto d-lg-block" onClick={this.activeAILibrary}>
-              <NavLink
-                className="navbar-label"
-                to={{pathname: user.auth ? '/dashboard/public/algorithm' : '/welcome'}}
-                activeClassName="active"
-                isActive={(_, location)=>{
-                  return AIPaths.includes(location.pathname)
-                }}
+            <AuthWrapper norender>
+              <div className="ml-3 my-auto d-lg-block" onClick={this.activeMLProjects}>
+                <NavLink
+                  className="navbar-label"
+                  to={{ pathname: user.auth ? ('/dashboard/public/data_project') : '/welcome' }}
+                  activeClassName="active"
+                  isActive={(_, location) => MLPaths.includes(location.pathname)}
+                >
+                  <img src={MLProjectSrc} alt="MLReef ML Projects" />
+                  <span>ML Projects</span>
+                </NavLink>
+              </div>
+            </AuthWrapper>
 
-              >
-                <img src={AILibrarySrc} alt="MLReef AI Library" />
-                <label>AI Library</label>
-              </NavLink>
-            </div>
+            <AuthWrapper norender>
+              <div className="ml-3 my-auto d-lg-block" onClick={this.activeAILibrary}>
+                <NavLink
+                  className="navbar-label"
+                  to={{ pathname: user.auth ? '/dashboard/public/algorithm' : '/welcome' }}
+                  activeClassName="active"
+                  isActive={(_, location) => AIPaths.includes(location.pathname)}
+                >
+                  <img src={AILibrarySrc} alt="MLReef AI Library" />
+                  <span>AI Library</span>
+                </NavLink>
+              </div>
+            </AuthWrapper>
+
             {user.auth && (
               <>
                 <MDropdown
