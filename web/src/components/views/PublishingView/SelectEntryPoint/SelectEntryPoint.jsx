@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { toastr } from 'react-redux-toastr';
 import MFileExplorer from 'components/ui/MFileExplorer';
 import { useHistory } from 'router';
 import {
   arrayOf, func, shape, string,
 } from 'prop-types';
+import publishingActions from "./../publishingActions";
 
 const SelectEntryPoint = ({
   entryPointFile,
@@ -27,7 +28,8 @@ const SelectEntryPoint = ({
         disabled: f.id !== entryPointFile.id,
       }));
   }
-  const onFileSelected = (fileId, _, newValue) => {
+
+  const onFileSelected = useCallback((fileId, _, newValue) => {
     if (!newValue) {
       dispatch({ type: 'SET_ENTRY_POINT', payload: null });
       return;
@@ -40,7 +42,7 @@ const SelectEntryPoint = ({
       return;
     }
     dispatch({ type: 'SET_ENTRY_POINT', payload: file });
-  };
+  }, [dispatch, files]);
 
   return (
     <div className="row" style={{ minHeight: '60vh' }}>
@@ -61,11 +63,11 @@ const SelectEntryPoint = ({
           files={path ? [{ id: '1', type: 'tree', name: '...' }, ...filesModified] : filesModified}
           branches={branches}
           onEnterDir={(f) => {
+            let newPath = f.path;
             if (f.id === '1') {
-              history.goBack();
-              return;
+              newPath = publishingActions.getPreviousPath(path);
             }
-            history.push(`/${namespace}/${slug}/-/publishing/path/${f.path}`);
+            dispatch({ type: 'SET_PATH', payload: newPath })
           }}
           onFileSelected={onFileSelected}
           onBranchSelected={(branch) => {

@@ -48,8 +48,8 @@ const SelectBaseEnv = ({
           <span className="parameter-key">
             Selected:
           </span>
-          <strong className="parameter-value t-danger">
-            {selectedEnv ? selectedEnv.name : 'No base environment selected'}
+          <strong className="parameter-value t-info">
+            {selectedEnv ? selectedEnv.title : 'No base environment selected'}
           </strong>
         </div>
         <button

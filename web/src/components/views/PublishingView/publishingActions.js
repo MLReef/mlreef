@@ -20,7 +20,30 @@ const getNextVersion = (processors, branch) => {
   return parseInt(sortedArrayOfProcessors[0].version) + 1;
 };
 
+const getPreviousPath = (path = '') => {
+  if (!path) {
+    return path;
+  }
+
+  const pathParts = path.split('/');
+
+  pathParts.pop();
+
+  let newPath = '';
+
+  pathParts.forEach((part, index) => {
+    if (index === 0) {
+      newPath = part;
+    } else {
+      newPath = `${newPath}/${part}`;
+    }
+  });
+
+  return newPath;
+}
+
 export default {
   publish,
   getNextVersion,
+  getPreviousPath,
 };

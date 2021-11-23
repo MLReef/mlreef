@@ -525,7 +525,7 @@ export default [
   },
   {
     name: 'publishing',
-    path: '/:namespace/:slug/-/publishing/path/:path',
+    path: '/:namespace/:slug/-/publishing',
     component: PublishingView,
     exact: true,
     meta: {

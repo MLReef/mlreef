@@ -62,18 +62,18 @@ test('assert that reducer updated env and removes it when user picks the same on
 test('assert that boolean "is requirements present" is set corretly', () => {
   const result = reducer(
     initialState, {
-      type: 'SET_REQUIREMENTS_FILE_EXISTING',
-      payload: [...filesMock, {
+      type: 'SET_REQUIREMENTS_FILE',
+      payload: {
         id: 'd564d0bc3dd917926892c55e3706cc116d5b165w',
         name: 'Requirements.txt',
         type: 'blob',
         path: 'Requirements.txt',
         mode: '040000',
-      }],
+      },
     },
   );
-  const { isRequirementsFileExisting } = result;
-  expect(isRequirementsFileExisting).toBe(true);
+  const { requirementsFile } = result;
+  expect(requirementsFile).not.toBeNull();
 });
 
 test('assert that reducer updates model and removes it when user picks the same one', () => {
