@@ -1,9 +1,10 @@
 export default {
+  path: '',
   files: [],
   listOfEnvs: [],
   entryPointFile: null,
   selectedEnv: null,
-  isRequirementsFileExisting: false,
+  requirementsFile: null,
   model: null,
   mlCategory: null,
   areTermsAccepted: false,
@@ -21,6 +22,8 @@ const calculateAreTermsAccepted = (areTermsAccepted) => {
 
 export const reducer = (state, { type, payload }) => {
   switch (type) {
+    case 'SET_PATH':
+      return { ...state, path: payload };
     case 'SET_SELECTED_BRANCH':
       return { ...state, selectedBranch: payload };
     case 'SET_FILES':
@@ -29,8 +32,8 @@ export const reducer = (state, { type, payload }) => {
       return { ...state, entryPointFile: payload };
     case 'SET_ENVIRONMENT':
       return { ...state, selectedEnv: state.selectedEnv === payload ? null : payload };
-    case 'SET_REQUIREMENTS_FILE_EXISTING':
-      return { ...state, isRequirementsFileExisting: payload.filter((f) => f.name?.toLowerCase() === 'requirements.txt').length > 0 };
+    case 'SET_REQUIREMENTS_FILE':
+      return { ...state, requirementsFile: payload };
     case 'SET_MODEL':
       return { ...state, model: state.model === payload ? null : payload };
     case 'SET_ML_CATEGORY':

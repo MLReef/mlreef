@@ -27,7 +27,7 @@ const gitlabPipelinesApi = new GitlabPipelinesApi();
 export const UnconnectedPublishingView = (props) => {
   const {
     match: {
-      params: { namespace, slug, path },
+      params: { namespace, slug },
     },
     branches,
     history,
@@ -40,11 +40,12 @@ export const UnconnectedPublishingView = (props) => {
   } = selectedProject;
 
   const [{
+    path,
     selectedBranch,
     files,
     entryPointFile,
     selectedEnv,
-    isRequirementsFileExisting,
+    requirementsFile,
     model,
     mlCategory,
     areTermsAccepted,
@@ -75,7 +76,14 @@ export const UnconnectedPublishingView = (props) => {
 
   const isFinalFormValid = isProjectAnAlgorithm
     ? mlCategory && model
-    : areTermsAccepted && isRequirementsFileExisting;
+    : areTermsAccepted && !!requirementsFile;
+
+  useEffect(() => {
+    EnvironmentsApi
+    .getMany()
+    .then((envs) => dispatch({ type: 'SET_LIST_OF_ENVS', payload: envs }))
+    .catch((err) => toastr.error('Error', err.message));
+  }, []);
 
   useEffect(() => {
     if (gid) {
@@ -86,19 +94,22 @@ export const UnconnectedPublishingView = (props) => {
         selectedBranch,
       ).then((newFilesArr) => {
         dispatch({ type: 'SET_FILES', payload: newFilesArr });
-        if (!path || path === '') {
-          dispatch({
-            type: 'SET_REQUIREMENTS_FILE_EXISTING',
-            payload: newFilesArr,
-          });
-        }
       }).catch((error) => toastr.error('Error', error.message));
     }
-    EnvironmentsApi
-      .getMany()
-      .then((envs) => dispatch({ type: 'SET_LIST_OF_ENVS', payload: envs }))
-      .catch((err) => toastr.error('Error', err.message));
   }, [gid, selectedBranch, path, branches]);
+
+  useEffect(() => {
+    filesApi.getFileData(
+      gid,
+      'requirements.txt',
+      selectedBranch,
+    ).then((file) => {
+      console.log(file);
+      dispatch({ type: 'SET_REQUIREMENTS_FILE', payload: file });
+    }).catch(() => {
+      toastr.info("No Requirements.txt file found.", "Create or place it on root level.");
+    });
+  }, [selectedBranch]);
 
   const breadcrumbs = [
     {
@@ -207,8 +218,7 @@ export const UnconnectedPublishingView = (props) => {
                                   id, {
                                     slug,
                                     path: entryPointFile.path,
-                                    requirements_file: files
-                                      .filter((f) => f.name?.toLowerCase() === 'requirements.txt')[0].path,
+                                    requirements_file: !!requirementsFile,
                                     environment: selectedEnv.id,
                                     branch: selectedBranch,
                                     version: publishingActions.getNextVersion(
@@ -248,7 +258,7 @@ export const UnconnectedPublishingView = (props) => {
                             selectedBranch={selectedBranch}
                             entryPointFile={entryPointFile}
                             selectedEnvironment={selectedEnv?.title}
-                            isRequirementsFileExisting={isRequirementsFileExisting}
+                            isRequirementsFileExisting={!!requirementsFile}
                             areTermsAccepted={areTermsAccepted}
                             model={model}
                             category={mlCategory}
