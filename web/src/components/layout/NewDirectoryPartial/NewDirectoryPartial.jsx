@@ -21,6 +21,8 @@ const NewDirectoryPartial = (props) => {
     onSuccess,
   } = props;
 
+  const parsedTargetDir = decodeURIComponent(targetDir);
+
   const [message, setMessage] = useState('Create new directory');
   const [directory, setDirectory] = useState('');
   const [waiting, setWaiting] = useState(false);
@@ -39,7 +41,7 @@ const NewDirectoryPartial = (props) => {
       actions: [
         {
           action: 'create',
-          file_path: `${targetDir}/${directory}/.gitattributes`,
+          file_path: `${parsedTargetDir}/${directory}/.gitattributes`,
         },
       ],
     };
@@ -47,7 +49,7 @@ const NewDirectoryPartial = (props) => {
     setWaiting(true);
 
     return commitsApi.performCommitForMultipleActions(gid, JSON.stringify(payload))
-      .then(() => onSuccess(directory))
+      .then(() => onSuccess(encodeURIComponent(`${parsedTargetDir}/${directory}`)))
       .catch((err) => {
         toastr.error('Could not create directory', err.message);
       })
@@ -94,7 +96,7 @@ const NewDirectoryPartial = (props) => {
           Creating directory in:
         </div>
         <div id="target-directory" className="new-directory-partial-field-fixed-value">
-          {`${targetDir}/`}
+          {`${parsedTargetDir}/`}
         </div>
       </div>
       <div className="new-directory-partial-field">
