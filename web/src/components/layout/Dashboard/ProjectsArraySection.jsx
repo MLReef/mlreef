@@ -122,6 +122,7 @@ const ProjectsArraySection = (props) => {
                   owner={proj.ownerId === ''}
                   published={proj.published}
                   classification={classification2}
+                  coverUrl={proj.coverUrl}
                 />
               ))}
             />

@@ -18,6 +18,19 @@ $card-padding: 1rem;
     @include card-shadow;
     padding: $card-padding;
     border-radius: $border-radius;
+    overflow: hidden;
+  }
+
+  &-image {
+    padding-top: Calc(9/16 * 100%);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    margin-top: -$card-padding;
+    margin-left: -$card-padding;
+    margin-right: -$card-padding;
+    margin-bottom: $card-padding;
+    width: calc(100% + 2 * #{$card-padding});
   }
 
   &-title {
@@ -30,7 +43,13 @@ $card-padding: 1rem;
   }
 
   &-content {
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
 
+    &-description {
+      flex: 1;
+    }
   }
 
   &-actions {

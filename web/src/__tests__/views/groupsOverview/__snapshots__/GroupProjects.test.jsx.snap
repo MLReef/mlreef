@@ -82,6 +82,7 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
                   href="/test-group/group-project"
                   onClick={[Function]}
                 >
+                  
                   <p
                     className="card-title"
                   >

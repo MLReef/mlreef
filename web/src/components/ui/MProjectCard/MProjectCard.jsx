@@ -25,6 +25,7 @@ const MProjectCard = (props) => {
     owner,
     published,
     classification,
+    coverUrl,
   } = props;
 
   const [avatars, setAvatars] = useState([]);
@@ -73,6 +74,9 @@ const MProjectCard = (props) => {
       />
       <div className={`card-container project-card-container ${classification}`}>
         <Link className="project-card-link" to={`/${namespace}/${slug}`}>
+          {coverUrl && (
+            <div className="card-image" style={{ backgroundImage: `url(${coverUrl})` }} />
+          )}
           <p className="card-title">
             {title}
           </p>
@@ -146,6 +150,7 @@ MProjectCard.defaultProps = {
   visibility: null,
   owner: false,
   dataProcessor: {},
+  coverUrl: '',
 };
 
 MProjectCard.propTypes = {
@@ -169,6 +174,7 @@ MProjectCard.propTypes = {
   }),
   visibility: PropTypes.string,
   owner: PropTypes.bool,
+  coverUrl: PropTypes.string,
 };
 
 export default MProjectCard;
