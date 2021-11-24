@@ -22,7 +22,7 @@ $border-size: 0 0 1px 1.5px;
   &-container {
     background-color: var(--white);
     width: 250px;
-    
+
     .card-title {
       font-size: 1.2rem;
       margin: 0;
@@ -53,10 +53,6 @@ $border-size: 0 0 1px 1.5px;
       font-size: 0.9rem;
       margin-right: 0.1rem;
     }
-  }
-
-  &-container {
-    padding: 1.25rem;
   }
 
   &-container.data_project {
