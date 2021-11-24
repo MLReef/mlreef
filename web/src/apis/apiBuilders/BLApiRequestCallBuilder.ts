@@ -7,7 +7,7 @@ export default class BodyLessApiRequestCallBuilder extends BasicImplFunctions im
   url: string;
   private urlParams: Map<string, string> = new Map();
 
-  constructor(method: string, headers: Map<string, string>, url: string, pagination: any){
+  constructor(method: string, headers: Map<string, string>, url: string, pagination: any = {}){
     super({ pagination });
 
     this.method = method;

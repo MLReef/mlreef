@@ -38,7 +38,7 @@ const setup = () => {
   return wrapper;
 };
 
-xdescribe('test the frontend features', () => {
+describe('test the frontend features', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
@@ -48,13 +48,13 @@ xdescribe('test the frontend features', () => {
     expect(wrapper.find('#nameSpace')).toHaveLength(1);
     expect(wrapper.find('#projectSlug')).toHaveLength(1);
     expect(wrapper.find('#projectDescription')).toHaveLength(1);
-    expect(wrapper.find('MCheckBox')).toHaveLength(11);
+    expect(wrapper.find('MCheckBox')).toHaveLength(10);
     expect(wrapper.find('.btn.btn-basic-dark')).toHaveLength(1);
     expect(wrapper.find('MButton.btn.btn-primary')).toHaveLength(1);
   });
 });
 
-xdescribe('test the frontend functionality', () => {
+describe('test the frontend functionality', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
@@ -87,7 +87,7 @@ xdescribe('test the frontend functionality', () => {
     expect(submitCall.method).toBe('POST');
     
     expect(submitCall._bodyInit)
-      .toBe('{"name":"new-project-name","slug":"jajaja-project","namespace":"nickname","initialize_with_readme":false,"description":"","visibility":"private","input_data_types":["TEXT"]}');
+      .toBe('{"name":"new-project-name","slug":"jajaja-project","namespace":"nickname","initialize_with_readme":false,"description":"","visibility":"public","input_data_types":["TEXT"]}');
   });
 
   test('assert that data types are added to state when selected', () => {
@@ -98,7 +98,8 @@ xdescribe('test the frontend functionality', () => {
     expect(wrapper.find('CreateProject').state().dataTypesSelected.length).toBe(4);
   });
 
-  test('assert that public project option is disabled for private groups', () => {
+  // MLreef currently does not support groups, TODO: enable when we do it
+  /* test('assert that public project option is disabled for private groups', () => {
     const { full_path: fPath } = groupsMock[1];
     wrapper.find('#nameSpace').simulate('change', { target: { value: fPath } });
     expect(wrapper.find('CreateProject').state().nameSpace).toBe(fPath);
@@ -110,5 +111,5 @@ xdescribe('test the frontend functionality', () => {
         .props()
         .disabled,
     ).toBe(true);
-  });
+  }); */
 });

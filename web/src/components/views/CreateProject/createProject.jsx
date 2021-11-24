@@ -224,7 +224,7 @@ class CreateProject extends Component {
         return res;
       })
       .then(delay(5000))
-      .then((res) => file.name && projectGeneraInfoApi.createCover(res.id, file)
+      .then((res) => file?.name && projectGeneraInfoApi.createCover(res.id, file)
         .catch((err) => toastr.error('Error uploading the cover', err.message)))
       .then(() => history.push(`/${nameSpace}/${slug}`))
       .catch((err) => {

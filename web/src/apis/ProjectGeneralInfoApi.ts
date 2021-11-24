@@ -265,6 +265,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
+  // TODO: this code can be moved to a new builder
   createCover(projectId: string, file: File) {
     const baseUrl = `/api/v1/projects/${projectId}/cover/create`;
     const body = new FormData();
