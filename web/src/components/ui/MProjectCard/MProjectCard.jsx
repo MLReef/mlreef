@@ -16,6 +16,7 @@ const MProjectCard = (props) => {
     description,
     starCount,
     forkCount,
+    experimentsCount,
     slug,
     namespace,
     inputDataTypes,
@@ -103,6 +104,11 @@ const MProjectCard = (props) => {
               <div className="mr-3">
                 <i className="fa fa-code-branch">
                   <span className="label">{` ${forkCount}`}</span>
+                </i>
+              </div>
+              <div className="mr-3">
+                <i className="fa fa-flask">
+                  <span className="label">{` ${experimentsCount}`}</span>
                 </i>
               </div>
             </div>
