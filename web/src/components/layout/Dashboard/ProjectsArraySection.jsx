@@ -111,16 +111,12 @@ const ProjectsArraySection = (props) => {
                   key={`proj-${proj.gitlabNamespace}-${proj.slug}-${proj.id}`}
                   slug={proj.slug}
                   title={proj.name}
-                  projectId={proj.gitlabId}
                   description={proj.description}
                   starCount={proj.starsCount || 0}
                   forkCount={proj.forksCount || 0}
+                  experimentsCount={proj.experiments?.length}
                   namespace={proj.gitlabNamespace}
-                  updatedAt={proj.lastActivityat}
-                  projects={projects}
-                  dataProcessor={proj.dataProcessor}
                   inputDataTypes={proj.inputDataTypes}
-                  outputDataTypes={proj.inputDataTypes}
                   users={proj.members}
                   visibility={proj.visibilityScope}
                   owner={proj.ownerId === ''}
