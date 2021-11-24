@@ -8,7 +8,7 @@ export default class ApiRequestCallBuilder extends BasicImplFunctions implements
   url: string;
   private body: string;
 
-  constructor(method: string, headers: Map<string, string>, url: string, body: string, pagination: any){
+  constructor(method: string, headers: Map<string, string>, url: string, body: string, pagination: any = {}){
     super({ pagination });
 
     this.build = this.build.bind(this);
