@@ -157,6 +157,19 @@ exports[`snapshot for GroupProjects assert that snapshot matches 1`] = `
                           </span>
                         </i>
                       </div>
+                      <div
+                        className="mr-3"
+                      >
+                        <i
+                          className="fa fa-flask"
+                        >
+                          <span
+                            className="label"
+                          >
+                             undefined
+                          </span>
+                        </i>
+                      </div>
                     </div>
                   </div>
                 </a>
