@@ -1,16 +1,13 @@
 import React from 'react';
 import { string } from 'prop-types';
 import ProjectHelp from 'components/views/DetailedProjectView/ProjectHelp';
-import AuthWrapper from 'components/AuthWrapper';
 import './EmptyProject.scss';
 
 const EmptyProject = ({ httpUrlToRepo, searchableType }) => (
   <>
     <div id="empty-project">
       <h4 style={{ fontSize: '1.3125rem', color: '#2e2e2e', marginBottom: '0.5rem' }}>The repository for this project is empty</h4>
-      <AuthWrapper norender minRole={30}>
-        <ProjectHelp id={searchableType} />
-      </AuthWrapper>
+      <ProjectHelp id={searchableType} isEmptyRepo />
     </div>
     <div className="empty-wrapper" style={{ marginTop: '3em' }}>
       <h3 style={{

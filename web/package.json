@@ -1,7 +1,7 @@
 {
   "name": "ml-reef-front",
   "homepage": ".",
-  "version": "0.1.9-1637785633082",
+  "version": "0.1.9-1637946718670",
   "private": true,
   "dependencies": {
     "@react-pdf-viewer/core": "^2.7.1",
