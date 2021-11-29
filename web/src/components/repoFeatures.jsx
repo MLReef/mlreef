@@ -201,7 +201,7 @@ export class RepoFeatures extends Component {
             <button
               type="button"
               className="btn px-3 ml-2 mr-auto mt-3"
-              onClick={() => history.push(`/${namespace}/${slug}/-/publishing`)}
+              onClick={() => history.push(`/${namespace}/${slug}/-/publishing/branch/${currentBranch}`)}
               style={{
                 backgroundColor: codeProjectButtonColor,
                 color: 'white',

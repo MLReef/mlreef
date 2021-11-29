@@ -31,12 +31,12 @@ const PublishingViewPublishModel = (props) => {
           <p>
             Selected entry point:
             {' '}
-            <span>{entryPointFile?.name}</span>
+            <span><b>{entryPointFile?.name}</b></span>
           </p>
           <p>
             Selected branch:
             {' '}
-            <span>{selectedBranch}</span>
+            <span><b>{selectedBranch}</b></span>
           </p>
         </div>
       ),
@@ -48,7 +48,7 @@ const PublishingViewPublishModel = (props) => {
         <div>
           Selected environment:
           {' '}
-          <span>{selectedEnvironment}</span>
+          <span><b>{selectedEnvironment}</b></span>
         </div>
       ),
     },
