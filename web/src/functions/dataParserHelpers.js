@@ -176,7 +176,7 @@ export const adaptProjectModel = (project) => ({
   projectType: project.searchableType,
   gitlabName: project.name,
   namespace: project.gitlabNamespace,
-  emptyRepo: project?.gitlab?.emptyRepo,
+  emptyRepo: project?.gitlab?.emptyRepo || project?.gitlab?.defaultBranch === null,
   readmeUrl: project?.gitlab?.readmeUrl,
   avatarUrl: project?.gitlab?.avatarUrl,
   defaultBranch: project?.gitlab?.defaultBranch,
