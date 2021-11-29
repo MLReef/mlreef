@@ -42,7 +42,7 @@ export const forkProjectModal = {
   title: 'You need permissions to access this feature',
   content: (
     <div className="m-auto t-center">
-      <img src="/images/forking.png" alt="forking" className="w-100" />
+      <img src="/images/forking.png" alt="forking" width="70%" />
       <h3>You can fork this project!</h3>
     </div>
   ),
