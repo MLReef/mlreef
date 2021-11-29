@@ -117,7 +117,12 @@ class Navbar extends Component {
                 <img className="logo" src={mlReefIcon01} alt="MLReef brand" />
               </Link>
             </div>
-
+            {!user.auth &&
+            <div className="my-auto">
+              <Link to="/explore" className="btn btn-sm btn-dark mr-2 px-3">
+                <span className="d-none d-lg-flex">Explore</span>
+              </Link>
+            </div>}
             <AuthWrapper norender>
               <div className="ml-3 my-auto d-lg-block" onClick={this.activeHome}>
                 <NavLink
