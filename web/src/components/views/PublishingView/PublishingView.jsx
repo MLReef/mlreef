@@ -219,8 +219,8 @@ export const UnconnectedPublishingView = (props) => {
                                   id, {
                                     slug,
                                     path: entryPointFile?.path,
-                                    requirements_file: !!requirementsFile,
-                                    environment: selectedEnv.id,
+                                    requirements_file: requirementsFile?.file_path,
+                                    environment: selectedEnv?.id,
                                     branch: selectedBranch,
                                     version: publishingActions.getNextVersion(
                                       processors,
