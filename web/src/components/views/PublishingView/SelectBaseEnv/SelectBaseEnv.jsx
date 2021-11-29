@@ -13,6 +13,7 @@ const SelectBaseEnv = ({
   slug,
   environments,
   selectedEnv,
+  selectedBranch,
   dispatch,
   history,
 }) => (
@@ -56,7 +57,7 @@ const SelectBaseEnv = ({
           type="button"
           className="btn btn-dark"
           disabled={!selectedEnv}
-          onClick={() => history.push(`/${namespace}/${slug}/-/publishing/#publish-${operationType.toLowerCase()}`)}
+          onClick={() => history.push(`/${namespace}/${slug}/-/publishing/branch/${selectedBranch}/#publish-${operationType.toLowerCase()}`)}
         >
           Continue
         </button>

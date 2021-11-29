@@ -18,7 +18,7 @@ const SelectEntryPoint = ({
   slug,
 }) => {
   const history = useHistory();
-  const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
+  const isEntryPointFormValid = !!entryPointFile && selectedBranch !== '';
 
   let filesModified = files;
   if (entryPointFile) {
@@ -29,7 +29,7 @@ const SelectEntryPoint = ({
       }));
   }
 
-  const onFileSelected = useCallback((fileId, _, newValue) => {
+  const onFileSelected = (fileId, _, newValue) => {
     if (!newValue) {
       dispatch({ type: 'SET_ENTRY_POINT', payload: null });
       return;
@@ -42,7 +42,7 @@ const SelectEntryPoint = ({
       return;
     }
     dispatch({ type: 'SET_ENTRY_POINT', payload: file });
-  }, [dispatch, files]);
+  };
 
   return (
     <div className="row" style={{ minHeight: '60vh' }}>
@@ -100,7 +100,7 @@ const SelectEntryPoint = ({
             disabled={!isEntryPointFormValid}
             className="btn btn-dark"
             onClick={() => {
-              history.push(`/${namespace}/${slug}/-/publishing/#select-base-environment`);
+              history.push(`/${namespace}/${slug}/-/publishing/branch/${selectedBranch}/#select-base-environment`);
             }}
           >
             Continue

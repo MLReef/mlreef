@@ -525,6 +525,16 @@ export default [
   },
   {
     name: 'publishing',
+    path: '/:namespace/:slug/-/publishing/branch/:branch',
+    component: PublishingView,
+    exact: true,
+    meta: {
+      authRequired: true,
+      role: 40,
+    },
+  },
+  {
+    name: 'publishing',
     path: '/:namespace/:slug/-/publishing',
     component: PublishingView,
     exact: true,
