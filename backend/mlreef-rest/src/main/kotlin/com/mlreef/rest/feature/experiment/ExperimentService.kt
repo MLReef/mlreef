@@ -166,14 +166,15 @@ class ExperimentService(
             ?: throw NotFoundException("Data project $dataProjectId was not found")
 
         val canceledExperiment = cancelExperiment(dataProjectId, experimentId)
-
-        canceledExperiment.pipelineJobInfo?.gitlabId?.let {
-            try {
-                gitlabRestClient.adminDeletePipeline(dataProject.gitlabId, it)
-            } catch (ex: Exception) {
-                log.error("Cannot delete pipeline #${canceledExperiment.pipelineJobInfo?.gitlabId} in gitlab for experiment $experimentId: Exception: $ex")
-            }
-        }
+//        It's required to keep the pipeline now, since we want to have the jobs list for other purposes.
+//        doc: https://gitlab.com/mlreef/mlreef/-/issues/1148
+//        canceledExperiment.pipelineJobInfo?.gitlabId?.let {
+//            try {
+//                gitlabRestClient.adminDeletePipeline(dataProject.gitlabId, it)
+//            } catch (ex: Exception) {
+//                log.error("Cannot delete pipeline #${canceledExperiment.pipelineJobInfo?.gitlabId} in gitlab for experiment $experimentId: Exception: $ex")
+//            }
+//        }
 
         dataProject.experiments.remove(canceledExperiment) //To disable cascade undelete reversal operation
         experimentRepository.deleteById(canceledExperiment.id)
