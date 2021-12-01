@@ -49,7 +49,6 @@ You can start the *frontend* application locally with *npm*, using the `npm star
 ## Project structure
 
 * `web/src/` bootstrapping and configuration files.
-* `web/src/__end2end-tests__/` contains *End To End Tests*.
 * `web/src/__test__/` cotains *Unit Tests*.
 * `web/src/apis/` folder contains calls to resources provided by Gitlab and MLReef APIs.
 * `web/src/components/` is the main folder, it contains all the project pieces of code and their styles abstracted in modules, which can be reused by copying and pasting.
@@ -86,12 +85,10 @@ If a component has its *CSS* or *SCSS* file to customize it, the *JS* and style 
 - `npm test` run *Unit Tests* and save coverage in `web/coverage`
 - `npm run build` build the production bundles in `web/build`
 - `npm run testLocally` similar to `npm test`
-- `npm run end2end` run *End To End Tests*
 - `npm run cypress` start *Cypress Testing Suite* (WIP)
 - `npm run sitemap` create *sitemap* in `web/public/sitemap.xml`
 - `npm run eject` Eject *CRA* (please don't)
 - `npm run storybook` start storybook server in `localhost:6006`
 - `npm run build-storybook` create storybook static files in `web/storybook-static`
 - `npm run analize-bundle` run the analysis of production bundle size in `localhost:8888`
-- `bin/ci-run-end2end-tests` start proxy server and perform end2end testing run
 - `bin/ci-build-frontend` create *Docker image*

@@ -115,6 +115,7 @@ const ProjectsArraySection = (props) => {
                   starCount={proj.starsCount || 0}
                   forkCount={proj.forksCount || 0}
                   experimentsCount={proj.experiments?.length}
+                  searchableType={proj.searchableType}
                   namespace={proj.gitlabNamespace}
                   inputDataTypes={proj.inputDataTypes}
                   users={proj.members}
@@ -122,6 +123,7 @@ const ProjectsArraySection = (props) => {
                   owner={proj.ownerId === ''}
                   published={proj.published}
                   classification={classification2}
+                  coverUrl={proj.coverUrl}
                 />
               ))}
             />

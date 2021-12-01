@@ -10,6 +10,7 @@ const setup = (dataProcessorType) => shallow(
     operationType={dataProcessorType}
     namespace="namespace"
     slug="slug"
+    selectedBranch="selectedBranch"
     environments={environments}
     selectedEnv={environments[0]}
     dispatch={() => {}}
@@ -25,7 +26,7 @@ describe('html elements presence and ', () => {
     const continueBtn = wrapper.find('button');
     expect(continueBtn.props().disabled).toBe(false);
     continueBtn.simulate('click');
-    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/#publish-${dataProcessorType}`);
+    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/branch/selectedBranch/#publish-${dataProcessorType}`);
   });
 
   test('"continue button" routes to operation', () => {
@@ -34,7 +35,7 @@ describe('html elements presence and ', () => {
     const continueBtn = wrapper.find('button');
     expect(continueBtn.props().disabled).toBe(false);
     continueBtn.simulate('click');
-    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/#publish-${dataProcessorType}`);
+    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/branch/selectedBranch/#publish-${dataProcessorType}`);
   });
 
   test('"continue button" routes to visualization', () => {
@@ -43,6 +44,6 @@ describe('html elements presence and ', () => {
     const continueBtn = wrapper.find('button');
     expect(continueBtn.props().disabled).toBe(false);
     continueBtn.simulate('click');
-    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/#publish-${dataProcessorType}`);
+    expect(push).toHaveBeenCalledWith(`/namespace/slug/-/publishing/branch/selectedBranch/#publish-${dataProcessorType}`);
   });
 });

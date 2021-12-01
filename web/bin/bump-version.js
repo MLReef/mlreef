@@ -2,6 +2,20 @@
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+const dotenv = require('dotenv');
+
+const config = dotenv.config({ path: `${__dirname}${path.sep}..${path.sep}.env` });
+
+if (config.error) {
+  console.log(config.error);
+  return;
+}
+
+const ENABLE_BUMP_VERSION = !!config.parsed.ENABLE_BUMP_VERSION;
+
+if (!ENABLE_BUMP_VERSION) return; // early exit
+
+console.log('bump', ENABLE_BUMP_VERSION);
 
 const packageJsonPath = `${__dirname}${path.sep}..${path.sep}package.json`;
 

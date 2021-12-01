@@ -1,7 +1,6 @@
 # This is the centralised config for all jobs that need an npm cache
 # Currently this is
 # - build frontend
-# - end2end tests - node (from REPO_ROOT/.gitlab-ci.yml)
 .npm-cache-config:
   cache:
     key: "mlreef-node-cache"

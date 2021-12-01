@@ -44,7 +44,7 @@ const FileCreation = (props) => {
   const [isLoading, setLoading] = useState(false);
   const disabled = isLoading
     || actions.getIsDisabledButton(action, filename, targetBranch, commitMessage);
-  const decodedPath = decodeURIComponent(path);
+  const decodedPath = decodeURIComponent(path || '');
 
   useEffect(() => {
     if (action === 'edit') {
@@ -86,7 +86,7 @@ const FileCreation = (props) => {
           <div className="d-flex" style={{ alignItems: 'center' }}>
             <i className="far fa-folder mr-2 ml-4" />
             <p className="file-creation-container-options-path ml-2 mr-3">
-              {action === 'edit' ? decodedPath : `${path || ''}/`}
+              {action === 'edit' ? decodedPath : `${decodedPath || ''}/`}
             </p>
             {action === 'new' && (
               <input name="name-input" type="text" onChange={(e) => setFilename(e.target.value)} value={filename} />
@@ -174,7 +174,7 @@ const FileCreation = (props) => {
                 ) : actions.createFileAction(
                   projectId,
                   targetBranch,
-                  path,
+                  decodedPath,
                   filename,
                   commitMessage,
                   code,

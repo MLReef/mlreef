@@ -25,6 +25,7 @@ import EmptyProject from '../../layout/EmptyProject/EmptyProject';
 import ProjectHelp from './ProjectHelp';
 import ProjectLastCommitSect from './LastCommitSect';
 import projActions from './ProjectViewactionsAndFunctions';
+import ACCESS_LEVEL from 'domain/accessLevels';
 
 const isValidBranch = (branch) => branch !== 'null' && branch !== null && branch !== undefined;
 
@@ -135,8 +136,8 @@ const DetailedProjectView = (props) => {
                     searchableType={project.searchableType}
                     history={history}
                   />
-                  <AuthWrapper norender minRole={30}>
-                    <ProjectHelp id={project.searchableType} />
+                  <AuthWrapper norender minRole={ACCESS_LEVEL.DEVELOPER}>
+                    <ProjectHelp id={project.searchableType} isEmptyRepo={false}/>
                   </AuthWrapper>
                   <FilesContainer
                     projectId={gid}

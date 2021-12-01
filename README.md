@@ -3,9 +3,9 @@
 <a href="https://mlreef.com"><img src="https://about.mlreef.com/static/e83d49c6147bb03391fc4e230da3d9a0/MLReef_Logo_POS_H-01.png" width="250px"></a>
 
 
-**The collaboration platform for the entire Machine Learning life cycle**
+**The collaboration platform for Machine Learning**
 
-**MLReef is an open source ML-Ops platform that helps you collaborate, reproduce and share your Machine Learning work**
+**MLReef is an open source ML-Ops platform that helps you collaborate, reproduce and share your Machine Learning work with thousands of other users.**
 
 </div>
 

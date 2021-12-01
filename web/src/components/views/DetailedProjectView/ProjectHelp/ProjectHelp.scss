@@ -111,3 +111,13 @@
     color: var(--info);
   }
 }
+
+.project-help-hidden-helpers {
+  &-links button {
+    margin-right: 1rem;
+  }
+
+  &-actions button {
+    margin-right: 1rem;
+  }
+}

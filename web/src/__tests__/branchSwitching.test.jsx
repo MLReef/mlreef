@@ -1,12 +1,9 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
-import renderer from 'react-test-renderer';
 import MDropdown from 'components/ui/MDropdown';
-import { MemoryRouter } from 'react-router-dom';
 import { RepoFeatures } from '../components/repoFeatures';
 import { projectsArrayMock, branchesMock } from '../testData';
-import { storeFactory } from '../functions/testUtils';
+
 
 const setup = () => shallow(
   <RepoFeatures
@@ -20,7 +17,7 @@ const setup = () => shallow(
   />,
 );
 
-xdescribe('There should render', () => {
+describe('There should render', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();
@@ -31,7 +28,7 @@ xdescribe('There should render', () => {
   });
 });
 
-xdescribe('Dropdown appears on button click', () => {
+describe('Dropdown appears on button click', () => {
   let wrapper;
   beforeEach(() => {
     wrapper = setup();

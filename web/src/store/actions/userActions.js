@@ -23,8 +23,8 @@ export function getWhoAmI(options = {}) {
 
   return (dispatch) => authApi.whoAmI().then((u) => {
     const user = { ...u, access_token: token };
-    console.log('getWhoImi', user);
     dispatch(setLoginInfo(user));
+
     return Promise.resolve(user);
   });
 }

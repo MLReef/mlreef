@@ -5,6 +5,7 @@ import MParagraph from 'components/ui/MParagraph';
 import { PUBLIC } from 'dataTypes';
 import MProjectCardTypes from './MProjectCardTypes';
 import './MProjectCard.scss';
+import { PROJECT_TYPES } from 'domain/project/projectTypes';
 
 const publicIcon = '/images/public-01.svg';
 const lockIcon = '/images/Lock-01.svg';
@@ -25,6 +26,8 @@ const MProjectCard = (props) => {
     owner,
     published,
     classification,
+    coverUrl,
+    searchableType,
   } = props;
 
   const [avatars, setAvatars] = useState([]);
@@ -73,6 +76,9 @@ const MProjectCard = (props) => {
       />
       <div className={`card-container project-card-container ${classification}`}>
         <Link className="project-card-link" to={`/${namespace}/${slug}`}>
+          {coverUrl && (
+            <div className="card-image" style={{ backgroundImage: `url(${coverUrl})` }} />
+          )}
           <p className="card-title">
             {title}
           </p>
@@ -106,11 +112,13 @@ const MProjectCard = (props) => {
                   <span className="label">{` ${forkCount}`}</span>
                 </i>
               </div>
-              <div className="mr-3">
-                <i className="fa fa-flask">
-                  <span className="label">{` ${experimentsCount}`}</span>
-                </i>
-              </div>
+              {searchableType === PROJECT_TYPES.DATA && (
+                <div className="mr-3">
+                  <i className="fa fa-flask">
+                    <span className="label">{` ${experimentsCount}`}</span>
+                  </i>
+                </div>
+              )}
             </div>
           </div>
         </Link>
@@ -146,6 +154,7 @@ MProjectCard.defaultProps = {
   visibility: null,
   owner: false,
   dataProcessor: {},
+  coverUrl: '',
 };
 
 MProjectCard.propTypes = {
@@ -169,6 +178,7 @@ MProjectCard.propTypes = {
   }),
   visibility: PropTypes.string,
   owner: PropTypes.bool,
+  coverUrl: PropTypes.string,
 };
 
 export default MProjectCard;

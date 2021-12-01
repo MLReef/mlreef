@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
@@ -27,7 +27,7 @@ const gitlabPipelinesApi = new GitlabPipelinesApi();
 export const UnconnectedPublishingView = (props) => {
   const {
     match: {
-      params: { namespace, slug },
+      params: { namespace, slug, branch },
     },
     branches,
     history,
@@ -38,6 +38,8 @@ export const UnconnectedPublishingView = (props) => {
   const {
     gid, id, processorType, processors,
   } = selectedProject;
+
+  const finalBranch = useMemo(() => branch || branches[0].name, []);
 
   const [{
     path,
@@ -52,11 +54,11 @@ export const UnconnectedPublishingView = (props) => {
     isPublishing,
     listOfEnvs,
   }, dispatch] = useReducer(reducer, {
-    selectedBranch: branches[0].name,
+    selectedBranch: finalBranch,
     ...initialState,
   });
 
-  const isEntryPointFormValid = entryPointFile && selectedBranch !== '';
+  const isEntryPointFormValid = !!entryPointFile && selectedBranch !== '';
 
   const isProjectAnAlgorithm = processorType === ALGORITHM;
 
@@ -74,9 +76,8 @@ export const UnconnectedPublishingView = (props) => {
       break;
   }
 
-  const isFinalFormValid = isProjectAnAlgorithm
-    ? mlCategory && model
-    : areTermsAccepted && !!requirementsFile;
+  const isFinalFormValid =  
+    areTermsAccepted && !!requirementsFile && (isProjectAnAlgorithm ? !!model && !!mlCategory : true);
 
   useEffect(() => {
     EnvironmentsApi
@@ -104,7 +105,6 @@ export const UnconnectedPublishingView = (props) => {
       'requirements.txt',
       selectedBranch,
     ).then((file) => {
-      console.log(file);
       dispatch({ type: 'SET_REQUIREMENTS_FILE', payload: file });
     }).catch(() => {
       toastr.info("No Requirements.txt file found.", "Create or place it on root level.");
@@ -130,7 +130,7 @@ export const UnconnectedPublishingView = (props) => {
       <MLoadingSpinnerContainer active />
     );
   }
-
+  
   return (
     <div className="publishing-view">
       <Navbar />
@@ -171,6 +171,7 @@ export const UnconnectedPublishingView = (props) => {
                       slug={slug}
                       environments={listOfEnvs}
                       selectedEnv={selectedEnv}
+                      selectedBranch={selectedBranch}
                       dispatch={dispatch}
                       history={history}
                     />
@@ -217,9 +218,9 @@ export const UnconnectedPublishingView = (props) => {
                                 publishingActions.publish(
                                   id, {
                                     slug,
-                                    path: entryPointFile.path,
-                                    requirements_file: !!requirementsFile,
-                                    environment: selectedEnv.id,
+                                    path: entryPointFile?.path,
+                                    requirements_file: requirementsFile?.file_path,
+                                    environment: selectedEnv?.id,
                                     branch: selectedBranch,
                                     version: publishingActions.getNextVersion(
                                       processors,
