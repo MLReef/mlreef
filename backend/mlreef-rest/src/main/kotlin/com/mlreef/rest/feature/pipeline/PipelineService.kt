@@ -123,7 +123,13 @@ class PipelineService(
             )
 
             createRequest.dataOperations.forEach { instanceDto ->
-                val processor = processorsService.findProcessor(instanceDto.id, instanceDto.slug, instanceDto.projectId, instanceDto.branch, instanceDto.version)
+                val processor = processorsService.findProcessor(
+                    instanceDto.id,
+                    instanceDto.slug,
+                    instanceDto.projectId,
+                    instanceDto.branch,
+                    instanceDto.version
+                )
                     ?.takeIf { it.status in listOf(PublishStatus.PUBLISHED, PublishStatus.PUBLISH_FINISHING) }
                     ?: throw NotFoundException("Processor ${instanceDto.id ?: instanceDto.slug ?: instanceDto.projectId?.let { "$it ${instanceDto.branch} ${instanceDto.version}" }} not found")
 
@@ -167,10 +173,16 @@ class PipelineService(
         inputFiles: List<FileLocation>
     ): PipelineConfiguration {
         val account = userResolverService.resolveAccount(userId = accountId)
-            ?: throw PipelineCreateException(ErrorCode.PipelineCreationInvalid, "Cannot create pipeline. User $accountId not found or missing")
+            ?: throw PipelineCreateException(
+                ErrorCode.PipelineCreationInvalid,
+                "Cannot create pipeline. User $accountId not found or missing"
+            )
 
         val dataProject = projectResolverService.resolveDataProject(dataProjectId)
-            ?: throw PipelineCreateException(ErrorCode.PipelineCreationProjectMissing, "DataProject $dataProjectId is missing!")
+            ?: throw PipelineCreateException(
+                ErrorCode.PipelineCreationProjectMissing,
+                "DataProject $dataProjectId is missing!"
+            )
 
         require(!pipelineType.isBlank()) { "pipelineType is missing!" }
 
@@ -206,7 +218,10 @@ class PipelineService(
 
         dataProject.pipelineConfigurations.find { it.slug.equals(finalSlugPrefixed) }
             ?.let {
-                throw PipelineCreateException(ErrorCode.PipelineSlugAlreadyInUse, "Slug $finalSlugPrefixed is already used in DataProject!")
+                throw PipelineCreateException(
+                    ErrorCode.PipelineSlugAlreadyInUse,
+                    "Slug $finalSlugPrefixed is already used in DataProject!"
+                )
             }
 
         val pipelineConfig = PipelineConfiguration(
@@ -247,7 +262,13 @@ class PipelineService(
         )
 
         processorInstancesDtos.forEach { instanceDto ->
-            val processor = processorsService.findProcessor(instanceDto.id, instanceDto.slug, instanceDto.projectId, instanceDto.branch, instanceDto.version)
+            val processor = processorsService.findProcessor(
+                instanceDto.id,
+                instanceDto.slug,
+                instanceDto.projectId,
+                instanceDto.branch,
+                instanceDto.version
+            )
                 ?.takeIf { it.status in listOf(PublishStatus.PUBLISHED, PublishStatus.PUBLISH_FINISHING) }
                 ?: throw NotFoundException("Processor ${instanceDto.id ?: instanceDto.slug ?: instanceDto.projectId?.let { "$it ${instanceDto.branch} ${instanceDto.version}" }} not found")
             val processorInstance = newPipelineConfig.createProcessorInstance(processor)
@@ -285,7 +306,10 @@ class PipelineService(
         value: String,
     ): ParameterInstance {
         val parameter = parametersRepository.findByProcessorAndName(processorInstance.processor, name)
-            ?: throw PipelineCreateException(ErrorCode.ProcessorParameterNotUsable, "Parameter '$name' not found for processor ${processorInstance.processor.name}")
+            ?: throw PipelineCreateException(
+                ErrorCode.ProcessorParameterNotUsable,
+                "Parameter '$name' not found for processor ${processorInstance.processor.name}"
+            )
 
         return processorInstance.createParameterInstances(parameter, value)
     }
@@ -293,13 +317,21 @@ class PipelineService(
     //Prefer using an expression body for functions with the body consisting of a *single* expression, not just for everything and respect clean histories and code readability
     fun createPipelineInstanceFile(author: Account, pipeline: Pipeline, secret: String): String =
         when {
-            pipeline.inputFiles.isEmpty() -> throw PipelineCreateException(ErrorCode.PipelineCreationFilesMissing, "No input files")
-            pipeline.processorInstances.isEmpty() -> throw PipelineCreateException(ErrorCode.PipelineCreationInvalid, "No processors defined for pipeline")
+            pipeline.inputFiles.isEmpty() -> throw PipelineCreateException(
+                ErrorCode.PipelineCreationFilesMissing,
+                "No input files"
+            )
+            pipeline.processorInstances.isEmpty() -> throw PipelineCreateException(
+                ErrorCode.PipelineCreationInvalid,
+                "No processors defined for pipeline"
+            )
             else -> yamlFileGenerator.renderYaml(
                 author = author,
                 epfPipelineSecret = secret,
                 epfPipelineUrl = "${conf.epf.backendUrl}$EPF_CONTROLLER_PATH/pipeline_instance/${pipeline.id}",
                 epfGitlabUrl = conf.epf.gitlabUrl,
+                epfForceGitlabProtocol = conf.epf.gitlabForceProtocol,
+                epfForceGitlabPort = conf.epf.gitlabForcePort,
                 baseImagePath = getExperimentImagePath(),
                 epfImageTag = conf.epf.imageTag,
                 sourceBranch = pipeline.sourceBranch,
@@ -329,7 +361,11 @@ class PipelineService(
             throw PipelineStartException("Cannot create branch $targetBranch for project $projectId, check the source_branch $sourceBranch: ${e.message}")
         }
         try {
-            this.removePipelineFiles(gitlabProjectId = projectId, branch = targetBranch, message = "Clean branch $targetBranch before pipeline start")
+            this.removePipelineFiles(
+                gitlabProjectId = projectId,
+                branch = targetBranch,
+                message = "Clean branch $targetBranch before pipeline start"
+            )
         } catch (ex: Exception) {
             log.error("Cannot delete pipeline file from repo")
         }
@@ -644,12 +680,13 @@ class PipelineService(
 
     fun cancelPipeline(pipeline: Pipeline? = null, pipelineId: UUID? = null): Pipeline {
         val finalPipeline = (
-            pipeline
-                ?: pipelineId?.let { pipelinesRepository.findByIdOrNull(it) }
-                ?: throw NotFoundException("Pipeline $pipelineId was not found")
-            ).takeIf {
+                pipeline
+                    ?: pipelineId?.let { pipelinesRepository.findByIdOrNull(it) }
+                    ?: throw NotFoundException("Pipeline $pipelineId was not found")
+                ).takeIf {
                 it.pipelineConfiguration?.dataProject?.gitlabId != null
-            } ?: throw InconsistentStateOfObject("Pipeline $pipelineId is not attached to configuration or data project")
+            }
+            ?: throw InconsistentStateOfObject("Pipeline $pipelineId is not attached to configuration or data project")
 
         finalPipeline.pipelineJobInfo?.gitlabId?.let {
             try {
@@ -669,7 +706,10 @@ class PipelineService(
 
         canceledPipeline.pipelineJobInfo?.gitlabId?.let {
             try {
-                gitlabRestClient.adminDeletePipeline(canceledPipeline.pipelineConfiguration?.dataProject?.gitlabId!!, it)
+                gitlabRestClient.adminDeletePipeline(
+                    canceledPipeline.pipelineConfiguration?.dataProject?.gitlabId!!,
+                    it
+                )
             } catch (ex: Exception) {
                 log.error("Cannot delete pipeline #${canceledPipeline.pipelineJobInfo?.gitlabId} in gitlab: Exception: $ex")
             }
@@ -687,7 +727,13 @@ class PipelineService(
         pipelineConfig: PipelineConfiguration
     ) {
         processorInstances.forEach { instanceDto ->
-            val processor = processorsService.findProcessor(instanceDto.id, instanceDto.slug, instanceDto.projectId, instanceDto.branch, instanceDto.version)
+            val processor = processorsService.findProcessor(
+                instanceDto.id,
+                instanceDto.slug,
+                instanceDto.projectId,
+                instanceDto.branch,
+                instanceDto.version
+            )
                 ?.takeIf { it.status in listOf(PublishStatus.PUBLISHED, PublishStatus.PUBLISH_FINISHING) }
                 ?: throw NotFoundException("Processor ${instanceDto.id ?: instanceDto.slug ?: instanceDto.projectId?.let { "$it ${instanceDto.branch} ${instanceDto.version}" }} not found")
             val preProcessorInstance = this.createNewProcessorInstance(processor)
@@ -768,7 +814,13 @@ class PipelineService(
         return repositoryService.findFileInRepository(projectGitlabId, fileName, branch = branch) != null
     }
 
-    fun removePipelineFiles(project: Project? = null, gitlabProjectId: Long? = null, branch: String, token: String? = null, message: String? = null): Commit? {
+    fun removePipelineFiles(
+        project: Project? = null,
+        gitlabProjectId: Long? = null,
+        branch: String,
+        token: String? = null,
+        message: String? = null
+    ): Commit? {
         val fileContents = mutableMapOf<String, String>()
 
         val gitlabId = gitlabProjectId
@@ -848,7 +900,8 @@ class PipelineService(
                 if (gitlabPipeline == null && processorIsOutdated) {
                     pipeline.copy(status = PipelineStatus.OTHER)
                 } else if (gitlabPipeline != null) {
-                    val gitlabStatus = PipelineStatus.fromGitlabStatusString(gitlabPipeline.status) ?: PipelineStatus.OTHER
+                    val gitlabStatus =
+                        PipelineStatus.fromGitlabStatusString(gitlabPipeline.status) ?: PipelineStatus.OTHER
 
                     if (processorIsOutdated && (pipeline.status == PipelineStatus.PENDING || pipeline.status == PipelineStatus.OTHER)) {
                         pipeline.copy(status = PipelineStatus.FAILED)

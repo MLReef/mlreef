@@ -3,10 +3,11 @@ package com.mlreef.rest.feature.pipeline
 import com.mlreef.rest.domain.Account
 import com.mlreef.rest.domain.ProcessorInstance
 import com.mlreef.rest.exceptions.DataProcessorIncorrectStructureException
+import com.mlreef.rest.utils.UrlUtils
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 import java.util.stream.Collectors
 
 
@@ -60,6 +61,8 @@ class YamlFileGenerator {
         epfPipelineSecret: String,
         epfPipelineUrl: String,
         epfGitlabUrl: String,
+        epfForceGitlabProtocol: String?,
+        epfForceGitlabPort: Int?,
         baseImagePath: String,
         epfImageTag: String,
         sourceBranch: String,
@@ -87,10 +90,12 @@ class YamlFileGenerator {
             .replace(EPF_IMAGE_TAG, newValue = epfImageTag)
             .replace(BASE_IMAGE_PATH, newValue = baseImagePath)
             .replace(EPF_PIPELINE_SECRET, newValue = epfPipelineSecret)
-            .replace(EPF_GITLAB_HOST, normilizeGitlabHost(epfGitlabUrl)
-                .removePrefix("http://")
-                .removePrefix("https://")
-                .substringBefore("/"))
+            .replace(
+                EPF_GITLAB_HOST, UrlUtils.normalizeUrl(epfGitlabUrl, epfForceGitlabProtocol, epfForceGitlabPort)
+                    .removePrefix("https://")
+                    .removePrefix("http://")
+                    .substringBefore("/")
+            )
             .replace(EPF_PIPELINE_URL,
                 if (epfPipelineUrl.startsWith("http://")
                     || epfPipelineUrl.startsWith("https://")) {
@@ -112,14 +117,6 @@ class YamlFileGenerator {
                     .filter { it.processor.type?.name?.equals(algorithmName, true) == true }.isNotEmpty()).toString()
             )
             .replace(MAX_RETRIES, newValue = retries.toString())
-    }
-
-
-    //FIXME: For the moment the experiment yaml file contains PORT hardcoded in the script.
-    // The best way is to move it from yml generation to the backend
-    private fun normilizeGitlabHost(host: String): String {
-        val hostAndPort = host.split(":")
-        return if (hostAndPort.size > 3) "${hostAndPort[0]}:${hostAndPort[1]}" else host
     }
 
     private fun getInputMountPointsVariableLine(inputPaths: List<String>): String {
