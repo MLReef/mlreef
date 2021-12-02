@@ -84,6 +84,8 @@ class GitlabConfiguration {
 class EpfConfiguration {
     lateinit var imageTag: String
     lateinit var gitlabUrl: String
+    var gitlabForceProtocol: String = "http"
+    var gitlabForcePort: Int = 10080
     lateinit var backendUrl: String
     var epfImagePath: String? = null
     var experimentImagePath: String? = null

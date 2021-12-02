@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.UUID.randomUUID
 
 
@@ -37,6 +37,8 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            epfForceGitlabProtocol = null,
+            epfForceGitlabPort = null,
             baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
@@ -62,6 +64,8 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            epfForceGitlabProtocol = null,
+            epfForceGitlabPort = null,
             baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
@@ -81,6 +85,8 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            epfForceGitlabProtocol = null,
+            epfForceGitlabPort = null,
             baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
@@ -105,6 +111,8 @@ class YamlFileGeneratorTest {
             epfPipelineSecret = "test-pipeline-secret",
             epfPipelineUrl = "test-pipeline-url",
             epfGitlabUrl = "test-gitlab-url",
+            epfForceGitlabProtocol = null,
+            epfForceGitlabPort = null,
             baseImagePath = "latest",
             epfImageTag = "latest",
             sourceBranch = "test-source-branch",
