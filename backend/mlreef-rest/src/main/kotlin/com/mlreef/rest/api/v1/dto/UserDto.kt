@@ -16,7 +16,7 @@ import java.util.*
 data class UserDto(
     override val id: UUID,
     val username: String,
-    val name:String,
+    val name: String,
     val email: String,
     val gitlabId: Long?,
     val userRole: UserRole? = null,
@@ -24,12 +24,13 @@ data class UserDto(
     val hasNewsletters: Boolean? = null,
     val external: Boolean = false,
     val externalFrom: String? = null,
+    val externalUsername: String? = null,
     val avatarUrl: String? = null,
 ) : DataClassWithId
 
 fun Account.toUserDto(avatarUrl: String? = null) = UserDto(
     id = this.id,
-    username = this.externalAccount?.username?.takeIf { it.isNotBlank() } ?: this.username,
+    username = this.username,
     name = this.name,
     email = this.externalAccount?.email?.takeIf { it.isNotBlank() } ?: this.email,
     gitlabId = this.gitlabId,
@@ -38,6 +39,7 @@ fun Account.toUserDto(avatarUrl: String? = null) = UserDto(
     hasNewsletters = this.hasNewsletters,
     external = this.externalAccount != null,
     externalFrom = this.externalAccount?.oauthClient,
+    externalUsername = this.externalAccount?.username?.takeIf { it.isNotBlank() },
     avatarUrl = avatarUrl,
 )
 
