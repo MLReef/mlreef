@@ -67,6 +67,8 @@ EPF_IMAGE_TAG=$VERSION
 EPF_BACKEND_URL=$EPF_BACKEND_URL
 # THe internal connection URL for the EPF runners to connect to the gitlab
 EPF_GITLAB_URL=$EPF_GITLAB_URL
+EPF_GITLAB_FORCE_PORT=$EPF_GITLAB_FORCE_PORT
+EPF_GITLAB_FORCE_PROTOCOL=$EPF_GITLAB_FORCE_PROTOCOL
 
 # This is the docker tag that will be used for starting Experiment pipelines
 EXPERIMENT_IMAGE_TAG=$VERSION
