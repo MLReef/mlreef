@@ -12,8 +12,8 @@ mlreef:
     # and Gitlab via the docker hostname gitlab:10080
     backend-url: ${EPF_BACKEND_URL}
     gitlab-url: ${EPF_GITLAB_URL}
-    gitlab-force-protocol: ${EPF_GITLAB_PROTOCOL:http}
-    gitlab-force-port: ${EPF_GITLAB_PORT:10080}
+    gitlab-force-protocol: ${EPF_GITLAB_FORCE_PROTOCOL:http}
+    gitlab-force-port: ${EPF_GITLAB_FORCE_PORT:10080}
     epf-image-path: ${LOCAL_EPF_IMAGE_PATH:"registry.gitlab.com/mlreef/mlreef/epf:${mlreef.epf.image-tag}"}
     experiment-image-path: ${LOCAL_EXPERIMENT_IMAGE_PATH:"registry.gitlab.com/mlreef/mlreef/experiment:${mlreef.epf.experiment-image-tag}"}
     retries-for-pipeline: 0
