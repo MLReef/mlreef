@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { toastr } from 'react-redux-toastr';
 import useHistory from 'router/useHistory';
-import { getWhoAmI } from 'store/actions/userActions';
+import { getWhoAmI, getUserInfo } from 'store/actions/userActions';
 
 const RegisterRedirectionView = () => {
   const [privateToken, setPrivateToken] = useState(null);
@@ -19,6 +19,7 @@ const RegisterRedirectionView = () => {
     if (token) {
       setPrivateToken(token);
       dispatch(getWhoAmI({ token }));
+      dispatch(getUserInfo());
     } else {
       toastr.warning('Warning: ', 'Login unsuccessful');
     }
