@@ -306,7 +306,8 @@ class AuthApiTest : AbstractRestApiTest() {
 
         val result = this.performPostMultipart(url, multipartFile, null, "jwt-access-token")
             .expectOk()
-            .document("create-user-avatar",
+            .document(
+                "create-user-avatar",
                 responseFields(uploadedFileFields())
             )
             .returns(MlreefFileDto::class.java)
@@ -340,7 +341,8 @@ class AuthApiTest : AbstractRestApiTest() {
 
         val result = this.performPostMultipart(url, multipartFile, null, "jwt-access-token")
             .expectOk()
-            .document("update-user-avatar",
+            .document(
+                "update-user-avatar",
                 responseFields(uploadedFileFields())
             )
             .returns(MlreefFileDto::class.java)
@@ -371,7 +373,7 @@ class AuthApiTest : AbstractRestApiTest() {
 
         this.performDelete(url, "jwt-access-token")
             .expectNoContent()
-            .document("delete-user-avatar",)
+            .document("delete-user-avatar")
 
         userInDb = accountRepository.findByIdOrNull(existingUser.id)!!
 
@@ -410,6 +412,7 @@ class AuthApiTest : AbstractRestApiTest() {
             fieldWithPath("name").optional().type(JsonFieldType.STRING).description("Person name"),
             fieldWithPath("external").optional().type(JsonFieldType.BOOLEAN).description("The mark showing that user comes from social network registration"),
             fieldWithPath("external_from").optional().type(JsonFieldType.STRING).description("Social network name the user registered with"),
+            fieldWithPath("external_username").optional().type(JsonFieldType.STRING).description("Social network user name"),
             fieldWithPath("avatar_url").optional().type(JsonFieldType.STRING).description("User's avatar url for downloading"),
         )
     }
