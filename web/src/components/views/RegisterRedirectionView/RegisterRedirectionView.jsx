@@ -17,6 +17,9 @@ const RegisterRedirectionView = () => {
       .find(cookie => cookie.includes('PRIVATE-TOKEN'))?.split('=')[1];
 
     if (token) {
+      const now = new Date();
+      now.setMonth(now.getMonth() + 1);
+      document.cookie = `private_token=${token}; expires=${now.toUTCString()};`;
       setPrivateToken(token);
       dispatch(loginWithOAuth({ token }))
         .catch(() => {
@@ -30,9 +33,6 @@ const RegisterRedirectionView = () => {
   useEffect(() => {
     if (privateToken && user.auth) {
       toastr.success('Success:', 'Login successfully');
-      const now = new Date();
-      now.setMonth(now.getMonth() + 1);
-      document.cookie = `private_token=${user.access_token}; expires=${now.toUTCString()};`;
 
       const query = window.location.search.replace(/\?(.+)$/, '$1');
 
