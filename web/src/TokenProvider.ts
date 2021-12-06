@@ -4,8 +4,8 @@ export const getCurrentToken = () : string => {
   const { user } = store?.getState();
 
   
-  if (user?.token) { 
-    return `Bearer ${user.access_token}`
+  if (user?.access_token) { 
+    return `Bearer ${user.access_token}`;
   };
 
   const token = document.cookie.split('; ')
