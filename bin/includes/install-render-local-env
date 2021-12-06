@@ -3,9 +3,13 @@
 if [ "$INSTANCE_HOST" == "localhost" ]; then
   EPF_BACKEND_URL=http://backend:8080
   EPF_GITLAB_URL=http://gitlab
+  EPF_GITLAB_FORCE_PORT=10080
+  EPF_GITLAB_FORCE_PROTOCOL=http
 else
   EPF_BACKEND_URL=http://$INSTANCE_HOST
   EPF_GITLAB_URL=http://$INSTANCE_HOST
+  EPF_GITLAB_FORCE_PORT=10080
+  EPF_GITLAB_FORCE_PROTOCOL=http
 fi
 
 # Set image tag to latest for master branch
