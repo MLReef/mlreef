@@ -1,6 +1,7 @@
 import UserApi from 'apis/UserApi';
 import MLAuthApi from 'apis/MLAuthApi';
 import * as types from '../actionTypes';
+import { delay } from 'functions/helpers';
 
 const userApi = new UserApi();
 const authApi = new MLAuthApi();
@@ -24,9 +25,8 @@ export function loginWithOAuth(options = {}) {
   return (dispatch) => authApi.whoAmI().then((u) => {
     const user = { ...u, access_token: token };
     dispatch(setLoginInfo(user));
-
-    return Promise.resolve(user);
   })
+  .then(delay(500))
   .then(() => dispatch(getUserInfo()));
 }
 
