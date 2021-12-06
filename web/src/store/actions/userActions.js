@@ -18,7 +18,7 @@ export function login(formData) {
   });
 }
 
-export function getWhoAmI(options = {}) {
+export function loginWithOAuth(options = {}) {
   const { token } = options;
 
   return (dispatch) => authApi.whoAmI().then((u) => {
@@ -26,7 +26,8 @@ export function getWhoAmI(options = {}) {
     dispatch(setLoginInfo(user));
 
     return Promise.resolve(user);
-  });
+  })
+  .then(() => dispatch(getUserInfo()));
 }
 
 export function logoutSuccessfully() {

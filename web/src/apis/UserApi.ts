@@ -23,12 +23,12 @@ export default class UserApi extends ApiDirector {
       .then(handleResponse)
   }
 
-  async getUserInfo() {
+  getUserInfo() {
     const url = '/api/v4/user';
     const builder = new BLApiRequestCallBuilder(METHODS.GET, this.buildBasicHeaders(validServicesToCall.GITLAB), url);
-    const response = await fetch(builder.build());
 
-    return response.json();
+    return fetch(builder.build())
+    .then(handleResponse)
   }
 
   getUserStatus(gid: number) {
