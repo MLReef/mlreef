@@ -465,6 +465,8 @@ open class ProjectServiceImpl<T : Project>(
 
         val creatorId = if (findNamespace != null) {
             userResolverService.resolveAccount(slug = findNamespace.path)?.id
+                ?: userResolverService.resolveAccount(slug = Slugs.toSlug(findNamespace.path))?.id
+                ?: userResolverService.resolveAccount(userName = findNamespace.path)?.id
                 ?: throw ProjectCreationException(ErrorCode.ProjectNamespaceSubjectNotFound, "Gitlab Namespace ${findNamespace.id} is not connected to persisted Subject")
         } else {
             ownerId
