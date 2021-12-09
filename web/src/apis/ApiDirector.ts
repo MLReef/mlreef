@@ -30,4 +30,11 @@ export default class ApiDirector {
 
     return headers;
   }
+
+  buildHeadersNoContent = (serviceToCall: string) : Map<string, string> => {
+    const headers = this.buildBasicHeaders(serviceToCall);
+    headers.delete('Content-Type');
+
+    return headers;
+  }
 }

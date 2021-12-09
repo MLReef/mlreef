@@ -5,6 +5,7 @@ import BLApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
 import { METHODS, validServicesToCall } from './apiBuilders/requestEnums';
 import { filterBots } from './apiHelpers';
 import BodyLessApiRequestCallBuilder from './apiBuilders/BLApiRequestCallBuilder';
+import FormReqBuilder from './apiBuilders/FormReqBuilder';
 
 export default class ProjectGeneralInfoApi extends ApiDirector {
   constructor() {
@@ -33,7 +34,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       // target_namespace_gitlab_id: targetNamespaceGitlabId,
       target_name: targetName,
       // target_path: targetPath,
-    }
+    };
     const apiReqBuilder = new ApiRequestCallBuilder(
       METHODS.POST,
       this.buildBasicHeaders(validServicesToCall.BACKEND),
@@ -50,7 +51,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(
       METHODS.GET,
       this.buildBasicHeaders(validServicesToCall.GITLAB),
-      url
+      url,
     );
 
     return fetch(builder.build())
@@ -79,7 +80,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     branchId: string,
     versionId: string,
   ) {
-    const url = `/api/v1/code-projects/${id}/publish/${branchId}/${versionId}`
+    const url = `/api/v1/code-projects/${id}/publish/${branchId}/${versionId}`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
@@ -172,7 +173,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
     const builder = new BLApiRequestCallBuilder(METHODS.GET, headers, url);
 
     return fetch(builder.build())
-      .then(handleResponse)
+      .then(handleResponse);
   }
 
   star(projectId: string, isProjectStarred: boolean) {
@@ -222,7 +223,6 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
-
   getProjectPublishStatus(projectId: string) {
     const url = `/api/v1/code-projects/${projectId}/publish`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
@@ -265,46 +265,42 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
       .then(handleResponse);
   }
 
-  // TODO: this code can be moved to a new builder
   createCover(projectId: string, file: File) {
-    const baseUrl = `/api/v1/projects/${projectId}/cover/create`;
-    const body = new FormData();
-    body.append('file', file);
-
-    const preheaders = this.buildBasicHeaders(validServicesToCall.BACKEND);
-    const headers = new Headers();
-
-    preheaders.forEach((v, k) => { headers.set(k, v); });
-    headers.delete('Content-Type');
-
-    return fetch(baseUrl, { headers, body, method: METHODS.POST })
+    const builder = new FormReqBuilder();
+    return fetch(
+      builder
+        .withUrl(`/api/v1/projects/${projectId}/cover/create`)
+        .withHeaders(this.buildHeadersNoContent(validServicesToCall.BACKEND))
+        .withFormDataParam('file', file)
+        .build(),
+    )
       .then(handleResponse);
   }
 
   updateCover(projectId: string, file: File) {
-    const baseUrl = `/api/v1/projects/${projectId}/cover/update`;
-    const body = new FormData();
-    body.append('file', file);
+    const builder = new FormReqBuilder();
 
-    const preheaders = this.buildBasicHeaders(validServicesToCall.BACKEND);
-    const headers = new Headers();
-
-    preheaders.forEach((v, k) => { headers.set(k, v); });
-    headers.delete('Content-Type');
-
-    return fetch(baseUrl, { headers, body, method: METHODS.POST })
+    return fetch(
+      builder
+        .withUrl(`/api/v1/projects/${projectId}/cover/update`)
+        .withHeaders(this.buildHeadersNoContent(validServicesToCall.BACKEND))
+        .withMethod(METHODS.PUT)
+        .withFormDataParam('file', file)
+        .build(),
+    )
       .then(handleResponse);
   }
 
   deleteCover(projectId: string) {
-    const baseUrl = `/api/v1/projects/${projectId}/cover/delete`;
-    const preheaders = this.buildBasicHeaders(validServicesToCall.BACKEND);
-    const headers = new Headers();
+    const builder = new FormReqBuilder();
 
-    preheaders.forEach((v, k) => { headers.set(k, v); });
-    headers.delete('Content-Type');
-
-    return fetch(baseUrl, { headers, method: METHODS.DELETE })
+    return fetch(
+      builder
+        .withUrl(`/api/v1/projects/${projectId}/cover/delete`)
+        .withHeaders(this.buildHeadersNoContent(validServicesToCall.BACKEND))
+        .withMethod(METHODS.DELETE)
+        .build(),
+    )
       .then(handleResponse);
   }
 }
