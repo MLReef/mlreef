@@ -1,6 +1,5 @@
 import Builder from "./Builder";
 import BasicImplFunctions from "./BasicImplFunctions";
-import { string } from "prop-types";
 
 export default class ApiRequestCallBuilder extends BasicImplFunctions implements Builder {
   method: string;
