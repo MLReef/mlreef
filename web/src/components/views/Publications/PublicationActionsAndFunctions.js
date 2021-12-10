@@ -15,9 +15,8 @@ const mergeWithPromise = (gid, pubs = []) => pubs
   .filter((p) => p.gitlabPipelineId)
   .map(async (p) => ({
     ...p,
-    pipeline: await gitlabPipelinesApi.getPipesById(gid, p.gitlabPipelineId)
+    pipeline: await gitlabPipelinesApi.getPipesById(gid, p.gitlabPipelineId),
   }));
-
 
 const getPiblicationsList = (projectId, gid) => projectApi.getPublications(projectId)
   .then((pub) => pub.content)
@@ -25,9 +24,9 @@ const getPiblicationsList = (projectId, gid) => projectApi.getPublications(proje
   .then(async (publications) => {
     const resolvedArray = await Promise.all(mergeWithPromise(gid, publications));
     return plainToClassFromExist(
-    Publication, resolvedArray, { excludeExtraneousValues: true }
-  )});
-
+      Publication, resolvedArray, { excludeExtraneousValues: true },
+    );
+  });
 
 const sortPipelines = (pipes) => [
   {

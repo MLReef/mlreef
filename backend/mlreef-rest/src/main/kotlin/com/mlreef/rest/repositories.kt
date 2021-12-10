@@ -308,6 +308,7 @@ interface ProcessorsRepository : KtCrudRepository<Processor, UUID> {
 
     fun getByCodeProject(codeProject: CodeProject, pageable: Pageable): Page<Processor>
     fun getByCodeProject(codeProject: CodeProject): List<Processor>
+
     fun getByCodeProjectAndSlug(codeProject: CodeProject, slug: String): Processor?
 
     fun getByCodeProjectAndBranch(codeProject: CodeProject, branch: String, pageable: Pageable): Page<Processor>

@@ -5,7 +5,6 @@ import com.mlreef.rest.BaseEnvironmentsRepository
 import com.mlreef.rest.CodeProjectRepository
 import com.mlreef.rest.EPF_CONTROLLER_PATH
 import com.mlreef.rest.ParametersRepository
-import com.mlreef.rest.PersonRepository
 import com.mlreef.rest.domain.BaseEnvironments
 import com.mlreef.rest.domain.CodeProject
 import com.mlreef.rest.domain.PipelineStatus
@@ -63,6 +62,7 @@ import com.mlreef.rest.utils.Slugs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.expression.ExpressionParser
@@ -162,11 +162,18 @@ class PublishingService(
             ?: throw NotFoundException("Processor $processorId not found")
     }
 
-    fun getPublishingInfo(projectId: UUID, branch: String? = null, version: String? = null, pageable: Pageable? = null): Iterable<Processor> {
-        val project = projectResolverService.resolveCodeProject(projectId = projectId)
-            ?: throw NotFoundException(ErrorCode.NotFound, "Project $projectId not found")
-
-        return processorsService.getProcessorsForProjectAndBranchOrVersion(projectId, branch, version, pageable)
+    fun getPublishingInfo(
+        projectId: UUID,
+        branch: String? = null,
+        version: String? = null,
+        pageable: Pageable? = null,
+        sort: String? = null
+    ): Iterable<Processor> {
+        val result = processorsService.getProcessorsForProjectAndBranchOrVersion(projectId, branch, version, pageable)
+        if (sort === null || sort === "ASC") return result
+        return PageImpl(result.sortedByDescending {
+            it.publishedAt
+        })
     }
 
     // https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-images-using-gitlab-cicd

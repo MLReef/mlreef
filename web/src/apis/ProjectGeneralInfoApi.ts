@@ -213,7 +213,7 @@ export default class ProjectGeneralInfoApi extends ApiDirector {
   getPublications(
     projectId: string,
   ) {
-    const baseUrl = `/api/v1/code-projects/${projectId}/publish`;
+    const baseUrl = `/api/v1/code-projects/${projectId}/publish?sort=DESC`;
     const headers = this.buildBasicHeaders(validServicesToCall.BACKEND);
     const builder = new BodyLessApiRequestCallBuilder(
       METHODS.GET, headers, baseUrl,
