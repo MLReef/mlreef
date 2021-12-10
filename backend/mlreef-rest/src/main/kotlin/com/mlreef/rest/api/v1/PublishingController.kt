@@ -114,6 +114,7 @@ internal class CodeProjectPublishingController(
         @PathVariable id: UUID,
         @RequestParam(required = false) branch: String?,
         @RequestParam(required = false) version: String?,
+        @RequestParam(required = false) sort: String?,
         @PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable,
         token: TokenDetails
     ): Page<CodeProjectPublishingDto> {
@@ -121,7 +122,8 @@ internal class CodeProjectPublishingController(
             id,
             branch,
             version,
-            pageable
+            pageable,
+            sort
         ) as Page
 
         return result.map { it.toPublishingPipelineDto() }
