@@ -10,6 +10,7 @@ import MImageUpload from 'components/ui/MImageUpload';
 import { validateProjectName } from 'functions/validations';
 import SettingsViewGeneralAdvanced from './SettingsViewGeneralAdvanced';
 import './SettingsViewGeneral.scss';
+import MWrapper from 'components/ui/MWrapper';
 
 const projectApi = new ProjectGeneralInfoApi();
 
@@ -97,17 +98,19 @@ const SettingsViewGeneral = (props) => {
                 readOnly
               />
             </div>
-            <div className="row ml-0 mr-0 mb-3">
-              <div className="col-md-9 pb-2">
-                <MInput
-                  id="tag"
-                  className="mt-2 pt-2 pb-2 pr-3 pl-3"
-                  label="Tags (optional)"
-                  value=""
-                />
-                <span className="mt-2 pt-2 pb-2 pr-3 pl-3 t-secondary">Separate tags with commas</span>
+            <MWrapper norender>
+              <div className="row ml-0 mr-0 mb-3">
+                <div className="col-md-9 pb-2">
+                  <MInput
+                    id="tag"
+                    className="mt-2 pt-2 pb-2 pr-3 pl-3"
+                    label="Tags (optional)"
+                    value=""
+                  />
+                  <span className="mt-2 pt-2 pb-2 pr-3 pl-3 t-secondary">Separate tags with commas</span>
+                </div>
               </div>
-            </div>
+            </MWrapper>
             <div className="row ml-0 mr-0 mb-3">
               <div className="mt-2 pl-3 col-md-9">
                 <label htmlFor="proj-description">
