@@ -1,7 +1,7 @@
 {
   "name": "ml-reef-front",
   "homepage": ".",
-  "version": "0.1.9-1639172801810",
+  "version": "0.1.9-1639666630059",
   "private": true,
   "dependencies": {
     "@react-pdf-viewer/core": "^2.7.1",
@@ -14,18 +14,14 @@
     "babel-preset-env": "^1.7.0",
     "base64-arraybuffer": "^0.2.0",
     "browserslist": "^4.8.7",
-    "chart.js": "^2.9.3",
     "check-prop-types": "^1.1.2",
     "class-transformer": "^0.2.3",
     "classnames": "^2.2.6",
     "core-js": "^3.6.4",
     "dayjs": "^1.10.4",
-    "dompurify": "^2.0.8",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
     "file-saver": "^2.0.2",
     "formik": "^2.1.4",
-    "history": "^4.10.1",
     "http-proxy-middleware": "^0.20.0",
     "js-base64": "^2.5.2",
     "monaco-editor": "^0.20.0",
@@ -34,7 +30,6 @@
     "plotly.js": "^1.57.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
-    "react-chartjs-2": "^2.8.0",
     "react-dom": "^16.12.0",
     "react-gtm-module": "^2.0.11",
     "react-helmet": "^6.1.0",
@@ -85,7 +80,6 @@
     "redux-immutable-state-invariant": "2.1.0",
     "ts-node": "^9.0.0",
     "typescript": "^3.7.5",
-    "wait-for-expect": "^3.0.2",
     "webpack-bundle-analyzer": "^4.4.0"
   },
   "scripts": {
