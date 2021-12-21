@@ -6,17 +6,15 @@ import { generatePromiseResponse, sleep } from 'functions/testUtils';
 const toggleIsModalVisible = jest.fn();
 
 const setup = (isModalVisible = true) => {
-  jest.spyOn(global, 'fetch').mockImplementation(() => {
-    return generatePromiseResponse(200, true, { message: 'works' }, 10);
-  });
+  jest.spyOn(global, 'fetch').mockImplementation(() => generatePromiseResponse(200, true, { message: 'works' }, 10));
   return mount(
     <DeleteBranchModal
       isModalVisible={isModalVisible}
       toggleIsModalVisible={toggleIsModalVisible}
       projectId={2378123}
       branchName="master"
-    />
-  )
+    />,
+  );
 };
 
 describe('test rendering and functions', () => {
@@ -36,12 +34,12 @@ describe('test rendering and functions', () => {
 
   test('assert that cancel button closes the modal', () => {
     wrapper.find('button').at(0).simulate('click');
-    expect(toggleIsModalVisible).toHaveBeenCalledWith('', false);
+    expect(toggleIsModalVisible).toHaveBeenCalled();
   });
 
   test('assert that close button closes the modal', () => {
     wrapper.find('button').at(1).simulate('click');
-    expect(toggleIsModalVisible).toHaveBeenCalledWith('', false);
+    expect(toggleIsModalVisible).toHaveBeenCalled();
   });
 
   afterEach(() => {

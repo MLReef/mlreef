@@ -11,6 +11,12 @@ export function setBranchesSuccessfully(branches) {
   return { type: types.SET_LIST_OF_BRANCHES, branches };
 }
 
+export const setBranchesList = (branches) => async (dispatch) => {
+  dispatch(setBranchesSuccessfully(
+    branches,
+  ));
+};
+
 /**
  * @param projectId: id of the project which the branches belong to
  *
@@ -18,7 +24,7 @@ export function setBranchesSuccessfully(branches) {
 
 export const getBranchesList = (projectId) => async (dispatch) => {
   const branches = await (brApi).getBranches(projectId);
-  dispatch(setBranchesSuccessfully(
+  return dispatch(setBranchesSuccessfully(
     branches,
   ));
 };

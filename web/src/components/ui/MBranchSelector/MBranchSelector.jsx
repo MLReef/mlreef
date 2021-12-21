@@ -55,7 +55,7 @@ const MBranchSelector = (props) => {
       className={cx('m-branch-selector', className)}
       label={activeBranch || 'Select branch'}
       component={(
-        <div className="select-branch">
+        <div className="select-branch" style={{ maxHeight: '400px', overflow: 'scroll' }}>
           <div className="switch-header">
             <p>Switch Branches</p>
           </div>

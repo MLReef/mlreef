@@ -8,6 +8,7 @@ const brApi = new BranchesApi();
 const DeleteBranchModal = ({
   isModalVisible,
   toggleIsModalVisible,
+  updateBranches,
   projectId,
   branchName,
 }) => {
@@ -22,12 +23,15 @@ const DeleteBranchModal = ({
     )
       .then((res) => {
         toastr.success('Success', res.message);
-        toggleIsModalVisible('', true);
+        updateBranches(branchName, true);
       })
       .catch(() => {
         toastr.error('Error', 'Something failed, try it later');
       })
-      .finally(() => setIsDeleteButtonDisabled(false));
+      .finally(() => {
+        toggleIsModalVisible();
+        setIsDeleteButtonDisabled(false);
+      });
   }
 
   return (
@@ -39,7 +43,7 @@ const DeleteBranchModal = ({
             type="button"
             label="close"
             className="btn btn-hidden fa fa-times"
-            onClick={() => toggleIsModalVisible('', false)}
+            onClick={() => toggleIsModalVisible()}
           />
         </div>
         <div className="modal-header">
@@ -56,7 +60,7 @@ const DeleteBranchModal = ({
           <button
             type="button"
             className="btn btn-outline-danger my-3 ml-3 mr-auto"
-            onClick={() => toggleIsModalVisible('', false)}
+            onClick={() => toggleIsModalVisible()}
           >
             Cancel
           </button>
@@ -77,6 +81,7 @@ const DeleteBranchModal = ({
 DeleteBranchModal.propTypes = {
   isModalVisible: bool.isRequired,
   toggleIsModalVisible: func.isRequired,
+  updateBranches: func.isRequired,
   projectId: number.isRequired,
   branchName: string.isRequired,
 };
