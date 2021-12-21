@@ -15,11 +15,11 @@ import * as projectActions from 'store/actions/projectInfoActions';
 import MLoadingSpinnerContainer from 'components/ui/MLoadingSpinner/MLoadingSpinnerContainer';
 import Navbar from 'components/navbar/navbar';
 import ProjectContainer from 'components/projectContainer';
-import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
 import './branchesView.css';
-import DeleteBranchModal from './deleteBranchModal';
 import BranchesApi from 'apis/BranchesApi.ts';
 import ACCESS_LEVEL from 'domain/accessLevels';
+import { getTimeCreatedAgo } from '../../../functions/dataParserHelpers';
+import DeleteBranchModal from './deleteBranchModal';
 
 const branchesApi = new BranchesApi();
 
@@ -36,8 +36,6 @@ class BranchesView extends Component {
       currentBranches: branches,
       nameToFilterBy: '',
     };
-    this.toggleModalAndUpdateList = this.toggleModalAndUpdateList.bind(this);
-    this.getBranchesAdditionaInformation = this.getBranchesAdditionaInformation.bind(this);
   }
 
   componentDidMount() {
@@ -47,22 +45,21 @@ class BranchesView extends Component {
       match: {
         params: {
           namespace,
-          slug
-        }
-      }
+          slug,
+        },
+      },
     } = this.props;
     if (Object.keys(selectedProject).length > 0) {
       this.getBranchesAdditionaInformation();
     } else {
       actions.getProjectDetailsBySlug(namespace, slug)
-        .then(() => this.getBranchesAdditionaInformation());
-    }
-  }
+        .then(({ project }) => {
+          actions.setBranchesList([]);
 
-  componentDidUpdate(prevProps) {
-    const { branches } = this.props;
-    if (prevProps.branches.length !== branches.length) {
-      this.getBranchesAdditionaInformation();
+          return project;
+        })
+        .then((proj) => actions.getBranchesList(proj?.gid))
+        .then(() => this.getBranchesAdditionaInformation());
     }
   }
 
@@ -70,13 +67,12 @@ class BranchesView extends Component {
     this.setState = (state) => (state);
   }
 
-  getBranchesAdditionaInformation() {
+  getBranchesAdditionaInformation = async () => {
     const {
       branches,
       selectedProject: { gid, defaultBranch },
     } = this.props;
-    const currentBranchesUpdated = branches;
-    branches.forEach(async (branch, index) => {
+    const currentBranches = await Promise.all(branches.map(async (branch) => {
       if (!branch?.default) {
         try {
           const behind = await branchesApi.compare(
@@ -85,35 +81,43 @@ class BranchesView extends Component {
           const ahead = await branchesApi.compare(
             gid, defaultBranch, branch?.name,
           );
-          currentBranchesUpdated[index] = {
+          return {
             ...branch,
             ahead: ahead?.commits?.length || 0,
             behind: behind?.commits?.length || 0,
           };
         } catch (error) {
           toastr.error('Error', error?.message || 'Something went wrong requesting commits');
+          return branch;
         }
       }
-      this.setState({
-        currentBranches: currentBranchesUpdated,
-      });
+
+      return branch;
+    }));
+
+    this.setState({
+      currentBranches,
     });
   }
 
-  getBranches() {
+  getBranches = () => {
     const { actions, selectedProject: { gid } } = this.props;
     actions.getBranchesList(gid);
   }
 
-  toggleModalAndUpdateList = (branchName, isNeededUpdateBranchesAgain) => {
+  updateBranches = (deletedbranchName, isNeededUpdateBranchesAgain) => {
     if (isNeededUpdateBranchesAgain) this.getBranches();
     this.setState(
       (prevState) => ({
-        branchName,
-        isModalVisible: !prevState.isModalVisible,
+        currentBranches: prevState.currentBranches?.filter((br) => br?.name !== deletedbranchName),
+        branchName: '',
       }),
     );
   }
+
+  toggleIsModalVisible = () => this.setState((prevState) => ({
+    isModalVisible: !prevState.isModalVisible,
+  }));
 
   render() {
     const {
@@ -154,7 +158,8 @@ class BranchesView extends Component {
     }=${encodeURIComponent(branch.name)}`;
 
     if (nameToFilterBy !== '') {
-      filteredBranches = currentBranches.filter((branch) => branch.name.includes(nameToFilterBy));
+      filteredBranches = currentBranches
+        .filter((branch) => branch.name.includes(nameToFilterBy));
     }
 
     if (Object.keys(selectedProject).length === 0) {
@@ -167,7 +172,8 @@ class BranchesView extends Component {
         {urlToRedirect.length > 0 && <Redirect to={urlToRedirect} />}
         <DeleteBranchModal
           isModalVisible={isModalVisible}
-          toggleIsModalVisible={this.toggleModalAndUpdateList}
+          toggleIsModalVisible={this.toggleIsModalVisible}
+          updateBranches={this.updateBranches}
           projectId={selectedProject.gid}
           branchName={branchName}
         />
@@ -202,38 +208,45 @@ class BranchesView extends Component {
           </div>
           <div id="branches-container">
             <p id="title">Active branches</p>
-            {filteredBranches.map((branch) => (
-              <div key={`key-for-${branch.name}`} className="branch-row">
-                <div className="info">
-                  <div style={{ display: 'flex' }}>
-                    <Link to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(branch.name)}`}>
-                      <p className="branch-title t-dark">{branch.name}</p>
-                    </Link>
-                    {branch.protected && (
+            {filteredBranches
+              .sort(
+                (a, b) => new Date(b?.commitInfo?.createdAt) - new Date(a?.commitInfo?.createdAt),
+              )
+              .map((branch) => (
+                <div key={`key-for-${branch.name}`} className="branch-row">
+                  <div className="info">
+                    <div style={{ display: 'flex' }}>
+                      <Link to={`/${namespace}/${slug}/-/tree/${encodeURIComponent(branch.name)}`}>
+                        <p className="branch-title t-dark">{branch.name}</p>
+                      </Link>
+                      {branch.protected && (
                       <>
                         <p className="additional-branch-info t-info">default</p>
                         <p className="additional-branch-info t-danger">protected</p>
                       </>
-                    )}
+                      )}
+                    </div>
+                    <div className="additional-data">
+                      <p className="commit-code">
+                        <Link
+                          className="t-info"
+                          to={`/${namespace}/${slug}/-/commits/${branch.name}/-/${branch.commitInfo.id}`}
+                        >
+                          {branch.commitInfo.id.slice(
+                            commitShortIdLowerLimit,
+                            commitShortIdUpperLimit,
+                          )}
+                        </Link>
+                      </p>
+                      <p>-</p>
+                      <p className="commit-mss t-dark">{branch.commitInfo.message}</p>
+                      <p>-</p>
+                      <p className="time-ago t-secondary">
+                        {getTimeCreatedAgo(branch.commitInfo.createdAt, today)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="additional-data">
-                    <p className="commit-code">
-                      <Link
-                        className="t-info"
-                        to={`/${namespace}/${slug}/-/commits/${branch.name}/-/${branch.commitInfo.id}`}
-                      >
-                        {branch.commitInfo.id.slice(commitShortIdLowerLimit, commitShortIdUpperLimit)}
-                      </Link>
-                    </p>
-                    <p>-</p>
-                    <p className="commit-mss t-dark">{branch.commitInfo.message}</p>
-                    <p>-</p>
-                    <p className="time-ago t-secondary">
-                      {getTimeCreatedAgo(branch.commitInfo.createdAt, today)}
-                    </p>
-                  </div>
-                </div>
-                {!branch.protected && (
+                  {!branch.protected && (
                   <div className="buttons">
                     {branch.behind >= 0 || branch.ahead >= 0 ? (
                       <p className="mr-2">
@@ -253,13 +266,16 @@ class BranchesView extends Component {
                         type="button"
                         label="delete"
                         className="btn btn-danger btn-icon fa fa-times my-auto"
-                        onClick={() => this.toggleModalAndUpdateList(branch.name, false)}
+                        onClick={() => this.setState((prevState) => ({
+                          isModalVisible: !prevState.isModalVisible,
+                          branchName: branch.name,
+                        }))}
                       />
                     </AuthWrapper>
                   </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ))}
           </div>
         </div>
       </>
