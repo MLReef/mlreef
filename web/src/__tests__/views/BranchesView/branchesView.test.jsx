@@ -31,8 +31,8 @@ describe('test the frontend features', () => {
     wrapper = setup();
   });
   test('assert that branches list has correct name', () => {
-    wrapper.find('.branch-title').forEach((branchTitle, index) => {
-      expect(branchTitle.text().includes(branchesMock[index].name)).toBe(true);
+    wrapper.find('.branch-title').forEach((branchTitle) => {
+      expect(branchesMock.some((br) => br?.name === branchTitle.text())).toBe(true);
     });
   });
   test('assert that default branch does not render buttons div', () => {
