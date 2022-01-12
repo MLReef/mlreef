@@ -6,6 +6,8 @@
 **The collaboration platform for Machine Learning**
 
 **MLReef is an open source ML-Ops platform that helps you collaborate, reproduce and share your Machine Learning work with thousands of other users.**
+   
+ **IMPORTANT: We are no longer supporting and updating this repository. We are still actively working on this project but on our main repo at GitLab**. 
 
 </div>
 
