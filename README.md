@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://mlreef.com"><img src="https://about.mlreef.com/static/e83d49c6147bb03391fc4e230da3d9a0/MLReef_Logo_POS_H-01.png" width="250px"></a>
+<a href="https://mlreef.com"><img src="https://www.mlreef.com/static/e83d49c6147bb03391fc4e230da3d9a0/MLReef_Logo_POS_H-01.png" width="250px"></a>
 
 
 **The collaboration platform for Machine Learning**
@@ -29,11 +29,11 @@ MLReef is a ML/DL development platform containing four main sections:
 
 ---
 
-To find out more about how MLReef can streamline your Machine Learning Development Lifecycle visit [our homepage](https://about.mlreef.com)
+To find out more about how MLReef can streamline your Machine Learning Development Lifecycle visit [our homepage](https://www.mlreef.com)
 
 ## Data Management
 
-<a href="https://mlreef.com"><img src="Dashboard_MLReef.gif" width="75%"></a>
+<a href="https://www.mlreef.com"><img src="Dashboard_MLReef.gif" width="75%"></a>
 
 * Host your data using git / git LFS repositories.
     * Work concurrently on data 
@@ -44,26 +44,32 @@ To find out more about how MLReef can streamline your Machine Learning Developme
 
 ## Publishing Code
 
-**Adding only parameter annotations to your code...**
+**Adding your params via argparse...**
 
 ```python
-# example of parameter annotation for a image crop function
- @data_processor(
-        name="Resnet50",
-        author="MLReef",
-        command="resnet50",
-        type="ALGORITHM",
-        description="CNN Model resnet50",
-        visibility="PUBLIC",
-        input_type="IMAGE",
-        output_type="MODEL"
-    )
-    @parameter(name='input-path', type='str', required=True, defaultValue='train', description="input path")
-    @parameter(name='output-path', type='str', required=True, defaultValue='output', description="output path")
-    @parameter(name='height', type='int', required=True, defaultValue=224, description="height of cropped images in px")
-    @parameter(name='width', type='int', required=True, defaultValue=224, description="width of cropped images in px")
-    def init_params():
-        pass
+# Example params for a ResNet50 script
+def process_arguments(args):
+    parser = argparse.ArgumentParser(description='ResNet50')
+    parser.add_argument('--input-path', action='store', help='path to directory of images')
+    parser.add_argument('--output-path', action='store', default='.', help='path to output metrics')
+    parser.add_argument('--height', action='store', default=224, help='height of images (int)')
+    parser.add_argument('--width', action='store', default=224,help='width of images (int)')
+    parser.add_argument('--channels', action='store', default=3, help='channels of images: 1 = grayscale, 3 = RGB ,'
+                                                                      '4=RGBA (int)')
+    parser.add_argument('--use-pretrained', action='store', default=True, help='use pretrained ResNet50 weights (bool)')
+    parser.add_argument('--epochs', action='store',default=5, help='number of epochs for training')
+    parser.add_argument('--batch-size', action='store', default=32, help='batch size fed to the neural network (int)')
+    parser.add_argument('--validation-split', action='store', default=.25, help='fraction of images to be used for '
+                                                                                'validation (float)')
+    parser.add_argument('--class-mode', action='store', default='binary', help='"categorical", "binary", "sparse",'
+                                                                                    ' "input", or None')
+    parser.add_argument('--learning-rate', action='store', default=0.0001,
+                        help='learning rate of Adam Optimizer (float)'
+                             '')
+    parser.add_argument('--loss', action='store', default='sparse_categorical_crossentropy', help='loss function used to'
+                                                                                           ' compile model')
+    params = vars(parser.parse_args(args))
+    return params
 ```
 **...and publishing your scripts gets you the following:**
 
@@ -122,7 +128,7 @@ We designed MLReef on best data science practices combined with the knowleged ga
 * Automate processes and create pipelines to collect your experimentation logs, outputs, and data
 * Make you ML life cycle transparent by cataloging it all on the MLReef platform
 
-<a href="https://mlreef.com"><img src="./web/public/images/WhyMLReef.png" width="100%"></a>
+<a href="https://www.mlreef.com"><img src="./web/public/images/WhyMLReef.png" width="100%"></a>
 
 
 Getting Started as a Developer
